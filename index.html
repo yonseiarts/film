@@ -1,95 +1,32 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>관리자 대여 승인 페이지</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>장비 대여 목록</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-neutral-800 font-sans">
-  <header class="w-full border-b border-gray-200 p-6 text-center bg-white">
-    <h1 class="text-2xl font-semibold">📋 대여 신청 승인 관리</h1>
-    <p class="text-sm text-gray-500 mt-2">학생들이 신청한 장비 대여 내역을 확인하고 승인하세요.</p>
+<body class="bg-white text-gray-900 font-sans">
+  <header class="text-center py-10 border-b border-gray-200">
+    <h1 class="text-3xl font-semibold">연세예술원 장비 대여</h1>
+    <p class="text-gray-500 mt-2">대여할 장비를 선택하세요.</p>
   </header>
-
-  <main class="max-w-6xl mx-auto px-4 py-10">
-    <div class="overflow-x-auto">
-      <table class="min-w-full bg-white border border-gray-200 rounded-lg text-sm">
-        <thead>
-          <tr class="bg-gray-100 text-left">
-            <th class="px-4 py-2">장비</th>
-            <th class="px-4 py-2">이름</th>
-            <th class="px-4 py-2">학번</th>
-            <th class="px-4 py-2">대여 기간</th>
-            <th class="px-4 py-2">상태</th>
-            <th class="px-4 py-2 text-center">조치</th>
-          </tr>
-        </thead>
-        <tbody id="requestList">
-          <!-- 여기에 신청 목록이 삽입됩니다 -->
-        </tbody>
-      </table>
-    </div>
+  <main class="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <a href="detail.html?item=camera" class="border rounded-xl overflow-hidden hover:shadow transition cursor-pointer">
+      <img src="https://via.placeholder.com/400x250" class="w-full" />
+      <div class="p-4">
+        <h2 class="text-lg font-semibold">Blackmagic Camera</h2>
+        <p class="text-sm text-gray-500">시네마 카메라</p>
+      </div>
+    </a>
+    <a href="detail.html?item=tripod" class="border rounded-xl overflow-hidden hover:shadow transition cursor-pointer">
+      <img src="https://via.placeholder.com/400x250" class="w-full" />
+      <div class="p-4">
+        <h2 class="text-lg font-semibold">Manfrotto Tripod</h2>
+        <p class="text-sm text-gray-500">고정 삼각대</p>
+      </div>
+    </a>
   </main>
-
-  <footer class="text-center text-sm text-gray-400 py-6 border-t border-gray-200">
-    © 2025 연세예술원 관리자 페이지
-  </footer>
-
-  <script>
-    // 예시 데이터를 불러오기 (Firebase 또는 Google Sheets 연동 예정)
-    const sampleData = [
-      {
-        id: 1,
-        item: 'Blackmagic Camera',
-        name: '김예린',
-        studentId: '20231234',
-        start: '2025-04-02',
-        end: '2025-04-05',
-        status: '승인 전'
-      },
-      {
-        id: 2,
-        item: 'RODE 마이크',
-        name: '이준호',
-        studentId: '20241111',
-        start: '2025-04-03',
-        end: '2025-04-04',
-        status: '승인 전'
-      }
-    ];
-
-    const requestList = document.getElementById('requestList');
-
-    sampleData.forEach((req) => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td class="px-4 py-2">${req.item}</td>
-        <td class="px-4 py-2">${req.name}</td>
-        <td class="px-4 py-2">${req.studentId}</td>
-        <td class="px-4 py-2">${req.start} ~ ${req.end}</td>
-        <td class="px-4 py-2 text-blue-600 font-medium" id="status-${req.id}">${req.status}</td>
-        <td class="px-4 py-2 text-center space-x-2">
-          <button onclick="approve(${req.id})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">승인</button>
-          <button onclick="reject(${req.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">거절</button>
-        </td>
-      `;
-      requestList.appendChild(row);
-    });
-
-    function approve(id) {
-      const statusCell = document.getElementById(`status-${id}`);
-      statusCell.innerText = '승인됨';
-      statusCell.classList.remove('text-blue-600');
-      statusCell.classList.add('text-green-600');
-    }
-
-    function reject(id) {
-      const statusCell = document.getElementById(`status-${id}`);
-      statusCell.innerText = '거절됨';
-      statusCell.classList.remove('text-blue-600');
-      statusCell.classList.add('text-red-600');
-    }
-  </script>
 </body>
 </html>
