@@ -4,28 +4,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>장비 대여 목록</title>
+  <title>기자재 대여 - 연세예술원</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-white text-gray-900 font-sans">
-  <header class="text-center py-10 border-b border-gray-200">
-    <h1 class="text-3xl font-semibold">연세예술원 장비 대여</h1>
-    <p class="text-gray-500 mt-2">대여할 장비를 선택하세요.</p>
+<body class="bg-white font-sans text-gray-900">
+  <header class="text-center p-8 border-b border-gray-200">
+    <h1 class="text-3xl font-bold">연세예술원 영화학과 기자재 대여</h1>
+    <p class="text-gray-500 mt-2">카테고리를 선택하세요</p>
   </header>
-  <main class="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-    <a href="detail.html?item=camera" class="border rounded-xl overflow-hidden hover:shadow transition cursor-pointer">
-      <img src="https://via.placeholder.com/400x250" class="w-full" />
-      <div class="p-4">
-        <h2 class="text-lg font-semibold">Blackmagic Camera</h2>
-        <p class="text-sm text-gray-500">시네마 카메라</p>
-      </div>
+  <main class="max-w-5xl mx-auto p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <a href="camera.html" class="block p-6 border rounded-xl hover:shadow text-center">
+      📷 <div class="mt-2 text-lg font-semibold">카메라</div>
     </a>
-    <a href="detail.html?item=tripod" class="border rounded-xl overflow-hidden hover:shadow transition cursor-pointer">
-      <img src="https://via.placeholder.com/400x250" class="w-full" />
-      <div class="p-4">
-        <h2 class="text-lg font-semibold">Manfrotto Tripod</h2>
-        <p class="text-sm text-gray-500">고정 삼각대</p>
-      </div>
+    <a href="lighting.html" class="block p-6 border rounded-xl hover:shadow text-center">
+      💡 <div class="mt-2 text-lg font-semibold">조명</div>
+    </a>
+    <a href="audio.html" class="block p-6 border rounded-xl hover:shadow text-center">
+      🎤 <div class="mt-2 text-lg font-semibold">오디오</div>
+    </a>
+    <a href="tripod.html" class="block p-6 border rounded-xl hover:shadow text-center">
+      🎥 <div class="mt-2 text-lg font-semibold">삼각대 & 리그</div>
+    </a>
+    <a href="monitor.html" class="block p-6 border rounded-xl hover:shadow text-center">
+      🖥️ <div class="mt-2 text-lg font-semibold">모니터</div>
+    </a>
+    <a href="lens.html" class="block p-6 border rounded-xl hover:shadow text-center">
+      🔭 <div class="mt-2 text-lg font-semibold">렌즈</div>
+    </a>
+    <a href="battery.html" class="block p-6 border rounded-xl hover:shadow text-center">
+      🔋 <div class="mt-2 text-lg font-semibold">배터리 & 충전기</div>
+    </a>
+    <a href="accessory.html" class="block p-6 border rounded-xl hover:shadow text-center">
+      🎒 <div class="mt-2 text-lg font-semibold">소품/악세서리</div>
     </a>
   </main>
 </body>
