@@ -4,38 +4,32 @@
   <meta charset="UTF-8" />
   <title>학생 로그인</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Tailwind CSS (CDN) + style.css (선택) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="bg-gray-100 text-gray-800">
   <div class="max-w-sm mx-auto mt-20 p-6 bg-white rounded shadow">
     <h1 class="text-xl font-bold mb-4">학생 로그인</h1>
-    
-    <!-- 학번 입력 -->
+
     <input
       id="studentIdInput"
       type="text"
       placeholder="학번"
       class="w-full border p-2 mb-2"
     />
-    
-    <!-- 이름 입력 -->
     <input
       id="studentNameInput"
       type="text"
       placeholder="이름"
       class="w-full border p-2 mb-2"
     />
-    
-    <!-- 비밀번호 입력 -->
     <input
       id="studentPwInput"
       type="password"
       placeholder="비밀번호"
       class="w-full border p-2 mb-4"
     />
-    
+
     <button
       id="studentLoginBtn"
       class="bg-blue-600 text-white w-full py-2 rounded"
@@ -45,11 +39,9 @@
   </div>
 
   <script>
-    // 로컬 하드코딩된 학번/이름/비밀번호 목록 예시
     const studentList = [
       { studentId: "20230001", studentName: "홍길동", password: "1234" },
-      { studentId: "20230002", studentName: "이몽룡", password: "abcd" },
-      // 필요 시 더 추가 (학번/이름/비밀번호)
+      { studentId: "20230002", studentName: "이몽룡", password: "abcd" }
     ];
 
     document.getElementById('studentLoginBtn').addEventListener('click', () => {
@@ -57,7 +49,6 @@
       const inputName = document.getElementById('studentNameInput').value.trim();
       const inputPw = document.getElementById('studentPwInput').value.trim();
 
-      // studentList 중 (학번 & 이름 & 비밀번호)가 일치하는 항목이 있는지 검사
       const found = studentList.find(student =>
         student.studentId === inputId &&
         student.studentName === inputName &&
@@ -65,13 +56,5 @@
       );
 
       if (found) {
-        // 로그인 성공 → form.html (대여 신청 페이지)로 이동
-        window.location.href = 'form.html';
-      } else {
-        // 로그인 실패
-        alert('로그인 실패: 학번, 이름 또는 비밀번호가 일치하지 않습니다.');
-      }
-    });
-  </script>
-</body>
-</html>
+        // 로그인 성공 → form.html
+        window.location.href
