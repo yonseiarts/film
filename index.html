@@ -2,251 +2,66 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>연세예술원 영화학 기자재 대여</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="style.css" />
+  <title>학생 로그인</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    /* 슬라이드 베이스 */
-    .slider-slide {
-      position: absolute;
-      inset: 0;
-      background-size: cover;
-      background-position: center;
-      opacity: 0;
-      transition: opacity 1s ease-in-out;
-    }
-    .slider-slide.active {
-      opacity: 1;
-      z-index: 10;
-    }
-    /* 좌우 화살표 */
-    .slider-arrow {
-      @apply absolute top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full z-20;
-    }
-    /* Nav bar에 살짝 그림자 */
-    .nav-bar {
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-white text-gray-900">
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-sm mx-auto mt-20 p-6 bg-white rounded shadow">
+    <h1 class="text-xl font-bold mb-4">학생 로그인</h1>
 
-<!-- 상단 네비게이션 -->
-<nav class="fixed w-full z-50 bg-white/90 backdrop-blur nav-bar">
-  <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-    <a href="index.html" class="text-2xl font-bold text-blue-700 hover:text-blue-900 transition-colors">
-      연세예술원 영화학
-    </a>
-    <ul class="flex items-center gap-6 text-sm font-medium">
-      <!-- 홈 -->
-      <li><a href="index.html" class="hover:text-blue-600 transition-colors">홈</a></li>
-      
-      <!-- 장비 카테고리 (드롭다운) -->
-      <li class="relative group">
-        <a href="#" class="hover:text-blue-600 transition-colors">장비 카테고리 ▾</a>
-        <ul class="hidden group-hover:block absolute left-0 mt-2 w-48 bg-white shadow-md rounded">
-          <li>
-            <a
-              href="detail_blackmagic.html"
-              class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-            >
-              블랙매직 카메라
-            </a>
-          </li>
-          <li>
-            <a
-              href="detail_aputure.html"
-              class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-            >
-              어퍼쳐 조명
-            </a>
-          </li>
-          <li>
-            <a
-              href="detail_rode.html"
-              class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-            >
-              로데 마이크
-            </a>
-          </li>
-        </ul>
-      </li>
-      
-     
-<!-- <li><a href="form.html" class="hover:text-blue-600">예약하기</a></li> -->
+    <input
+      id="studentIdInput"
+      type="text"
+      placeholder="학번"
+      class="w-full border p-2 mb-2"
+    />
+    <input
+      id="studentNameInput"
+      type="text"
+      placeholder="이름"
+      class="w-full border p-2 mb-2"
+    />
+    <input
+      id="studentPwInput"
+      type="password"
+      placeholder="비밀번호"
+      class="w-full border p-2 mb-4"
+    />
 
-      
-      <!-- 고객센터 -> 관리자 로그인 -->
-      <li>
-        <a href="admin_login.html" class="hover:text-blue-600 transition-colors">
-          고객센터
-        </a>
-      </li>
-      
-      <!-- 기자재 대여 신청 -> 학생 로그인 페이지 -->
-      <li>
-        <a
-          href="student_login.html"
-          class="ml-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-        >
-          기자재 대여 신청
-        </a>
-      </li>
-    </ul>
-  </div>
-</nav>
-
-<!-- Hero 슬라이드 (상단 네비 높이만큼 패딩) -->
-<section class="relative h-screen overflow-hidden pt-[72px]">
-  <!-- 슬라이드 1 -->
-  <div
-    class="slider-slide"
-    style="background-image: url('https://images.unsplash.com/photo-1542204165-65bf26472b9b?q=80&auto=format&fit=crop&w=1600');"
-  ></div>
-  <!-- 슬라이드 2 -->
-  <div
-    class="slider-slide"
-    style="background-image: url('https://images.unsplash.com/photo-1616423640778-28d1b53229bd?q=80&auto=format&fit=crop&w=1600');"
-  ></div>
-  <!-- 슬라이드 3 -->
-  <div
-    class="slider-slide"
-    style="background-image: url('https://images.unsplash.com/photo-1598447861940-d868649f811f?q=80&auto=format&fit=crop&w=1600');"
-  ></div>
-
-  <!-- 어두운 오버레이 -->
-  <div class="absolute inset-0 bg-black/40 z-10"></div>
-
-  <!-- 슬라이드 내용 -->
-  <div class="relative z-20 h-full flex flex-col justify-center items-center text-center text-white px-4">
-    <h1 class="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">
-      전문 영화 제작 장비
-    </h1>
-    <p class="text-xl md:text-2xl text-white/90 mb-8 max-w-xl drop-shadow">
-      DSLR, 미러리스, 조명, 음향 등 다양한 장비를 제공합니다
-    </p>
-    <a
-      href="detail_blackmagic.html"
-      class="bg-blue-600 px-6 py-3 rounded hover:bg-blue-700 text-lg font-medium drop-shadow-lg"
+    <button
+      id="studentLoginBtn"
+      class="bg-blue-600 text-white w-full py-2 rounded"
     >
-      장비 둘러보기
-    </a>
+      로그인
+    </button>
   </div>
 
-  <!-- 좌/우 화살표 버튼 -->
-  <button id="prevBtn" class="slider-arrow left-4">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="lucide lucide-chevron-left h-6 w-6"
-    >
-      <path d="m15 18-6-6 6-6"></path>
-    </svg>
-  </button>
-  <button id="nextBtn" class="slider-arrow right-4">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="lucide lucide-chevron-right h-6 w-6"
-    >
-      <path d="m9 18 6-6-6-6"></path>
-    </svg>
-  </button>
-</section>
+  <script>
+    const studentList = [
+      { studentId: "AR23000501", studentName: "이창민", password: "1234" },
+      { studentId: "20230002", studentName: "이몽룡", password: "abcd" }
+    ];
 
-<!-- 기자재 대여 규정 섹션 -->
-<section class="py-16 bg-gray-100">
-  <div class="max-w-5xl mx-auto px-4">
-    <div class="flex items-center justify-center mb-8">
-      <span class="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-full">
-        필독사항
-      </span>
-    </div>
-    <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">
-      기자재 대여 규정
-    </h2>
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden p-6 md:p-8 max-w-4xl mx-auto">
-      <div class="grid md:grid-cols-2 gap-8">
-        <div>
-          <p class="text-blue-600 font-semibold mb-1">📅 대여 시간</p>
-          <p>월–금 10:00~17:00 (공휴일 제외)</p>
-          <p>점심시간(12:00–13:00) 대여 불가</p>
-        </div>
-        <div>
-          <p class="text-blue-600 font-semibold mb-1">⏱️ 대여 기간</p>
-          <p>일반 대여: 최대 3일</p>
-          <p>특수 프로젝트: 최대 7일 (사전 승인 필요)</p>
-        </div>
-        <div>
-          <p class="text-blue-600 font-semibold mb-1">🎓 자격 요건</p>
-          <p>연세예술원 영화학과 재학생만 대여 가능</p>
-          <p>학생증 확인 필수</p>
-        </div>
-        <div>
-          <p class="text-blue-600 font-semibold mb-1">🔁 반납 규정</p>
-          <p>지정된 날짜와 시간에 반납</p>
-          <p>장비 상태 확인 후 반납 처리</p>
-        </div>
-        <div>
-          <p class="text-blue-600 font-semibold mb-1">⚠️ 주의사항</p>
-          <p>손상/분실 시 전액 배상</p>
-          <p>연체 시 추가 대여 제한</p>
-        </div>
-      </div>
-      <div class="text-right mt-4">
-        <a href="#" class="text-blue-600 underline text-sm">전체 규정 보기</a>
-      </div>
-    </div>
-  </div>
-</section>
+    document.getElementById('studentLoginBtn').addEventListener('click', () => {
+      const inputId = document.getElementById('studentIdInput').value.trim();
+      const inputName = document.getElementById('studentNameInput').value.trim();
+      const inputPw = document.getElementById('studentPwInput').value.trim();
 
-<footer class="text-center text-sm text-gray-500 py-6 border-t">
-  고객센터: 02-1234-5678 | 운영시간: 평일 10:00 ~ 17:00 (점심시간 12:00~13:00)
-</footer>
+      const found = studentList.find(student =>
+        student.studentId === inputId &&
+        student.studentName === inputName &&
+        student.password === inputPw
+      );
 
-<script>
-  // 슬라이드 로직
-  const slides = document.querySelectorAll('.slider-slide');
-  let currentSlide = 0;
-
-  function showSlide(index) {
-    slides.forEach((slide, i) => {
-      slide.classList.remove('active');
-      if(i === index) slide.classList.add('active');
+      if (found) {
+        // 로그인 성공 → form.html 로 이동
+        window.location.href = 'form.html';
+      } else {
+        alert('로그인 실패: 학번, 이름 또는 비밀번호가 일치하지 않습니다.');
+      }
     });
-  }
-
-  function nextSlide() {
-    currentSlide = (currentSlide + 1) % slides.length;
-    showSlide(currentSlide);
-  }
-
-  function prevSlide() {
-    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-    showSlide(currentSlide);
-  }
-
-  document.getElementById('nextBtn').addEventListener('click', nextSlide);
-  document.getElementById('prevBtn').addEventListener('click', prevSlide);
-
-  // 자동 전환 (5초 간격)
-  setInterval(nextSlide, 5000);
-
-  // 초기 표시
-  showSlide(currentSlide);
-</script>
+  </script>
 </body>
 </html>
