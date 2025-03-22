@@ -4,11 +4,9 @@
   <meta charset="UTF-8" />
   <title>연세예술원 영화학 기자재 대여</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <!-- Tailwind + style.css -->
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 슬라이드 베이스 */
     .slider-slide {
       position: absolute;
       inset: 0;
@@ -21,11 +19,9 @@
       opacity: 1;
       z-index: 10;
     }
-    /* 좌우 화살표 */
     .slider-arrow {
       @apply absolute top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full z-20;
     }
-    /* Nav shadow 조금 더 강조 */
     .nav-bar {
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
@@ -36,7 +32,7 @@
 <!-- 상단 네비게이션 -->
 <nav class="fixed w-full z-50 bg-white/90 backdrop-blur nav-bar">
   <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-    <a href="#" class="text-2xl font-bold text-blue-700 hover:text-blue-900 transition-colors">
+    <a href="index.html" class="text-2xl font-bold text-blue-700 hover:text-blue-900 transition-colors">
       연세예술원 영화학
     </a>
     <ul class="flex items-center gap-6 text-sm font-medium">
@@ -49,30 +45,23 @@
           <li><a href="detail_rode.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">로데 마이크</a></li>
         </ul>
       </li>
-      <li><a href="form.html" class="hover:text-blue-600 transition-colors">예약하기</a></li>
-      <!-- 관리자 페이지 -> admin_login.html 로 연결 -->
-      <li><a href="admin_login.html" class="hover:text-blue-600 transition-colors">관리자 페이지</a></li>
+      <!-- 예약하기 메뉴 삭제됨 -->
+      <!-- <li><a href="form.html" class="hover:text-blue-600">예약하기</a></li> -->
+      <li><a href="admin_login.html" class="hover:text-blue-600 transition-colors">고객센터</a></li>
       <li>
+        <!-- 기자재 대여 신청 -> student_login.html -->
         <a
-          href="form.html"
+          href="student_login.html"
           class="ml-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
         >
           기자재 대여 신청
-        </a><li>
-  <a
-    href="student_login.html"
-    class="ml-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-  >
-    기자재 대여 신청
-  </a>
-</li>
-
+        </a>
       </li>
     </ul>
   </div>
 </nav>
 
-<!-- Hero 슬라이드 (상단에 네비게이션 높이만큼 패딩) -->
+<!-- Hero 슬라이드 (상단 네비 높이만큼 패딩) -->
 <section class="relative h-screen overflow-hidden pt-[72px]">
   <!-- 슬라이드 1 -->
   <div
@@ -99,7 +88,7 @@
       전문 영화 제작 장비
     </h1>
     <p class="text-xl md:text-2xl text-white/90 mb-8 max-w-xl drop-shadow">
-      영화제작에 필요한 다양한 장비를 제공합니다
+      DSLR, 미러리스, 조명, 음향 등 다양한 장비를 제공합니다
     </p>
     <a
       href="detail_blackmagic.html"
@@ -173,42 +162,35 @@
 </section>
 
 <footer class="text-center text-sm text-gray-500 py-6 border-t">
-  기자재 총괄:010-3343-6809 | 운영시간: 평일 10:00 ~ 17:00 (점심시간 12:00~13:00)
+  고객센터: 02-1234-5678 | 운영시간: 평일 10:00 ~ 17:00 (점심시간 12:00~13:00)
 </footer>
 
 <script>
-  // 슬라이드 자바스크립트
+  // 슬라이드
   const slides = document.querySelectorAll('.slider-slide');
   let currentSlide = 0;
 
   function showSlide(index) {
     slides.forEach((slide, i) => {
       slide.classList.remove('active');
-      if(i === index) {
-        slide.classList.add('active');
-      }
+      if(i === index) slide.classList.add('active');
     });
   }
-
   function nextSlide() {
     currentSlide = (currentSlide + 1) % slides.length;
     showSlide(currentSlide);
   }
-
   function prevSlide() {
     currentSlide = (currentSlide - 1 + slides.length) % slides.length;
     showSlide(currentSlide);
   }
-
   document.getElementById('nextBtn').addEventListener('click', nextSlide);
   document.getElementById('prevBtn').addEventListener('click', prevSlide);
 
-  // 자동 전환 (5초 간격)
+  // 자동 전환 (5초)
   setInterval(nextSlide, 5000);
-
-  // 초기 표시
+  // 초기 슬라이드
   showSlide(currentSlide);
 </script>
-
 </body>
 </html>
