@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>RODE NTG4+</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-gray-900">
+  <header class="p-6 border-b text-center">
+    <h1 class="text-2xl font-bold">RODE NTG4+</h1>
+  </header>
+  <main class="max-w-3xl mx-auto p-6">
+    <img src="https://images.unsplash.com/photo-1584483766114-2cea6facdf57?auto=format&fit=crop&w=800&q=80" alt="RODE NTG4+" class="rounded mb-6 w-full object-cover h-64" />
+    <p class="text-gray-600 mb-4">지향성 마이크로 인터뷰 및 현장 녹음에 최적화된 장비입니다.</p>
+    <form action="form.html">
+      <label class="block mb-2 font-medium">대여 시작일</label>
+      <input type="date" id="startDate" required class="w-full p-2 border rounded mb-4" />
+      <label class="block mb-2 font-medium">대여 종료일</label>
+      <input type="date" id="endDate" required class="w-full p-2 border rounded mb-6" />
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">신청하기</button>
+    </form>
+  </main>
+  <footer class="text-center text-sm text-gray-500 py-6 border-t">
+    고객센터: 02-1234-5678 | 운영시간: 평일 10:00 ~ 17:00 (점심시간 12:00~13:00)
+  </footer>
+  
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const unavailableDates = ['2025-04-01', '2025-04-02', '2025-04-03'];
+
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+
+    function disableUnavailableDates(input) {
+      input.addEventListener('input', () => {
+        const selected = input.value;
+        if (unavailableDates.includes(selected)) {
+          alert('선택하신 날짜는 대여가 불가능합니다.');
+          input.value = '';
+        }
+      });
+    }
+
+    disableUnavailableDates(startDateInput);
+    disableUnavailableDates(endDateInput);
+  });
+</script>
+
+</body>
+</html>
