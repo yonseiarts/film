@@ -1,5 +1,5 @@
-// firebaseConfig.js
-export const firebaseConfig = {
+// myfirebaseConfig.js
+export const myfirebaseConfig,js = {
   apiKey: "...",
   authDomain: "...",
   projectId: "...",
