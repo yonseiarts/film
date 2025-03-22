@@ -4,39 +4,75 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>기자재 대여 - 연세예술원</title>
+  <title>연세예술원 영화학 - 기자재 대여</title>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-white font-sans text-gray-900">
-  <header class="text-center p-8 border-b border-gray-200">
-    <h1 class="text-3xl font-bold">연세예술원 영화학과 기자재 대여</h1>
-    <p class="text-gray-500 mt-2">카테고리를 선택하세요</p>
-  </header>
-  <main class="max-w-5xl mx-auto p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-    <a href="camera.html" class="block p-6 border rounded-xl hover:shadow text-center">
-      📷 <div class="mt-2 text-lg font-semibold">카메라</div>
-    </a>
-    <a href="lighting.html" class="block p-6 border rounded-xl hover:shadow text-center">
-      💡 <div class="mt-2 text-lg font-semibold">조명</div>
-    </a>
-    <a href="audio.html" class="block p-6 border rounded-xl hover:shadow text-center">
-      🎤 <div class="mt-2 text-lg font-semibold">오디오</div>
-    </a>
-    <a href="tripod.html" class="block p-6 border rounded-xl hover:shadow text-center">
-      🎥 <div class="mt-2 text-lg font-semibold">삼각대 & 리그</div>
-    </a>
-    <a href="monitor.html" class="block p-6 border rounded-xl hover:shadow text-center">
-      🖥️ <div class="mt-2 text-lg font-semibold">모니터</div>
-    </a>
-    <a href="lens.html" class="block p-6 border rounded-xl hover:shadow text-center">
-      🔭 <div class="mt-2 text-lg font-semibold">렌즈</div>
-    </a>
-    <a href="battery.html" class="block p-6 border rounded-xl hover:shadow text-center">
-      🔋 <div class="mt-2 text-lg font-semibold">배터리 & 충전기</div>
-    </a>
-    <a href="accessory.html" class="block p-6 border rounded-xl hover:shadow text-center">
-      🎒 <div class="mt-2 text-lg font-semibold">소품/악세서리</div>
-    </a>
-  </main>
+<body class="bg-white text-gray-900">
+  <nav class="flex justify-between items-center px-6 py-4 border-b">
+    <div class="text-xl font-bold text-blue-700">연세예술원 영화학</div>
+    <ul class="flex gap-6 text-sm font-medium items-center">
+      <li><a href="index.html">홈</a></li>
+      <li class="relative group">
+        <a href="#" class="hover:text-blue-600">장비 카테고리 ▾</a>
+        <ul class="absolute hidden group-hover:block bg-white shadow rounded mt-2 z-10">
+          <li><a href="camera.html" class="block px-4 py-2 hover:bg-gray-100">카메라</a></li>
+          <li><a href="lighting.html" class="block px-4 py-2 hover:bg-gray-100">조명</a></li>
+          <li><a href="audio.html" class="block px-4 py-2 hover:bg-gray-100">오디오</a></li>
+        </ul>
+      </li>
+      <li><a href="#">예약하기</a></li>
+      <li><a href="#">고객센터</a></li>
+      <li><a href="#" class="ml-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">기자재 대여 신청</a></li>
+    </ul>
+  </nav>
+
+  <section class="bg-gray-100 text-center py-24 px-6">
+    <h1 class="text-4xl font-bold mb-4">전문 영화 제작 장비</h1>
+    <p class="text-gray-600 mb-6">DSLR, 미러리스, 조명, 음향 등 다양한 장비를 제공합니다</p>
+    <a href="camera.html" class="inline-block bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700">장비 둘러보기</a>
+  </section>
+
+  <section class="py-20 px-6 bg-white">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-2xl font-bold mb-6">📋 기자재 대여 규정</h2>
+      <div class="bg-gray-50 p-6 rounded-xl shadow space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <p class="text-blue-600 font-semibold mb-1">📅 대여 시간</p>
+            <p>월–금 10:00~17:00 (공휴일 제외)</p>
+            <p>점심시간(12:00–13:00) 대여 불가</p>
+          </div>
+          <div>
+            <p class="text-blue-600 font-semibold mb-1">⏱️ 대여 기간</p>
+            <p>일반 대여: 최대 3일</p>
+            <p>특수 프로젝트: 최대 7일 (사전 승인 필요)</p>
+          </div>
+          <div>
+            <p class="text-blue-600 font-semibold mb-1">🎓 자격 요건</p>
+            <p>연세예술원 영화학과 재학생만 대여 가능</p>
+            <p>학생증 확인 필수</p>
+          </div>
+          <div>
+            <p class="text-blue-600 font-semibold mb-1">🔁 반납 규정</p>
+            <p>지정된 날짜와 시간에 반납</p>
+            <p>장비 상태 확인 후 반납 처리</p>
+          </div>
+          <div>
+            <p class="text-blue-600 font-semibold mb-1">⚠️ 주의사항</p>
+            <p>손상/분실 시 전액 배상</p>
+            <p>연체 시 추가 대여 제한</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <a href="#" class="text-blue-600 underline text-sm">전체 규정 보기</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="text-center text-sm text-gray-400 py-6 border-t mt-10">
+    © 2025 연세예술원 영화학과 | All rights reserved.
+  </footer>
 </body>
 </html>
