@@ -4,38 +4,43 @@
   <meta charset="UTF-8" />
   <title>연세예술원 영화학 기자재 대여</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <!-- Tailwind + Custom CSS -->
+  <!-- Tailwind + style.css -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* 추가적인 폰트/색상/슬라이드 보완을 위해 */
+    /* 슬라이드 베이스 */
     .slider-slide {
-      opacity: 0;
       position: absolute;
       inset: 0;
       background-size: cover;
       background-position: center;
+      opacity: 0;
       transition: opacity 1s ease-in-out;
     }
     .slider-slide.active {
       opacity: 1;
       z-index: 10;
     }
+    /* 좌우 화살표 */
     .slider-arrow {
-      @apply absolute top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full;
+      @apply absolute top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full z-20;
+    }
+    /* Nav shadow 조금 더 강조 */
+    .nav-bar {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
   </style>
 </head>
 <body class="bg-white text-gray-900">
 
 <!-- 상단 네비게이션 -->
-<nav class="fixed w-full z-50 bg-white/80 backdrop-blur-md shadow-sm">
+<nav class="fixed w-full z-50 bg-white/90 backdrop-blur nav-bar">
   <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
     <a href="#" class="text-2xl font-bold text-blue-700 hover:text-blue-900 transition-colors">
       연세예술원 영화학
     </a>
     <ul class="flex items-center gap-6 text-sm font-medium">
-      <li><a href="#" class="hover:text-blue-600 transition-colors">홈</a></li>
+      <li><a href="index.html" class="hover:text-blue-600 transition-colors">홈</a></li>
       <li class="relative group">
         <a href="#" class="hover:text-blue-600 transition-colors">장비 카테고리 ▾</a>
         <ul class="hidden group-hover:block absolute left-0 mt-2 w-48 bg-white shadow-md rounded">
@@ -45,10 +50,13 @@
         </ul>
       </li>
       <li><a href="form.html" class="hover:text-blue-600 transition-colors">예약하기</a></li>
-      <li><a href="#" class="hover:text-blue-600 transition-colors">고객센터</a></li>
+      <!-- 고객센터 -> admin_login.html 로 연결 -->
+      <li><a href="admin_login.html" class="hover:text-blue-600 transition-colors">고객센터</a></li>
       <li>
-        <a href="form.html"
-           class="ml-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+        <a
+          href="form.html"
+          class="ml-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+        >
           기자재 대여 신청
         </a>
       </li>
@@ -56,23 +64,28 @@
   </div>
 </nav>
 
-<!-- Hero 슬라이드 -->
-<section class="relative h-screen w-full overflow-hidden pt-[72px]">
+<!-- Hero 슬라이드 (상단에 네비게이션 높이만큼 패딩) -->
+<section class="relative h-screen overflow-hidden pt-[72px]">
   <!-- 슬라이드 1 -->
-  <div class="slider-slide" style="
-    background-image: url('https://images.unsplash.com/photo-1542204165-65bf26472b9b?q=80&auto=format&fit=crop&w=1600');
-  "></div>
+  <div
+    class="slider-slide"
+    style="background-image: url('https://images.unsplash.com/photo-1542204165-65bf26472b9b?q=80&auto=format&fit=crop&w=1600');"
+  ></div>
   <!-- 슬라이드 2 -->
-  <div class="slider-slide" style="
-    background-image: url('https://images.unsplash.com/photo-1616423640778-28d1b53229bd?q=80&auto=format&fit=crop&w=1600');
-  "></div>
+  <div
+    class="slider-slide"
+    style="background-image: url('https://images.unsplash.com/photo-1616423640778-28d1b53229bd?q=80&auto=format&fit=crop&w=1600');"
+  ></div>
   <!-- 슬라이드 3 -->
-  <div class="slider-slide" style="
-    background-image: url('https://images.unsplash.com/photo-1598447861940-d868649f811f?q=80&auto=format&fit=crop&w=1600');
-  "></div>
+  <div
+    class="slider-slide"
+    style="background-image: url('https://images.unsplash.com/photo-1598447861940-d868649f811f?q=80&auto=format&fit=crop&w=1600');"
+  ></div>
 
-  <!-- 슬라이드 내용 (텍스트, 버튼) -->
+  <!-- 어두운 오버레이 -->
   <div class="absolute inset-0 bg-black/40 z-10"></div>
+
+  <!-- 슬라이드 내용 -->
   <div class="relative z-20 h-full flex flex-col justify-center items-center text-center text-white px-4">
     <h1 class="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">
       전문 영화 제작 장비
@@ -80,25 +93,25 @@
     <p class="text-xl md:text-2xl text-white/90 mb-8 max-w-xl drop-shadow">
       DSLR, 미러리스, 조명, 음향 등 다양한 장비를 제공합니다
     </p>
-    <a href="detail_blackmagic.html"
-       class="bg-blue-600 px-6 py-3 rounded hover:bg-blue-700 text-lg font-medium drop-shadow-lg">
+    <a
+      href="detail_blackmagic.html"
+      class="bg-blue-600 px-6 py-3 rounded hover:bg-blue-700 text-lg font-medium drop-shadow-lg"
+    >
       장비 둘러보기
     </a>
   </div>
 
-  <!-- 좌/우 화살표 -->
+  <!-- 좌/우 화살표 버튼 -->
   <button id="prevBtn" class="slider-arrow left-4">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-         fill="none" stroke="currentColor" stroke-width="2"
-         stroke-linecap="round" stroke-linejoin="round"
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
          class="lucide lucide-chevron-left h-6 w-6">
       <path d="m15 18-6-6 6-6"></path>
     </svg>
   </button>
   <button id="nextBtn" class="slider-arrow right-4">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-         fill="none" stroke="currentColor" stroke-width="2"
-         stroke-linecap="round" stroke-linejoin="round"
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
          class="lucide lucide-chevron-right h-6 w-6">
       <path d="m9 18 6-6-6-6"></path>
     </svg>
@@ -109,9 +122,13 @@
 <section class="py-16 bg-gray-100">
   <div class="max-w-5xl mx-auto px-4">
     <div class="flex items-center justify-center mb-8">
-      <span class="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-full">필독사항</span>
+      <span class="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-full">
+        필독사항
+      </span>
     </div>
-    <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">기자재 대여 규정</h2>
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">
+      기자재 대여 규정
+    </h2>
     <div class="bg-white rounded-xl shadow-lg overflow-hidden p-6 md:p-8 max-w-4xl mx-auto">
       <div class="grid md:grid-cols-2 gap-8">
         <div>
@@ -152,30 +169,36 @@
 </footer>
 
 <script>
-  // 슬라이드
+  // 슬라이드 자바스크립트
   const slides = document.querySelectorAll('.slider-slide');
   let currentSlide = 0;
 
   function showSlide(index) {
     slides.forEach((slide, i) => {
       slide.classList.remove('active');
-      if(i === index) slide.classList.add('active');
+      if(i === index) {
+        slide.classList.add('active');
+      }
     });
   }
+
   function nextSlide() {
     currentSlide = (currentSlide + 1) % slides.length;
     showSlide(currentSlide);
   }
+
   function prevSlide() {
     currentSlide = (currentSlide - 1 + slides.length) % slides.length;
     showSlide(currentSlide);
   }
+
   document.getElementById('nextBtn').addEventListener('click', nextSlide);
   document.getElementById('prevBtn').addEventListener('click', prevSlide);
 
-  // 자동 전환
+  // 자동 전환 (5초 간격)
   setInterval(nextSlide, 5000);
-  // 초기 슬라이드 표시
+
+  // 초기 표시
   showSlide(currentSlide);
 </script>
 
