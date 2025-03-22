@@ -11,21 +11,23 @@
 <body class="bg-gray-100 text-gray-800">
   <div class="max-w-sm mx-auto mt-20 p-6 bg-white rounded shadow">
     <h1 class="text-xl font-bold mb-4">학생 로그인</h1>
+    
     <!-- 학번(숫자) 입력 -->
     <input
       id="studentIdInput"
       type="text"
-      placeholder="학번 (숫자)"
+      placeholder="학번"
       class="w-full border p-2 mb-2"
     />
-    <!-- 비밀번호 입력 -->
+    
+    <!-- 이름 입력 -->
     <input
-      id="studentPwInput"
-      type="password"
-      placeholder="비밀번호"
+      id="studentNameInput"
+      type="text"
+      placeholder="이름"
       class="w-full border p-2 mb-4"
     />
-    <!-- 로그인 버튼 -->
+    
     <button
       id="studentLoginBtn"
       class="bg-blue-600 text-white w-full py-2 rounded"
@@ -35,29 +37,27 @@
   </div>
 
   <script>
-    // 로컬 하드코딩된 학번/비번 목록 (예시)
-    // 필요에 따라 여기서 학번/비밀번호를 더 추가/수정하세요.
+    // 로컬 하드코딩된 학번/이름 목록 예시
     const studentList = [
-      { studentId: "20230001", password: "1234" },
-      { studentId: "20230002", password: "abcd" }
-      // { studentId: "20231111", password: "1111" } 등 추가 가능
+      { studentId: "AR23000501", studentName: "이창민" },
+      { studentId: "20230002", studentName: "이몽룡" },
+      // 필요 시 더 추가
     ];
 
     document.getElementById('studentLoginBtn').addEventListener('click', () => {
       const inputId = document.getElementById('studentIdInput').value.trim();
-      const inputPw = document.getElementById('studentPwInput').value.trim();
+      const inputName = document.getElementById('studentNameInput').value.trim();
 
-      // studentList 중 (학번 & 비밀번호)가 일치하는 항목이 있는지 검사
+      // studentList 중 (학번 & 이름)이 일치하는 항목이 있는지 검사
       const found = studentList.find(student =>
-        student.studentId === inputId && student.password === inputPw
+        student.studentId === inputId && student.studentName === inputName
       );
 
       if (found) {
-        // 로그인 성공 → form.html로 이동 (대여 신청 페이지)
+        // 로그인 성공 → form.html 로 이동
         window.location.href = 'form.html';
       } else {
-        // 로그인 실패 메시지
-        alert('로그인 실패: 학번 또는 비밀번호가 일치하지 않습니다.');
+        alert('로그인 실패: 학번 또는 이름이 일치하지 않습니다.');
       }
     });
   </script>
