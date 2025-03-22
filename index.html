@@ -2,66 +2,33 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>학생 로그인</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>연세예술원 영화학 - 기자재 대여</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="max-w-sm mx-auto mt-20 p-6 bg-white rounded shadow">
-    <h1 class="text-xl font-bold mb-4">학생 로그인</h1>
-
-    <input
-      id="studentIdInput"
-      type="text"
-      placeholder="학번"
-      class="w-full border p-2 mb-2"
-    />
-    <input
-      id="studentNameInput"
-      type="text"
-      placeholder="이름"
-      class="w-full border p-2 mb-2"
-    />
-    <input
-      id="studentPwInput"
-      type="password"
-      placeholder="비밀번호"
-      class="w-full border p-2 mb-4"
-    />
-
-    <button
-      id="studentLoginBtn"
-      class="bg-blue-600 text-white w-full py-2 rounded"
-    >
-      로그인
-    </button>
-  </div>
-
-  <script>
-    const studentList = [
-      { studentId: "AR23000501", studentName: "이창민", password: "1234" },
-      { studentId: "20230002", studentName: "이몽룡", password: "abcd" }
-    ];
-
-    document.getElementById('studentLoginBtn').addEventListener('click', () => {
-      const inputId = document.getElementById('studentIdInput').value.trim();
-      const inputName = document.getElementById('studentNameInput').value.trim();
-      const inputPw = document.getElementById('studentPwInput').value.trim();
-
-      const found = studentList.find(student =>
-        student.studentId === inputId &&
-        student.studentName === inputName &&
-        student.password === inputPw
-      );
-
-      if (found) {
-        // 로그인 성공 → form.html 로 이동
-        window.location.href = 'form.html';
-      } else {
-        alert('로그인 실패: 학번, 이름 또는 비밀번호가 일치하지 않습니다.');
-      }
-    });
-  </script>
+<body class="bg-white text-gray-900">
+  <header class="p-6 border-b text-center">
+    <h1 class="text-2xl font-bold">연세예술원 영화학 기자재 대여</h1>
+  </header>
+  <main class="max-w-3xl mx-auto p-6 text-center">
+    <h2 class="text-xl font-semibold mb-4">전문 영화 제작 장비</h2>
+    <p class="text-gray-600 mb-6">블랙매직, 어퍼쳐 조명, 로데 마이크 등 다양한 장비를 대여하세요.</p>
+    <a
+      href="detail_blackmagic.html"
+      class="inline-block bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 mr-2"
+    >블랙매직 카메라</a>
+    <a
+      href="detail_aputure.html"
+      class="inline-block bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 mr-2"
+    >어퍼쳐 조명</a>
+    <a
+      href="detail_rode.html"
+      class="inline-block bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700"
+    >로데 마이크</a>
+  </main>
+  <footer class="text-center text-sm text-gray-500 py-6 border-t">
+    고객센터: 02-1234-5678 | 운영시간: 평일 10:00 ~ 17:00 (점심시간 12:00~13:00)
+  </footer>
 </body>
 </html>
