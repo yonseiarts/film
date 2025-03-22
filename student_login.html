@@ -56,5 +56,12 @@
       );
 
       if (found) {
-        // 로그인 성공 → form.html
-        window.location.href
+        // 로그인 성공 → form.html 로 이동
+        window.location.href = 'form.html';
+      } else {
+        alert('로그인 실패: 학번, 이름 또는 비밀번호가 일치하지 않습니다.');
+      }
+    });
+  </script>
+</body>
+</html>
