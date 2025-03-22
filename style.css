@@ -1,0 +1,49 @@
+
+body {
+  font-family: sans-serif;
+  margin: 0;
+  background: #fff;
+  color: #111;
+}
+header, footer {
+  background: #f8f8f8;
+  padding: 2rem;
+  text-align: center;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+}
+.card {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  overflow: hidden;
+  text-align: center;
+  cursor: pointer;
+  padding-bottom: 1rem;
+}
+.card img {
+  width: 100%;
+  height: auto;
+}
+.form-section {
+  padding: 2rem;
+  background: #f1f1f1;
+}
+form {
+  display: grid;
+  gap: 1rem;
+}
+input, button {
+  padding: 0.75rem;
+  font-size: 1rem;
+}
+button {
+  background: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
