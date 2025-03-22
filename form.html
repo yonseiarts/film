@@ -2,91 +2,44 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>대여 신청서 작성</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="style.css" />
+  <title>대여 신청</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Firebase config -->
-  <script type="module" src="firebaseConfig.js"></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body class="bg-white text-gray-900">
-  <header class="p-6 border-b text-center">
-    <h1 class="text-2xl font-bold">대여 신청서 작성</h1>
-  </header>
-
-  <main class="max-w-lg mx-auto p-6">
+  <div class="max-w-md mx-auto mt-20 p-6 bg-gray-100 rounded shadow">
+    <h1 class="text-xl font-bold mb-4">대여 신청</h1>
+    
+    <!-- 예: 간단한 대여 정보 입력 -->
     <form id="rentalForm">
       <input
         type="text"
-        id="userName"
-        placeholder="이름"
-        required
-        class="w-full p-2 border rounded mb-4"
+        placeholder="장비명"
+        class="w-full border p-2 rounded mb-4"
       />
       <input
-        type="text"
-        id="studentId"
-        placeholder="학번"
-        required
-        class="w-full p-2 border rounded mb-4"
+        type="date"
+        class="w-full border p-2 rounded mb-4"
       />
-      <input
-        type="tel"
-        id="phone"
-        placeholder="연락처"
-        required
-        class="w-full p-2 border rounded mb-6"
-      />
+      <!-- etc... 필요하다면 더 필드 추가 -->
+
       <button
         type="submit"
-        class="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700"
+        class="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700"
       >
         신청 완료
       </button>
     </form>
-  </main>
+  </div>
 
-  <footer class="text-center text-sm text-gray-500 py-6 border-t">
-    고객센터: 02-1234-5678 | 운영시간: 평일 10:00 ~ 17:00 (점심시간 12:00~13:00)
-  </footer>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js";
-    import { firebaseConfig } from "./firebaseConfig.js";
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    document.getElementById("rentalForm").addEventListener("submit", async (e) => {
+  <script>
+    document.getElementById('rentalForm').addEventListener('submit', function(e) {
       e.preventDefault();
-
-      // detail_xxx.html에서 로컬스토리지에 저장한 값
-      const equipName = localStorage.getItem("equipName") || "장비명 미지정";
-      const startDate = localStorage.getItem("startDate") || "";
-      const endDate = localStorage.getItem("endDate") || "";
-
-      // 사용자 입력
-      const userName = document.getElementById("userName").value;
-      const studentId = document.getElementById("studentId").value;
-      const phone = document.getElementById("phone").value;
-
-      try {
-        await addDoc(collection(db, "rental_requests"), {
-          equipmentName: equipName,
-          startDate: startDate,
-          endDate: endDate,
-          userName: userName,
-          studentId: studentId,
-          phone: phone,
-          status: "pending",
-          createdAt: new Date().toISOString(),
-        });
-        window.location.href = "complete.html";
-      } catch (error) {
-        alert("신청 중 오류 발생: " + error.message);
-      }
+      // 여기서 실제 Firestore 저장 로직 or 기타 처리 가능
+      // 예: alert("신청 완료!");
+      // 그 뒤 complete.html로 이동
+      window.location.href = 'complete.html';
     });
   </script>
 </body>
