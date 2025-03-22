@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>관리자 대시보드</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script type="module" src="firebaseConfig.js"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-4xl mx-auto mt-10 p-4 bg-white rounded shadow">
+    <h1 class="text-2xl font-bold mb-6">대여 신청 승인/조회</h1>
+    <table class="min-w-full border">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="p-2 border">장비명</th>
+          <th class="p-2 border">대여 기간</th>
+          <th class="p-2 border">신청자</th>
+          <th class="p-2 border">연락처</th>
+          <th class="p-2 border">상태</th>
+          <th class="p-2 border">조치</th>
+        </tr>
+      </thead>
+      <tbody id="requestList">
+        <!-- Firestore 데이터 -->
+      </tbody>
+    </table>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js";
+    import { firebaseConfig } from "./firebaseConfig.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const requestList = document.getElementById('requestList');
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = 'admin_login.html';
+      } else {
+        loadRequests();
+      }
+    });
+
+    async function loadRequests() {
+      const snapshot = await getDocs(collection(db, 'rental_requests'));
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        createRow(docSnap.id, data);
+      });
+    }
+
+    function createRow(docId, data) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="p-2 border">${data.equipmentName}</td>
+        <td class="p-2 border">${data.startDate} ~ ${data.endDate}</td>
+        <td class="p-2 border">${data.userName} (${data.studentId})</td>
+        <td class="p-2 border">${data.phone}</td>
+        <td class="p-2 border text-${
+          data.status === 'approved' ? 'green-600' : data.status === 'rejected' ? 'red-600' : 'gray-600'
+        }">${data.status || 'pending'}</td>
+        <td class="p-2 border">
+          <button class="bg-green-500 text-white px-2 py-1 rounded mr-2" onclick="approveRequest('${docId}')">승인</button>
+          <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="rejectRequest('${docId}')">거절</button>
+        </td>
+      `;
+      requestList.appendChild(tr);
+    }
+
+    // 전역 함수로 선언
+    window.approveRequest = async function(docId) {
+      await updateDoc(doc(db, 'rental_requests', docId), { status: 'approved' });
+      alert('승인 완료!');
+      location.reload();
+    }
+
+    window.rejectRequest = async function(docId) {
+      await updateDoc(doc(db, 'rental_requests', docId), { status: 'rejected' });
+      alert('거절 처리되었습니다.');
+      location.reload();
+    }
+  </script>
+</body>
+</html>

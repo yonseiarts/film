@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>관리자 로그인</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script type="module" src="firebaseConfig.js"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-sm mx-auto mt-20 p-6 bg-white rounded shadow">
+    <h1 class="text-xl font-bold mb-4">관리자 로그인</h1>
+    <input id="adminEmail" type="email" placeholder="이메일" class="w-full border p-2 mb-2">
+    <input id="adminPassword" type="password" placeholder="비밀번호" class="w-full border p-2 mb-4">
+    <button id="loginBtn" class="bg-blue-600 text-white w-full py-2 rounded">로그인</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
+    import { firebaseConfig } from "./firebaseConfig.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email = document.getElementById('adminEmail').value;
+      const password = document.getElementById('adminPassword').value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = 'admin_dashboard.html';
+      } catch (error) {
+        alert('로그인 실패: ' + error.message);
+      }
+    });
+  </script>
+</body>
+</html>

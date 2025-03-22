@@ -1,27 +1,93 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+  <title>대여 신청서 작성</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>신청서 작성</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Firebase config -->
+  <script type="module" src="firebaseConfig.js"></script>
 </head>
 <body class="bg-white text-gray-900">
   <header class="p-6 border-b text-center">
     <h1 class="text-2xl font-bold">대여 신청서 작성</h1>
   </header>
+
   <main class="max-w-lg mx-auto p-6">
-    <form action="complete.html">
-      <input type="text" placeholder="이름" required class="w-full p-2 border rounded mb-4" />
-      <input type="text" placeholder="학번" required class="w-full p-2 border rounded mb-4" />
-      <input type="tel" placeholder="연락처" required class="w-full p-2 border rounded mb-6" />
-      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700">신청 완료</button>
+    <form id="rentalForm">
+      <input
+        type="text"
+        id="userName"
+        placeholder="이름"
+        required
+        class="w-full p-2 border rounded mb-4"
+      />
+      <input
+        type="text"
+        id="studentId"
+        placeholder="학번"
+        required
+        class="w-full p-2 border rounded mb-4"
+      />
+      <input
+        type="tel"
+        id="phone"
+        placeholder="연락처"
+        required
+        class="w-full p-2 border rounded mb-6"
+      />
+      <button
+        type="submit"
+        class="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700"
+      >
+        신청 완료
+      </button>
     </form>
   </main>
+
   <footer class="text-center text-sm text-gray-500 py-6 border-t">
     고객센터: 02-1234-5678 | 운영시간: 평일 10:00 ~ 17:00 (점심시간 12:00~13:00)
   </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js";
+    import { firebaseConfig } from "./firebaseConfig.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.getElementById("rentalForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      // detail_xxx.html에서 로컬스토리지에 저장한 값
+      const equipName = localStorage.getItem("equipName") || "장비명 미지정";
+      const startDate = localStorage.getItem("startDate") || "";
+      const endDate = localStorage.getItem("endDate") || "";
+
+      // 사용자 입력
+      const userName = document.getElementById("userName").value;
+      const studentId = document.getElementById("studentId").value;
+      const phone = document.getElementById("phone").value;
+
+      try {
+        await addDoc(collection(db, "rental_requests"), {
+          equipmentName: equipName,
+          startDate: startDate,
+          endDate: endDate,
+          userName: userName,
+          studentId: studentId,
+          phone: phone,
+          status: "pending",
+          createdAt: new Date().toISOString(),
+        });
+        window.location.href = "complete.html";
+      } catch (error) {
+        alert("신청 중 오류 발생: " + error.message);
+      }
+    });
+  </script>
 </body>
 </html>
