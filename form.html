@@ -1,19 +1,29 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>장비 대여 예약</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <title>camera-easy-rental (4분류 버전)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 유사한 스타일 복제 */
-    .section-title {
-      @apply text-2xl font-bold mb-6;
+    /* 공통 애니메이션 / 스타일 복제 */
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease forwards;
     }
-    .equipment-grid {
-      @apply grid grid-cols-1 md:grid-cols-2 gap-4 mb-8;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
+    /* 카드 호버 효과 등 */
+    .hover-scale:hover {
+      transform: scale(1.02);
+    }
+    /* 단계 진행 바 (원본 스타일) */
+    .step-circle {
+      @apply w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2;
+    }
+    /* 장비 아이템 카드 */
     .equipment-item {
       @apply border rounded-lg p-4 flex items-center cursor-pointer transition-all border-gray-200 hover:border-gray-300;
     }
@@ -32,292 +42,351 @@
     .equipment-status {
       @apply flex items-center mt-1 text-sm text-gray-600;
     }
-    .equipment-status svg {
-      @apply h-4 w-4 mr-1;
-    }
     .equipment-select-circle {
       @apply w-6 h-6 rounded-full flex-shrink-0 bg-gray-200;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col bg-gray-50">
+<body class="page-transition min-h-screen flex flex-col">
 
-  <!-- 헤더 (상단) -->
-  <header class="bg-blue-600 text-white py-4 shadow">
-    <div class="max-w-6xl mx-auto px-4 flex items-center justify-between">
-      <h1 class="text-2xl font-bold">연세예술원 영화학 - 장비 대여</h1>
-      <nav>
-        <a href="#" class="px-4 hover:underline">홈</a>
-        <a href="#" class="px-4 hover:underline">고객센터</a>
-        <a href="#" class="px-4 hover:underline">로그인</a>
-      </nav>
+  <!-- 고정 네비게이션 (원본 복제) -->
+  <nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out py-4 bg-transparent">
+    <div class="container mx-auto px-4 md:px-6 flex justify-between items-center">
+      <a href="#" class="text-2xl font-bold text-yonsei-blue hover:text-yonsei-dark-blue transition-colors">
+        연세예술원 영화학
+      </a>
+      <div class="hidden md:flex items-center space-x-8">
+        <a href="#" class="text-gray-800 hover:text-yonsei-blue transition-colors">홈</a>
+        <div class="relative group">
+          <button class="flex items-center text-gray-800 hover:text-yonsei-blue transition-colors">
+            장비 카테고리
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"
+                 class="lucide lucide-chevron-down ml-1 h-4 w-4">
+              <path d="m6 9 6 6 6-6"></path>
+            </svg>
+          </button>
+          <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out py-1">
+            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">카메라</a>
+            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">사운드</a>
+            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">조명</a>
+            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">편집실</a>
+          </div>
+        </div>
+        <a href="#" class="text-gray-800 hover:text-yonsei-blue transition-colors">예약하기</a>
+        <a href="#" class="text-gray-800 hover:text-yonsei-blue transition-colors">고객센터</a>
+        <a href="#"
+           class="px-5 py-2.5 bg-yonsei-blue text-white rounded-lg hover:bg-yonsei-dark-blue transition-colors">
+          기자재 대여 신청
+        </a>
+      </div>
+      <button class="md:hidden text-gray-800">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+             fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round"
+             class="lucide lucide-menu h-6 w-6">
+          <line x1="4" y1="6" x2="20" y2="6"></line>
+          <line x1="4" y1="12" x2="20" y2="12"></line>
+          <line x1="4" y1="18" x2="20" y2="18"></line>
+        </svg>
+      </button>
     </div>
-  </header>
+  </nav>
 
-  <!-- 메인 컨테이너 -->
-  <main class="flex-grow pt-8">
-    <div class="max-w-5xl mx-auto px-4 md:px-6">
-      <h2 class="text-3xl md:text-4xl font-bold mb-4">장비 대여 예약</h2>
-      <p class="text-xl opacity-90 max-w-3xl mb-8">
-        필요 장비를 분류별로 확인하고, 원하는 장비를 선택하세요.  
-        관리자 승인 후 방문하여 수령 가능합니다.
-      </p>
+  <!-- 메인 영역 -->
+  <main class="flex-grow pt-20">
+    <!-- 헤더 섹션(파란 배경) -->
+    <div class="bg-yonsei-blue text-white py-12">
+      <div class="container mx-auto px-4 md:px-6">
+        <h1 class="text-3xl md:text-4xl font-bold mb-4">기자재 대여 예약</h1>
+        <p class="text-xl opacity-90 max-w-3xl">
+          필요 장비를 선택하고 날짜를 지정하여 간편하게 예약하세요. 관리자 승인 후 방문하여 수령 가능합니다.
+        </p>
+      </div>
+    </div>
 
-      <!-- 카메라 섹션 -->
-      <section class="mb-12">
-        <h3 class="section-title">카메라</h3>
-        <div class="equipment-grid">
-          <!-- 예시 아이템 1 -->
-          <div class="equipment-item">
-            <div class="equipment-image">
-              <img src="https://images.unsplash.com/photo-1599350752070-7908a994cde9"
-                   alt="Sony FX3 (ILME-FX3)">
+    <!-- 단계 진행 바 -->
+    <div class="bg-white border-b">
+      <div class="container mx-auto px-4 md:px-6 py-6">
+        <div class="max-w-3xl mx-auto">
+          <div class="flex justify-between items-center relative">
+            <!-- 스텝 1: 장비 선택 -->
+            <div class="flex flex-col items-center flex-1">
+              <div class="step-circle bg-yonsei-blue text-white">1</div>
+              <div class="text-sm text-center">장비 선택</div>
             </div>
-            <div class="equipment-info">
-              <h3>Sony FX3 (ILME-FX3)</h3>
-              <div class="equipment-status">
-                <!-- 아이콘 예시 -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                     stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round"
-                     viewBox="0 0 24 24">
-                  <path d="M10.1 2.182a10 10 0 0 1 3.8 0"></path>
-                  <path d="M13.9 21.818a10 10 0 0 1-3.8 0"></path>
-                  <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"></path>
-                  <path d="M2.182 13.9a10 10 0 0 1 0-3.8"></path>
-                  <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"></path>
-                  <path d="M21.818 10.1a10 10 0 0 1 0 3.8"></path>
-                  <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"></path>
-                  <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"></path>
-                </svg>
-                <span>3대 대여 가능</span>
-              </div>
+            <!-- 스텝 2: 대여일 선택 -->
+            <div class="flex flex-col items-center flex-1">
+              <div class="step-circle bg-gray-200 text-gray-500">2</div>
+              <div class="text-sm text-center">대여일 선택</div>
             </div>
-            <div class="equipment-select-circle"></div>
-          </div>
-
-          <!-- 예시 아이템 2 -->
-          <div class="equipment-item">
-            <div class="equipment-image">
-              <img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd"
-                   alt="Canon EOS R5">
+            <!-- 스텝 3: 정보 입력 -->
+            <div class="flex flex-col items-center flex-1">
+              <div class="step-circle bg-gray-200 text-gray-500">3</div>
+              <div class="text-sm text-center">정보 입력</div>
             </div>
-            <div class="equipment-info">
-              <h3>Canon EOS R5</h3>
-              <div class="equipment-status">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                     stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round"
-                     viewBox="0 0 24 24">
-                  <path d="M10.1 2.182a10 10 0 0 1 3.8 0"></path>
-                  <path d="M13.9 21.818a10 10 0 0 1-3.8 0"></path>
-                  <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"></path>
-                  <path d="M2.182 13.9a10 10 0 0 1 0-3.8"></path>
-                  <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"></path>
-                  <path d="M21.818 10.1a10 10 0 0 1 0 3.8"></path>
-                  <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"></path>
-                  <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"></path>
-                </svg>
-                <span>2대 대여 가능</span>
-              </div>
+            <!-- 스텝 4: 완료 -->
+            <div class="flex flex-col items-center flex-1">
+              <div class="step-circle bg-gray-200 text-gray-500">4</div>
+              <div class="text-sm text-center">완료</div>
             </div>
-            <div class="equipment-select-circle"></div>
           </div>
         </div>
-      </section>
+      </div>
+    </div>
 
-      <!-- 사운드 섹션 -->
-      <section class="mb-12">
-        <h3 class="section-title">사운드</h3>
-        <div class="equipment-grid">
-          <!-- 예시 아이템 1 -->
-          <div class="equipment-item">
-            <div class="equipment-image">
-              <img src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc"
-                   alt="RODE NTG4+ 마이크">
-            </div>
-            <div class="equipment-info">
-              <h3>RODE NTG4+ 마이크</h3>
-              <div class="equipment-status">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                     stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round"
-                     viewBox="0 0 24 24">
-                  <path d="M10.1 2.182a10 10 0 0 1 3.8 0"></path>
-                  <path d="M13.9 21.818a10 10 0 0 1-3.8 0"></path>
-                  <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"></path>
-                  <path d="M2.182 13.9a10 10 0 0 1 0-3.8"></path>
-                  <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"></path>
-                  <path d="M21.818 10.1a10 10 0 0 1 0 3.8"></path>
-                  <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"></path>
-                  <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"></path>
-                </svg>
-                <span>4대 대여 가능</span>
+    <!-- 메인 컨텐츠 (4개 분류) -->
+    <div class="bg-gray-50 py-12">
+      <div class="container mx-auto px-4 md:px-6">
+        <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-6 md:p-8">
+          <div class="animate-fade-in">
+            <h2 class="text-2xl font-bold mb-6">장비 선택</h2>
+            <p class="mb-6 text-gray-600">
+              필요 장비를 분류별로 확인하고, 원하는 아이템을 선택하세요.
+            </p>
+
+            <!-- 1) 카메라 섹션 -->
+            <h3 class="text-xl font-semibold mb-4">카메라</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <!-- 예시 아이템 1 -->
+              <div class="equipment-item">
+                <div class="equipment-image">
+                  <img src="https://images.unsplash.com/photo-1599350752070-7908a994cde9"
+                       alt="Sony FX3 (ILME-FX3)">
+                </div>
+                <div class="equipment-info">
+                  <h3>Sony FX3 (ILME-FX3)</h3>
+                  <div class="equipment-status">
+                    <svg fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         viewBox="0 0 24 24">
+                      <path d="M10.1 2.182a10 10 0 0 1 3.8 0"></path>
+                      <path d="M13.9 21.818a10 10 0 0 1-3.8 0"></path>
+                      <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"></path>
+                      <path d="M2.182 13.9a10 10 0 0 1 0-3.8"></path>
+                      <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"></path>
+                      <path d="M21.818 10.1a10 10 0 0 1 0 3.8"></path>
+                      <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"></path>
+                      <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"></path>
+                    </svg>
+                    <span>3대 대여 가능</span>
+                  </div>
+                </div>
+                <div class="equipment-select-circle"></div>
+              </div>
+              <!-- 예시 아이템 2 -->
+              <div class="equipment-item">
+                <div class="equipment-image">
+                  <img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd"
+                       alt="Canon EOS R5">
+                </div>
+                <div class="equipment-info">
+                  <h3>Canon EOS R5</h3>
+                  <div class="equipment-status">
+                    <svg fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         viewBox="0 0 24 24">
+                      <path d="M10.1 2.182a10 10 0 0 1 3.8 0"></path>
+                      <path d="M13.9 21.818a10 10 0 0 1-3.8 0"></path>
+                      <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"></path>
+                      <path d="M2.182 13.9a10 10 0 0 1 0-3.8"></path>
+                      <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"></path>
+                      <path d="M21.818 10.1a10 10 0 0 1 0 3.8"></path>
+                      <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"></path>
+                      <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"></path>
+                    </svg>
+                    <span>2대 대여 가능</span>
+                  </div>
+                </div>
+                <div class="equipment-select-circle"></div>
               </div>
             </div>
-            <div class="equipment-select-circle"></div>
-          </div>
 
-          <!-- 예시 아이템 2 -->
-          <div class="equipment-item">
-            <div class="equipment-image">
-              <img src="https://images.unsplash.com/photo-1506807803488-8eafc15315f0"
-                   alt="Zoom H6 레코더">
-            </div>
-            <div class="equipment-info">
-              <h3>Zoom H6 레코더</h3>
-              <div class="equipment-status">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                     stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round"
-                     viewBox="0 0 24 24">
-                  <path d="M10.1 2.182a10 10 0 0 1 3.8 0"></path>
-                  <path d="M13.9 21.818a10 10 0 0 1-3.8 0"></path>
-                  <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"></path>
-                  <path d="M2.182 13.9a10 10 0 0 1 0-3.8"></path>
-                  <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"></path>
-                  <path d="M21.818 10.1a10 10 0 0 1 0 3.8"></path>
-                  <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"></path>
-                  <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"></path>
-                </svg>
-                <span>2대 대여 가능</span>
+            <!-- 2) 사운드 섹션 -->
+            <h3 class="text-xl font-semibold mb-4">사운드</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <!-- 예시 아이템 1 -->
+              <div class="equipment-item">
+                <div class="equipment-image">
+                  <img src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc"
+                       alt="RODE NTG4+ 마이크">
+                </div>
+                <div class="equipment-info">
+                  <h3>RODE NTG4+ 마이크</h3>
+                  <div class="equipment-status">
+                    <svg fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         viewBox="0 0 24 24">
+                      <path d="M10.1 2.182a10 10 0 0 1 3.8 0"></path>
+                      <path d="M13.9 21.818a10 10 0 0 1-3.8 0"></path>
+                      <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"></path>
+                      <path d="M2.182 13.9a10 10 0 0 1 0-3.8"></path>
+                      <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"></path>
+                      <path d="M21.818 10.1a10 10 0 0 1 0 3.8"></path>
+                      <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"></path>
+                      <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"></path>
+                    </svg>
+                    <span>4대 대여 가능</span>
+                  </div>
+                </div>
+                <div class="equipment-select-circle"></div>
+              </div>
+              <!-- 예시 아이템 2 -->
+              <div class="equipment-item">
+                <div class="equipment-image">
+                  <img src="https://images.unsplash.com/photo-1506807803488-8eafc15315f0"
+                       alt="Zoom H6 레코더">
+                </div>
+                <div class="equipment-info">
+                  <h3>Zoom H6 레코더</h3>
+                  <div class="equipment-status">
+                    <svg fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         viewBox="0 0 24 24">
+                      <path d="M10.1 2.182a10 10 0 0 1 3.8 0"></path>
+                      <path d="M13.9 21.818a10 10 0 0 1-3.8 0"></path>
+                      <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"></path>
+                      <path d="M2.182 13.9a10 10 0 0 1 0-3.8"></path>
+                      <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"></path>
+                      <path d="M21.818 10.1a10 10 0 0 1 0 3.8"></path>
+                      <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"></path>
+                      <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"></path>
+                    </svg>
+                    <span>2대 대여 가능</span>
+                  </div>
+                </div>
+                <div class="equipment-select-circle"></div>
               </div>
             </div>
-            <div class="equipment-select-circle"></div>
+
+            <!-- 3) 조명 섹션 -->
+            <h3 class="text-xl font-semibold mb-4">조명</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <!-- 예시 아이템 1 -->
+              <div class="equipment-item">
+                <div class="equipment-image">
+                  <img src="https://images.unsplash.com/photo-1507224035462-59422e571429"
+                       alt="Aputure 120D II">
+                </div>
+                <div class="equipment-info">
+                  <h3>Aputure 120D II</h3>
+                  <div class="equipment-status">
+                    <svg fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         viewBox="0 0 24 24">
+                      <path d="M10.1 2.182a10 10 0 0 1 3.8 0"></path>
+                      <path d="M13.9 21.818a10 10 0 0 1-3.8 0"></path>
+                      <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"></path>
+                      <path d="M2.182 13.9a10 10 0 0 1 0-3.8"></path>
+                      <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"></path>
+                      <path d="M21.818 10.1a10 10 0 0 1 0 3.8"></path>
+                      <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"></path>
+                      <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"></path>
+                    </svg>
+                    <span>5대 대여 가능</span>
+                  </div>
+                </div>
+                <div class="equipment-select-circle"></div>
+              </div>
+              <!-- 예시 아이템 2 -->
+              <div class="equipment-item">
+                <div class="equipment-image">
+                  <img src="https://images.unsplash.com/photo-1586031988450-8f69c0c1ad2a"
+                       alt="Godox SL-60W">
+                </div>
+                <div class="equipment-info">
+                  <h3>Godox SL-60W</h3>
+                  <div class="equipment-status">
+                    <svg fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         viewBox="0 0 24 24">
+                      <path d="M10.1 2.182a10 10 0 0 1 3.8 0"></path>
+                      <path d="M13.9 21.818a10 10 0 0 1-3.8 0"></path>
+                      <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"></path>
+                      <path d="M2.182 13.9a10 10 0 0 1 0-3.8"></path>
+                      <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"></path>
+                      <path d="M21.818 10.1a10 10 0 0 1 0 3.8"></path>
+                      <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"></path>
+                      <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"></path>
+                    </svg>
+                    <span>3대 대여 가능</span>
+                  </div>
+                </div>
+                <div class="equipment-select-circle"></div>
+              </div>
+            </div>
+
+            <!-- 4) 편집실 섹션 -->
+            <h3 class="text-xl font-semibold mb-4">편집실</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <!-- 예시 아이템 1 -->
+              <div class="equipment-item">
+                <div class="equipment-image">
+                  <img src="https://images.unsplash.com/photo-1527457443442-47a1e2b26481"
+                       alt="Premiere Pro 편집실">
+                </div>
+                <div class="equipment-info">
+                  <h3>Premiere Pro 편집실</h3>
+                  <div class="equipment-status">
+                    <svg fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         viewBox="0 0 24 24">
+                      <path d="M10.1 2.182a10 10 0 0 1 3.8 0"></path>
+                      <path d="M13.9 21.818a10 10 0 0 1-3.8 0"></path>
+                      <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"></path>
+                      <path d="M2.182 13.9a10 10 0 0 1 0-3.8"></path>
+                      <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"></path>
+                      <path d="M21.818 10.1a10 10 0 0 1 0 3.8"></path>
+                      <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"></path>
+                      <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"></path>
+                    </svg>
+                    <span>2실 대여 가능</span>
+                  </div>
+                </div>
+                <div class="equipment-select-circle"></div>
+              </div>
+              <!-- 예시 아이템 2 -->
+              <div class="equipment-item">
+                <div class="equipment-image">
+                  <img src="https://images.unsplash.com/photo-1602516607531-61d80b7f1fe8"
+                       alt="DaVinci Resolve 편집실">
+                </div>
+                <div class="equipment-info">
+                  <h3>DaVinci Resolve 편집실</h3>
+                  <div class="equipment-status">
+                    <svg fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         viewBox="0 0 24 24">
+                      <path d="M10.1 2.182a10 10 0 0 1 3.8 0"></path>
+                      <path d="M13.9 21.818a10 10 0 0 1-3.8 0"></path>
+                      <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"></path>
+                      <path d="M2.182 13.9a10 10 0 0 1 0-3.8"></path>
+                      <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"></path>
+                      <path d="M21.818 10.1a10 10 0 0 1 0 3.8"></path>
+                      <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"></path>
+                      <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"></path>
+                    </svg>
+                    <span>1실 대여 가능</span>
+                  </div>
+                </div>
+                <div class="equipment-select-circle"></div>
+              </div>
+            </div>
+
+            <!-- 필요 시: 다음 단계로 넘어가는 버튼 등 -->
+            <button class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 font-medium">
+              다음 단계로
+            </button>
           </div>
         </div>
-      </section>
-
-      <!-- 조명 섹션 -->
-      <section class="mb-12">
-        <h3 class="section-title">조명</h3>
-        <div class="equipment-grid">
-          <!-- 예시 아이템 1 -->
-          <div class="equipment-item">
-            <div class="equipment-image">
-              <img src="https://images.unsplash.com/photo-1507224035462-59422e571429"
-                   alt="Aputure 120D II">
-            </div>
-            <div class="equipment-info">
-              <h3>Aputure 120D II</h3>
-              <div class="equipment-status">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                     stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round"
-                     viewBox="0 0 24 24">
-                  <path d="M10.1 2.182a10 10 0 0 1 3.8 0"></path>
-                  <path d="M13.9 21.818a10 10 0 0 1-3.8 0"></path>
-                  <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"></path>
-                  <path d="M2.182 13.9a10 10 0 0 1 0-3.8"></path>
-                  <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"></path>
-                  <path d="M21.818 10.1a10 10 0 0 1 0 3.8"></path>
-                  <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"></path>
-                  <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"></path>
-                </svg>
-                <span>5대 대여 가능</span>
-              </div>
-            </div>
-            <div class="equipment-select-circle"></div>
-          </div>
-
-          <!-- 예시 아이템 2 -->
-          <div class="equipment-item">
-            <div class="equipment-image">
-              <img src="https://images.unsplash.com/photo-1586031988450-8f69c0c1ad2a"
-                   alt="Godox SL-60W">
-            </div>
-            <div class="equipment-info">
-              <h3>Godox SL-60W</h3>
-              <div class="equipment-status">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                     stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round"
-                     viewBox="0 0 24 24">
-                  <path d="M10.1 2.182a10 10 0 0 1 3.8 0"></path>
-                  <path d="M13.9 21.818a10 10 0 0 1-3.8 0"></path>
-                  <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"></path>
-                  <path d="M2.182 13.9a10 10 0 0 1 0-3.8"></path>
-                  <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"></path>
-                  <path d="M21.818 10.1a10 10 0 0 1 0 3.8"></path>
-                  <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"></path>
-                  <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"></path>
-                </svg>
-                <span>3대 대여 가능</span>
-              </div>
-            </div>
-            <div class="equipment-select-circle"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 편집실 섹션 -->
-      <section class="mb-12">
-        <h3 class="section-title">편집실</h3>
-        <div class="equipment-grid">
-          <!-- 예시 아이템 1 -->
-          <div class="equipment-item">
-            <div class="equipment-image">
-              <img src="https://images.unsplash.com/photo-1527457443442-47a1e2b26481"
-                   alt="Premiere Pro 편집실">
-            </div>
-            <div class="equipment-info">
-              <h3>Premiere Pro 편집실</h3>
-              <div class="equipment-status">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                     stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round"
-                     viewBox="0 0 24 24">
-                  <path d="M10.1 2.182a10 10 0 0 1 3.8 0"></path>
-                  <path d="M13.9 21.818a10 10 0 0 1-3.8 0"></path>
-                  <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"></path>
-                  <path d="M2.182 13.9a10 10 0 0 1 0-3.8"></path>
-                  <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"></path>
-                  <path d="M21.818 10.1a10 10 0 0 1 0 3.8"></path>
-                  <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"></path>
-                  <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"></path>
-                </svg>
-                <span>2실 대여 가능</span>
-              </div>
-            </div>
-            <div class="equipment-select-circle"></div>
-          </div>
-
-          <!-- 예시 아이템 2 -->
-          <div class="equipment-item">
-            <div class="equipment-image">
-              <img src="https://images.unsplash.com/photo-1602516607531-61d80b7f1fe8"
-                   alt="DaVinci Resolve 편집실">
-            </div>
-            <div class="equipment-info">
-              <h3>DaVinci Resolve 편집실</h3>
-              <div class="equipment-status">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                     stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round"
-                     viewBox="0 0 24 24">
-                  <path d="M10.1 2.182a10 10 0 0 1 3.8 0"></path>
-                  <path d="M13.9 21.818a10 10 0 0 1-3.8 0"></path>
-                  <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"></path>
-                  <path d="M2.182 13.9a10 10 0 0 1 0-3.8"></path>
-                  <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"></path>
-                  <path d="M21.818 10.1a10 10 0 0 1 0 3.8"></path>
-                  <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"></path>
-                  <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"></path>
-                </svg>
-                <span>1실 대여 가능</span>
-              </div>
-            </div>
-            <div class="equipment-select-circle"></div>
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   </main>
 
-  <!-- 하단 -->
-  <footer class="bg-white border-t text-sm text-gray-500 py-6 text-center">
+  <!-- 하단 푸터 -->
+  <footer class="text-center text-sm text-gray-500 py-6 border-t border-gray-200">
     © 2025 연세예술원 영화학과 | 고객센터: 02-1234-5678
   </footer>
-
 </body>
 </html>
