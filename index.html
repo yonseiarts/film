@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    /* 슬라이드 베이스 */
     .slider-slide {
       position: absolute;
       inset: 0;
@@ -19,9 +20,11 @@
       opacity: 1;
       z-index: 10;
     }
+    /* 좌우 화살표 */
     .slider-arrow {
       @apply absolute top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full z-20;
     }
+    /* Nav bar에 살짝 그림자 */
     .nav-bar {
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
@@ -45,11 +48,11 @@
           <li><a href="detail_rode.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">로데 마이크</a></li>
         </ul>
       </li>
-      <!-- 예약하기 메뉴 삭제됨 -->
+      <!-- '예약하기' 메뉴 제거됨 -->
       <!-- <li><a href="form.html" class="hover:text-blue-600">예약하기</a></li> -->
       <li><a href="admin_login.html" class="hover:text-blue-600 transition-colors">고객센터</a></li>
+      <!-- 기자재 대여 신청 -> student_login.html -->
       <li>
-        <!-- 기자재 대여 신청 -> student_login.html -->
         <a
           href="student_login.html"
           class="ml-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
@@ -166,7 +169,7 @@
 </footer>
 
 <script>
-  // 슬라이드
+  // 슬라이드 로직
   const slides = document.querySelectorAll('.slider-slide');
   let currentSlide = 0;
 
@@ -176,20 +179,24 @@
       if(i === index) slide.classList.add('active');
     });
   }
+
   function nextSlide() {
     currentSlide = (currentSlide + 1) % slides.length;
     showSlide(currentSlide);
   }
+
   function prevSlide() {
     currentSlide = (currentSlide - 1 + slides.length) % slides.length;
     showSlide(currentSlide);
   }
+
   document.getElementById('nextBtn').addEventListener('click', nextSlide);
   document.getElementById('prevBtn').addEventListener('click', prevSlide);
 
-  // 자동 전환 (5초)
+  // 자동 전환 (5초 간격)
   setInterval(nextSlide, 5000);
-  // 초기 슬라이드
+
+  // 초기 표시
   showSlide(currentSlide);
 </script>
 </body>
