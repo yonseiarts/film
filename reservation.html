@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>장비 예약</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-md mx-auto mt-20 p-6 bg-white rounded shadow">
+    <h1 class="text-xl font-bold mb-4">장비 예약</h1>
+    <form id="reservationForm">
+      <label class="block mb-2 font-semibold">장비 선택</label>
+      <select id="equipmentSelect" class="w-full border p-2 rounded mb-4">
+        <option value="Blackmagic 6K">Blackmagic 6K</option>
+        <option value="Sony A7S">Sony A7S</option>
+        <option value="RODE NTG4+">RODE NTG4+</option>
+      </select>
+
+      <label class="block mb-2 font-semibold">대여 시작일</label>
+      <input type="date" id="startDate" class="w-full border p-2 rounded mb-4" required />
+
+      <label class="block mb-2 font-semibold">대여 종료일</label>
+      <input type="date" id="endDate" class="w-full border p-2 rounded mb-4" required />
+
+      <!-- 필요 시 이름/학번/연락처 등 더 넣을 수 있음 -->
+
+      <button
+        type="submit"
+        class="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700"
+      >
+        신청하기
+      </button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js";
+    import { myfirebaseConfig } from "./myfirebaseConfig.js";
+
+    const app = initializeApp(myfirebaseConfig);
+    const db = getFirestore(app);
+
+    document.getElementById('reservationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const equipment = document.getElementById('equipmentSelect').value;
+      const start = document.getElementById('startDate').value;
+      const end = document.getElementById('endDate').value;
+
+      try {
+        await addDoc(collection(db, 'rental_requests'), {
+          equipmentName: equipment,
+          startDate: start,
+          endDate: end,
+          status: 'pending',
+          createdAt: new Date().toISOString()
+        });
+        window.location.href = 'complete.html';
+      } catch (error) {
+        alert('예약 중 오류: ' + error.message);
+      }
+    });
+  </script>
+</body>
+</html>
