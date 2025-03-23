@@ -40,8 +40,6 @@
   </style>
 </head>
 <body class="bg-gray-50">
-
-  <!-- 상단 헤더 -->
   <div class="bg-blue-700 text-white py-6 text-center">
     <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
     <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
@@ -121,10 +119,11 @@
     <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4">
+        <!-- 아래 내용은 예시, 실제론 전체 규정 텍스트 삽입 -->
         <p class="font-bold mb-2">제1장 총칙</p>
         <p>제1조 (목적): 본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.</p>
         <p>제2조 (적용범위): 본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.</p>
-        <!-- ... 나머지 규정 텍스트 ... -->
+        <!-- ... 전체 규정 삽입 ... -->
       </div>
       <label class="flex items-center mb-4">
         <input type="checkbox" id="agreeCheck" class="mr-2"> 위 사용 규정에 동의합니다.
@@ -182,19 +181,20 @@
     let editingDate;
     let selectedTimes = []; // 시간 체크 배열
 
+    // 장비 데이터 (이미지 포함)
     const equipment = {
       camera: [
-        { id: "1", name: "Sony FX3" },
-        { id: "2", name: "Canon EOS R5" }
+        { id: "1", name: "Sony FX3", image: "https://via.placeholder.com/80?text=Sony+FX3" },
+        { id: "2", name: "Canon EOS R5", image: "https://via.placeholder.com/80?text=Canon+R5" }
       ],
       lighting: [
-        { id: "3", name: "ARRI SkyPanel" }
+        { id: "3", name: "ARRI SkyPanel", image: "https://via.placeholder.com/80?text=SkyPanel" }
       ],
       sound: [
-        { id: "4", name: "Sennheiser MKH" }
+        { id: "4", name: "Sennheiser MKH", image: "https://via.placeholder.com/80?text=MKH" }
       ],
       editing: [
-        { id: "5", name: "Premiere Workstation" }
+        { id: "5", name: "Premiere Workstation", image: "https://via.placeholder.com/80?text=Premiere" }
       ]
     };
 
@@ -202,9 +202,8 @@
     renderEquipment("camera");
     updateSelectedUI();
 
-    // Step 전환
     function goToStep(n) {
-      // 3단계로 가기 전 검사
+      // 3단계 이동 전 검사
       if (n === 3) {
         if (activeTab === "editing") {
           // 편집실
@@ -213,30 +212,27 @@
             alert("대여일자를 선택해주세요.");
             return;
           }
-          // 최소 2칸 연속 체크
-          if (!checkEditingTimes()) {
-            alert("편집실: 연속된 2시간 이상 선택해주세요.");
-            return;
-          }
         } else {
           // 카/조/사
           startDate = document.getElementById("startDate").value;
           endDate = document.getElementById("endDate").value;
           proofImage = document.getElementById("proofImage").files[0];
           if (!startDate || !endDate || !proofImage) {
-            alert("대여 시작일, 반납일, 증명사진을 모두 입력해주세요.");
+            alert("시작일, 반납일, 증명사진을 모두 입력해주세요.");
             return;
           }
         }
       }
 
-      // 4단계로 가기 전 검사
+      // 4단계 이동 전 규정 동의 체크
       if (n === 4) {
-        const agree = document.getElementById("agreeCheck").checked;
-        if (!agree) return;
+        if (!document.getElementById("agreeCheck").checked) {
+          return;
+        }
         displayFinalInfo();
       }
 
+      // 단계 전환
       document.getElementById(`step${step}`).classList.add("hidden");
       document.getElementById(`step${n}`).classList.remove("hidden");
       document.getElementById(`step${step}Btn`)?.classList.replace("step-active", "step-inactive");
@@ -254,42 +250,30 @@
       }
     }
 
-    // 편집실 시간 연속성 체크
-    function checkEditingTimes() {
-      if (selectedTimes.length < 2) return false;
-      const sorted = [...selectedTimes].sort((a, b) => a - b);
-      for (let i = 1; i < sorted.length; i++) {
-        if (sorted[i] !== sorted[i - 1] + 1) return false;
-      }
-      return true;
-    }
-
-    function formatTimes(times) {
-      if (!times.length) return "없음";
-      const sorted = [...times].sort((a, b) => a - b);
-      const start = sorted[0];
-      const end = sorted[sorted.length - 1];
-      return `${start}:00 ~ ${end}:00`;
-    }
-
-    // 최종 정보 표시
     function displayFinalInfo() {
       // 선택 장비
       document.getElementById("final-selected-items").innerHTML =
         selected.map(s => `<li>${s.name}</li>`).join("");
 
-      // 편집실 vs 일반
+      // 편집실 or 카/조/사
       if (activeTab === "editing") {
         document.getElementById("final-common").classList.add("hidden");
         document.getElementById("final-editing").classList.remove("hidden");
         document.getElementById("final-editing-date").innerText = `대여일자: ${editingDate}`;
-        document.getElementById("final-editing-time").innerText = `대여시간: ${formatTimes(selectedTimes)}`;
+        document.getElementById("final-editing-time").innerText = `선택시간: ${formatTimes(selectedTimes)}`;
       } else {
         document.getElementById("final-common").classList.remove("hidden");
         document.getElementById("final-editing").classList.add("hidden");
-        document.getElementById("final-rental-info").innerText = `대여 시작: ${startDate} / 반납: ${endDate}`;
+        document.getElementById("final-rental-info").innerText = `시작: ${startDate}, 반납: ${endDate}`;
         document.getElementById("final-proof-image").innerText = proofImage ? proofImage.name : "없음";
       }
+    }
+
+    // 편집실 시간 포맷
+    function formatTimes(arr) {
+      if (!arr.length) return "없음";
+      const sorted = [...arr].sort((a, b) => a - b);
+      return sorted.map(h => `${h}:00`).join(", ");
     }
 
     // 장비 목록 렌더
@@ -304,10 +288,23 @@
       equipment[tab].forEach(item => {
         const div = document.createElement("div");
         div.className = "equipment border p-4 rounded flex items-center cursor-pointer";
-        div.innerHTML = `<strong>${item.name}</strong>`;
+        div.innerHTML = `
+          <img src="${item.image}" class="w-14 h-14 rounded mr-4" alt="${item.name}" />
+          <strong>${item.name}</strong>
+        `;
         div.onclick = () => toggleItem(item, div);
         list.appendChild(div);
       });
+
+      // 2단계 UI
+      if (tab === "editing") {
+        document.getElementById("commonSection").classList.add("hidden");
+        document.getElementById("editingSection").classList.remove("hidden");
+        createTimeSlots();
+      } else {
+        document.getElementById("commonSection").classList.remove("hidden");
+        document.getElementById("editingSection").classList.add("hidden");
+      }
     }
 
     function toggleItem(item, el) {
@@ -336,18 +333,17 @@
         selected.map(s => `<li>${s.name}</li>`).join("");
     }
 
-    // 2단계에서 탭별로 분기
+    // 2단계 이동
     function validateStep2() {
       if (activeTab === "editing") {
         // 편집실
-        // 이미 editingDate & selectedTimes는 goToStep(3) 직전에 체크
         goToStep(3);
       } else {
         // 카/조/사
         const sd = document.getElementById("startDate").value;
         const ed = document.getElementById("endDate").value;
-        const proof = document.getElementById("proofImage").files[0];
-        if (!sd || !ed || !proof) {
+        const pf = document.getElementById("proofImage").files[0];
+        if (!sd || !ed || !pf) {
           alert("시작일, 반납일, 증명사진을 모두 입력해주세요.");
           return;
         }
@@ -355,7 +351,7 @@
       }
     }
 
-    // 편집실 전용 시간 생성
+    // 편집실 시간 슬롯 생성
     function createTimeSlots() {
       selectedTimes = [];
       const container = document.getElementById("timeGrid");
@@ -384,35 +380,20 @@
       }
     }
 
-    // 편집실 or not => 2단계 UI 전환
-    document.querySelectorAll(".tab-button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        // 탭 강조
-        document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-
-        renderEquipment(btn.dataset.tab);
-
-        // 2단계 UI 전환
-        const commonSec = document.getElementById("commonSection");
-        const editingSec = document.getElementById("editingSection");
-
-        if (btn.dataset.tab === "editing") {
-          commonSec.classList.add("hidden");
-          editingSec.classList.remove("hidden");
-          createTimeSlots();
-        } else {
-          commonSec.classList.remove("hidden");
-          editingSec.classList.add("hidden");
-        }
-      });
-    });
-
     // 규정 동의
     document.getElementById("agreeCheck").addEventListener("change", e => {
       const btn = document.getElementById("toStep4");
       btn.disabled = !e.target.checked;
       btn.classList.toggle("opacity-50", !e.target.checked);
+    });
+
+    // 탭 전환
+    document.querySelectorAll(".tab-button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderEquipment(btn.dataset.tab);
+      });
     });
   </script>
 </body>
