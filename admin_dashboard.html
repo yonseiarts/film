@@ -1,78 +1,112 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>관리자 대시보드</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <!-- Firebase SDK (compat) -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-</head>
-<body class="bg-gray-100">
-  <div class="max-w-6xl mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-6">관리자 대시보드</h1>
-    <button id="logoutBtn" class="bg-gray-600 text-white px-3 py-1 rounded mb-6">로그아웃</button>
-    <div id="rental-list" class="space-y-4"></div>
-  </div>
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <!-- Firebase v9 (Module) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot, orderBy, query, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
 
-  <script>
+    // Firebase 프로젝트 설정
     const firebaseConfig = {
-      // ... yonseirent-setup 웹 앱 config
+      apiKey: "YOUR_API_KEY",
+      authDomain: "yonseirent-setup.firebaseapp.com",
+      projectId: "yonseirent-setup",
+      storageBucket: "yonseirent-setup.appspot.com",
+      messagingSenderId: "YOUR_MSG_ID",
+      appId: "YOUR_APP_ID",
+      measurementId: "YOUR_MEASUREMENT_ID"
     };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
 
-    // 인증 확인
-    firebase.auth().onAuthStateChanged(user => {
+    // Firebase 초기화
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // 인증 상태 확인
+    onAuthStateChanged(auth, (user) => {
       if (!user) {
-        location.href = "admin-login.html";
+        // 로그인 안 된 상태면 로그인 페이지로 이동
+        window.location.href = "admin-login.html";
       } else {
-        // 로그인된 경우 목록 표시
-        fetchRentals();
+        // 로그인 된 상태면 신청 목록 불러오기
+        loadRentals();
       }
     });
 
-    // 로그아웃
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      firebase.auth().signOut().then(() => {
-        location.href = "admin-login.html";
-      });
-    });
+    // 신청 목록 불러오기
+    function loadRentals() {
+      const rentalsRef = collection(db, "rentals");
+      const q = query(rentalsRef, orderBy("date", "desc"));
 
-    function fetchRentals() {
-      db.collection("rentals").orderBy("createdAt", "desc").onSnapshot(snapshot => {
+      onSnapshot(q, (snapshot) => {
         const container = document.getElementById("rental-list");
         container.innerHTML = "";
 
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const docId = doc.id;
-          container.innerHTML += renderRentalItem(docId, data);
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          const docId = docSnap.id;
+
+          // 상태 색상
+          let statusColor = "text-gray-600";
+          if (data.status === "승인됨") statusColor = "text-green-600 font-semibold";
+          if (data.status === "반려됨") statusColor = "text-red-600 font-semibold";
+
+          // 목록 아이템 UI
+          const div = document.createElement("div");
+          div.className = "bg-white p-4 rounded shadow mb-4";
+          div.innerHTML = `
+            <h3 class="text-lg font-bold mb-1">${data.name || "이름 없음"}</h3>
+            <p>장비: ${data.items ? data.items.join(", ") : "없음"}</p>
+            <p>대여일: ${data.date || "-"}</p>
+            <p>시간: ${data.timeSlots ? data.timeSlots.join(", ") + "시" : "-"}</p>
+            <p>상태: <span class="${statusColor}">${data.status || "대기중"}</span></p>
+            <p class="mt-2">증명사진: ${
+              data.proofPhoto
+                ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>`
+                : "없음"
+            }</p>
+            <div class="mt-2 flex space-x-2">
+              <button class="bg-green-500 text-white px-3 py-1 rounded" onclick="updateStatus('${docId}', '승인됨')">승인</button>
+              <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="updateStatus('${docId}', '반려됨')">반려</button>
+            </div>
+          `;
+          container.appendChild(div);
         });
       });
     }
 
-    function renderRentalItem(id, data) {
-      return `
-        <div class="bg-white p-4 rounded shadow">
-          <p><strong>신청자:</strong> ${data.userEmail || "(이름 미입력)"}</p>
-          <p><strong>장비:</strong> ${data.selectedItems?.join(", ") || "N/A"}</p>
-          <p><strong>대여일자:</strong> ${data.startDate || "-"} ~ ${data.endDate || "-"}</p>
-          <p><strong>상태:</strong> <span class="font-semibold">${data.status || "대기"}</span></p>
-          ${data.proofImageURL ? `<p><strong>증명사진:</strong> <a href="${data.proofImageURL}" target="_blank" class="text-blue-600 underline">보기</a></p>` : ""}
-          <div class="mt-2 space-x-2">
-            <button class="px-3 py-1 bg-green-500 text-white rounded" onclick="updateStatus('${id}', '승인')">승인</button>
-            <button class="px-3 py-1 bg-red-500 text-white rounded" onclick="updateStatus('${id}', '반려')">반려</button>
-          </div>
-        </div>
-      `;
+    // 승인/반려 처리
+    async function updateStatus(docId, newStatus) {
+      const docRef = doc(db, "rentals", docId);
+      await updateDoc(docRef, { status: newStatus });
     }
 
-    function updateStatus(docId, newStatus) {
-      db.collection("rentals").doc(docId).update({ status: newStatus });
+    // 로그아웃
+    window.logout = function () {
+      signOut(auth).then(() => {
+        window.location.href = "admin-login.html";
+      });
     }
   </script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <header class="bg-white shadow p-4 mb-6">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold">관리자 대시보드</h1>
+      <button onclick="logout()" class="bg-gray-300 hover:bg-gray-400 text-sm px-3 py-1 rounded">로그아웃</button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-4">
+    <div id="rental-list">
+      <!-- Firestore에서 불러온 신청 목록이 표시됩니다 -->
+    </div>
+  </main>
 </body>
 </html>
