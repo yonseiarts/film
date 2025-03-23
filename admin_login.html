@@ -1,40 +1,46 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>관리자 로그인</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-sm">
+    <h2 class="text-2xl font-bold mb-4 text-center">관리자 로그인</h2>
+    <input type="email" id="email" placeholder="이메일" class="border w-full p-2 rounded mb-3">
+    <input type="password" id="password" placeholder="비밀번호" class="border w-full p-2 rounded mb-4">
+    <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded">로그인</button>
+    <p id="error" class="text-red-600 text-sm mt-3 hidden">이메일 또는 비밀번호가 잘못되었습니다.</p>
+  </div>
+
   <script>
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      authDomain: "YOUR_AUTH_DOMAIN",
       projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      storageBucket: "YOUR_STORAGE_BUCKET",
       messagingSenderId: "YOUR_SENDER_ID",
       appId: "YOUR_APP_ID"
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
 
-    function loginAdmin() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      auth.signInWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          alert("로그인 성공!");
-          window.location.href = "admin-dashboard.html";
+    firebase.initializeApp(firebaseConfig);
+
+    function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(() => {
+          location.href = 'admin-dashboard.html'; // 성공 시 대시보드로 이동
         })
-        .catch(error => {
-          alert("로그인 실패: " + error.message);
+        .catch((error) => {
+          document.getElementById('error').classList.remove('hidden');
         });
     }
   </script>
-</head>
-<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen">
-  <h1 class="text-xl font-bold mb-4">관리자 로그인</h1>
-  <input id="email" type="email" placeholder="이메일" class="mb-2 p-2 border rounded w-64" />
-  <input id="password" type="password" placeholder="비밀번호" class="mb-4 p-2 border rounded w-64" />
-  <button onclick="loginAdmin()" class="bg-blue-600 text-white px-4 py-2 rounded">로그인</button>
 </body>
 </html>
