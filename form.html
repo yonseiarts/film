@@ -1,29 +1,33 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>기자재 대여 신청 (탭 분류)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>기자재 대여 신청 (배너형 분류)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* 탭 스타일 */
-    .tabs {
-      @apply flex border-b mb-4;
+    /* 가로형 배너 스타일 */
+    .banner-cat {
+      /* 배너 크기, 배경 이미지/색상, 텍스트 스타일 */
+      @apply relative flex items-center justify-center rounded-lg cursor-pointer text-white text-xl font-bold overflow-hidden;
+      height: 140px; /* 필요 시 조절 */
+      transition: transform 0.3s;
     }
-    .tab {
-      @apply py-2 px-4 cursor-pointer text-gray-600 border-b-2 border-transparent;
-      transition: color 0.2s;
+    .banner-cat:hover {
+      @apply scale-105 shadow-lg;
     }
-    .tab:hover {
-      @apply text-blue-600;
+    .banner-cat::before {
+      /* 반투명 오버레이 */
+      content: "";
+      @apply absolute inset-0 bg-black/40;
     }
-    .tab.active {
-      @apply text-blue-600 border-blue-600 font-semibold;
+    .banner-cat > span {
+      @apply relative z-10;
     }
 
-    /* 카드 */
+    /* 아이템 카드 */
     .item-card {
       @apply relative flex items-center gap-2 p-3 rounded-md border border-gray-200 bg-white cursor-pointer;
       transition: border-color 0.2s, background-color 0.2s;
@@ -42,7 +46,6 @@
     .item-card.selected .check-icon {
       @apply flex;
     }
-
   </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
@@ -65,100 +68,121 @@
 
   <!-- 메인 -->
   <main class="max-w-5xl mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold mb-6">필요한 장비를 선택해주세요. (탭 별 분류)</h1>
 
-    <!-- 탭 영역 -->
-    <ul id="tabs" class="tabs">
-      <li class="tab active" data-tab="camera">카메라</li>
-      <li class="tab" data-tab="audio">오디오</li>
-      <li class="tab" data-tab="light">조명</li>
-      <li class="tab" data-tab="edit">편집실</li>
-    </ul>
-
-    <!-- 섹션 1: 카메라 -->
-    <section class="tab-content" data-content="camera">
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <!-- 예시 아이템 1 -->
-        <div class="item-card" data-name="Sony FX3 (ILME-FX3)">
-          <div class="check-icon">✓</div>
-          <img
-            src="https://images.unsplash.com/photo-1599350752070-7908a994cde9?auto=format&fit=crop&w=400&q=80"
-            alt="Sony FX3"
-          />
-          <div>
-            <p class="font-medium">Sony FX3 (ILME-FX3)</p>
-            <p class="text-sm text-gray-500">수량: 4 (고정)</p>
-          </div>
-        </div>
-        <!-- 예시 아이템 2 -->
-        <div class="item-card" data-name="Canon EOS R5">
-          <div class="check-icon">✓</div>
-          <img
-            src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=400&q=80"
-            alt="Canon EOS R5"
-          />
-          <div>
-            <p class="font-medium">Canon EOS R5</p>
-            <p class="text-sm text-gray-500">수량: 3 (고정)</p>
-          </div>
-        </div>
-        <!-- ... 추가 아이템 -->
+    <!-- 가로형 배너 (4개) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <!-- 배너1: 카메라 -->
+      <div class="banner-cat"
+           data-cat="camera"
+           style="background-image: url('https://images.unsplash.com/photo-1599350752070-7908a994cde9?auto=format&fit=crop&w=800&q=80');">
+        <span>카메라</span>
       </div>
-    </section>
-
-    <!-- 섹션 2: 오디오 -->
-    <section class="tab-content hidden" data-content="audio">
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div class="item-card" data-name="Sennheiser MKH 416">
-          <div class="check-icon">✓</div>
-          <img
-            src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=400&q=80"
-            alt="Sennheiser MKH 416"
-          />
-          <div>
-            <p class="font-medium">Sennheiser MKH 416</p>
-            <p class="text-sm text-gray-500">수량: 2 (고정)</p>
-          </div>
-        </div>
-        <!-- ... 추가 아이템 -->
+      <!-- 배너2: 오디오 -->
+      <div class="banner-cat"
+           data-cat="audio"
+           style="background-image: url('https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=800&q=80');">
+        <span>오디오</span>
       </div>
-    </section>
-
-    <!-- 섹션 3: 조명 -->
-    <section class="tab-content hidden" data-content="light">
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div class="item-card" data-name="ARRI SkyPanel S60-C">
-          <div class="check-icon">✓</div>
-          <img
-            src="https://images.unsplash.com/photo-1598447861940-d868649f811f?auto=format&fit=crop&w=400&q=80"
-            alt="ARRI SkyPanel"
-          />
-          <div>
-            <p class="font-medium">ARRI SkyPanel S60-C</p>
-            <p class="text-sm text-gray-500">수량: 3 (고정)</p>
-          </div>
-        </div>
-        <!-- ... 추가 아이템 -->
+      <!-- 배너3: 조명 -->
+      <div class="banner-cat"
+           data-cat="light"
+           style="background-image: url('https://images.unsplash.com/photo-1598447861940-d868649f811f?auto=format&fit=crop&w=800&q=80');">
+        <span>조명</span>
       </div>
-    </section>
-
-    <!-- 섹션 4: 편집실 -->
-    <section class="tab-content hidden" data-content="edit">
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div class="item-card" data-name="DaVinci Resolve 편집실">
-          <div class="check-icon">✓</div>
-          <img
-            src="https://images.unsplash.com/photo-1602516607531-61d80b7f1fe8?auto=format&fit=crop&w=400&q=80"
-            alt="DaVinci Resolve"
-          />
-          <div>
-            <p class="font-medium">DaVinci Resolve 편집실</p>
-            <p class="text-sm text-gray-500">수량: 1 (고정)</p>
-          </div>
-        </div>
-        <!-- ... 추가 아이템 -->
+      <!-- 배너4: 편집실 -->
+      <div class="banner-cat"
+           data-cat="edit"
+           style="background-image: url('https://images.unsplash.com/photo-1602516607531-61d80b7f1fe8?auto=format&fit=crop&w=800&q=80');">
+        <span>편집실</span>
       </div>
-    </section>
+    </div>
+
+    <!-- 안내문 -->
+    <p class="text-sm text-gray-500 mb-6">
+      필요한 장비 카테고리를 선택해주세요. 아래에 해당 섹션의 장비가 표시됩니다.
+    </p>
+
+    <!-- 섹션 컨테이너 (기자재 목록) -->
+    <div id="sectionContainer" class="space-y-8">
+
+      <!-- 카메라 섹션 -->
+      <section class="hidden" data-content="camera">
+        <h2 class="text-xl font-semibold mb-3">카메라</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <!-- 아이템 예시 1 -->
+          <div class="item-card" data-name="Sony FX3 (ILME-FX3)">
+            <div class="check-icon">✓</div>
+            <img
+              src="https://images.unsplash.com/photo-1599350752070-7908a994cde9?auto=format&fit=crop&w=400&q=80"
+              alt="Sony FX3"
+            />
+            <div>
+              <p class="font-medium">Sony FX3 (ILME-FX3)</p>
+              <p class="text-sm text-gray-500">수량: 4 (고정)</p>
+            </div>
+          </div>
+          <!-- ... 더 많은 아이템 -->
+        </div>
+      </section>
+
+      <!-- 오디오 섹션 -->
+      <section class="hidden" data-content="audio">
+        <h2 class="text-xl font-semibold mb-3">오디오</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div class="item-card" data-name="Sennheiser MKH 416">
+            <div class="check-icon">✓</div>
+            <img
+              src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=400&q=80"
+              alt="Sennheiser MKH 416"
+            />
+            <div>
+              <p class="font-medium">Sennheiser MKH 416</p>
+              <p class="text-sm text-gray-500">수량: 2 (고정)</p>
+            </div>
+          </div>
+          <!-- ... 더 많은 아이템 -->
+        </div>
+      </section>
+
+      <!-- 조명 섹션 -->
+      <section class="hidden" data-content="light">
+        <h2 class="text-xl font-semibold mb-3">조명</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div class="item-card" data-name="ARRI SkyPanel S60-C">
+            <div class="check-icon">✓</div>
+            <img
+              src="https://images.unsplash.com/photo-1598447861940-d868649f811f?auto=format&fit=crop&w=400&q=80"
+              alt="ARRI SkyPanel"
+            />
+            <div>
+              <p class="font-medium">ARRI SkyPanel S60-C</p>
+              <p class="text-sm text-gray-500">수량: 3 (고정)</p>
+            </div>
+          </div>
+          <!-- ... 더 많은 아이템 -->
+        </div>
+      </section>
+
+      <!-- 편집실 섹션 -->
+      <section class="hidden" data-content="edit">
+        <h2 class="text-xl font-semibold mb-3">편집실</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div class="item-card" data-name="DaVinci Resolve 편집실">
+            <div class="check-icon">✓</div>
+            <img
+              src="https://images.unsplash.com/photo-1602516607531-61d80b7f1fe8?auto=format&fit=crop&w=400&q=80"
+              alt="DaVinci Resolve"
+            />
+            <div>
+              <p class="font-medium">DaVinci Resolve 편집실</p>
+              <p class="text-sm text-gray-500">수량: 1 (고정)</p>
+            </div>
+          </div>
+          <!-- ... 더 많은 아이템 -->
+        </div>
+      </section>
+
+    </div>
 
     <!-- 선택된 장비 표시 & 다음 단계 -->
     <div class="border-t pt-4 mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -184,31 +208,25 @@
   </footer>
 
   <script>
-    // 탭 로직
-    const tabs = document.querySelectorAll('.tab');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        // 모든 탭 비활성
-        tabs.forEach(t => t.classList.remove('active'));
-        // 현재 탭 활성
-        tab.classList.add('active');
-
-        const target = tab.getAttribute('data-tab');
+    // 1) 배너 클릭 시 해당 섹션만 보이기
+    const banners = document.querySelectorAll('.banner-cat');
+    const sections = document.querySelectorAll('[data-content]');
+    banners.forEach(banner => {
+      banner.addEventListener('click', () => {
+        const cat = banner.getAttribute('data-cat');
         // 모든 섹션 숨기기
-        tabContents.forEach(sec => {
-          sec.classList.add('hidden');
-        });
+        sections.forEach(sec => sec.classList.add('hidden'));
         // 해당 섹션만 표시
-        document.querySelector(`[data-content="${target}"]`).classList.remove('hidden');
+        const targetSec = document.querySelector(`[data-content="${cat}"]`);
+        if (targetSec) {
+          targetSec.classList.remove('hidden');
+        }
       });
     });
 
-    // 선택된 아이템
+    // 2) 기자재 아이템 선택 로직
     let selectedItems = [];
 
-    // 카드 클릭 시
     document.querySelectorAll('.item-card').forEach(card => {
       card.addEventListener('click', () => {
         card.classList.toggle('selected');
@@ -237,11 +255,10 @@
       });
     }
 
-    // 다음 단계
+    // 3) 다음 단계 버튼
     document.getElementById('btnNextStep').addEventListener('click', () => {
-      // localStorage에 저장
       localStorage.setItem('selectedEquipments', JSON.stringify(selectedItems));
-      // 페이지 이동
+      // 실제 구현 시 form_step2.html 파일 필요
       window.location.href = 'form_step2.html';
     });
   </script>
