@@ -3,100 +3,204 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>기자재 대여 - 대여일 선택</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script>
-    function validateDateRange() {
-      const startInput = document.getElementById('start-date');
-      const endInput = document.getElementById('end-date');
-      const errorText = document.getElementById('error-text');
-
-      const startDate = new Date(startInput.value);
-      const endDate = new Date(endInput.value);
-      const maxDiff = 3; // 최대 3일
-
-      if (startDate && endDate) {
-        const timeDiff = endDate - startDate;
-        const dayDiff = timeDiff / (1000 * 60 * 60 * 24);
-
-        if (dayDiff < 0) {
-          errorText.innerText = "⚠️ 반납일은 시작일보다 이후여야 합니다.";
-          return false;
-        } else if (dayDiff > maxDiff) {
-          errorText.innerText = "⚠️ 대여는 최대 3일까지 가능합니다.";
-          return false;
-        } else {
-          errorText.innerText = "";
-          return true;
-        }
-      }
-      return false;
+  <title>기자재 대여 신청</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" />
+  <style>
+    .selected {
+      border-color: #facc15;
+      background-color: #fff9c2;
     }
-
-    function handleSubmit(e) {
-      if (!validateDateRange()) {
-        e.preventDefault(); // 제출 막기
-      }
+    .checkmark {
+      display: none;
     }
-  </script>
+    .selected .checkmark {
+      display: inline-block;
+      font-weight: bold;
+      font-size: 1.5rem;
+      color: #facc15;
+    }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
-  <!-- 헤더 -->
-  <div class="bg-blue-700 text-white py-8 px-4">
-    <div class="max-w-4xl mx-auto">
-      <h1 class="text-2xl font-bold mb-2">기자재 대여 예약</h1>
-      <p class="text-blue-100">원하는 대여 시작일과 반납일을 선택해주세요.</p>
+<body class="bg-gray-50 min-h-screen">
+
+<!-- Header -->
+<div class="bg-blue-700 text-white py-8 px-4">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold mb-1">기자재 대여 예약</h1>
+    <p class="text-blue-100">원하는 장비와 날짜를 선택하고 간편하게 신청하세요!</p>
+  </div>
+</div>
+
+<!-- 진행단계 -->
+<div class="max-w-4xl mx-auto py-6 px-4 flex justify-between items-center">
+  <div class="flex items-center space-x-2">
+    <div id="step1-badge" class="w-8 h-8 rounded-full bg-blue-700 text-white flex items-center justify-center font-bold">1</div>
+    <span class="text-sm font-medium">장비 선택</span>
+  </div>
+  <div class="flex items-center space-x-2">
+    <div id="step2-badge" class="w-8 h-8 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold">2</div>
+    <span class="text-sm font-medium">대여일 선택</span>
+  </div>
+</div>
+
+<!-- 1단계: 장비 선택 -->
+<div id="step1" class="max-w-4xl mx-auto px-4">
+  <div class="mb-6">
+    <h2 class="text-xl font-bold mb-2">장비 선택</h2>
+    <p class="text-gray-600 mb-4">카테고리를 선택한 후 원하는 장비를 골라주세요.</p>
+    <div class="flex gap-3 mb-4">
+      <button class="tab-btn px-4 py-2 border rounded" data-tab="camera">📷 카메라</button>
+      <button class="tab-btn px-4 py-2 border rounded" data-tab="lighting">💡 조명</button>
+      <button class="tab-btn px-4 py-2 border rounded" data-tab="sound">🎤 사운드</button>
+      <button class="tab-btn px-4 py-2 border rounded" data-tab="editing">💻 편집실</button>
+    </div>
+    <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6"></div>
+
+    <div id="selected-list" class="bg-white border rounded-lg p-4 mt-6 hidden">
+      <h3 class="font-semibold mb-2">선택된 장비</h3>
+      <ul class="text-sm text-gray-700 space-y-1" id="selected-items"></ul>
+    </div>
+
+    <div class="mt-6 flex justify-end">
+      <button id="go-to-step2" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 hidden">다음 단계 →</button>
     </div>
   </div>
+</div>
 
-  <!-- 본문 -->
-  <main class="max-w-3xl mx-auto py-12 px-4">
-    <!-- 단계 표시 -->
-    <div class="flex justify-between items-center mb-8">
-      <div class="flex items-center space-x-2 text-gray-500">
-        <div class="w-8 h-8 rounded-full bg-blue-700 text-white flex items-center justify-center font-bold">1</div>
-        <span class="text-sm font-medium">장비 선택</span>
-      </div>
-      <div class="flex items-center space-x-2">
-        <div class="w-8 h-8 rounded-full bg-blue-700 text-white flex items-center justify-center font-bold">2</div>
-        <span class="text-sm font-medium">대여일 선택</span>
-      </div>
-      <div class="flex items-center space-x-2 text-gray-400">
-        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center font-bold text-white">3</div>
-        <span class="text-sm font-medium">정보 입력</span>
-      </div>
-      <div class="flex items-center space-x-2 text-gray-400">
-        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center font-bold text-white">4</div>
-        <span class="text-sm font-medium">완료</span>
-      </div>
+<!-- 2단계: 대여일 선택 -->
+<div id="step2" class="max-w-4xl mx-auto px-4 hidden">
+  <h2 class="text-xl font-bold mb-2">대여일 선택</h2>
+  <p class="text-gray-600 mb-6">일반 대여는 <span class="text-blue-600 font-semibold">최대 3일</span>까지 가능합니다.</p>
+
+  <div class="bg-white p-6 rounded shadow-md space-y-4">
+    <label class="block">
+      <span class="text-sm font-medium text-gray-700">대여 시작일</span>
+      <input id="startDate" type="date" class="mt-1 block w-full border p-2 rounded" />
+    </label>
+    <label class="block">
+      <span class="text-sm font-medium text-gray-700">반납일</span>
+      <input id="endDate" type="date" class="mt-1 block w-full border p-2 rounded" />
+      <small class="text-gray-500">※ 시작일 기준 최대 3일까지 선택 가능합니다.</small>
+    </label>
+    <label class="block">
+      <span class="text-sm font-medium text-gray-700">증명사진 업로드</span>
+      <input id="photo" type="file" accept="image/*" class="mt-1 block w-full text-sm" />
+    </label>
+
+    <div class="flex justify-between mt-6">
+      <button id="back-to-step1" class="text-blue-600 hover:underline text-sm">← 이전 단계</button>
+      <button id="submit-button" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">다음 단계</button>
     </div>
+  </div>
+</div>
 
-    <!-- 제목 -->
-    <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-    <p class="text-gray-600 mb-6">일반 대여는 최대 <span class="font-medium text-blue-600">3일</span>까지 가능합니다.</p>
+<script>
+  const equipmentData = {
+    camera: [
+      { id: "1", name: "Sony FX3", available: 3 },
+      { id: "2", name: "Canon EOS R5", available: 2 }
+    ],
+    lighting: [{ id: "3", name: "ARRI SkyPanel S60-C", available: 4 }],
+    sound: [{ id: "4", name: "Sennheiser MKH 416", available: 6 }],
+    editing: [{ id: "5", name: "Premiere Pro 워크스테이션", available: 2 }]
+  };
 
-    <!-- 폼 -->
-    <form action="complete.html" method="POST" class="bg-white p-6 rounded-lg shadow-md space-y-6" onsubmit="handleSubmit(event)">
-      <div>
-        <label for="start-date" class="block text-sm font-medium text-gray-700 mb-1">대여 시작일</label>
-        <input type="date" id="start-date" name="start-date" required class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-500">
-      </div>
+  const selected = [];
+  const equipmentList = document.getElementById("equipment-list");
+  const selectedItems = document.getElementById("selected-items");
+  const selectedList = document.getElementById("selected-list");
+  const nextStepBtn = document.getElementById("go-to-step2");
 
-      <div>
-        <label for="end-date" class="block text-sm font-medium text-gray-700 mb-1">반납일</label>
-        <input type="date" id="end-date" name="end-date" required class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-500">
-        <p class="text-sm text-gray-400 mt-1">※ 반납일은 시작일 기준 최대 3일까지 가능합니다.</p>
-        <p id="error-text" class="text-sm text-red-500 mt-1"></p>
-      </div>
+  function renderEquipment(category) {
+    equipmentList.innerHTML = "";
+    equipmentData[category].forEach(item => {
+      const div = document.createElement("div");
+      div.className = "border rounded-lg p-4 flex justify-between items-center cursor-pointer";
+      div.dataset.id = item.id;
+      div.dataset.name = item.name;
+      div.innerHTML = `
+        <div>
+          <h3 class="font-semibold">${item.name}</h3>
+          <p class="text-sm text-gray-500">${item.available}대 대여 가능</p>
+        </div>
+        <span class="checkmark">✔️</span>
+      `;
+      div.addEventListener("click", () => toggleSelect(item, div));
+      equipmentList.appendChild(div);
+    });
+  }
 
-      <!-- 이동 버튼 -->
-      <div class="flex justify-between items-center pt-6">
-        <a href="rental_step1.html" class="text-blue-600 hover:underline text-sm">← 이전 단계</a>
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
-          다음 단계 →
-        </button>
-      </div>
-    </form>
-  </main>
+  function toggleSelect(item, element) {
+    const found = selected.find(e => e.id === item.id);
+    if (found) {
+      selected.splice(selected.indexOf(found), 1);
+      element.classList.remove("selected");
+    } else {
+      selected.push(item);
+      element.classList.add("selected");
+    }
+    updateSelected();
+  }
+
+  function updateSelected() {
+    if (selected.length > 0) {
+      selectedList.classList.remove("hidden");
+      nextStepBtn.classList.remove("hidden");
+      selectedItems.innerHTML = selected.map(s => `<li>📷 ${s.name}</li>`).join("");
+    } else {
+      selectedList.classList.add("hidden");
+      nextStepBtn.classList.add("hidden");
+    }
+  }
+
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("bg-blue-100"));
+      btn.classList.add("bg-blue-100");
+      renderEquipment(btn.dataset.tab);
+    });
+  });
+
+  renderEquipment("camera");
+
+  // 단계 전환
+  nextStepBtn.addEventListener("click", () => {
+    document.getElementById("step1").classList.add("hidden");
+    document.getElementById("step2").classList.remove("hidden");
+    document.getElementById("step1-badge").classList.remove("bg-blue-700");
+    document.getElementById("step1-badge").classList.add("bg-gray-300");
+    document.getElementById("step2-badge").classList.remove("bg-gray-300");
+    document.getElementById("step2-badge").classList.add("bg-blue-700");
+  });
+
+  document.getElementById("back-to-step1").addEventListener("click", () => {
+    document.getElementById("step1").classList.remove("hidden");
+    document.getElementById("step2").classList.add("hidden");
+    document.getElementById("step1-badge").classList.add("bg-blue-700");
+    document.getElementById("step1-badge").classList.remove("bg-gray-300");
+    document.getElementById("step2-badge").classList.add("bg-gray-300");
+    document.getElementById("step2-badge").classList.remove("bg-blue-700");
+  });
+
+  document.getElementById("submit-button").addEventListener("click", () => {
+    const start = new Date(document.getElementById("startDate").value);
+    const end = new Date(document.getElementById("endDate").value);
+    const photo = document.getElementById("photo").files[0];
+
+    if (!start || !end || !photo) {
+      alert("모든 정보를 입력해주세요.");
+      return;
+    }
+
+    const diff = (end - start) / (1000 * 60 * 60 * 24);
+    if (diff < 0 || diff > 3) {
+      alert("대여일은 시작일 기준 최대 3일까지 가능합니다.");
+      return;
+    }
+
+    alert("다음 단계로 이동합니다 (3단계 준비 중).");
+    // 이후 3단계로 전환 가능
+  });
+</script>
 </body>
 </html>
