@@ -2,157 +2,101 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>기자재 대여 신청 - 장비 선택</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-  <style>
-    .selected {
-      border-color: #facc15;
-      background-color: #fef9c3;
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>기자재 대여 - 대여일 선택</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script>
+    function validateDateRange() {
+      const startInput = document.getElementById('start-date');
+      const endInput = document.getElementById('end-date');
+      const errorText = document.getElementById('error-text');
+
+      const startDate = new Date(startInput.value);
+      const endDate = new Date(endInput.value);
+      const maxDiff = 3; // 최대 3일
+
+      if (startDate && endDate) {
+        const timeDiff = endDate - startDate;
+        const dayDiff = timeDiff / (1000 * 60 * 60 * 24);
+
+        if (dayDiff < 0) {
+          errorText.innerText = "⚠️ 반납일은 시작일보다 이후여야 합니다.";
+          return false;
+        } else if (dayDiff > maxDiff) {
+          errorText.innerText = "⚠️ 대여는 최대 3일까지 가능합니다.";
+          return false;
+        } else {
+          errorText.innerText = "";
+          return true;
+        }
+      }
+      return false;
     }
-    .checkmark {
-      display: none;
+
+    function handleSubmit(e) {
+      if (!validateDateRange()) {
+        e.preventDefault(); // 제출 막기
+      }
     }
-    .selected .checkmark {
-      display: inline-block;
-    }
-  </style>
+  </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <!-- 상단 배너 -->
+<body class="bg-gray-50 text-gray-900">
+  <!-- 헤더 -->
   <div class="bg-blue-700 text-white py-8 px-4">
     <div class="max-w-4xl mx-auto">
       <h1 class="text-2xl font-bold mb-2">기자재 대여 예약</h1>
-      <p class="text-blue-100">필요한 장비를 선택하고 날짜를 지정하여 간편하게 예약하세요. 관리자 승인 후 수령하실 수 있습니다.</p>
+      <p class="text-blue-100">원하는 대여 시작일과 반납일을 선택해주세요.</p>
     </div>
   </div>
 
-  <div class="max-w-4xl mx-auto py-8 px-4">
+  <!-- 본문 -->
+  <main class="max-w-3xl mx-auto py-12 px-4">
     <!-- 단계 표시 -->
-    <div class="flex justify-between items-center mb-6">
-      <div class="flex items-center space-x-2">
+    <div class="flex justify-between items-center mb-8">
+      <div class="flex items-center space-x-2 text-gray-500">
         <div class="w-8 h-8 rounded-full bg-blue-700 text-white flex items-center justify-center font-bold">1</div>
         <span class="text-sm font-medium">장비 선택</span>
       </div>
-      <div class="flex items-center space-x-2 opacity-50">
-        <div class="w-8 h-8 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold">2</div>
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded-full bg-blue-700 text-white flex items-center justify-center font-bold">2</div>
         <span class="text-sm font-medium">대여일 선택</span>
       </div>
-      <div class="flex items-center space-x-2 opacity-50">
-        <div class="w-8 h-8 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold">3</div>
+      <div class="flex items-center space-x-2 text-gray-400">
+        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center font-bold text-white">3</div>
         <span class="text-sm font-medium">정보 입력</span>
       </div>
-      <div class="flex items-center space-x-2 opacity-50">
-        <div class="w-8 h-8 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold">4</div>
+      <div class="flex items-center space-x-2 text-gray-400">
+        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center font-bold text-white">4</div>
         <span class="text-sm font-medium">완료</span>
       </div>
     </div>
 
-    <!-- 장비 카테고리 탭 -->
-    <h2 class="text-xl font-bold mb-4">장비 선택</h2>
-    <p class="text-gray-600 mb-6">원하는 장비를 선택해주세요. 여러 개 선택 가능합니다.</p>
+    <!-- 제목 -->
+    <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
+    <p class="text-gray-600 mb-6">일반 대여는 최대 <span class="font-medium text-blue-600">3일</span>까지 가능합니다.</p>
 
-    <div class="flex space-x-4 mb-6">
-      <button class="tab-btn px-4 py-2 border rounded" data-tab="camera">카메라</button>
-      <button class="tab-btn px-4 py-2 border rounded" data-tab="lighting">조명</button>
-      <button class="tab-btn px-4 py-2 border rounded" data-tab="sound">사운드</button>
-      <button class="tab-btn px-4 py-2 border rounded" data-tab="editing">편집실</button>
-    </div>
+    <!-- 폼 -->
+    <form action="complete.html" method="POST" class="bg-white p-6 rounded-lg shadow-md space-y-6" onsubmit="handleSubmit(event)">
+      <div>
+        <label for="start-date" class="block text-sm font-medium text-gray-700 mb-1">대여 시작일</label>
+        <input type="date" id="start-date" name="start-date" required class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-500">
+      </div>
 
-    <!-- 장비 목록 -->
-    <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+      <div>
+        <label for="end-date" class="block text-sm font-medium text-gray-700 mb-1">반납일</label>
+        <input type="date" id="end-date" name="end-date" required class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-500">
+        <p class="text-sm text-gray-400 mt-1">※ 반납일은 시작일 기준 최대 3일까지 가능합니다.</p>
+        <p id="error-text" class="text-sm text-red-500 mt-1"></p>
+      </div>
 
-    <!-- 선택된 장비 표시 -->
-    <div id="selected-list" class="bg-white border rounded-lg p-4 mt-8 hidden">
-      <h2 class="font-semibold mb-2">선택된 장비</h2>
-      <ul class="text-sm text-gray-700 space-y-1" id="selected-items"></ul>
-    </div>
-
-    <button id="next-step" class="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 hidden">다음 단계</button>
-  </div>
-
-  <!-- JS 로직 -->
-  <script>
-    const equipmentData = {
-      camera: [
-        { id: "1", name: "Sony FX3", image: "https://via.placeholder.com/80", available: 3 },
-        { id: "2", name: "Canon EOS R5", image: "https://via.placeholder.com/80", available: 2 },
-        { id: "3", name: "Canon EF 24-70mm", image: "https://via.placeholder.com/80", available: 4 },
-      ],
-      lighting: [
-        { id: "4", name: "ARRI SkyPanel S60-C", image: "https://via.placeholder.com/80", available: 4 },
-      ],
-      sound: [
-        { id: "5", name: "Sennheiser MKH 416", image: "https://via.placeholder.com/80", available: 6 },
-      ],
-      editing: [
-        { id: "6", name: "Premiere Pro 워크스테이션", image: "https://via.placeholder.com/80", available: 2 },
-        { id: "7", name: "DaVinci Resolve", image: "https://via.placeholder.com/80", available: 1 },
-      ]
-    };
-
-    const equipmentList = document.getElementById("equipment-list");
-    const selectedList = document.getElementById("selected-list");
-    const selectedItems = document.getElementById("selected-items");
-    const nextStepBtn = document.getElementById("next-step");
-
-    let selected = [];
-
-    function renderEquipment(category) {
-      equipmentList.innerHTML = "";
-      equipmentData[category].forEach(item => {
-        const div = document.createElement("div");
-        div.className = "border rounded-lg p-4 flex items-center space-x-4 cursor-pointer transition";
-        div.dataset.id = item.id;
-        div.dataset.name = item.name;
-
-        div.innerHTML = `
-          <img src="${item.image}" alt="${item.name}" class="w-16 h-16 rounded object-cover" />
-          <div class="flex-1">
-            <h3 class="font-semibold">${item.name}</h3>
-            <p class="text-sm text-gray-500">${item.available}대 대여 가능</p>
-          </div>
-          <span class="checkmark text-yellow-500 text-xl">✔️</span>
-        `;
-
-        div.addEventListener("click", () => toggleSelect(item, div));
-        equipmentList.appendChild(div);
-      });
-    }
-
-    function toggleSelect(item, element) {
-      const already = selected.find(e => e.id === item.id);
-      if (already) {
-        selected = selected.filter(e => e.id !== item.id);
-        element.classList.remove("selected");
-      } else {
-        selected.push(item);
-        element.classList.add("selected");
-      }
-      updateSelectedList();
-    }
-
-    function updateSelectedList() {
-      if (selected.length === 0) {
-        selectedList.classList.add("hidden");
-        nextStepBtn.classList.add("hidden");
-      } else {
-        selectedList.classList.remove("hidden");
-        nextStepBtn.classList.remove("hidden");
-        selectedItems.innerHTML = selected.map(s => `<li>📷 ${s.name}</li>`).join("");
-      }
-    }
-
-    document.querySelectorAll(".tab-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("bg-blue-100"));
-        btn.classList.add("bg-blue-100");
-        renderEquipment(btn.dataset.tab);
-      });
-    });
-
-    // 초기 카메라 탭 렌더링
-    renderEquipment("camera");
-  </script>
+      <!-- 이동 버튼 -->
+      <div class="flex justify-between items-center pt-6">
+        <a href="rental_step1.html" class="text-blue-600 hover:underline text-sm">← 이전 단계</a>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
+          다음 단계 →
+        </button>
+      </div>
+    </form>
+  </main>
 </body>
 </html>
