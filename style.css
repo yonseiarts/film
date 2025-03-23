@@ -17,6 +17,10 @@
     .selected .checkmark {
       display: inline-block;
     }
+    .tab-btn.active {
+      background-color: #1D4ED8;
+      color: white;
+    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -28,6 +32,7 @@
   </div>
 
   <div class="max-w-4xl mx-auto py-8 px-4">
+    <!-- 진행 단계 표시 -->
     <div class="flex justify-between items-center mb-6">
       <div class="flex items-center space-x-2">
         <div class="w-8 h-8 rounded-full bg-blue-700 text-white flex items-center justify-center font-bold">1</div>
@@ -50,20 +55,24 @@
     <h2 class="text-xl font-bold mb-4">장비 선택</h2>
     <p class="text-gray-600 mb-6">필요한 장비를 선택해주세요. 여러 개 선택 가능합니다.</p>
 
+    <!-- 탭 네비게이션 -->
     <div class="flex space-x-4 mb-6">
-      <button class="tab-btn px-4 py-2 border rounded" data-tab="camera">카메라</button>
+      <button class="tab-btn px-4 py-2 border rounded active" data-tab="camera">카메라</button>
       <button class="tab-btn px-4 py-2 border rounded" data-tab="lighting">조명</button>
       <button class="tab-btn px-4 py-2 border rounded" data-tab="sound">사운드</button>
       <button class="tab-btn px-4 py-2 border rounded" data-tab="editing">편집실</button>
     </div>
 
+    <!-- 장비 리스트 -->
     <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
 
+    <!-- 선택된 장비 -->
     <div id="selected-list" class="bg-white border rounded-lg p-4 mt-8 hidden">
       <h2 class="font-semibold mb-2">선택된 장비</h2>
       <ul class="text-sm text-gray-700 space-y-1" id="selected-items"></ul>
     </div>
 
+    <!-- 다음 단계 버튼 -->
     <button id="next-step" class="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 hidden">다음 단계</button>
   </div>
 
@@ -139,8 +148,8 @@
 
     document.querySelectorAll(".tab-btn").forEach(btn => {
       btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("bg-blue-100"));
-        btn.classList.add("bg-blue-100");
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
         renderEquipment(btn.dataset.tab);
       });
     });
