@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -14,31 +13,32 @@
   </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
-  <div class="bg-blue-700 text-white py-8 px-4">
-    <div class="max-w-4xl mx-auto">
-      <h1 class="text-2xl font-bold mb-2">기자재 대여 예약</h1>
-      <p class="text-blue-100">필요한 장비를 선택하고 날짜를 지정하여 간편하게 예약하세요.</p>
-    </div>
+
+  <!-- 헤더 -->
+  <div class="bg-blue-700 text-white py-6 px-4 text-center">
+    <h1 class="text-2xl font-bold">연세예술원 영화학 기자재 대여</h1>
+    <p class="text-sm mt-1 text-blue-100">필요한 장비를 선택하고 날짜를 입력하여 신청해 주세요.</p>
   </div>
 
-  <div class="max-w-4xl mx-auto p-4" id="step-container">
+  <div class="max-w-4xl mx-auto p-6" id="step-container">
+    
+    <!-- Step Progress -->
+    <div class="flex justify-between items-center mb-8">
+      <div class="w-8 h-8 flex items-center justify-center rounded-full text-white font-bold bg-blue-700">1</div>
+      <div class="w-8 h-8 flex items-center justify-center rounded-full text-white font-bold bg-gray-300" id="dot2">2</div>
+      <div class="w-8 h-8 flex items-center justify-center rounded-full text-white font-bold bg-gray-300" id="dot3">3</div>
+    </div>
+
     <!-- Step 1: 장비 선택 -->
     <div id="step-1">
-      <div class="flex justify-between items-center mb-6 text-sm">
-        <div class="text-white bg-blue-700 rounded-full w-8 h-8 flex items-center justify-center">1</div>
-        <div class="text-gray-400 rounded-full w-8 h-8 flex items-center justify-center">2</div>
-        <div class="text-gray-400 rounded-full w-8 h-8 flex items-center justify-center">3</div>
+      <h2 class="text-xl font-bold mb-4">1단계: 장비 선택</h2>
+      <div class="flex space-x-2 mb-4">
+        <button class="tab-btn px-4 py-2 border rounded tab-active" data-tab="camera">카메라</button>
+        <button class="tab-btn px-4 py-2 border rounded" data-tab="lighting">조명</button>
+        <button class="tab-btn px-4 py-2 border rounded" data-tab="sound">사운드</button>
+        <button class="tab-btn px-4 py-2 border rounded" data-tab="editing">편집실</button>
       </div>
-
-      <h2 class="text-xl font-bold mb-4">장비 선택</h2>
-      <div class="flex gap-4 mb-6">
-        <button class="tab-btn border rounded px-4 py-2 tab-active" data-tab="camera">카메라</button>
-        <button class="tab-btn border rounded px-4 py-2" data-tab="lighting">조명</button>
-        <button class="tab-btn border rounded px-4 py-2" data-tab="sound">사운드</button>
-        <button class="tab-btn border rounded px-4 py-2" data-tab="editing">편집실</button>
-      </div>
-
-      <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6"></div>
+      <div id="equipment-list" class="grid sm:grid-cols-2 gap-4 mb-4"></div>
 
       <div id="selected-list" class="bg-white border rounded p-4 hidden">
         <h3 class="font-semibold mb-2">선택된 장비</h3>
@@ -46,62 +46,47 @@
       </div>
 
       <div class="flex justify-end">
-        <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded mt-4" onclick="goToStep(2)">다음 단계</button>
+        <button class="bg-blue-600 text-white px-6 py-2 rounded mt-4" onclick="goToStep(2)">다음 단계</button>
       </div>
     </div>
 
-    <!-- Step 2: 대여일 선택 -->
+    <!-- Step 2: 날짜 선택 -->
     <div id="step-2" class="hidden">
-      <div class="flex justify-between items-center mb-6 text-sm">
-        <div class="text-white bg-blue-700 rounded-full w-8 h-8 flex items-center justify-center">1</div>
-        <div class="text-white bg-blue-700 rounded-full w-8 h-8 flex items-center justify-center">2</div>
-        <div class="text-gray-400 rounded-full w-8 h-8 flex items-center justify-center">3</div>
-      </div>
-
-      <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-      <p class="text-sm text-gray-600 mb-6">일반 대여는 최대 3일까지 가능합니다.</p>
-
+      <h2 class="text-xl font-bold mb-4">2단계: 대여일 선택</h2>
       <label class="block mb-2">대여 시작일</label>
-      <input type="date" id="start-date" class="border rounded w-full p-2 mb-4" />
+      <input type="date" id="start-date" class="border p-2 rounded w-full mb-4" />
 
       <label class="block mb-2">반납일</label>
-      <input type="date" id="end-date" class="border rounded w-full p-2 mb-4" />
+      <input type="date" id="end-date" class="border p-2 rounded w-full mb-4" />
 
       <label class="block mb-2">증명사진 첨부</label>
       <input type="file" class="mb-4" />
 
       <div class="flex justify-between">
-        <button onclick="goToStep(1)" class="text-blue-600 underline">← 이전 단계</button>
-        <button onclick="validateStep2()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">다음 단계</button>
+        <button class="text-blue-600 underline" onclick="goToStep(1)">← 이전</button>
+        <button class="bg-blue-600 text-white px-6 py-2 rounded" onclick="validateStep2()">다음 단계</button>
       </div>
     </div>
 
     <!-- Step 3: 규정 동의 -->
     <div id="step-3" class="hidden">
-      <div class="flex justify-between items-center mb-6 text-sm">
-        <div class="text-white bg-blue-700 rounded-full w-8 h-8 flex items-center justify-center">1</div>
-        <div class="text-white bg-blue-700 rounded-full w-8 h-8 flex items-center justify-center">2</div>
-        <div class="text-white bg-blue-700 rounded-full w-8 h-8 flex items-center justify-center">3</div>
-      </div>
-
-      <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
+      <h2 class="text-xl font-bold mb-4">3단계: 규정 동의</h2>
       <div class="bg-white p-4 border max-h-64 overflow-y-scroll text-sm leading-relaxed text-gray-700 mb-4">
+        <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
         <strong>제1장 총칙</strong><br/>
-        제1조 (목적) 본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/>
-        제2조 (적용범위) 본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
+        제1조 (목적): 본 규정은 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/>
+        제2조 (적용범위): 본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
         <strong>제2장 관리체계</strong><br/>
-        제1조 (주임교수의 권한) 기자재 운영 정책 수립 및 변경 등<br/>
-        제2조 (행정실 업무) 기자재 대장 관리, 보험, 유지보수<br/>
-        제3조 (관리 조직) 기자재 총괄, 담당자 구성<br/><br/>
+        주임교수의 권한, 행정실 업무, 관리 조직 명시<br/><br/>
         <strong>제3장 장비 대여</strong><br/>
-        제1조 (촬영계획서) 수업/외부/연습용 구분 및 승인 절차<br/>
-        제4조 (대여 절차) 신청서 제출, 장비 상태 확인 및 사진 첨부<br/><br/>
+        촬영계획서 제출 및 승인 절차<br/>
+        대여 절차: 신청서 제출 → 승인 → 장비 점검 → 대여 등록<br/><br/>
         <strong>제4장 수익성 작업</strong><br/>
-        지정금, 보상 규정, 보험 필수 등<br/><br/>
-        <strong>제5장~제7장</strong><br/>
-        편집실 운영, 제재, 문서관리 규정 등 포함<br/><br/>
-        <strong>부칙</strong><br/>
-        2025년 3월 4일 시행 / 주임교수 유영식
+        지정금 납부 및 보험 가입, 파손 시 보상 등<br/><br/>
+        <strong>제5~7장</strong><br/>
+        편집실 운영, 규정 위반 시 제재, 문서 보관 등<br/>
+        시행일: 2025년 3월 4일<br/>
+        주임교수: 유영식
       </div>
 
       <label class="inline-flex items-center mb-4">
@@ -109,12 +94,13 @@
       </label>
 
       <div class="flex justify-between">
-        <button onclick="goToStep(2)" class="text-blue-600 underline">← 이전 단계</button>
-        <button onclick="validateAgreement()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">완료</button>
+        <button class="text-blue-600 underline" onclick="goToStep(2)">← 이전</button>
+        <button class="bg-blue-600 text-white px-6 py-2 rounded" onclick="validateAgreement()">신청 완료</button>
       </div>
     </div>
   </div>
 
+  <!-- Script -->
   <script>
     const equipmentData = {
       camera: [
@@ -122,19 +108,19 @@
         { id: "2", name: "Canon EOS R5", available: 2 }
       ],
       lighting: [
-        { id: "3", name: "ARRI SkyPanel S60-C", available: 2 }
+        { id: "3", name: "ARRI SkyPanel", available: 1 }
       ],
       sound: [
-        { id: "4", name: "Sennheiser MKH 416", available: 3 }
+        { id: "4", name: "Sennheiser MKH 416", available: 4 }
       ],
       editing: [
-        { id: "5", name: "Premiere Pro 워크스테이션", available: 1 }
+        { id: "5", name: "Premiere Pro 워크스테이션", available: 2 }
       ]
     };
 
     const equipmentList = document.getElementById("equipment-list");
-    const selectedList = document.getElementById("selected-list");
     const selectedItems = document.getElementById("selected-items");
+    const selectedList = document.getElementById("selected-list");
     let selected = [];
 
     function renderEquipment(category) {
@@ -143,8 +129,13 @@
         const div = document.createElement("div");
         div.className = "border rounded p-4 flex justify-between items-center cursor-pointer";
         div.dataset.id = item.id;
-        div.innerHTML = \`<div><h3 class="font-semibold">\${item.name}</h3><p class="text-sm text-gray-500">\${item.available}대 대여 가능</p></div><span class="checkmark">✔️</span>\`;
-
+        div.innerHTML = \`
+          <div>
+            <h3 class="font-semibold">\${item.name}</h3>
+            <p class="text-sm text-gray-500">\${item.available}대 대여 가능</p>
+          </div>
+          <span class="checkmark">✔️</span>
+        \`;
         div.addEventListener("click", () => {
           if (selected.find(e => e.id === item.id)) {
             selected = selected.filter(e => e.id !== item.id);
@@ -155,7 +146,6 @@
           }
           updateSelectedList();
         });
-
         equipmentList.appendChild(div);
       });
     }
@@ -179,29 +169,29 @@
 
     function goToStep(step) {
       for (let i = 1; i <= 3; i++) {
-        document.getElementById(\`step-\${i}\`).classList.add("hidden");
+        document.getElementById(\`step-\${i}\`).style.display = "none";
+        document.getElementById(\`dot\${i}\`).classList.remove("bg-blue-700");
+        document.getElementById(\`dot\${i}\`).classList.add("bg-gray-300");
       }
-      document.getElementById(\`step-\${step}\`).classList.remove("hidden");
+      document.getElementById(\`step-\${step}\`).style.display = "block";
+      document.getElementById(\`dot\${step}\`).classList.remove("bg-gray-300");
+      document.getElementById(\`dot\${step}\`).classList.add("bg-blue-700");
     }
 
     function validateStep2() {
       const start = document.getElementById("start-date").value;
       const end = document.getElementById("end-date").value;
       if (!start || !end) {
-        alert("시작일과 반납일을 입력해주세요.");
-        return;
-      }
-      const diff = (new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24);
-      if (diff < 0 || diff > 2) {
-        alert("대여는 최대 3일 이내만 가능합니다.");
+        alert("대여일과 반납일을 입력해주세요.");
         return;
       }
       goToStep(3);
     }
 
     function validateAgreement() {
-      if (!document.getElementById("agree-rule").checked) {
-        alert("규정에 동의해야 합니다.");
+      const agree = document.getElementById("agree-rule").checked;
+      if (!agree) {
+        alert("규정에 동의해야 신청이 가능합니다.");
         return;
       }
       alert("신청이 완료되었습니다!");
