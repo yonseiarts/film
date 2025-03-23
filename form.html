@@ -137,4 +137,142 @@
     const equipment = {
       camera: [
         { id: "1", name: "Sony FX3", available: 3, image: "https://via.placeholder.com/80" },
-        { id: "2", name: "Canon
+        { id: "2", name: "Canon EOS R5", available: 2, image: "https://via.placeholder.com/80" }
+      ],
+      lighting: [
+        { id: "3", name: "ARRI SkyPanel S60-C", available: 4, image: "https://via.placeholder.com/80" }
+      ],
+      sound: [
+        { id: "4", name: "Sennheiser MKH 416", available: 6, image: "https://via.placeholder.com/80" }
+      ],
+      editing: [
+        { id: "5", name: "Premiere Pro 워크스테이션", available: 2, image: "https://via.placeholder.com/80" }
+      ]
+    };
+    let selected = [];
+    let rentalStartDate, rentalEndDate, proofImageName, startTime, endTime;
+
+    function goToStep(n) {
+      if (n === 4 && !document.getElementById('agreeCheck').checked) return;
+      if (n === 3 && (!document.getElementById('startDate').value || !document.getElementById('endDate').value || !document.getElementById('proofImage').files.length)) {
+        alert("2단계 정보를 모두 입력해주세요.");
+        return;
+      }
+
+      document.getElementById(`step${step}`).classList.add("hidden");
+      document.getElementById(`step${n}`).classList.remove("hidden");
+      document.getElementById(`step${step}Btn`).classList.replace("step-active", "step-inactive");
+      if (n < 4) document.getElementById(`step${n}Btn`).classList.replace("step-inactive", "step-active");
+      step = n;
+
+      if (n === 4) {
+        displayFinalInfo();
+      }
+    }
+
+    // 장비 선택
+    document.querySelectorAll(".tab-button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const cat = btn.dataset.tab;
+        renderEquipment(cat);
+      });
+    });
+
+    function renderEquipment(category) {
+      const list = document.getElementById("equipment-list");
+      list.innerHTML = "";
+      equipment[category].forEach(e => {
+        const div = document.createElement("div");
+        div.className = "equipment border p-4 rounded flex items-center cursor-pointer";
+        div.innerHTML = `
+          <img src="${e.image}" class="w-14 h-14 rounded mr-4" />
+          <div class="flex-grow">
+            <div class="font-semibold">${e.name}</div>
+            <div class="text-sm text-gray-500">${e.available}대 대여 가능</div>
+          </div>
+        `;
+        div.onclick = () => toggleItem(e, div);
+        list.appendChild(div);
+      });
+    }
+
+    function toggleItem(item, element) {
+      const isSelected = selected.find(i => i.id === item.id);
+      if (isSelected) {
+        selected = selected.filter(i => i.id !== item.id);
+        element.classList.remove("selected");
+      } else {
+        selected.push(item);
+        element.classList.add("selected");
+      }
+      document.getElementById("selected-section").classList.toggle("hidden", selected.length === 0);
+      document.getElementById("toStep2").classList.toggle("hidden", selected.length === 0);
+      document.getElementById("selected-items").innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
+    }
+
+    function validateStep2() {
+      rentalStartDate = document.getElementById('startDate').value;
+      rentalEndDate = document.getElementById('endDate').value;
+      proofImageName = document.getElementById('proofImage').files[0]?.name || '';
+      
+      if (!rentalStartDate || !rentalEndDate || !proofImageName) {
+        alert("모든 정보를 입력해주세요.");
+        return;
+      }
+
+      if (document.querySelector('[data-tab="editing"].active')) {
+        startTime = document.getElementById('startTime').value;
+        endTime = document.getElementById('endTime').value;
+      }
+
+      goToStep(3);
+    }
+
+    function displayFinalInfo() {
+      const selectedItemsList = selected.map(item => `<li>${item.name}</li>`).join("");
+      document.getElementById("final-selected-items").innerHTML = selectedItemsList;
+
+      const rentalInfo = `대여 시작일: ${rentalStartDate} <br> 반납일: ${rentalEndDate}`;
+      document.getElementById("final-rental-info").innerHTML = rentalInfo;
+
+      document.getElementById("final-proof-image").innerHTML = proofImageName;
+      
+      if (startTime && endTime) {
+        document.getElementById("final-time-info").innerHTML = `시작 시간: ${startTime} <br> 반납 시간: ${endTime}`;
+      }
+    }
+
+    // 동의 체크 활성화
+    document.getElementById("agreeCheck").addEventListener("change", e => {
+      const btn = document.getElementById("toStep4");
+      btn.disabled = !e.target.checked;
+      btn.classList.toggle("opacity-50", !e.target.checked);
+    });
+
+    // 편집실 선택 시 시간 선택 표 표시
+    document.querySelector('[data-tab="editing"]').addEventListener("click", () => {
+      document.getElementById("time-selection").classList.remove("hidden");
+      createTimeSlots();
+    });
+
+    function createTimeSlots() {
+      const timeSlotContainer = document.getElementById("time-slot");
+
+      for (let hour = 9; hour <= 23; hour++) {
+        const timeSlot = document.createElement("input");
+        timeSlot.type = "checkbox";
+        timeSlot.id = `start-time-${hour}`;
+        timeSlot.value = hour;
+        const label = document.createElement("label");
+        label.setAttribute("for", timeSlot.id);
+        label.textContent = `${hour}:00`;
+
+        timeSlotContainer.appendChild(timeSlot);
+        timeSlotContainer.appendChild(label);
+      }
+    }
+  </script>
+</body>
+</html> 3번째 페이지로 넘어가야 합니다. 편집실을 선택한다면 3페이지에는  대여일자/대여실/대여시간을 설정해주세요.
