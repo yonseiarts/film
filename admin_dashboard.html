@@ -2,90 +2,66 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>관리자 대시보드</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css" />
-  <script type="module" src="firebaseConfig.js"></script>
+  <title>관리자 대시보드</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="max-w-4xl mx-auto mt-10 p-4 bg-white rounded shadow">
-    <h1 class="text-2xl font-bold mb-6">대여 신청 승인/조회</h1>
-    <table class="min-w-full border">
-      <thead>
-        <tr class="bg-gray-200">
-          <th class="p-2 border">장비명</th>
-          <th class="p-2 border">대여 기간</th>
-          <th class="p-2 border">신청자</th>
-          <th class="p-2 border">연락처</th>
-          <th class="p-2 border">상태</th>
-          <th class="p-2 border">조치</th>
-        </tr>
-      </thead>
-      <tbody id="requestList">
-        <!-- Firestore 데이터 -->
-      </tbody>
-    </table>
+<body class="bg-gray-100">
+
+  <div class="max-w-6xl mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-4">🎬 관리자 대시보드</h1>
+    <div id="application-list" class="space-y-4">
+      <!-- 신청 항목이 여기에 출력됩니다 -->
+    </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
-    import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js";
-    import { firebaseConfig } from "./firebaseConfig.js";
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+    };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    const requestList = document.getElementById('requestList');
+    function renderApplications() {
+      const container = document.getElementById('application-list');
+      db.collection("applications").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+        container.innerHTML = "";
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const div = document.createElement("div");
+          div.className = "bg-white p-4 rounded shadow";
 
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = 'admin_login.html';
-      } else {
-        loadRequests();
-      }
-    });
-
-    async function loadRequests() {
-      const snapshot = await getDocs(collection(db, 'rental_requests'));
-      snapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        createRow(docSnap.id, data);
+          div.innerHTML = `
+            <h2 class="text-lg font-bold">${data.name || '신청자 미입력'}</h2>
+            <p>장비: ${data.items?.join(", ") || '없음'}</p>
+            <p>대여일자: ${data.date || '-'}</p>
+            <p>시간: ${data.time || '-'}</p>
+            <p>증명사진: ${data.proofPhoto ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>` : '없음'}</p>
+            <p>상태: <span class="font-semibold">${data.status || '대기중'}</span></p>
+            <div class="mt-2 space-x-2">
+              <button class="px-3 py-1 bg-green-500 text-white rounded" onclick="updateStatus('${doc.id}', '승인됨')">승인</button>
+              <button class="px-3 py-1 bg-red-500 text-white rounded" onclick="updateStatus('${doc.id}', '반려됨')">반려</button>
+            </div>
+          `;
+          container.appendChild(div);
+        });
       });
     }
 
-    function createRow(docId, data) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td class="p-2 border">${data.equipmentName}</td>
-        <td class="p-2 border">${data.startDate} ~ ${data.endDate}</td>
-        <td class="p-2 border">${data.userName} (${data.studentId})</td>
-        <td class="p-2 border">${data.phone}</td>
-        <td class="p-2 border text-${
-          data.status === 'approved' ? 'green-600' : data.status === 'rejected' ? 'red-600' : 'gray-600'
-        }">${data.status || 'pending'}</td>
-        <td class="p-2 border">
-          <button class="bg-green-500 text-white px-2 py-1 rounded mr-2" onclick="approveRequest('${docId}')">승인</button>
-          <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="rejectRequest('${docId}')">거절</button>
-        </td>
-      `;
-      requestList.appendChild(tr);
+    function updateStatus(id, status) {
+      db.collection("applications").doc(id).update({ status });
     }
 
-    // 전역 함수로 선언
-    window.approveRequest = async function(docId) {
-      await updateDoc(doc(db, 'rental_requests', docId), { status: 'approved' });
-      alert('승인 완료!');
-      location.reload();
-    }
-
-    window.rejectRequest = async function(docId) {
-      await updateDoc(doc(db, 'rental_requests', docId), { status: 'rejected' });
-      alert('거절 처리되었습니다.');
-      location.reload();
-    }
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) renderApplications();
+      else window.location.href = "admin-login.html";
+    });
   </script>
 </body>
 </html>
