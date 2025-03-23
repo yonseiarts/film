@@ -108,109 +108,115 @@
   </div>
 
   <script>
-    let step = 1;
-    const steps = ["step1", "step2", "step3", "step4"];
-    const equipment = {
-      camera: [
-        { id: "1", name: "Sony FX3", available: 3, image: "https://via.placeholder.com/80" },
-        { id: "2", name: "Canon EOS R5", available: 2, image: "https://via.placeholder.com/80" }
-      ],
-      lighting: [
-        { id: "3", name: "ARRI SkyPanel S60-C", available: 4, image: "https://via.placeholder.com/80" }
-      ],
-      sound: [
-        { id: "4", name: "Sennheiser MKH 416", available: 6, image: "https://via.placeholder.com/80" }
-      ],
-      editing: [
-        { id: "5", name: "Premiere Pro 워크스테이션", available: 2, image: "https://via.placeholder.com/80" }
-      ]
-    };
-    let selected = [];
-    let startDate = "";
-    let endDate = "";
-    let photoName = "";
+  let step = 1;
+  const steps = ["step1", "step2", "step3", "step4"];
+  const equipment = {
+    camera: [
+      { id: "1", name: "Sony FX3", available: 3, image: "https://via.placeholder.com/80" },
+      { id: "2", name: "Canon EOS R5", available: 2, image: "https://via.placeholder.com/80" }
+    ],
+    lighting: [
+      { id: "3", name: "ARRI SkyPanel S60-C", available: 4, image: "https://via.placeholder.com/80" }
+    ],
+    sound: [
+      { id: "4", name: "Sennheiser MKH 416", available: 6, image: "https://via.placeholder.com/80" }
+    ],
+    editing: [
+      { id: "5", name: "Premiere Pro 워크스테이션", available: 2, image: "https://via.placeholder.com/80" }
+    ]
+  };
+  let selected = [];
+  let startDate = "";
+  let endDate = "";
+  let photoName = "";
 
-    function goToStep(n) {
-      if (n === 4 && !document.getElementById('agreeCheck').checked) return;
-      document.getElementById(`step${step}`).classList.add("hidden");
-      document.getElementById(`step${n}`).classList.remove("hidden");
-      document.getElementById(`step${step}Btn`).classList.replace("step-active", "step-inactive");
-      if (n < 4) document.getElementById(`step${n}Btn`).classList.replace("step-inactive", "step-active");
-      step = n;
-
-      if (n === 4) {
-        updateFinalStep();
-      }
+  function goToStep(n) {
+    if (n === 3 && !validateStep2()) {
+      return; // 유효성 검사 실패 시 3단계로 이동하지 않음
     }
 
-    // 장비 선택
-    document.querySelectorAll(".tab-button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        const cat = btn.dataset.tab;
-        renderEquipment(cat);
-      });
+    // 3단계에서 유효성 검사 통과 시, 4단계로 넘어감
+    if (n === 4) {
+      updateFinalStep();
+    }
+
+    document.getElementById(`step${step}`).classList.add("hidden");
+    document.getElementById(`step${n}`).classList.remove("hidden");
+    document.getElementById(`step${step}Btn`).classList.replace("step-active", "step-inactive");
+    if (n < 4) document.getElementById(`step${n}Btn`).classList.replace("step-inactive", "step-active");
+    step = n;
+  }
+
+  // Step 2 validation
+  function validateStep2() {
+    startDate = document.getElementById("startDate").value;
+    endDate = document.getElementById("endDate").value;
+    photoName = document.querySelector('input[type="file"]').files[0]?.name || "";
+
+    // 필수 항목 확인
+    if (!startDate || !endDate || !photoName) {
+      alert("모든 항목을 입력해주세요.");
+      return false;
+    }
+    return true;
+  }
+
+  // 장비 선택
+  document.querySelectorAll(".tab-button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const cat = btn.dataset.tab;
+      renderEquipment(cat);
     });
+  });
 
-    function renderEquipment(category) {
-      const list = document.getElementById("equipment-list");
-      list.innerHTML = "";
-      equipment[category].forEach(e => {
-        const div = document.createElement("div");
-        div.className = "equipment border p-4 rounded flex items-center cursor-pointer";
-        div.innerHTML = `
-          <img src="${e.image}" class="w-14 h-14 rounded mr-4" />
-          <div class="flex-grow">
-            <div class="font-semibold">${e.name}</div>
-            <div class="text-sm text-gray-500">${e.available}대 대여 가능</div>
-          </div>
-        `;
-        div.onclick = () => toggleItem(e, div);
-        list.appendChild(div);
-      });
-    }
-
-    function toggleItem(item, element) {
-      const isSelected = selected.find(i => i.id === item.id);
-      if (isSelected) {
-        selected = selected.filter(i => i.id !== item.id);
-        element.classList.remove("selected");
-      } else {
-        selected.push(item);
-        element.classList.add("selected");
-      }
-      document.getElementById("selected-section").classList.toggle("hidden", selected.length === 0);
-      document.getElementById("toStep2").classList.toggle("hidden", selected.length === 0);
-      document.getElementById("selected-items").innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
-    }
-
-    function updateFinalStep() {
-      document.getElementById("final-selected-items").innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
-      document.getElementById("final-start-date").textContent = startDate;
-      document.getElementById("final-end-date").textContent = endDate;
-      document.getElementById("final-photo-name").textContent = photoName || "첨부된 사진 없음";
-    }
-
-    // 동의 체크 활성화
-    document.getElementById("agreeCheck").addEventListener("change", e => {
-      const btn = document.getElementById("toStep4");
-      btn.disabled = !e.target.checked;
-      btn.classList.toggle("opacity-50", !e.target.checked);
+  function renderEquipment(category) {
+    const list = document.getElementById("equipment-list");
+    list.innerHTML = "";
+    equipment[category].forEach(e => {
+      const div = document.createElement("div");
+      div.className = "equipment border p-4 rounded flex items-center cursor-pointer";
+      div.innerHTML = `
+        <img src="${e.image}" class="w-14 h-14 rounded mr-4" />
+        <div class="flex-grow">
+          <div class="font-semibold">${e.name}</div>
+          <div class="text-sm text-gray-500">${e.available}대 대여 가능</div>
+        </div>
+      `;
+      div.onclick = () => toggleItem(e, div);
+      list.appendChild(div);
     });
+  }
 
-    // Step 2 validation
-    function validateStep2() {
-      startDate = document.getElementById("startDate").value;
-      endDate = document.getElementById("endDate").value;
-      photoName = document.querySelector('input[type="file"]').files[0]?.name || "";
-
-      if (!startDate || !endDate || !photoName) {
-        alert("모든 항목을 입력해주세요.");
-        return;
-      }
-      goToStep(3);
+  function toggleItem(item, element) {
+    const isSelected = selected.find(i => i.id === item.id);
+    if (isSelected) {
+      selected = selected.filter(i => i.id !== item.id);
+      element.classList.remove("selected");
+    } else {
+      selected.push(item);
+      element.classList.add("selected");
     }
-  </script>
+    document.getElementById("selected-section").classList.toggle("hidden", selected.length === 0);
+    document.getElementById("toStep2").classList.toggle("hidden", selected.length === 0);
+    document.getElementById("selected-items").innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
+  }
+
+  function updateFinalStep() {
+    document.getElementById("final-selected-items").innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
+    document.getElementById("final-start-date").textContent = startDate;
+    document.getElementById("final-end-date").textContent = endDate;
+    document.getElementById("final-photo-name").textContent = photoName || "첨부된 사진 없음";
+  }
+
+  // 동의 체크 활성화
+  document.getElementById("agreeCheck").addEventListener("change", e => {
+    const btn = document.getElementById("toStep4");
+    btn.disabled = !e.target.checked;
+    btn.classList.toggle("opacity-50", !e.target.checked);
+  });
+</script>
 </body>
 </html>
+
