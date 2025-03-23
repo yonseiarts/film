@@ -2,133 +2,172 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 신청</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
   <style>
-    .selected { border-color: #FACC15; background-color: #FEF9C3; }
-    .checkmark { display: none; }
-    .selected .checkmark { display: inline-block; }
-    .step-indicator { transition: all 0.3s ease; }
+    .step-active {
+      background-color: #2563eb;
+      color: white;
+    }
+    .checkmark {
+      display: none;
+    }
+    .selected .checkmark {
+      display: inline-block;
+    }
   </style>
-  <script>
-    function goToStep(stepNumber) {
-      document.querySelectorAll(".step").forEach(s => s.classList.add("hidden"));
-      document.getElementById(`step-${stepNumber}`).classList.remove("hidden");
-      document.querySelectorAll(".step-indicator").forEach(ind => {
-        ind.classList.remove("bg-blue-700", "text-white");
-        ind.classList.add("bg-gray-300", "text-gray-700");
-      });
-      const current = document.getElementById(`indicator-${stepNumber}`);
-      current.classList.remove("bg-gray-300", "text-gray-700");
-      current.classList.add("bg-blue-700", "text-white");
-    }
-    function validateAndProceed() {
-      const checkbox = document.getElementById("agreeRules");
-      if (!checkbox.checked) {
-        alert("기자재 대여 규정에 동의하셔야 다음 단계로 진행할 수 있습니다.");
-        return;
-      }
-      goToStep(4);
-    }
-  </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <div class="bg-blue-700 text-white py-8 px-4">
+<body class="bg-gray-50">
+
+  <div class="bg-blue-700 text-white py-6 px-4">
     <div class="max-w-4xl mx-auto">
-      <h1 class="text-2xl font-bold mb-2">기자재 대여 예약</h1>
-      <p class="text-blue-100">필요한 장비를 선택하고 날짜를 지정하여 간편하게 예약하세요. 관리자 승인 후 방문하여 수령하실 수 있습니다.</p>
+      <h1 class="text-2xl font-bold">기자재 대여 신청</h1>
+      <p class="text-sm text-blue-100">원하는 장비를 선택하고, 대여 일정을 입력해 신청하세요.</p>
     </div>
   </div>
 
-  <div class="max-w-4xl mx-auto py-8 px-4">
-    <!-- 상단 단계 인디케이터 -->
-    <div class="flex justify-between items-center mb-6">
-      <div class="flex items-center space-x-2">
-        <div id="indicator-1" class="step-indicator w-8 h-8 rounded-full bg-blue-700 text-white flex items-center justify-center font-bold">1</div>
-        <span class="text-sm font-medium">장비 선택</span>
+  <div class="max-w-4xl mx-auto p-6">
+    <!-- Step Indicator -->
+    <div class="flex justify-between items-center mb-8 text-center">
+      <div class="flex flex-col items-center step step-1 step-active">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold mb-1 bg-blue-700 text-white">1</div>
+        <div class="text-sm font-medium">장비 선택</div>
       </div>
-      <div class="flex items-center space-x-2">
-        <div id="indicator-2" class="step-indicator w-8 h-8 rounded-full bg-gray-300 text-gray-700 flex items-center justify-center font-bold">2</div>
-        <span class="text-sm font-medium">대여일 선택</span>
+      <div class="flex flex-col items-center step step-2 opacity-50">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold mb-1 bg-gray-300 text-white">2</div>
+        <div class="text-sm font-medium">대여일 선택</div>
       </div>
-      <div class="flex items-center space-x-2">
-        <div id="indicator-3" class="step-indicator w-8 h-8 rounded-full bg-gray-300 text-gray-700 flex items-center justify-center font-bold">3</div>
-        <span class="text-sm font-medium">사용 규정</span>
-      </div>
-      <div class="flex items-center space-x-2">
-        <div id="indicator-4" class="step-indicator w-8 h-8 rounded-full bg-gray-300 text-gray-700 flex items-center justify-center font-bold">4</div>
-        <span class="text-sm font-medium">완료</span>
+      <div class="flex flex-col items-center step step-3 opacity-50">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold mb-1 bg-gray-300 text-white">3</div>
+        <div class="text-sm font-medium">사용 규정</div>
       </div>
     </div>
 
-    <!-- STEP 1: 장비 선택 -->
-    <div id="step-1" class="step">
+    <!-- Step 1: Equipment Selection -->
+    <div id="step-1">
       <h2 class="text-xl font-bold mb-4">장비 선택</h2>
-      <p class="text-gray-600 mb-6">필요한 장비를 선택해주세요. 여러 개 선택 가능합니다.</p>
-      <div class="grid grid-cols-2 gap-4">
-        <div onclick="this.classList.toggle('selected')" class="border rounded-lg p-4 cursor-pointer flex items-center">
-          <img src="https://via.placeholder.com/60" class="w-12 h-12 mr-4" />
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4" id="equipment-grid">
+        <div class="border p-4 rounded flex justify-between items-center cursor-pointer" data-id="1" data-name="Sony FX3">
           <div>
-            <h3 class="font-semibold">Sony FX3</h3>
+            <p class="font-semibold">Sony FX3</p>
             <p class="text-sm text-gray-500">3대 대여 가능</p>
           </div>
-          <span class="checkmark ml-auto text-yellow-500 text-xl">✔️</span>
+          <span class="checkmark text-yellow-500">✔️</span>
+        </div>
+        <div class="border p-4 rounded flex justify-between items-center cursor-pointer" data-id="2" data-name="Canon R5">
+          <div>
+            <p class="font-semibold">Canon R5</p>
+            <p class="text-sm text-gray-500">2대 대여 가능</p>
+          </div>
+          <span class="checkmark text-yellow-500">✔️</span>
         </div>
       </div>
       <button onclick="goToStep(2)" class="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">다음 단계</button>
     </div>
 
-    <!-- STEP 2: 대여일 선택 -->
-    <div id="step-2" class="step hidden">
-      <h2 class="text-xl font-bold mb-6">대여일 선택</h2>
+    <!-- Step 2: Date + Photo Upload -->
+    <div id="step-2" class="hidden">
+      <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
+      <p class="text-sm text-gray-600 mb-4">일반 대여는 <span class="text-blue-600 font-bold">최대 3일</span>까지 가능합니다.</p>
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium mb-1">대여 시작일</label>
-          <input type="date" class="w-full border p-2 rounded" id="startDate">
+          <label class="block font-medium mb-1">대여 시작일</label>
+          <input type="date" id="startDate" class="border w-full p-2 rounded"/>
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">반납일</label>
-          <input type="date" class="w-full border p-2 rounded" id="endDate">
+          <label class="block font-medium mb-1">반납일</label>
+          <input type="date" id="endDate" class="border w-full p-2 rounded"/>
+          <p class="text-sm text-gray-400 mt-1">※ 시작일 기준 최대 3일까지 선택 가능합니다.</p>
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">증명사진 첨부</label>
-          <input type="file" class="w-full border p-2 rounded" accept="image/*">
+          <label class="block font-medium mb-1">증명사진 첨부</label>
+          <input type="file" accept="image/*" class="border p-2 w-full rounded"/>
         </div>
       </div>
       <div class="flex justify-between mt-6">
-        <button onclick="goToStep(1)" class="text-blue-600 hover:underline">← 이전 단계</button>
-        <button onclick="goToStep(3)" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">다음 단계</button>
+        <button onclick="goToStep(1)" class="text-blue-600 text-sm">← 이전 단계</button>
+        <button onclick="goToStep(3)" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">다음 단계</button>
       </div>
     </div>
 
-    <!-- STEP 3: 기자재 사용 규정 -->
-    <div id="step-3" class="step hidden">
-      <h2 class="text-xl font-bold mb-6">기자재 대여 규정</h2>
-      <div class="bg-white border rounded-lg p-4 max-h-96 overflow-y-auto text-sm text-gray-700 space-y-2">
-        <p><strong>제1장 총칙</strong> ... (전체 내용 입력됨)</p>
-        <p><strong>제6장 제재</strong><br>경고, 대여제한, 금지 등 주임교수 결정.</p>
-        <p class="text-right font-bold mt-4">2025년 3월 23일<br>연세예술원 영화학 주임교수 유영식</p>
+    <!-- Step 3: 규정 -->
+    <div id="step-3" class="hidden">
+      <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
+      <div class="border rounded p-4 h-64 overflow-y-scroll text-sm whitespace-pre-wrap bg-white">
+        연세예술원 영화학 기자재 대여 규정
+        제1장 총칙
+        제1조 (목적) ...
+        제2조 (적용범위) ...
+        제2장 관리체계
+        제1조 (주임교수의 권한)
+        • 기자재 운영 정책 수립 및 변경 ...
+        ※ 전체 내용 삽입됨 ※
+        2025년 3월 23일 연세예술원 영화학 주임교수 유영식
       </div>
-      <div class="mt-6">
-        <label class="flex items-center">
-          <input type="checkbox" id="agreeRules" class="mr-2"> 위 항목에 동의합니다.
-        </label>
+      <div class="mt-4 flex items-center">
+        <input type="checkbox" id="agreeCheck" class="mr-2"/>
+        <label for="agreeCheck" class="text-sm">위 기자재 사용 규정에 동의합니다.</label>
       </div>
       <div class="flex justify-between mt-6">
-        <button onclick="goToStep(2)" class="text-blue-600 hover:underline">← 이전 단계</button>
-        <button onclick="validateAndProceed()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
-      </div>
-    </div>
-
-    <!-- STEP 4: 완료 -->
-    <div id="step-4" class="step hidden">
-      <h2 class="text-xl font-bold mb-6">신청 완료</h2>
-      <p class="text-gray-700">🎉 신청이 완료되었습니다! 담당자가 확인 후 안내드릴 예정입니다.</p>
-      <div class="mt-6">
-        <a href="index.html" class="text-blue-600 underline">장비 목록으로 돌아가기</a>
+        <button onclick="goToStep(2)" class="text-blue-600 text-sm">← 이전 단계</button>
+        <button onclick="submitForm()" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">신청 완료</button>
       </div>
     </div>
   </div>
+
+  <script>
+    let currentStep = 1;
+    const selected = [];
+
+    document.querySelectorAll("#equipment-grid > div").forEach(div => {
+      div.addEventListener("click", () => {
+        const id = div.dataset.id;
+        if (div.classList.contains("selected")) {
+          div.classList.remove("selected");
+          selected.splice(selected.indexOf(id), 1);
+        } else {
+          div.classList.add("selected");
+          selected.push(id);
+        }
+      });
+    });
+
+    function goToStep(step) {
+      if (step === 2 && selected.length === 0) {
+        alert("장비를 한 개 이상 선택해주세요.");
+        return;
+      }
+
+      if (step === 3) {
+        const start = new Date(document.getElementById("startDate").value);
+        const end = new Date(document.getElementById("endDate").value);
+        const diff = (end - start) / (1000 * 60 * 60 * 24);
+        if (!start || !end || isNaN(diff) || diff < 0 || diff > 3) {
+          alert("대여 시작일과 반납일을 올바르게 입력해주세요. 최대 3일까지만 가능합니다.");
+          return;
+        }
+      }
+
+      for (let i = 1; i <= 3; i++) {
+        document.getElementById(`step-${i}`).classList.add("hidden");
+        document.querySelector(`.step-${i}`).classList.remove("step-active");
+        document.querySelector(`.step-${i}`).classList.add("opacity-50");
+      }
+      document.getElementById(`step-${step}`).classList.remove("hidden");
+      document.querySelector(`.step-${step}`).classList.add("step-active");
+      document.querySelector(`.step-${step}`).classList.remove("opacity-50");
+
+      currentStep = step;
+    }
+
+    function submitForm() {
+      if (!document.getElementById("agreeCheck").checked) {
+        alert("기자재 사용 규정에 동의해야 합니다.");
+        return;
+      }
+      alert("신청이 완료되었습니다!");
+    }
+  </script>
 </body>
 </html>
