@@ -1,225 +1,218 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>기자재 대여 신청</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css" />
+
   <style>
-    /* 클릭 시 선택 표시 */
-    .equipment-card {
-      transition: border-color 0.2s, box-shadow 0.2s;
+    /* 카드 전체 스타일 */
+    .equip-card {
+      width: 8rem;  /* 정사각형 형태 */
+      height: 8rem; /* 정사각형 형태 */
     }
-    .equipment-card.selected {
-      border-color: #3b82f6; /* blue-500 */
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+
+    /* 노란 체크아이콘 숨김/표시 */
+    .check-icon {
+      /* 아이콘을 절대 위치시키기 위해 */
+      position: absolute;
+      top: 0.25rem;
+      right: 0.25rem;
+      width: 1.5rem;
+      height: 1.5rem;
+      color: #facc15; /* Tailwind yellow-400 근접 */
+      fill: currentColor;
+      display: none; /* 기본 숨김 */
+    }
+
+    /* 선택된 상태에서 체크아이콘 표시 */
+    .selected .check-icon {
+      display: block;
     }
   </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
+  <!-- 헤더 -->
   <header class="p-6 text-center bg-white shadow">
     <h1 class="text-3xl font-bold">기자재 대여 신청</h1>
-    <p class="text-sm text-gray-500">원하는 장비를 선택하고 다음 단계로 넘어가세요</p>
+    <p class="text-sm text-gray-500">섹션별로 장비를 클릭(토글)하여 선택하세요</p>
   </header>
 
-  <main class="max-w-6xl mx-auto px-4 py-10 space-y-16">
-
+  <main class="max-w-5xl mx-auto px-4 py-10 space-y-16">
     <!-- 카메라 섹션 -->
     <section>
       <h2 class="text-2xl font-bold mb-4">카메라</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <!-- 카드 1 -->
-        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md cursor-pointer"
-             data-name="Blackmagic Pocket 6K">
-          <img
-            src="https://images.unsplash.com/photo-1599350752070-7908a994cde9?auto=format&fit=crop&w=400&q=80"
-            alt="Blackmagic Pocket 6K"
-            class="w-full h-24 object-cover rounded mb-3"
-          />
-          <h3 class="text-lg font-semibold">Blackmagic Pocket 6K</h3>
-          <p class="text-sm text-gray-600 mt-1">설명을 입력하세요</p>
+      <div class="grid grid-cols-4 gap-4">
+        <!-- 예시 8개 아이템 -->
+        <div class="relative border rounded shadow equip-card hover:shadow-md cursor-pointer"
+             data-available="3">
+          <!-- 노란 체크아이콘 (숨김 → 선택시 표시) -->
+          <svg viewBox="0 0 24 24" class="check-icon">
+            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3"
+                  stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+          </svg>
+          <!-- 이미지 -->
+          <img src="https://images.unsplash.com/photo-1599350752070-7908a994cde9?auto=format&fit=crop&w=400&q=80"
+               alt="Cam1" class="w-full h-full object-cover" />
+          <!-- 수량 표시 -->
+          <div class="absolute bottom-1 left-1 bg-white text-xs px-1 py-0.5 rounded shadow-sm avail-text">
+            수량: 3
+          </div>
+          <!-- 이름 표시 -->
+          <div class="absolute top-1 left-1 text-sm font-semibold text-white bg-black/50 px-1 rounded">
+            Blackmagic
+          </div>
         </div>
-        <!-- 카드 2 -->
-        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md cursor-pointer"
-             data-name="Sony A7S III">
-          <img
-            src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=400&q=80"
-            alt="Sony A7S III"
-            class="w-full h-24 object-cover rounded mb-3"
-          />
-          <h3 class="text-lg font-semibold">Sony A7S III</h3>
-          <p class="text-sm text-gray-600 mt-1">설명을 입력하세요</p>
+
+        <div class="relative border rounded shadow equip-card hover:shadow-md cursor-pointer"
+             data-available="3">
+          <svg viewBox="0 0 24 24" class="check-icon">
+            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3"
+                  stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+          </svg>
+          <img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=400&q=80"
+               alt="Cam2" class="w-full h-full object-cover" />
+          <div class="absolute bottom-1 left-1 bg-white text-xs px-1 py-0.5 rounded shadow-sm avail-text">
+            수량: 3
+          </div>
+          <div class="absolute top-1 left-1 text-sm font-semibold text-white bg-black/50 px-1 rounded">
+            Sony A7S III
+          </div>
         </div>
-        <!-- 카드 3 -->
-        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md cursor-pointer"
-             data-name="Canon C70">
-          <img
-            src="https://images.unsplash.com/photo-1588920226847-1fc7d8b1f55b?auto=format&fit=crop&w=400&q=80"
-            alt="Canon C70"
-            class="w-full h-24 object-cover rounded mb-3"
-          />
-          <h3 class="text-lg font-semibold">Canon C70</h3>
-          <p class="text-sm text-gray-600 mt-1">설명을 입력하세요</p>
+
+        <div class="relative border rounded shadow equip-card hover:shadow-md cursor-pointer"
+             data-available="3">
+          <svg viewBox="0 0 24 24" class="check-icon">
+            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3"
+                  stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+          </svg>
+          <img src="https://images.unsplash.com/photo-1588920226847-1fc7d8b1f55b?auto=format&fit=crop&w=400&q=80"
+               alt="Cam3" class="w-full h-full object-cover" />
+          <div class="absolute bottom-1 left-1 bg-white text-xs px-1 py-0.5 rounded shadow-sm avail-text">
+            수량: 3
+          </div>
+          <div class="absolute top-1 left-1 text-sm font-semibold text-white bg-black/50 px-1 rounded">
+            Canon C70
+          </div>
+        </div>
+
+        <!-- 5개 더 아이템 (총 8개) -->
+        <div class="relative border rounded shadow equip-card hover:shadow-md cursor-pointer"
+             data-available="3">
+          <svg viewBox="0 0 24 24" class="check-icon">
+            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3"
+                  stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+          </svg>
+          <img src="https://images.unsplash.com/photo-1602708194944-d02cbfd2eec3?auto=format&fit=crop&w=400&q=80"
+               alt="Cam4" class="w-full h-full object-cover" />
+          <div class="absolute bottom-1 left-1 bg-white text-xs px-1 py-0.5 rounded shadow-sm avail-text">
+            수량: 3
+          </div>
+          <div class="absolute top-1 left-1 text-sm font-semibold text-white bg-black/50 px-1 rounded">
+            Cam4
+          </div>
+        </div>
+        <div class="relative border rounded shadow equip-card hover:shadow-md cursor-pointer"
+             data-available="3">
+          <svg viewBox="0 0 24 24" class="check-icon">
+            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3"
+                  stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+          </svg>
+          <img src="https://images.unsplash.com/photo-1617005082133-548c4dd9e290?auto=format&fit=crop&w=400&q=80"
+               alt="Cam5" class="w-full h-full object-cover" />
+          <div class="absolute bottom-1 left-1 bg-white text-xs px-1 py-0.5 rounded shadow-sm avail-text">
+            수량: 3
+          </div>
+          <div class="absolute top-1 left-1 text-sm font-semibold text-white bg-black/50 px-1 rounded">
+            Cam5
+          </div>
+        </div>
+        <div class="relative border rounded shadow equip-card hover:shadow-md cursor-pointer"
+             data-available="3">
+          <svg viewBox="0 0 24 24" class="check-icon">
+            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3"
+                  stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+          </svg>
+          <img src="https://images.unsplash.com/photo-1590602846979-e99d8db533d1?auto=format&fit=crop&w=400&q=80"
+               alt="Cam6" class="w-full h-full object-cover" />
+          <div class="absolute bottom-1 left-1 bg-white text-xs px-1 py-0.5 rounded shadow-sm avail-text">
+            수량: 3
+          </div>
+          <div class="absolute top-1 left-1 text-sm font-semibold text-white bg-black/50 px-1 rounded">
+            Cam6
+          </div>
+        </div>
+        <div class="relative border rounded shadow equip-card hover:shadow-md cursor-pointer"
+             data-available="3">
+          <svg viewBox="0 0 24 24" class="check-icon">
+            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3"
+                  stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+          </svg>
+          <img src="https://images.unsplash.com/photo-1506807803488-8eafc15315f0?auto=format&fit=crop&w=400&q=80"
+               alt="Cam7" class="w-full h-full object-cover" />
+          <div class="absolute bottom-1 left-1 bg-white text-xs px-1 py-0.5 rounded shadow-sm avail-text">
+            수량: 3
+          </div>
+          <div class="absolute top-1 left-1 text-sm font-semibold text-white bg-black/50 px-1 rounded">
+            Cam7
+          </div>
+        </div>
+        <div class="relative border rounded shadow equip-card hover:shadow-md cursor-pointer"
+             data-available="3">
+          <svg viewBox="0 0 24 24" class="check-icon">
+            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3"
+                  stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+          </svg>
+          <img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=400&q=80"
+               alt="Cam8" class="w-full h-full object-cover" />
+          <div class="absolute bottom-1 left-1 bg-white text-xs px-1 py-0.5 rounded shadow-sm avail-text">
+            수량: 3
+          </div>
+          <div class="absolute top-1 left-1 text-sm font-semibold text-white bg-black/50 px-1 rounded">
+            Cam8
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 오디오 섹션 -->
-    <section>
-      <h2 class="text-2xl font-bold mb-4">오디오</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md cursor-pointer"
-             data-name="RODE NTG2">
-          <img
-            src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=400&q=80"
-            alt="RODE NTG2"
-            class="w-full h-24 object-cover rounded mb-3"
-          />
-          <h3 class="text-lg font-semibold">RODE NTG2</h3>
-          <p class="text-sm text-gray-600 mt-1">설명을 입력하세요</p>
-        </div>
-        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md cursor-pointer"
-             data-name="Zoom H6 Recorder">
-          <img
-            src="https://images.unsplash.com/photo-1506807803488-8eafc15315f0?auto=format&fit=crop&w=400&q=80"
-            alt="Zoom H6 Recorder"
-            class="w-full h-24 object-cover rounded mb-3"
-          />
-          <h3 class="text-lg font-semibold">Zoom H6 Recorder</h3>
-          <p class="text-sm text-gray-600 mt-1">설명을 입력하세요</p>
-        </div>
-        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md cursor-pointer"
-             data-name="Sennheiser Wireless Kit">
-          <img
-            src="https://images.unsplash.com/photo-1493989164281-8d4e5b6b8e0a?auto=format&fit=crop&w=400&q=80"
-            alt="Sennheiser Wireless Kit"
-            class="w-full h-24 object-cover rounded mb-3"
-          />
-          <h3 class="text-lg font-semibold">Sennheiser Wireless Kit</h3>
-          <p class="text-sm text-gray-600 mt-1">설명을 입력하세요</p>
-        </div>
-      </div>
-    </section>
+    <!-- 동일한 방식으로 '오디오', '조명', '편집실' 섹션도 8개씩 아이템 배치 -->
+    <!-- ... (생략 or 복사해서 동일 구조로 추가) -->
 
-    <!-- 조명 섹션 -->
-    <section>
-      <h2 class="text-2xl font-bold mb-4">조명</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md cursor-pointer"
-             data-name="Aputure 120D">
-          <img
-            src="https://images.unsplash.com/photo-1507224035462-59422e571429?auto=format&fit=crop&w=400&q=80"
-            alt="Aputure 120D"
-            class="w-full h-24 object-cover rounded mb-3"
-          />
-          <h3 class="text-lg font-semibold">Aputure 120D</h3>
-          <p class="text-sm text-gray-600 mt-1">설명을 입력하세요</p>
-        </div>
-        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md cursor-pointer"
-             data-name="Godox SL-60W">
-          <img
-            src="https://images.unsplash.com/photo-1586031988450-8f69c0c1ad2a?auto=format&fit=crop&w=400&q=80"
-            alt="Godox SL-60W"
-            class="w-full h-24 object-cover rounded mb-3"
-          />
-          <h3 class="text-lg font-semibold">Godox SL-60W</h3>
-          <p class="text-sm text-gray-600 mt-1">설명을 입력하세요</p>
-        </div>
-        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md cursor-pointer"
-             data-name="Nanlite Forza 60">
-          <img
-            src="https://images.unsplash.com/photo-1602708194944-d02cbfd2eec3?auto=format&fit=crop&w=400&q=80"
-            alt="Nanlite Forza 60"
-            class="w-full h-24 object-cover rounded mb-3"
-          />
-          <h3 class="text-lg font-semibold">Nanlite Forza 60</h3>
-          <p class="text-sm text-gray-600 mt-1">설명을 입력하세요</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 편집실 섹션 -->
-    <section>
-      <h2 class="text-2xl font-bold mb-4">편집실</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md cursor-pointer"
-             data-name="맥북 M2 FinalCut">
-          <img
-            src="https://images.unsplash.com/photo-1602748961344-0a179b0416b3?auto=format&fit=crop&w=400&q=80"
-            alt="맥북 M2 FinalCut"
-            class="w-full h-24 object-cover rounded mb-3"
-          />
-          <h3 class="text-lg font-semibold">맥북 M2 FinalCut</h3>
-          <p class="text-sm text-gray-600 mt-1">설명을 입력하세요</p>
-        </div>
-        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md cursor-pointer"
-             data-name="Premiere 편집실">
-          <img
-            src="https://images.unsplash.com/photo-1527457443442-47a1e2b26481?auto=format&fit=crop&w=400&q=80"
-            alt="Premiere 편집실"
-            class="w-full h-24 object-cover rounded mb-3"
-          />
-          <h3 class="text-lg font-semibold">Premiere 편집실</h3>
-          <p class="text-sm text-gray-600 mt-1">설명을 입력하세요</p>
-        </div>
-        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md cursor-pointer"
-             data-name="DaVinci Color Suite">
-          <img
-            src="https://images.unsplash.com/photo-1602516607531-61d80b7f1fe8?auto=format&fit=crop&w=400&q=80"
-            alt="DaVinci Color Suite"
-            class="w-full h-24 object-cover rounded mb-3"
-          />
-          <h3 class="text-lg font-semibold">DaVinci Color Suite</h3>
-          <p class="text-sm text-gray-600 mt-1">설명을 입력하세요</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 다음 단계 버튼 -->
-    <div class="text-right mt-8">
-      <button
-        id="btnNext"
-        class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-      >
-        다음 단계
-      </button>
-    </div>
   </main>
 
   <footer class="text-center text-sm text-gray-500 py-6 border-t">
     고객센터: 02-1234-5678 | 운영시간: 평일 10:00 ~ 17:00 (점심시간 12:00~13:00)
   </footer>
 
-  <!-- 자바스크립트: 카드 클릭 시 토글 + 다음 단계 -->
+  <!-- JS: 클릭 시 토글 + 수량 변경 -->
   <script>
-    let selectedEquipments = [];
+    document.querySelectorAll('.equip-card').forEach(card => {
+      let available = parseInt(card.getAttribute('data-available'));
+      let isSelected = false;
 
-    // 카드 클릭 시 selected 클래스 토글
-    document.querySelectorAll('.equipment-card').forEach(card => {
+      const checkIcon = card.querySelector('.check-icon');
+      const availEl = card.querySelector('.avail-text');
+
       card.addEventListener('click', () => {
-        card.classList.toggle('selected');
-        const itemName = card.getAttribute('data-name');
-
-        if (card.classList.contains('selected')) {
-          // 선택됨
-          if (!selectedEquipments.includes(itemName)) {
-            selectedEquipments.push(itemName);
+        if (!isSelected) {
+          // 선택하려고 할 때
+          if (available > 0) {
+            isSelected = true;
+            available--;
+            checkIcon.style.display = 'block';     // 노란 체크아이콘 표시
+            availEl.textContent = '수량: ' + available;
           }
         } else {
-          // 해제됨
-          selectedEquipments = selectedEquipments.filter(i => i !== itemName);
+          // 이미 선택된 상태 → 선택 해제
+          isSelected = false;
+          available++;
+          checkIcon.style.display = 'none';        // 체크아이콘 숨김
+          availEl.textContent = '수량: ' + available;
         }
       });
-    });
-
-    // 다음 단계 버튼 클릭
-    document.getElementById('btnNext').addEventListener('click', () => {
-      // 예: localStorage에 저장 후 다른 페이지로 이동
-      localStorage.setItem('selectedEquipments', JSON.stringify(selectedEquipments));
-      alert('선택된 장비: ' + selectedEquipments.join(', '));
-      // window.location.href = 'rental_date.html'; // 다음 페이지로 이동
     });
   </script>
 </body>
