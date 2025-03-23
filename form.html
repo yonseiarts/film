@@ -1,41 +1,196 @@
-<!-- 3단계: 사용자 정보 입력 -->
-<div id="step-3" class="hidden">
-  <h2 class="text-xl font-bold mb-4">3단계: 사용자 정보 입력</h2>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>기자재 대여 신청</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <style>
+    .selected { border-color: #facc15; background-color: #fef9c3; }
+    .checkmark { display: none; }
+    .selected .checkmark { display: inline-block; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
 
-  <label class="block mb-2">이름</label>
-  <input type="text" id="name" class="w-full border p-2 rounded mb-4"/>
-
-  <label class="block mb-2">학번</label>
-  <input type="text" id="student-id" class="w-full border p-2 rounded mb-4"/>
-
-  <label class="block mb-2">연락처</label>
-  <input type="text" id="phone" class="w-full border p-2 rounded mb-6"/>
-
-  <div class="bg-gray-100 border rounded p-4 text-sm mb-4">
-    <h3 class="font-semibold mb-2">기자재 사용 규정</h3>
-    <ul class="list-disc list-inside text-gray-700 space-y-1">
-      <li>대여 시간: 월–금 10:00~17:00 (공휴일 제외)</li>
-      <li>점심시간(12:00–13:00) 대여 불가</li>
-      <li>일반 대여: 최대 3일, 특수 프로젝트: 최대 7일 (사전 승인 필요)</li>
-      <li>연세예술원 영화학과 재학생만 대여 가능 (학생증 확인 필수)</li>
-      <li>지정된 날짜와 시간에 반납 / 장비 상태 확인 후 반납 처리</li>
-      <li>손상/분실 시 전액 배상 / 연체 시 추가 대여 제한</li>
-    </ul>
+  <div class="bg-blue-700 text-white py-6 px-4">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-2xl font-bold">기자재 대여 신청</h1>
+      <p class="text-blue-100">필요한 장비를 선택하고 절차를 진행해주세요.</p>
+    </div>
   </div>
 
-  <label class="inline-flex items-center mb-6">
-    <input type="checkbox" id="agree-terms" class="form-checkbox mr-2">
-    <span class="text-sm text-gray-700">위 항목에 동의합니다.</span>
-  </label>
+  <div class="max-w-4xl mx-auto py-8 px-4" id="step-container">
+    <!-- 1단계 -->
+    <div id="step-1">
+      <h2 class="text-xl font-bold mb-4">1단계: 장비 선택</h2>
+      <div class="flex space-x-4 mb-4">
+        <button class="tab-btn px-4 py-2 border rounded" data-tab="camera">카메라</button>
+        <button class="tab-btn px-4 py-2 border rounded" data-tab="lighting">조명</button>
+        <button class="tab-btn px-4 py-2 border rounded" data-tab="sound">사운드</button>
+        <button class="tab-btn px-4 py-2 border rounded" data-tab="editing">편집실</button>
+      </div>
+      <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6"></div>
+      <div id="selected-list" class="bg-white border rounded-lg p-4 mt-8 hidden">
+        <h3 class="font-semibold mb-2">선택된 장비</h3>
+        <ul class="text-sm text-gray-700 space-y-1" id="selected-items"></ul>
+      </div>
+      <div class="flex justify-end mt-6">
+        <button class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" onclick="goToStep(2)" id="to-step-2" style="display:none;">다음 단계</button>
+      </div>
+    </div>
 
-  <div class="flex justify-between">
-    <button onclick="goToStep(2)" class="text-blue-600">← 이전 단계</button>
-    <button onclick="submitForm()" id="submit-btn" class="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50" disabled>신청 완료</button>
+    <!-- 2단계 -->
+    <div id="step-2" class="hidden">
+      <h2 class="text-xl font-bold mb-4">2단계: 대여일 선택</h2>
+      <p class="text-sm text-gray-600 mb-2">일반 대여는 최대 <strong class="text-blue-600">3일</strong>까지 가능합니다.</p>
+      <div class="bg-white border rounded-lg p-6 space-y-4">
+        <div>
+          <label class="block font-medium mb-1">대여 시작일</label>
+          <input type="date" id="start-date" class="w-full border px-4 py-2 rounded"/>
+        </div>
+        <div>
+          <label class="block font-medium mb-1">반납일</label>
+          <input type="date" id="end-date" class="w-full border px-4 py-2 rounded"/>
+          <p class="text-sm text-gray-500 mt-1">※ 시작일 기준 최대 3일 이내 선택 가능</p>
+        </div>
+        <div>
+          <label class="block font-medium mb-1">증명사진 업로드</label>
+          <input type="file" accept="image/*" class="w-full"/>
+        </div>
+      </div>
+      <div class="flex justify-between mt-6">
+        <button onclick="goToStep(1)" class="text-blue-600">&larr; 이전 단계</button>
+        <button onclick="goToStep(3)" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">다음 단계</button>
+      </div>
+    </div>
+
+    <!-- 3단계 -->
+    <div id="step-3" class="hidden">
+      <h2 class="text-xl font-bold mb-4">3단계: 규정 동의</h2>
+      <div class="bg-white border rounded-lg p-6 space-y-3 text-sm leading-relaxed text-gray-800">
+        <ul class="list-disc list-inside">
+          <li>⏱️ 일반 대여는 최대 3일까지 가능합니다.</li>
+          <li>🎓 대여는 연세예술원 영화학과 재학생만 가능합니다.</li>
+          <li>📅 지정 날짜에 정확히 반납해주세요.</li>
+          <li>⚠️ 파손 또는 분실 시 전액 배상됩니다.</li>
+        </ul>
+        <div class="mt-4">
+          <label class="inline-flex items-center">
+            <input type="checkbox" id="agree" class="mr-2"> 위 규정에 동의합니다.
+          </label>
+        </div>
+      </div>
+      <div class="flex justify-between mt-6">
+        <button onclick="goToStep(2)" class="text-blue-600">&larr; 이전 단계</button>
+        <button onclick="goToStep(4)" id="agree-next" disabled class="bg-blue-600 text-white px-6 py-2 rounded opacity-50 cursor-not-allowed">다음 단계</button>
+      </div>
+    </div>
+
+    <!-- 4단계 -->
+    <div id="step-4" class="hidden text-center">
+      <h2 class="text-2xl font-bold mb-4">🎉 신청이 완료되었습니다!</h2>
+      <p class="text-gray-600 mb-6">관리자가 확인 후 안내드릴 예정입니다.</p>
+      <a href="index.html" class="text-blue-600 underline">홈으로 돌아가기</a>
+    </div>
   </div>
-</div>
 
-<script>
-  document.getElementById('agree-terms').addEventListener('change', function() {
-    document.getElementById('submit-btn').disabled = !this.checked;
-  });
-</script>
+  <script>
+    const equipmentData = {
+      camera: [
+        { id: "1", name: "Sony FX3", image: "https://via.placeholder.com/80", available: 3 },
+        { id: "2", name: "Canon EOS R5", image: "https://via.placeholder.com/80", available: 2 }
+      ],
+      lighting: [
+        { id: "3", name: "ARRI SkyPanel", image: "https://via.placeholder.com/80", available: 4 }
+      ],
+      sound: [
+        { id: "4", name: "Sennheiser MKH 416", image: "https://via.placeholder.com/80", available: 6 }
+      ],
+      editing: [
+        { id: "5", name: "Premiere Pro Workstation", image: "https://via.placeholder.com/80", available: 2 }
+      ]
+    };
+
+    let selected = [];
+    const equipmentList = document.getElementById("equipment-list");
+    const selectedList = document.getElementById("selected-list");
+    const selectedItems = document.getElementById("selected-items");
+    const nextBtn = document.getElementById("to-step-2");
+
+    function renderEquipment(category) {
+      equipmentList.innerHTML = "";
+      equipmentData[category].forEach(item => {
+        const div = document.createElement("div");
+        div.className = "border rounded-lg p-4 flex items-center justify-between cursor-pointer";
+        div.dataset.id = item.id;
+        div.dataset.name = item.name;
+
+        div.innerHTML = `
+          <div class="flex items-center">
+            <img src="${item.image}" class="h-12 w-12 rounded mr-3" alt="${item.name}"/>
+            <div>
+              <h3 class="font-semibold">${item.name}</h3>
+              <p class="text-sm text-gray-500">${item.available}대 대여 가능</p>
+            </div>
+          </div>
+          <span class="checkmark text-yellow-500 text-xl">✔</span>
+        `;
+        div.addEventListener("click", () => toggleSelect(item, div));
+        equipmentList.appendChild(div);
+      });
+    }
+
+    function toggleSelect(item, element) {
+      const exists = selected.find(i => i.id === item.id);
+      if (exists) {
+        selected = selected.filter(i => i.id !== item.id);
+        element.classList.remove("selected");
+      } else {
+        selected.push(item);
+        element.classList.add("selected");
+      }
+      updateSelected();
+    }
+
+    function updateSelected() {
+      if (selected.length === 0) {
+        selectedList.classList.add("hidden");
+        nextBtn.style.display = "none";
+      } else {
+        selectedList.classList.remove("hidden");
+        nextBtn.style.display = "block";
+        selectedItems.innerHTML = selected.map(s => `<li>📷 ${s.name}</li>`).join("");
+      }
+    }
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("bg-blue-100"));
+        btn.classList.add("bg-blue-100");
+        renderEquipment(btn.dataset.tab);
+      });
+    });
+
+    renderEquipment("camera");
+
+    function goToStep(n) {
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById("step-" + i).classList.add("hidden");
+      }
+      document.getElementById("step-" + n).classList.remove("hidden");
+    }
+
+    document.getElementById("agree").addEventListener("change", (e) => {
+      const btn = document.getElementById("agree-next");
+      if (e.target.checked) {
+        btn.disabled = false;
+        btn.classList.remove("opacity-50", "cursor-not-allowed");
+      } else {
+        btn.disabled = true;
+        btn.classList.add("opacity-50", "cursor-not-allowed");
+      }
+    });
+  </script>
+</body>
+</html>
