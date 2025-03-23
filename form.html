@@ -4,21 +4,28 @@
   <meta charset="UTF-8" />
   <title>기자재 대여 신청</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
   <style>
+    /* 가로 스크롤을 위한 스타일 */
     .scrolling-wrapper {
       display: flex;
       overflow-x: auto;
       gap: 1rem;
       padding-bottom: 0.5rem;
+      scroll-behavior: smooth;
     }
     .scrolling-wrapper::-webkit-scrollbar {
-      height: 8px;
+      height: 8px; /* 스크롤바 높이 */
     }
     .scrolling-wrapper::-webkit-scrollbar-thumb {
-      background: #ccc;
+      background: #ccc; /* 스크롤바 색상 */
       border-radius: 4px;
+    }
+    /* 카드 최소 너비로 가로 나열 */
+    .equipment-card {
+      min-width: 220px; /* 카드 최소 너비 */
     }
   </style>
 </head>
@@ -34,8 +41,154 @@
     <section>
       <h2 class="text-2xl font-bold mb-4">카메라</h2>
       <div class="scrolling-wrapper">
-        <div class="min-w-[220px] bg-white border rounded-lg shadow p-4 hover:shadow-md transition">
-          <h3 class="text-lg font-semibold">Blackmagic Pocket 6K</h3>
-          <p class="text-sm text-gray-600 mt-2">설명을 입력하세요</p>
+        <!-- 카드 1: Blackmagic Pocket 6K -->
+        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md transition">
+          <img
+            src="https://images.unsplash.com/photo-1599350752070-7908a994cde9?auto=format&fit=crop&w=400&q=80"
+            alt="Blackmagic Pocket 6K"
+            class="w-full h-40 object-cover rounded mb-3"
+          />
+          <h3 class="text-lg font-semibold mb-2">Blackmagic Pocket 6K</h3>
+          <p class="text-sm text-gray-600">설명을 입력하세요</p>
         </div>
-        <div class="min-w-[220px] bg-white border rounded-lg shadow p-4 hover:shadow-md transition">
+        <!-- 카드 2: Sony A7S III -->
+        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md transition">
+          <img
+            src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=400&q=80"
+            alt="Sony A7S III"
+            class="w-full h-40 object-cover rounded mb-3"
+          />
+          <h3 class="text-lg font-semibold mb-2">Sony A7S III</h3>
+          <p class="text-sm text-gray-600">설명을 입력하세요</p>
+        </div>
+        <!-- 카드 3: Canon C70 -->
+        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md transition">
+          <img
+            src="https://images.unsplash.com/photo-1588920226847-1fc7d8b1f55b?auto=format&fit=crop&w=400&q=80"
+            alt="Canon C70"
+            class="w-full h-40 object-cover rounded mb-3"
+          />
+          <h3 class="text-lg font-semibold mb-2">Canon C70</h3>
+          <p class="text-sm text-gray-600">설명을 입력하세요</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 오디오 섹션 -->
+    <section>
+      <h2 class="text-2xl font-bold mb-4">오디오</h2>
+      <div class="scrolling-wrapper">
+        <!-- 카드 1: RODE NTG2 -->
+        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md transition">
+          <img
+            src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=400&q=80"
+            alt="RODE NTG2"
+            class="w-full h-40 object-cover rounded mb-3"
+          />
+          <h3 class="text-lg font-semibold mb-2">RODE NTG2</h3>
+          <p class="text-sm text-gray-600">설명을 입력하세요</p>
+        </div>
+        <!-- 카드 2: Zoom H6 Recorder -->
+        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md transition">
+          <img
+            src="https://images.unsplash.com/photo-1506807803488-8eafc15315f0?auto=format&fit=crop&w=400&q=80"
+            alt="Zoom H6 Recorder"
+            class="w-full h-40 object-cover rounded mb-3"
+          />
+          <h3 class="text-lg font-semibold mb-2">Zoom H6 Recorder</h3>
+          <p class="text-sm text-gray-600">설명을 입력하세요</p>
+        </div>
+        <!-- 카드 3: Sennheiser Wireless Kit -->
+        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md transition">
+          <img
+            src="https://images.unsplash.com/photo-1493989164281-8d4e5b6b8e0a?auto=format&fit=crop&w=400&q=80"
+            alt="Sennheiser Wireless Kit"
+            class="w-full h-40 object-cover rounded mb-3"
+          />
+          <h3 class="text-lg font-semibold mb-2">Sennheiser Wireless Kit</h3>
+          <p class="text-sm text-gray-600">설명을 입력하세요</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 조명 섹션 -->
+    <section>
+      <h2 class="text-2xl font-bold mb-4">조명</h2>
+      <div class="scrolling-wrapper">
+        <!-- 카드 1: Aputure 120D -->
+        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md transition">
+          <img
+            src="https://images.unsplash.com/photo-1507224035462-59422e571429?auto=format&fit=crop&w=400&q=80"
+            alt="Aputure 120D"
+            class="w-full h-40 object-cover rounded mb-3"
+          />
+          <h3 class="text-lg font-semibold mb-2">Aputure 120D</h3>
+          <p class="text-sm text-gray-600">설명을 입력하세요</p>
+        </div>
+        <!-- 카드 2: Godox SL-60W -->
+        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md transition">
+          <img
+            src="https://images.unsplash.com/photo-1586031988450-8f69c0c1ad2a?auto=format&fit=crop&w=400&q=80"
+            alt="Godox SL-60W"
+            class="w-full h-40 object-cover rounded mb-3"
+          />
+          <h3 class="text-lg font-semibold mb-2">Godox SL-60W</h3>
+          <p class="text-sm text-gray-600">설명을 입력하세요</p>
+        </div>
+        <!-- 카드 3: Nanlite Forza 60 -->
+        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md transition">
+          <img
+            src="https://images.unsplash.com/photo-1602708194944-d02cbfd2eec3?auto=format&fit=crop&w=400&q=80"
+            alt="Nanlite Forza 60"
+            class="w-full h-40 object-cover rounded mb-3"
+          />
+          <h3 class="text-lg font-semibold mb-2">Nanlite Forza 60</h3>
+          <p class="text-sm text-gray-600">설명을 입력하세요</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 편집실 섹션 -->
+    <section>
+      <h2 class="text-2xl font-bold mb-4">편집실</h2>
+      <div class="scrolling-wrapper">
+        <!-- 카드 1: 맥북 M2 FinalCut -->
+        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md transition">
+          <img
+            src="https://images.unsplash.com/photo-1602748961344-0a179b0416b3?auto=format&fit=crop&w=400&q=80"
+            alt="맥북 M2 FinalCut"
+            class="w-full h-40 object-cover rounded mb-3"
+          />
+          <h3 class="text-lg font-semibold mb-2">맥북 M2 FinalCut</h3>
+          <p class="text-sm text-gray-600">설명을 입력하세요</p>
+        </div>
+        <!-- 카드 2: Premiere 편집실 -->
+        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md transition">
+          <img
+            src="https://images.unsplash.com/photo-1527457443442-47a1e2b26481?auto=format&fit=crop&w=400&q=80"
+            alt="Premiere 편집실"
+            class="w-full h-40 object-cover rounded mb-3"
+          />
+          <h3 class="text-lg font-semibold mb-2">Premiere 편집실</h3>
+          <p class="text-sm text-gray-600">설명을 입력하세요</p>
+        </div>
+        <!-- 카드 3: DaVinci Color Suite -->
+        <div class="equipment-card border rounded-lg shadow p-4 bg-white hover:shadow-md transition">
+          <img
+            src="https://images.unsplash.com/photo-1602516607531-61d80b7f1fe8?auto=format&fit=crop&w=400&q=80"
+            alt="DaVinci Color Suite"
+            class="w-full h-40 object-cover rounded mb-3"
+          />
+          <h3 class="text-lg font-semibold mb-2">DaVinci Color Suite</h3>
+          <p class="text-sm text-gray-600">설명을 입력하세요</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="text-center text-sm text-gray-500 py-6 border-t">
+    고객센터: 02-1234-5678 | 운영시간: 평일 10:00 ~ 17:00 (점심시간 12:00~13:00)
+  </footer>
+</body>
+</html>
