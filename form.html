@@ -22,7 +22,10 @@
       border-radius: 4px;
       border: 1px solid #e5e7eb;
       cursor: pointer;
-    
+    }
+    .time-slot input.selected {
+      background-color: #60a5fa;
+      border-color: #1d4ed8;
     }
   </style>
 </head>
@@ -78,6 +81,11 @@
         <h3 class="text-lg font-semibold mb-4">대여 시작 시간 (24시 기준)</h3>
         <div class="time-slot" id="time-slot">
           <!-- 시간 슬롯들이 동적으로 생성됩니다. -->
+        </div>
+
+        <h3 class="text-lg font-semibold mt-4 mb-4">반납 시간 (24시 기준)</h3>
+        <div class="time-slot" id="return-time-slot">
+          <!-- 반납 시간 슬롯들이 동적으로 생성됩니다. -->
         </div>
       </div>
 
