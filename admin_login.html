@@ -1,39 +1,134 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>관리자 로그인</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>기자재 대여 관리자 페이지</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
 </head>
-<body class="bg-gray-50 flex items-center justify-center h-screen">
-  <div class="bg-white p-6 rounded shadow w-80">
-    <h1 class="text-xl font-bold mb-4 text-center">관리자 로그인</h1>
-    <div class="mb-4">
-      <label class="block text-sm font-medium mb-1">아이디</label>
-      <input type="text" id="adminId" class="border w-full p-2 rounded" placeholder="admin" />
+<body class="bg-gray-50">
+
+  <div class="bg-gray-800 text-white py-4 text-center">
+    <h1 class="text-2xl font-bold">기자재 대여 - 관리자 페이지</h1>
+    <p class="text-sm mt-1">대여 신청 현황을 확인하고 승인/반려 처리를 할 수 있습니다.</p>
+  </div>
+
+  <div class="max-w-5xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold">대여 신청 목록</h2>
+      <div>
+        <button id="logoutBtn" class="bg-red-500 text-white px-3 py-1 rounded mr-4 hover:bg-red-600">
+          로그아웃
+        </button>
+        <button id="loadDataBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          대여 목록 불러오기
+        </button>
+      </div>
     </div>
-    <div class="mb-4">
-      <label class="block text-sm font-medium mb-1">비밀번호</label>
-      <input type="password" id="adminPw" class="border w-full p-2 rounded" placeholder="1234" />
+
+    <!-- 목록 테이블 -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full border text-sm" id="rentalTable">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="border p-2">No</th>
+            <th class="border p-2">사용자ID</th>
+            <th class="border p-2">장비목록</th>
+            <th class="border p-2">대여일정</th>
+            <th class="border p-2">편집실</th>
+            <th class="border p-2">신청일시</th>
+            <th class="border p-2">승인</th>
+          </tr>
+        </thead>
+        <tbody id="rentalTableBody">
+          <!-- JS로 추가 -->
+        </tbody>
+      </table>
     </div>
-    <button id="loginBtn" class="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700">로그인</button>
   </div>
 
   <script>
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      const id = document.getElementById('adminId').value.trim();
-      const pw = document.getElementById('adminPw').value.trim();
+    // 로그인 체크
+    const isAdmin = localStorage.getItem('adminLoggedIn');
+    if (isAdmin !== 'true') {
+      alert('관리자 로그인이 필요합니다.');
+      window.location.href = 'admin_login.html';
+    }
 
-      // 예시로 admin / 1234 라고 가정
-      if (id === 'admin' && pw === '1234') {
-        // 로그인 성공 → 세션/토큰 표시
-        localStorage.setItem('adminLoggedIn', 'true');
-        // 관리자 페이지로 이동
-        window.location.href = 'admin.html';
-      } else {
-        alert('아이디 또는 비밀번호가 올바르지 않습니다.');
-      }
+    // 로그아웃
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('adminLoggedIn');
+      window.location.href = 'admin_login.html';
     });
+
+    document.getElementById("loadDataBtn").addEventListener("click", () => {
+      loadRentalData();
+    });
+
+    function loadRentalData() {
+      // 로컬 스토리지에서 데이터 가져오기
+      let allRentals = JSON.parse(localStorage.getItem("rentalData") || "[]");
+
+      const tbody = document.getElementById("rentalTableBody");
+      tbody.innerHTML = "";
+
+      allRentals.forEach((rent, idx) => {
+        // 장비목록
+        const itemList = (rent.selectedItems || [])
+          .map(item => item.name)
+          .join(", ");
+
+        // 편집실 or 카/조/사
+        let scheduleText = "";
+        if (rent.editingDate) {
+          // 편집실
+          scheduleText = `편집실 일자: ${rent.editingDate}`;
+        } else {
+          // 카/조/사
+          scheduleText = `시작: ${rent.startDate}, 반납: ${rent.endDate}`;
+        }
+
+        // 편집실 시간
+        let editingInfo = "";
+        if (rent.editingLocation) {
+          editingInfo = `
+            장소: ${rent.editingLocation}<br/>
+            시간: ${formatTimes(rent.selectedTimes || [])}
+          `;
+        }
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="border p-2 text-center">${idx + 1}</td>
+          <td class="border p-2">${rent.userId || "임시ID"}</td>
+          <td class="border p-2">${itemList}</td>
+          <td class="border p-2 whitespace-pre">${scheduleText}</td>
+          <td class="border p-2 whitespace-pre">${editingInfo}</td>
+          <td class="border p-2">${rent.submittedAt || ""}</td>
+          <td class="border p-2 text-center">
+            <button class="approveBtn bg-green-500 text-white px-2 py-1 rounded mr-2 hover:bg-green-600">승인</button>
+            <button class="denyBtn bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">반려</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+
+        // 승인/반려 버튼 핸들러
+        tr.querySelector(".approveBtn").addEventListener("click", () => {
+          alert(`No.${idx+1} 신청 승인 처리`);
+          // 실제론 DB 업데이트/서버연동
+        });
+        tr.querySelector(".denyBtn").addEventListener("click", () => {
+          alert(`No.${idx+1} 신청 반려 처리`);
+          // 실제론 DB 업데이트/서버연동
+        });
+      });
+    }
+
+    function formatTimes(arr) {
+      if (!arr.length) return "없음";
+      const sorted = [...arr].sort((a, b) => a - b);
+      return sorted.map(h => `${h}:00`).join(", ");
+    }
   </script>
 </body>
 </html>
