@@ -59,6 +59,15 @@
       <label class="block mb-2 font-medium">증명사진 첨부</label>
       <input type="file" accept="image/*" id="proofImage" class="mb-6" />
 
+      <!-- 시간 선택 - 편집실 선택시만 -->
+      <div id="time-selection" class="hidden">
+        <label class="block mb-2 font-medium">대여 시작 시간 (24시 기준)</label>
+        <input type="time" id="startTime" class="border p-2 rounded w-full mb-4"/>
+
+        <label class="block mb-2 font-medium">반납 시간 (24시 기준)</label>
+        <input type="time" id="endTime" class="border p-2 rounded w-full mb-4"/>
+      </div>
+
       <div class="flex justify-between">
         <button onclick="goToStep(1)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
         <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
@@ -102,6 +111,9 @@
 
       <h3 class="text-lg font-bold mb-4 mt-6">첨부된 증명사진</h3>
       <p id="final-proof-image" class="text-sm text-gray-700"></p>
+      
+      <h3 class="text-lg font-bold mb-4 mt-6">시간 정보 (편집실에 해당)</h3>
+      <p id="final-time-info" class="text-sm text-gray-700"></p>
     </div>
   </div>
 
@@ -124,7 +136,7 @@
       ]
     };
     let selected = [];
-    let rentalStartDate, rentalEndDate, proofImageName;
+    let rentalStartDate, rentalEndDate, proofImageName, startTime, endTime;
 
     function goToStep(n) {
       if (n === 4 && !document.getElementById('agreeCheck').checked) return;
@@ -195,7 +207,12 @@
         alert("모든 정보를 입력해주세요.");
         return;
       }
-      
+
+      if (document.querySelector('[data-tab="editing"].active')) {
+        startTime = document.getElementById('startTime').value;
+        endTime = document.getElementById('endTime').value;
+      }
+
       goToStep(3);
     }
 
@@ -207,6 +224,10 @@
       document.getElementById("final-rental-info").innerHTML = rentalInfo;
 
       document.getElementById("final-proof-image").innerHTML = proofImageName;
+      
+      if (startTime && endTime) {
+        document.getElementById("final-time-info").innerHTML = `시작 시간: ${startTime} <br> 반납 시간: ${endTime}`;
+      }
     }
 
     // 동의 체크 활성화
