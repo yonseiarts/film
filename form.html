@@ -16,6 +16,13 @@
     .selected .checkmark {
       display: inline-block;
     }
+    .item-img {
+      width: 56px;
+      height: 56px;
+      object-fit: cover;
+      margin-right: 12px;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
@@ -62,6 +69,10 @@
 
       <label class="block mb-2">반납일</label>
       <input type="date" id="end-date" class="w-full border p-2 rounded mb-4"/>
+
+      <label class="block mb-2">증명사진 업로드</label>
+      <input type="file" id="id-photo" accept="image/*" class="w-full mb-4"/>
+
       <p class="text-sm text-gray-500 mb-4">※ 반납일은 시작일로부터 최대 3일까지만 선택할 수 있습니다.</p>
 
       <div class="flex justify-between mt-6">
@@ -80,10 +91,7 @@
       <input type="text" id="student-id" class="w-full border p-2 rounded mb-4"/>
 
       <label class="block mb-2">연락처</label>
-      <input type="text" id="phone" class="w-full border p-2 rounded mb-4"/>
-
-      <label class="block mb-2">증명사진 첨부</label>
-      <input type="file" id="photo" class="w-full mb-6"/>
+      <input type="text" id="phone" class="w-full border p-2 rounded mb-6"/>
 
       <div class="flex justify-between mt-6">
         <button onclick="goToStep(2)" class="text-blue-600">← 이전 단계</button>
@@ -104,24 +112,22 @@
 
     const equipmentData = {
       camera: [
-        { id: "1", name: "Sony FX3", available: 3 },
-        { id: "2", name: "Canon EOS R5", available: 2 },
+        { id: "1", name: "Sony FX3", available: 3, image: "https://images.unsplash.com/photo-1599350752070-7908a994cde9?q=80" },
+        { id: "2", name: "Canon EOS R5", available: 2, image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?q=80" },
       ],
       lighting: [
-        { id: "3", name: "ARRI SkyPanel", available: 4 },
+        { id: "3", name: "ARRI SkyPanel", available: 4, image: "https://images.unsplash.com/photo-1533928298208-27ff66555d8d?q=80" },
       ],
       sound: [
-        { id: "4", name: "Rode Mic", available: 5 },
+        { id: "4", name: "Rode Mic", available: 5, image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80" },
       ],
       editing: [
-        { id: "5", name: "Premiere Workstation", available: 2 }
+        { id: "5", name: "Premiere Workstation", available: 2, image: "https://images.unsplash.com/photo-1576745517316-ad8b1bab37a6?q=80" }
       ]
     };
 
     function goToStep(step) {
-      steps.forEach(i => {
-        document.getElementById(`step-${i}`).classList.add("hidden");
-      });
+      steps.forEach(i => document.getElementById(`step-${i}`).classList.add("hidden"));
       document.getElementById(`step-${step}`).classList.remove("hidden");
     }
 
@@ -130,16 +136,19 @@
       container.innerHTML = "";
       equipmentData[category].forEach(item => {
         const el = document.createElement("div");
-        el.className = "border rounded-lg p-4 flex justify-between items-center cursor-pointer";
+        el.className = "border rounded-lg p-4 flex items-center cursor-pointer transition";
         el.dataset.id = item.id;
         el.dataset.name = item.name;
+
         el.innerHTML = `
-          <div>
+          <img src="${item.image}" alt="${item.name}" class="item-img"/>
+          <div class="flex-grow">
             <h3 class="font-bold">${item.name}</h3>
             <p class="text-sm text-gray-600">${item.available}대 대여 가능</p>
           </div>
-          <span class="checkmark text-yellow-500 text-xl">✔</span>
+          <span class="checkmark text-yellow-500 text-xl ml-2">✔</span>
         `;
+
         el.addEventListener("click", () => toggleItem(item, el));
         container.appendChild(el);
       });
@@ -199,7 +208,6 @@
       });
     });
 
-    // 초기 장비
     renderEquipment("camera");
   </script>
 
