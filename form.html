@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>기자재 대여 신청</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
   <style>
@@ -50,17 +50,14 @@
     <div id="step2" class="step hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
       <p class="text-sm mb-4 text-gray-600">일반 대여는 최대 <span class="font-bold text-blue-700">3일</span>까지 가능합니다.</p>
-      
       <label class="block mb-2 font-medium">대여 시작일</label>
       <input type="date" id="startDate" class="border p-2 rounded w-full mb-4"/>
-      
       <label class="block mb-2 font-medium">반납일</label>
       <input type="date" id="endDate" class="border p-2 rounded w-full mb-4"/>
-      
       <p class="text-sm text-gray-500 mb-4">※ 반납일은 시작일로부터 최대 3일 이내여야 합니다.</p>
 
       <label class="block mb-2 font-medium">증명사진 첨부</label>
-      <input type="file" id="fileInput" accept="image/*" class="mb-6"/>
+      <input type="file" accept="image/*" id="proofImage" class="mb-6" />
 
       <div class="flex justify-between">
         <button onclick="goToStep(1)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
@@ -97,19 +94,14 @@
     <!-- Step 4: 완료 -->
     <div id="step4" class="step hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
-      <p class="text-gray-700">승인 후 문자 또는 이메일로 안내드릴 예정입니다.</p>
-      <div class="mt-6">
-        <h3 class="text-xl font-semibold mb-2">선택된 장비</h3>
-        <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
-      </div>
-      <div class="mt-6">
-        <h3 class="text-xl font-semibold mb-2">대여 시작일: <span id="final-start-date"></span></h3>
-        <h3 class="text-xl font-semibold mb-2">반납일: <span id="final-end-date"></span></h3>
-      </div>
-      <div class="mt-6">
-        <h3 class="text-xl font-semibold mb-2">증명사진:</h3>
-        <p id="final-photo" class="text-sm text-gray-700"></p>
-      </div>
+      <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
+      <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
+
+      <h3 class="text-lg font-bold mb-4 mt-6">대여 정보</h3>
+      <p id="final-rental-info" class="text-sm text-gray-700"></p>
+
+      <h3 class="text-lg font-bold mb-4 mt-6">첨부된 증명사진</h3>
+      <p id="final-proof-image" class="text-sm text-gray-700"></p>
     </div>
   </div>
 
@@ -132,21 +124,23 @@
       ]
     };
     let selected = [];
+    let rentalStartDate, rentalEndDate, proofImageName;
 
     function goToStep(n) {
       if (n === 4 && !document.getElementById('agreeCheck').checked) return;
+      if (n === 3 && (!document.getElementById('startDate').value || !document.getElementById('endDate').value || !document.getElementById('proofImage').files.length)) {
+        alert("2단계 정보를 모두 입력해주세요.");
+        return;
+      }
+
       document.getElementById(`step${step}`).classList.add("hidden");
       document.getElementById(`step${n}`).classList.remove("hidden");
-      document.getElementById(`step${step}Btn`).classList.remove("step-active");
-      if (n < 4) document.getElementById(`step${n}Btn`).classList.add("step-active");
+      document.getElementById(`step${step}Btn`).classList.replace("step-active", "step-inactive");
+      if (n < 4) document.getElementById(`step${n}Btn`).classList.replace("step-inactive", "step-active");
       step = n;
 
       if (n === 4) {
-        // 최종 단계에서 선택된 장비 및 날짜, 사진 표시
-        document.getElementById("final-selected-items").innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
-        document.getElementById("final-start-date").textContent = document.getElementById("startDate").value;
-        document.getElementById("final-end-date").textContent = document.getElementById("endDate").value;
-        document.getElementById("final-photo").textContent = document.getElementById("fileInput").files[0] ? document.getElementById("fileInput").files[0].name : "첨부되지 않음";
+        displayFinalInfo();
       }
     }
 
@@ -192,7 +186,28 @@
       document.getElementById("selected-items").innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
     }
 
-    renderEquipment("camera");
+    function validateStep2() {
+      rentalStartDate = document.getElementById('startDate').value;
+      rentalEndDate = document.getElementById('endDate').value;
+      proofImageName = document.getElementById('proofImage').files[0]?.name || '';
+      
+      if (!rentalStartDate || !rentalEndDate || !proofImageName) {
+        alert("모든 정보를 입력해주세요.");
+        return;
+      }
+      
+      goToStep(3);
+    }
+
+    function displayFinalInfo() {
+      const selectedItemsList = selected.map(item => `<li>${item.name}</li>`).join("");
+      document.getElementById("final-selected-items").innerHTML = selectedItemsList;
+
+      const rentalInfo = `대여 시작일: ${rentalStartDate} <br> 반납일: ${rentalEndDate}`;
+      document.getElementById("final-rental-info").innerHTML = rentalInfo;
+
+      document.getElementById("final-proof-image").innerHTML = proofImageName;
+    }
 
     // 동의 체크 활성화
     document.getElementById("agreeCheck").addEventListener("change", e => {
