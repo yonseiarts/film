@@ -8,12 +8,13 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* 둥근 버튼 스타일 */
-    .section-btn {
-      @apply px-6 py-3 rounded-full border border-blue-500 text-blue-500 
-             font-semibold hover:bg-blue-50 cursor-pointer transition;
+    /* 네모난 섹션 버튼 스타일 */
+    .cat-square {
+      @apply w-32 h-16 flex items-center justify-center border border-blue-500
+             rounded-md text-blue-500 font-semibold cursor-pointer hover:bg-blue-50;
+      transition: background-color 0.2s, color 0.2s;
     }
-    .section-btn.active {
+    .cat-square.active {
       @apply bg-blue-100;
     }
 
@@ -26,15 +27,15 @@
       @apply w-12 h-12 object-cover rounded;
       flex-shrink: 0;
     }
+    /* 선택 시 노란색 체크아이콘 */
     .item-card.selected {
-      @apply border-blue-600 bg-blue-50;
+      @apply border-yellow-500 bg-yellow-50;
     }
-    /* 체크 아이콘 */
     .check-icon {
-      @apply hidden absolute top-2 right-2 w-5 h-5 bg-blue-600 text-white text-xs rounded-full items-center justify-center font-bold;
+      @apply hidden absolute top-2 right-2 w-5 h-5 bg-yellow-400 text-white text-xs rounded-full items-center justify-center font-bold;
     }
     .item-card.selected .check-icon {
-      @apply flex;
+      @apply flex; /* 선택된 경우에만 표시 */
     }
   </style>
 </head>
@@ -58,23 +59,24 @@
 
   <!-- 메인 -->
   <main class="max-w-5xl mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold mb-6">필요한 장비를 선택해주세요</h1>
+    <h1 class="text-2xl font-bold mb-6">원하는 섹션을 선택하고, 필요한 장비를 골라주세요.</h1>
 
-    <!-- 4개의 둥근 버튼 (가로 나열) -->
-    <div class="flex gap-4 justify-center items-center mb-8">
-      <div class="section-btn active" data-cat="camera">카메라</div>
-      <div class="section-btn" data-cat="light">조명</div>
-      <div class="section-btn" data-cat="sound">사운드</div>
-      <div class="section-btn" data-cat="edit">편집실</div>
+    <!-- 네모난 섹션 버튼들 -->
+    <div class="flex gap-4 justify-center mb-8">
+      <div class="cat-square active" data-cat="camera">카메라</div>
+      <div class="cat-square" data-cat="light">조명</div>
+      <div class="cat-square" data-cat="sound">사운드</div>
+      <div class="cat-square" data-cat="edit">편집실</div>
     </div>
 
-    <!-- 섹션 컨테이너 -->
-    <div class="space-y-8">
-      <!-- 섹션 1: 카메라 (기본 표시) -->
+    <!-- 섹션들 (초기: camera만 보이고, 나머지 hidden) -->
+    <div id="sectionContainer" class="space-y-8">
+      
+      <!-- 1) 카메라 섹션 -->
       <section data-content="camera">
         <h2 class="text-xl font-semibold mb-3">카메라</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <!-- 예시 아이템 1 -->
+          <!-- 예시 아이템 -->
           <div class="item-card" data-name="Sony FX3 (ILME-FX3)">
             <div class="check-icon">✓</div>
             <img
@@ -86,7 +88,6 @@
               <p class="text-sm text-gray-500">수량: 4 (고정)</p>
             </div>
           </div>
-          <!-- 예시 아이템 2 -->
           <div class="item-card" data-name="Canon EOS R5">
             <div class="check-icon">✓</div>
             <img
@@ -98,11 +99,11 @@
               <p class="text-sm text-gray-500">수량: 3 (고정)</p>
             </div>
           </div>
-          <!-- ... 추가 아이템 -->
+          <!-- ... 더 많은 카메라 아이템 -->
         </div>
       </section>
 
-      <!-- 섹션 2: 조명 (초기 숨김) -->
+      <!-- 2) 조명 섹션 (초기 숨김) -->
       <section class="hidden" data-content="light">
         <h2 class="text-xl font-semibold mb-3">조명</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -117,11 +118,11 @@
               <p class="text-sm text-gray-500">수량: 3 (고정)</p>
             </div>
           </div>
-          <!-- ... 추가 아이템 -->
+          <!-- ... 더 많은 조명 아이템 -->
         </div>
       </section>
 
-      <!-- 섹션 3: 사운드 (초기 숨김) -->
+      <!-- 3) 사운드 섹션 (초기 숨김) -->
       <section class="hidden" data-content="sound">
         <h2 class="text-xl font-semibold mb-3">사운드</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -136,11 +137,11 @@
               <p class="text-sm text-gray-500">수량: 2 (고정)</p>
             </div>
           </div>
-          <!-- ... 추가 아이템 -->
+          <!-- ... 더 많은 사운드 아이템 -->
         </div>
       </section>
 
-      <!-- 섹션 4: 편집실 (초기 숨김) -->
+      <!-- 4) 편집실 섹션 (초기 숨김) -->
       <section class="hidden" data-content="edit">
         <h2 class="text-xl font-semibold mb-3">편집실</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -155,7 +156,7 @@
               <p class="text-sm text-gray-500">수량: 1 (고정)</p>
             </div>
           </div>
-          <!-- ... 추가 아이템 -->
+          <!-- ... 더 많은 편집실 아이템 -->
         </div>
       </section>
     </div>
@@ -176,6 +177,7 @@
         다음 단계
       </button>
     </div>
+
   </main>
 
   <footer class="text-center text-sm text-gray-500 py-6 border-t">
@@ -183,21 +185,23 @@
   </footer>
 
   <script>
-    // 탭 버튼들
-    const sectionButtons = document.querySelectorAll('.section-btn');
+    // 네모난 섹션 버튼
+    const catSquares = document.querySelectorAll('.cat-square');
     // 섹션들
     const sections = document.querySelectorAll('[data-content]');
 
-    sectionButtons.forEach(btn => {
+    // 초기 상태: camera 섹션만 표시, 나머지 숨김
+    // (HTML에서 camera 섹션은 hidden 안 붙임, 나머지 붙임)
+    catSquares.forEach(btn => {
       btn.addEventListener('click', () => {
-        // 모든 버튼 비활성
-        sectionButtons.forEach(b => b.classList.remove('active'));
+        // 모든 btn 비활성
+        catSquares.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
         const cat = btn.getAttribute('data-cat');
         // 모든 섹션 숨김
         sections.forEach(sec => sec.classList.add('hidden'));
-        // 해당 섹션만 표시
+        // 해당 섹션만 보이기
         const targetSec = document.querySelector(`[data-content="${cat}"]`);
         if (targetSec) targetSec.classList.remove('hidden');
       });
@@ -236,8 +240,9 @@
 
     // 다음 단계
     document.getElementById('btnNextStep').addEventListener('click', () => {
+      // 선택 목록 localStorage에 저장
       localStorage.setItem('selectedEquipments', JSON.stringify(selectedItems));
-      // 실제 구현 시 'form_step2.html' 필요
+      // 페이지 이동
       window.location.href = 'form_step2.html';
     });
   </script>
