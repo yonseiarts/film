@@ -2,9 +2,9 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 신청</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
   <style>
     .step-active { background-color: #1D4ED8; color: white; }
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
@@ -57,11 +57,11 @@
       <p class="text-sm text-gray-500 mb-4">※ 반납일은 시작일로부터 최대 3일 이내여야 합니다.</p>
 
       <label class="block mb-2 font-medium">증명사진 첨부</label>
-      <input type="file" accept="image/*" class="mb-6" />
+      <input type="file" accept="image/*" class="mb-6" id="fileInput"/>
 
       <div class="flex justify-between">
         <button onclick="goToStep(1)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
-        <button onclick="goToStep(3)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
+        <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
       </div>
     </div>
 
@@ -94,129 +94,131 @@
     <!-- Step 4: 완료 -->
     <div id="step4" class="step hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
-      <div class="text-gray-700 text-left mb-6">
-        <p><strong>선택된 장비:</strong></p>
+      <p class="text-gray-700">승인 후 문자 또는 이메일로 안내드릴 예정입니다.</p>
+
+      <div class="mt-8 text-left">
+        <h3 class="text-xl font-semibold mb-4">선택한 장비</h3>
         <ul id="final-selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
 
-        <p><strong>대여 시작일:</strong> <span id="final-start-date"></span></p>
-        <p><strong>반납일:</strong> <span id="final-end-date"></span></p>
+        <h3 class="text-xl font-semibold mt-6 mb-4">대여 기간</h3>
+        <p class="text-sm text-gray-700">대여 시작일: <span id="final-start-date"></span></p>
+        <p class="text-sm text-gray-700">반납일: <span id="final-end-date"></span></p>
 
-        <p><strong>증명사진:</strong> <span id="final-photo-name"></span></p>
+        <h3 class="text-xl font-semibold mt-6 mb-4">증명사진</h3>
+        <p class="text-sm text-gray-700">첨부된 사진: <span id="final-photo-name"></span></p>
       </div>
-      <p class="text-gray-700">승인 후 문자 또는 이메일로 안내드릴 예정입니다.</p>
     </div>
   </div>
 
   <script>
-  let step = 1;
-  const steps = ["step1", "step2", "step3", "step4"];
-  const equipment = {
-    camera: [
-      { id: "1", name: "Sony FX3", available: 3, image: "https://via.placeholder.com/80" },
-      { id: "2", name: "Canon EOS R5", available: 2, image: "https://via.placeholder.com/80" }
-    ],
-    lighting: [
-      { id: "3", name: "ARRI SkyPanel S60-C", available: 4, image: "https://via.placeholder.com/80" }
-    ],
-    sound: [
-      { id: "4", name: "Sennheiser MKH 416", available: 6, image: "https://via.placeholder.com/80" }
-    ],
-    editing: [
-      { id: "5", name: "Premiere Pro 워크스테이션", available: 2, image: "https://via.placeholder.com/80" }
-    ]
-  };
-  let selected = [];
-  let startDate = "";
-  let endDate = "";
-  let photoName = "";
+    let step = 1;
+    const steps = ["step1", "step2", "step3", "step4"];
+    const equipment = {
+      camera: [
+        { id: "1", name: "Sony FX3", available: 3, image: "https://via.placeholder.com/80" },
+        { id: "2", name: "Canon EOS R5", available: 2, image: "https://via.placeholder.com/80" }
+      ],
+      lighting: [
+        { id: "3", name: "ARRI SkyPanel S60-C", available: 4, image: "https://via.placeholder.com/80" }
+      ],
+      sound: [
+        { id: "4", name: "Sennheiser MKH 416", available: 6, image: "https://via.placeholder.com/80" }
+      ],
+      editing: [
+        { id: "5", name: "Premiere Pro 워크스테이션", available: 2, image: "https://via.placeholder.com/80" }
+      ]
+    };
+    let selected = [];
+    let startDate = "";
+    let endDate = "";
+    let photoName = "";
 
-  function goToStep(n) {
-    if (n === 3 && !validateStep2()) {
-      return; // 유효성 검사 실패 시 3단계로 이동하지 않음
+    function goToStep(n) {
+      if (n === 3 && !validateStep2()) {
+        return; // 유효성 검사 실패 시 3단계로 이동하지 않음
+      }
+
+      // 3단계에서 유효성 검사 통과 시, 4단계로 넘어감
+      if (n === 4) {
+        updateFinalStep();
+      }
+
+      document.getElementById(`step${step}`).classList.add("hidden");
+      document.getElementById(`step${n}`).classList.remove("hidden");
+      document.getElementById(`step${step}Btn`).classList.replace("step-active", "step-inactive");
+      if (n < 4) document.getElementById(`step${n}Btn`).classList.replace("step-inactive", "step-active");
+      step = n;
     }
 
-    // 3단계에서 유효성 검사 통과 시, 4단계로 넘어감
-    if (n === 4) {
-      updateFinalStep();
+    // Step 2 validation
+    function validateStep2() {
+      startDate = document.getElementById("startDate").value;
+      endDate = document.getElementById("endDate").value;
+      photoName = document.querySelector('input[type="file"]').files[0]?.name || "";
+
+      // 필수 항목 확인
+      if (!startDate || !endDate || !photoName) {
+        alert("모든 항목을 입력해주세요.");
+        return false;
+      }
+      return true;
     }
 
-    document.getElementById(`step${step}`).classList.add("hidden");
-    document.getElementById(`step${n}`).classList.remove("hidden");
-    document.getElementById(`step${step}Btn`).classList.replace("step-active", "step-inactive");
-    if (n < 4) document.getElementById(`step${n}Btn`).classList.replace("step-inactive", "step-active");
-    step = n;
-  }
-
-  // Step 2 validation
-  function validateStep2() {
-    startDate = document.getElementById("startDate").value;
-    endDate = document.getElementById("endDate").value;
-    photoName = document.querySelector('input[type="file"]').files[0]?.name || "";
-
-    // 필수 항목 확인
-    if (!startDate || !endDate || !photoName) {
-      alert("모든 항목을 입력해주세요.");
-      return false;
-    }
-    return true;
-  }
-
-  // 장비 선택
-  document.querySelectorAll(".tab-button").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      const cat = btn.dataset.tab;
-      renderEquipment(cat);
+    // 장비 선택
+    document.querySelectorAll(".tab-button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const cat = btn.dataset.tab;
+        renderEquipment(cat);
+      });
     });
-  });
 
-  function renderEquipment(category) {
-    const list = document.getElementById("equipment-list");
-    list.innerHTML = "";
-    equipment[category].forEach(e => {
-      const div = document.createElement("div");
-      div.className = "equipment border p-4 rounded flex items-center cursor-pointer";
-      div.innerHTML = `
-        <img src="${e.image}" class="w-14 h-14 rounded mr-4" />
-        <div class="flex-grow">
-          <div class="font-semibold">${e.name}</div>
-          <div class="text-sm text-gray-500">${e.available}대 대여 가능</div>
-        </div>
-      `;
-      div.onclick = () => toggleItem(e, div);
-      list.appendChild(div);
-    });
-  }
-
-  function toggleItem(item, element) {
-    const isSelected = selected.find(i => i.id === item.id);
-    if (isSelected) {
-      selected = selected.filter(i => i.id !== item.id);
-      element.classList.remove("selected");
-    } else {
-      selected.push(item);
-      element.classList.add("selected");
+    function renderEquipment(category) {
+      const list = document.getElementById("equipment-list");
+      list.innerHTML = "";
+      equipment[category].forEach(e => {
+        const div = document.createElement("div");
+        div.className = "equipment border p-4 rounded flex items-center cursor-pointer";
+        div.innerHTML = `
+          <img src="${e.image}" class="w-14 h-14 rounded mr-4" />
+          <div class="flex-grow">
+            <div class="font-semibold">${e.name}</div>
+            <div class="text-sm text-gray-500">${e.available}대 대여 가능</div>
+          </div>
+        `;
+        div.onclick = () => toggleItem(e, div);
+        list.appendChild(div);
+      });
     }
-    document.getElementById("selected-section").classList.toggle("hidden", selected.length === 0);
-    document.getElementById("toStep2").classList.toggle("hidden", selected.length === 0);
-    document.getElementById("selected-items").innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
-  }
 
-  function updateFinalStep() {
-    document.getElementById("final-selected-items").innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
-    document.getElementById("final-start-date").textContent = startDate;
-    document.getElementById("final-end-date").textContent = endDate;
-    document.getElementById("final-photo-name").textContent = photoName || "첨부된 사진 없음";
-  }
+    function toggleItem(item, element) {
+      const isSelected = selected.find(i => i.id === item.id);
+      if (isSelected) {
+        selected = selected.filter(i => i.id !== item.id);
+        element.classList.remove("selected");
+      } else {
+        selected.push(item);
+        element.classList.add("selected");
+      }
+      document.getElementById("selected-section").classList.toggle("hidden", selected.length === 0);
+      document.getElementById("toStep2").classList.toggle("hidden", selected.length === 0);
+      document.getElementById("selected-items").innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
+    }
 
-  // 동의 체크 활성화
-  document.getElementById("agreeCheck").addEventListener("change", e => {
-    const btn = document.getElementById("toStep4");
-    btn.disabled = !e.target.checked;
-    btn.classList.toggle("opacity-50", !e.target.checked);
-  });
-</script>
+    function updateFinalStep() {
+      document.getElementById("final-selected-items").innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
+      document.getElementById("final-start-date").textContent = startDate;
+      document.getElementById("final-end-date").textContent = endDate;
+      document.getElementById("final-photo-name").textContent = photoName || "첨부된 사진 없음";
+    }
+
+    // 동의 체크 활성화
+    document.getElementById("agreeCheck").addEventListener("change", e => {
+      const btn = document.getElementById("toStep4");
+      btn.disabled = !e.target.checked;
+      btn.classList.toggle("opacity-50", !e.target.checked);
+    });
+  </script>
 </body>
 </html>
-
