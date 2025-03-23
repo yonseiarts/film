@@ -50,14 +50,17 @@
     <div id="step2" class="step hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
       <p class="text-sm mb-4 text-gray-600">일반 대여는 최대 <span class="font-bold text-blue-700">3일</span>까지 가능합니다.</p>
+      
       <label class="block mb-2 font-medium">대여 시작일</label>
       <input type="date" id="startDate" class="border p-2 rounded w-full mb-4"/>
+      
       <label class="block mb-2 font-medium">반납일</label>
       <input type="date" id="endDate" class="border p-2 rounded w-full mb-4"/>
+      
       <p class="text-sm text-gray-500 mb-4">※ 반납일은 시작일로부터 최대 3일 이내여야 합니다.</p>
 
       <label class="block mb-2 font-medium">증명사진 첨부</label>
-      <input type="file" accept="image/*" class="mb-6" id="fileInput"/>
+      <input type="file" id="fileInput" accept="image/*" class="mb-6"/>
 
       <div class="flex justify-between">
         <button onclick="goToStep(1)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
@@ -95,17 +98,17 @@
     <div id="step4" class="step hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
       <p class="text-gray-700">승인 후 문자 또는 이메일로 안내드릴 예정입니다.</p>
-
-      <div class="mt-8 text-left">
-        <h3 class="text-xl font-semibold mb-4">선택한 장비</h3>
-        <ul id="final-selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
-
-        <h3 class="text-xl font-semibold mt-6 mb-4">대여 기간</h3>
-        <p class="text-sm text-gray-700">대여 시작일: <span id="final-start-date"></span></p>
-        <p class="text-sm text-gray-700">반납일: <span id="final-end-date"></span></p>
-
-        <h3 class="text-xl font-semibold mt-6 mb-4">증명사진</h3>
-        <p class="text-sm text-gray-700">첨부된 사진: <span id="final-photo-name"></span></p>
+      <div class="mt-6">
+        <h3 class="text-xl font-semibold mb-2">선택된 장비</h3>
+        <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
+      </div>
+      <div class="mt-6">
+        <h3 class="text-xl font-semibold mb-2">대여 시작일: <span id="final-start-date"></span></h3>
+        <h3 class="text-xl font-semibold mb-2">반납일: <span id="final-end-date"></span></h3>
+      </div>
+      <div class="mt-6">
+        <h3 class="text-xl font-semibold mb-2">증명사진:</h3>
+        <p id="final-photo" class="text-sm text-gray-700"></p>
       </div>
     </div>
   </div>
@@ -129,39 +132,22 @@
       ]
     };
     let selected = [];
-    let startDate = "";
-    let endDate = "";
-    let photoName = "";
 
     function goToStep(n) {
-      if (n === 3 && !validateStep2()) {
-        return; // 유효성 검사 실패 시 3단계로 이동하지 않음
-      }
-
-      // 3단계에서 유효성 검사 통과 시, 4단계로 넘어감
-      if (n === 4) {
-        updateFinalStep();
-      }
-
+      if (n === 4 && !document.getElementById('agreeCheck').checked) return;
       document.getElementById(`step${step}`).classList.add("hidden");
       document.getElementById(`step${n}`).classList.remove("hidden");
-      document.getElementById(`step${step}Btn`).classList.replace("step-active", "step-inactive");
-      if (n < 4) document.getElementById(`step${n}Btn`).classList.replace("step-inactive", "step-active");
+      document.getElementById(`step${step}Btn`).classList.remove("step-active");
+      if (n < 4) document.getElementById(`step${n}Btn`).classList.add("step-active");
       step = n;
-    }
 
-    // Step 2 validation
-    function validateStep2() {
-      startDate = document.getElementById("startDate").value;
-      endDate = document.getElementById("endDate").value;
-      photoName = document.querySelector('input[type="file"]').files[0]?.name || "";
-
-      // 필수 항목 확인
-      if (!startDate || !endDate || !photoName) {
-        alert("모든 항목을 입력해주세요.");
-        return false;
+      if (n === 4) {
+        // 최종 단계에서 선택된 장비 및 날짜, 사진 표시
+        document.getElementById("final-selected-items").innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
+        document.getElementById("final-start-date").textContent = document.getElementById("startDate").value;
+        document.getElementById("final-end-date").textContent = document.getElementById("endDate").value;
+        document.getElementById("final-photo").textContent = document.getElementById("fileInput").files[0] ? document.getElementById("fileInput").files[0].name : "첨부되지 않음";
       }
-      return true;
     }
 
     // 장비 선택
@@ -206,12 +192,7 @@
       document.getElementById("selected-items").innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
     }
 
-    function updateFinalStep() {
-      document.getElementById("final-selected-items").innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
-      document.getElementById("final-start-date").textContent = startDate;
-      document.getElementById("final-end-date").textContent = endDate;
-      document.getElementById("final-photo-name").textContent = photoName || "첨부된 사진 없음";
-    }
+    renderEquipment("camera");
 
     // 동의 체크 활성화
     document.getElementById("agreeCheck").addEventListener("change", e => {
