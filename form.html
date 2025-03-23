@@ -2,29 +2,19 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>기자재 대여 신청 (배너형 분류)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>기자재 대여 신청</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* 가로형 배너 스타일 */
-    .banner-cat {
-      /* 배너 크기, 배경 이미지/색상, 텍스트 스타일 */
-      @apply relative flex items-center justify-center rounded-lg cursor-pointer text-white text-xl font-bold overflow-hidden;
-      height: 140px; /* 필요 시 조절 */
-      transition: transform 0.3s;
+    /* 둥근 버튼 스타일 */
+    .section-btn {
+      @apply px-6 py-3 rounded-full border border-blue-500 text-blue-500 
+             font-semibold hover:bg-blue-50 cursor-pointer transition;
     }
-    .banner-cat:hover {
-      @apply scale-105 shadow-lg;
-    }
-    .banner-cat::before {
-      /* 반투명 오버레이 */
-      content: "";
-      @apply absolute inset-0 bg-black/40;
-    }
-    .banner-cat > span {
-      @apply relative z-10;
+    .section-btn.active {
+      @apply bg-blue-100;
     }
 
     /* 아이템 카드 */
@@ -68,48 +58,23 @@
 
   <!-- 메인 -->
   <main class="max-w-5xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6">필요한 장비를 선택해주세요</h1>
 
-    <!-- 가로형 배너 (4개) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      <!-- 배너1: 카메라 -->
-      <div class="banner-cat"
-           data-cat="camera"
-           style="background-image: url('https://images.unsplash.com/photo-1599350752070-7908a994cde9?auto=format&fit=crop&w=800&q=80');">
-        <span>카메라</span>
-      </div>
-      <!-- 배너2: 오디오 -->
-      <div class="banner-cat"
-           data-cat="audio"
-           style="background-image: url('https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=800&q=80');">
-        <span>오디오</span>
-      </div>
-      <!-- 배너3: 조명 -->
-      <div class="banner-cat"
-           data-cat="light"
-           style="background-image: url('https://images.unsplash.com/photo-1598447861940-d868649f811f?auto=format&fit=crop&w=800&q=80');">
-        <span>조명</span>
-      </div>
-      <!-- 배너4: 편집실 -->
-      <div class="banner-cat"
-           data-cat="edit"
-           style="background-image: url('https://images.unsplash.com/photo-1602516607531-61d80b7f1fe8?auto=format&fit=crop&w=800&q=80');">
-        <span>편집실</span>
-      </div>
+    <!-- 4개의 둥근 버튼 (가로 나열) -->
+    <div class="flex gap-4 justify-center items-center mb-8">
+      <div class="section-btn active" data-cat="camera">카메라</div>
+      <div class="section-btn" data-cat="light">조명</div>
+      <div class="section-btn" data-cat="sound">사운드</div>
+      <div class="section-btn" data-cat="edit">편집실</div>
     </div>
 
-    <!-- 안내문 -->
-    <p class="text-sm text-gray-500 mb-6">
-      필요한 장비 카테고리를 선택해주세요. 아래에 해당 섹션의 장비가 표시됩니다.
-    </p>
-
-    <!-- 섹션 컨테이너 (기자재 목록) -->
-    <div id="sectionContainer" class="space-y-8">
-
-      <!-- 카메라 섹션 -->
-      <section class="hidden" data-content="camera">
+    <!-- 섹션 컨테이너 -->
+    <div class="space-y-8">
+      <!-- 섹션 1: 카메라 (기본 표시) -->
+      <section data-content="camera">
         <h2 class="text-xl font-semibold mb-3">카메라</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <!-- 아이템 예시 1 -->
+          <!-- 예시 아이템 1 -->
           <div class="item-card" data-name="Sony FX3 (ILME-FX3)">
             <div class="check-icon">✓</div>
             <img
@@ -121,30 +86,23 @@
               <p class="text-sm text-gray-500">수량: 4 (고정)</p>
             </div>
           </div>
-          <!-- ... 더 많은 아이템 -->
-        </div>
-      </section>
-
-      <!-- 오디오 섹션 -->
-      <section class="hidden" data-content="audio">
-        <h2 class="text-xl font-semibold mb-3">오디오</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <div class="item-card" data-name="Sennheiser MKH 416">
+          <!-- 예시 아이템 2 -->
+          <div class="item-card" data-name="Canon EOS R5">
             <div class="check-icon">✓</div>
             <img
-              src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=400&q=80"
-              alt="Sennheiser MKH 416"
+              src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=400&q=80"
+              alt="Canon EOS R5"
             />
             <div>
-              <p class="font-medium">Sennheiser MKH 416</p>
-              <p class="text-sm text-gray-500">수량: 2 (고정)</p>
+              <p class="font-medium">Canon EOS R5</p>
+              <p class="text-sm text-gray-500">수량: 3 (고정)</p>
             </div>
           </div>
-          <!-- ... 더 많은 아이템 -->
+          <!-- ... 추가 아이템 -->
         </div>
       </section>
 
-      <!-- 조명 섹션 -->
+      <!-- 섹션 2: 조명 (초기 숨김) -->
       <section class="hidden" data-content="light">
         <h2 class="text-xl font-semibold mb-3">조명</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -159,11 +117,30 @@
               <p class="text-sm text-gray-500">수량: 3 (고정)</p>
             </div>
           </div>
-          <!-- ... 더 많은 아이템 -->
+          <!-- ... 추가 아이템 -->
         </div>
       </section>
 
-      <!-- 편집실 섹션 -->
+      <!-- 섹션 3: 사운드 (초기 숨김) -->
+      <section class="hidden" data-content="sound">
+        <h2 class="text-xl font-semibold mb-3">사운드</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div class="item-card" data-name="Sennheiser MKH 416">
+            <div class="check-icon">✓</div>
+            <img
+              src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=400&q=80"
+              alt="Sennheiser MKH 416"
+            />
+            <div>
+              <p class="font-medium">Sennheiser MKH 416</p>
+              <p class="text-sm text-gray-500">수량: 2 (고정)</p>
+            </div>
+          </div>
+          <!-- ... 추가 아이템 -->
+        </div>
+      </section>
+
+      <!-- 섹션 4: 편집실 (초기 숨김) -->
       <section class="hidden" data-content="edit">
         <h2 class="text-xl font-semibold mb-3">편집실</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -178,10 +155,9 @@
               <p class="text-sm text-gray-500">수량: 1 (고정)</p>
             </div>
           </div>
-          <!-- ... 더 많은 아이템 -->
+          <!-- ... 추가 아이템 -->
         </div>
       </section>
-
     </div>
 
     <!-- 선택된 장비 표시 & 다음 단계 -->
@@ -200,7 +176,6 @@
         다음 단계
       </button>
     </div>
-
   </main>
 
   <footer class="text-center text-sm text-gray-500 py-6 border-t">
@@ -208,23 +183,27 @@
   </footer>
 
   <script>
-    // 1) 배너 클릭 시 해당 섹션만 보이기
-    const banners = document.querySelectorAll('.banner-cat');
+    // 탭 버튼들
+    const sectionButtons = document.querySelectorAll('.section-btn');
+    // 섹션들
     const sections = document.querySelectorAll('[data-content]');
-    banners.forEach(banner => {
-      banner.addEventListener('click', () => {
-        const cat = banner.getAttribute('data-cat');
-        // 모든 섹션 숨기기
+
+    sectionButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // 모든 버튼 비활성
+        sectionButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const cat = btn.getAttribute('data-cat');
+        // 모든 섹션 숨김
         sections.forEach(sec => sec.classList.add('hidden'));
         // 해당 섹션만 표시
         const targetSec = document.querySelector(`[data-content="${cat}"]`);
-        if (targetSec) {
-          targetSec.classList.remove('hidden');
-        }
+        if (targetSec) targetSec.classList.remove('hidden');
       });
     });
 
-    // 2) 기자재 아이템 선택 로직
+    // 아이템 선택
     let selectedItems = [];
 
     document.querySelectorAll('.item-card').forEach(card => {
@@ -255,10 +234,10 @@
       });
     }
 
-    // 3) 다음 단계 버튼
+    // 다음 단계
     document.getElementById('btnNextStep').addEventListener('click', () => {
       localStorage.setItem('selectedEquipments', JSON.stringify(selectedItems));
-      // 실제 구현 시 form_step2.html 파일 필요
+      // 실제 구현 시 'form_step2.html' 필요
       window.location.href = 'form_step2.html';
     });
   </script>
