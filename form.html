@@ -64,13 +64,15 @@
       </div>
     </div>
 
-    <!-- Step 2: 날짜 선택 -->
+    <!-- Step 2: 날짜 선택 + 사진 -->
     <div id="step2" class="step hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
       <p class="text-sm mb-4 text-gray-600">일반 대여는 최대 <span class="font-bold text-blue-700">3일</span>까지 가능합니다.</p>
-      <label class="block mb-2 font-medium">대여일자</label>
+      <label class="block mb-2 font-medium">대여 시작일</label>
       <input type="date" id="startDate" class="border p-2 rounded w-full mb-4"/>
-      <p class="text-sm text-gray-500 mb-4">※ 대여일자는 3일 이내로 설정해 주세요.</p>
+      <label class="block mb-2 font-medium">반납일</label>
+      <input type="date" id="endDate" class="border p-2 rounded w-full mb-4"/>
+      <p class="text-sm text-gray-500 mb-4">※ 반납일은 시작일로부터 최대 3일 이내여야 합니다.</p>
 
       <!-- 시간 선택 - 편집실 선택시만 -->
       <div id="time-selection" class="hidden">
@@ -148,11 +150,11 @@
       ]
     };
     let selected = [];
-    let rentalStartDate, proofImageName, startTime, endTime;
+    let rentalStartDate, rentalEndDate, proofImageName, startTime, endTime;
 
     function goToStep(n) {
       if (n === 4 && !document.getElementById('agreeCheck').checked) return;
-      if (n === 3 && (!document.getElementById('startDate').value || !proofImageName)) {
+      if (n === 3 && (!document.getElementById('startDate').value || !document.getElementById('endDate').value || !document.getElementById('proofImage').files.length)) {
         alert("2단계 정보를 모두 입력해주세요.");
         return;
       }
@@ -212,9 +214,10 @@
 
     function validateStep2() {
       rentalStartDate = document.getElementById('startDate').value;
+      rentalEndDate = document.getElementById('endDate').value;
       proofImageName = document.getElementById('proofImage').files[0]?.name || '';
       
-      if (!rentalStartDate || !proofImageName) {
+      if (!rentalStartDate || !rentalEndDate || !proofImageName) {
         alert("모든 정보를 입력해주세요.");
         return;
       }
@@ -231,7 +234,7 @@
       const selectedItemsList = selected.map(item => `<li>${item.name}</li>`).join("");
       document.getElementById("final-selected-items").innerHTML = selectedItemsList;
 
-      const rentalInfo = `대여일자: ${rentalStartDate}`;
+      const rentalInfo = `대여 시작일: ${rentalStartDate} <br> 반납일: ${rentalEndDate}`;
       document.getElementById("final-rental-info").innerHTML = rentalInfo;
 
       document.getElementById("final-proof-image").innerHTML = proofImageName;
