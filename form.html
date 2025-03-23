@@ -63,27 +63,23 @@
       <!-- 시간 선택 - 편집실 선택시만 -->
       <div id="time-selection" class="hidden">
         <label class="block mb-2 font-medium">대여 시작 시간 (24시 기준)</label>
-        <div class="grid grid-cols-6 gap-2 mb-4">
-          <div class="time-slot" data-time="9">9</div>
-          <div class="time-slot" data-time="10">10</div>
-          <div class="time-slot" data-time="11">11</div>
-          <div class="time-slot" data-time="12">12</div>
-          <div class="time-slot" data-time="13">13</div>
-          <div class="time-slot" data-time="14">14</div>
-        </div>
-        <div class="grid grid-cols-6 gap-2 mb-4">
-          <div class="time-slot" data-time="15">15</div>
-          <div class="time-slot" data-time="16">16</div>
-          <div class="time-slot" data-time="17">17</div>
-          <div class="time-slot" data-time="18">18</div>
-          <div class="time-slot" data-time="19">19</div>
-          <div class="time-slot" data-time="20">20</div>
-        </div>
-        <div class="grid grid-cols-6 gap-2 mb-4">
-          <div class="time-slot" data-time="21">21</div>
-          <div class="time-slot" data-time="22">22</div>
-          <div class="time-slot" data-time="23">23</div>
-          <div class="time-slot" data-time="0">0</div>
+        <div class="grid grid-cols-6 gap-2" id="time-slots">
+          <!-- 시간 선택표 (9~24시) -->
+          <button class="time-slot p-2 bg-yellow-200">9</button>
+          <button class="time-slot p-2 bg-yellow-200">10</button>
+          <button class="time-slot p-2 bg-yellow-200">11</button>
+          <button class="time-slot p-2 bg-yellow-200">12</button>
+          <button class="time-slot p-2 bg-yellow-200">13</button>
+          <button class="time-slot p-2 bg-yellow-200">14</button>
+          <button class="time-slot p-2 bg-yellow-200">15</button>
+          <button class="time-slot p-2 bg-yellow-200">16</button>
+          <button class="time-slot p-2 bg-yellow-200">17</button>
+          <button class="time-slot p-2 bg-yellow-200">18</button>
+          <button class="time-slot p-2 bg-yellow-200">19</button>
+          <button class="time-slot p-2 bg-yellow-200">20</button>
+          <button class="time-slot p-2 bg-yellow-200">21</button>
+          <button class="time-slot p-2 bg-yellow-200">22</button>
+          <button class="time-slot p-2 bg-yellow-200">23</button>
         </div>
       </div>
 
@@ -122,7 +118,7 @@
     <!-- Step 4: 완료 -->
     <div id="step4" class="step hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
-      <h3 class="text-lg font-bold mb-4 mt-6">선택한 장비 목록</h3>
+      <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
       <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
 
       <h3 class="text-lg font-bold mb-4 mt-6">대여 정보</h3>
