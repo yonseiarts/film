@@ -6,10 +6,22 @@
   <title>기자재 대여 신청</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
   <style>
-    .step-active { background-color: #1D4ED8; color: white; }
-    .step-inactive { background-color: #e5e7eb; color: #6b7280; }
-    .tab-button.active { background-color: #dbeafe; font-weight: 600; }
-    .equipment.selected { border-color: #facc15; background-color: #fefce8; }
+    .step-active {
+      background-color: #1D4ED8;
+      color: white;
+    }
+    .step-inactive {
+      background-color: #e5e7eb;
+      color: #6b7280;
+    }
+    .tab-button.active {
+      background-color: #dbeafe;
+      font-weight: 600;
+    }
+    .equipment.selected {
+      border-color: #facc15;
+      background-color: #fefce8;
+    }
 
     /* 편집실 시간체크 표 */
     .time-grid {
@@ -21,12 +33,14 @@
     .time-grid label {
       display: block;
       text-align: center;
-      padding: 8px 0;
+      font-size: 0.75rem; /* 글자 크기 살짝 줄임 */
+      padding: 6px 0;
       background-color: #f3f4f6;
       border-radius: 4px;
       border: 1px solid #e5e7eb;
       cursor: pointer;
-      font-size: 0.875rem;
+      white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+      overflow: hidden; /* 밖으로 나가지 않도록 */
     }
     .time-grid input[type="checkbox"] {
       display: none;
@@ -57,6 +71,9 @@
     <!-- Step 1: 장비 선택 -->
     <div id="step1">
       <h2 class="text-xl font-bold mb-4">장비 선택</h2>
+      <p class="text-sm text-gray-600 mb-4">
+        * 편집실을 선택하면 다른 장비를 담을 수 없습니다.
+      </p>
       <div class="flex space-x-2 mb-4">
         <button class="tab-button px-4 py-1 border rounded active" data-tab="camera">카메라</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="lighting">조명</button>
@@ -119,11 +136,11 @@
     <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4">
-        <!-- 아래 내용은 예시, 실제론 전체 규정 텍스트 삽입 -->
+        <!-- 전체 규정 텍스트 삽입 -->
         <p class="font-bold mb-2">제1장 총칙</p>
         <p>제1조 (목적): 본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.</p>
         <p>제2조 (적용범위): 본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.</p>
-        <!-- ... 전체 규정 삽입 ... -->
+        <!-- ... etc ... -->
       </div>
       <label class="flex items-center mb-4">
         <input type="checkbox" id="agreeCheck" class="mr-2"> 위 사용 규정에 동의합니다.
@@ -179,9 +196,8 @@
 
     // 편집실
     let editingDate;
-    let selectedTimes = []; // 시간 체크 배열
+    let selectedTimes = [];
 
-    // 장비 데이터 (이미지 포함)
     const equipment = {
       camera: [
         { id: "1", name: "Sony FX3", image: "https://via.placeholder.com/80?text=Sony+FX3" },
@@ -198,22 +214,20 @@
       ]
     };
 
-    // 초기
+    // 초기 장비 목록
     renderEquipment("camera");
     updateSelectedUI();
 
     function goToStep(n) {
-      // 3단계 이동 전 검사
+      // 3단계 이동 전
       if (n === 3) {
         if (activeTab === "editing") {
-          // 편집실
           editingDate = document.getElementById("editingDate").value;
           if (!editingDate) {
             alert("대여일자를 선택해주세요.");
             return;
           }
         } else {
-          // 카/조/사
           startDate = document.getElementById("startDate").value;
           endDate = document.getElementById("endDate").value;
           proofImage = document.getElementById("proofImage").files[0];
@@ -223,16 +237,12 @@
           }
         }
       }
-
-      // 4단계 이동 전 규정 동의 체크
+      // 4단계 이동 전 규정 동의
       if (n === 4) {
-        if (!document.getElementById("agreeCheck").checked) {
-          return;
-        }
+        if (!document.getElementById("agreeCheck").checked) return;
         displayFinalInfo();
       }
 
-      // 단계 전환
       document.getElementById(`step${step}`).classList.add("hidden");
       document.getElementById(`step${n}`).classList.remove("hidden");
       document.getElementById(`step${step}Btn`)?.classList.replace("step-active", "step-inactive");
@@ -250,12 +260,11 @@
       }
     }
 
+    // 최종
     function displayFinalInfo() {
-      // 선택 장비
       document.getElementById("final-selected-items").innerHTML =
         selected.map(s => `<li>${s.name}</li>`).join("");
 
-      // 편집실 or 카/조/사
       if (activeTab === "editing") {
         document.getElementById("final-common").classList.add("hidden");
         document.getElementById("final-editing").classList.remove("hidden");
@@ -269,17 +278,35 @@
       }
     }
 
-    // 편집실 시간 포맷
     function formatTimes(arr) {
       if (!arr.length) return "없음";
       const sorted = [...arr].sort((a, b) => a - b);
       return sorted.map(h => `${h}:00`).join(", ");
     }
 
-    // 장비 목록 렌더
+    // 2단계 이동
+    function validateStep2() {
+      if (activeTab === "editing") {
+        goToStep(3);
+      } else {
+        const sd = document.getElementById("startDate").value;
+        const ed = document.getElementById("endDate").value;
+        const pf = document.getElementById("proofImage").files[0];
+        if (!sd || !ed || !pf) {
+          alert("시작일, 반납일, 증명사진을 모두 입력해주세요.");
+          return;
+        }
+        goToStep(3);
+      }
+    }
+
+    // 장비 목록
     function renderEquipment(tab) {
+      // 편집실 선택 시, 기존 선택 모두 해제
+      if (tab === "editing") {
+        selected = [];
+      }
       activeTab = tab;
-      selected = [];
       updateSelectedUI();
 
       const list = document.getElementById("equipment-list");
@@ -289,14 +316,13 @@
         const div = document.createElement("div");
         div.className = "equipment border p-4 rounded flex items-center cursor-pointer";
         div.innerHTML = `
-          <img src="${item.image}" class="w-14 h-14 rounded mr-4" alt="${item.name}" />
+          <img src="${item.image}" alt="${item.name}" class="w-14 h-14 rounded mr-4"/>
           <strong>${item.name}</strong>
         `;
         div.onclick = () => toggleItem(item, div);
         list.appendChild(div);
       });
 
-      // 2단계 UI
       if (tab === "editing") {
         document.getElementById("commonSection").classList.add("hidden");
         document.getElementById("editingSection").classList.remove("hidden");
@@ -308,13 +334,23 @@
     }
 
     function toggleItem(item, el) {
-      const found = selected.find(s => s.id === item.id);
-      if (found) {
-        selected = selected.filter(s => s.id !== item.id);
-        el.classList.remove("selected");
-      } else {
-        selected.push(item);
+      // 만약 편집실 탭이면 다른 장비 담을 수 없으므로 무시
+      if (activeTab === "editing") {
+        // 편집실일 때는 단일 선택
+        selected = [item];
+        // UI 업데이트
+        document.querySelectorAll("#equipment-list .equipment").forEach(e => e.classList.remove("selected"));
         el.classList.add("selected");
+      } else {
+        // 카/조/사는 여러개 담기 가능
+        const found = selected.find(s => s.id === item.id);
+        if (found) {
+          selected = selected.filter(s => s.id !== item.id);
+          el.classList.remove("selected");
+        } else {
+          selected.push(item);
+          el.classList.add("selected");
+        }
       }
       updateSelectedUI();
     }
@@ -333,25 +369,7 @@
         selected.map(s => `<li>${s.name}</li>`).join("");
     }
 
-    // 2단계 이동
-    function validateStep2() {
-      if (activeTab === "editing") {
-        // 편집실
-        goToStep(3);
-      } else {
-        // 카/조/사
-        const sd = document.getElementById("startDate").value;
-        const ed = document.getElementById("endDate").value;
-        const pf = document.getElementById("proofImage").files[0];
-        if (!sd || !ed || !pf) {
-          alert("시작일, 반납일, 증명사진을 모두 입력해주세요.");
-          return;
-        }
-        goToStep(3);
-      }
-    }
-
-    // 편집실 시간 슬롯 생성
+    // 편집실 시간 슬롯
     function createTimeSlots() {
       selectedTimes = [];
       const container = document.getElementById("timeGrid");
