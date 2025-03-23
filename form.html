@@ -10,6 +10,7 @@
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
     .tab-button.active { background-color: #dbeafe; font-weight: 600; }
     .equipment.selected { border-color: #facc15; background-color: #fefce8; }
+    .opacity-50 { opacity: 0.5; }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -19,7 +20,7 @@
   </div>
 
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-    <!-- 상단 단계 -->
+    <!-- 상단 단계 표시 -->
     <div class="flex justify-between mb-8">
       <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
       <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
@@ -27,7 +28,7 @@
       <div class="flex-1 text-center p-2 rounded bg-gray-200 text-gray-500">4. 완료</div>
     </div>
 
-    <!-- Step 1: 장비 선택 -->
+    <!-- Step 1 -->
     <div id="step1" class="step">
       <h2 class="text-xl font-bold mb-4">장비 선택</h2>
       <div class="flex space-x-2 mb-4">
@@ -42,56 +43,52 @@
         <ul id="selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
       </div>
       <div class="mt-6 text-right">
-        <button onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden" id="toStep2">다음 단계 →</button>
+        <button onclick="goToStep(2)" id="toStep2" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">다음 단계 →</button>
       </div>
     </div>
 
-    <!-- Step 2: 날짜 선택 + 사진 -->
+    <!-- Step 2 -->
     <div id="step2" class="step hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-      <p class="text-sm mb-4 text-gray-600">일반 대여는 최대 <span class="font-bold text-blue-700">3일</span>까지 가능합니다.</p>
       <label class="block mb-2 font-medium">대여 시작일</label>
       <input type="date" id="startDate" class="border p-2 rounded w-full mb-4"/>
       <label class="block mb-2 font-medium">반납일</label>
       <input type="date" id="endDate" class="border p-2 rounded w-full mb-4"/>
-      <p class="text-sm text-gray-500 mb-4">※ 반납일은 시작일로부터 최대 3일 이내여야 합니다.</p>
-
       <label class="block mb-2 font-medium">증명사진 첨부</label>
-      <input type="file" accept="image/*" class="mb-6" />
-
+      <input type="file" id="photoUpload" accept="image/*" class="mb-6" />
       <div class="flex justify-between">
         <button onclick="goToStep(1)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
-        <button onclick="goToStep(3)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
+        <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
       </div>
     </div>
 
-    <!-- Step 3: 규정 동의 -->
+    <!-- Step 3 -->
     <div id="step3" class="step hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
-      <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4">
-        <p class="mb-2 font-bold">제1장 총칙</p>
+      <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed">
+        <p class="font-bold">제1장 총칙</p>
         <p>제1조 (목적): 본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.</p>
         <p>제2조 (적용범위): 본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.</p>
-        <p class="mt-3 font-bold">제2장 관리체계</p>
-        <p>제1조 (주임교수 권한) ~ 제3조 (관리 조직)</p>
-        <p class="mt-3 font-bold">제3장 장비 대여</p>
-        <p>내부·외부 촬영 절차, 연습용 대여, 주임교수 승인 필수 등 명시</p>
-        <p class="mt-3 font-bold">제4장 수익성 작업</p>
-        <p>상업 작업 시 지정금 납부 및 보상 규정 명시</p>
-        <p class="mt-3 font-bold">제5장 편집실, 제6장 제재, 제7장 문서관리</p>
-        <p>편집실 예약, 경고/금지 제재, 신청서 보관 등</p>
-        <p class="mt-3">※ 본 규정은 2025년 3월 4일부터 시행</p>
+        <p class="mt-2 font-bold">제2장 관리체계</p>
+        <p>주임교수 권한, 행정실 업무, 기자재 담당자 구성</p>
+        <p class="mt-2 font-bold">제3장 장비 대여</p>
+        <p>촬영계획서 구분, 대여 신청 및 반납 절차</p>
+        <p class="mt-2 font-bold">제4장 수익성 작업</p>
+        <p>상업적 사용 시 지정금 및 보상, 보험가입 필수</p>
+        <p class="mt-2 font-bold">제5~7장</p>
+        <p>편집실 관리, 제재 조치, 문서관리 규정 포함</p>
+        <p class="mt-2">※ 본 규정은 2025년 3월 4일부터 시행 / 주임교수 유영식</p>
       </div>
       <label class="flex items-center mb-4">
-        <input type="checkbox" id="agreeCheck" class="mr-2"> 위 사용 규정에 동의합니다.
+        <input type="checkbox" id="agreeCheck" class="mr-2"> 위 규정에 동의합니다.
       </label>
       <div class="flex justify-between">
         <button onclick="goToStep(2)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
-        <button onclick="goToStep(4)" id="toStep4" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">다음 단계 →</button>
+        <button onclick="goToStep(4)" id="toStep4" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">완료</button>
       </div>
     </div>
 
-    <!-- Step 4: 완료 -->
+    <!-- Step 4 -->
     <div id="step4" class="step hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
       <p class="text-gray-700">승인 후 문자 또는 이메일로 안내드릴 예정입니다.</p>
@@ -107,10 +104,10 @@
         { id: "2", name: "Canon EOS R5", available: 2, image: "https://via.placeholder.com/80" }
       ],
       lighting: [
-        { id: "3", name: "ARRI SkyPanel S60-C", available: 4, image: "https://via.placeholder.com/80" }
+        { id: "3", name: "ARRI SkyPanel", available: 4, image: "https://via.placeholder.com/80" }
       ],
       sound: [
-        { id: "4", name: "Sennheiser MKH 416", available: 6, image: "https://via.placeholder.com/80" }
+        { id: "4", name: "Sennheiser MKH", available: 6, image: "https://via.placeholder.com/80" }
       ],
       editing: [
         { id: "5", name: "Premiere Pro 워크스테이션", available: 2, image: "https://via.placeholder.com/80" }
@@ -119,7 +116,12 @@
     let selected = [];
 
     function goToStep(n) {
-      if (n === 4 && !document.getElementById('agreeCheck').checked) return;
+      if (n === 2 && selected.length === 0) return;
+      if (n === 3 && (!document.getElementById("startDate").value || !document.getElementById("endDate").value || !document.getElementById("photoUpload").files.length)) {
+        alert("대여일, 반납일, 증명사진을 모두 입력해주세요.");
+        return;
+      }
+      if (n === 4 && !document.getElementById("agreeCheck").checked) return;
       document.getElementById(`step${step}`).classList.add("hidden");
       document.getElementById(`step${n}`).classList.remove("hidden");
       document.getElementById(`step${step}Btn`).classList.replace("step-active", "step-inactive");
@@ -127,13 +129,12 @@
       step = n;
     }
 
-    // 장비 선택
+    // 장비 탭 전환
     document.querySelectorAll(".tab-button").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        const cat = btn.dataset.tab;
-        renderEquipment(cat);
+        renderEquipment(btn.dataset.tab);
       });
     });
 
@@ -155,28 +156,27 @@
       });
     }
 
-    function toggleItem(item, element) {
-      const isSelected = selected.find(i => i.id === item.id);
-      if (isSelected) {
+    function toggleItem(item, el) {
+      const exists = selected.find(i => i.id === item.id);
+      if (exists) {
         selected = selected.filter(i => i.id !== item.id);
-        element.classList.remove("selected");
+        el.classList.remove("selected");
       } else {
         selected.push(item);
-        element.classList.add("selected");
+        el.classList.add("selected");
       }
       document.getElementById("selected-section").classList.toggle("hidden", selected.length === 0);
       document.getElementById("toStep2").classList.toggle("hidden", selected.length === 0);
       document.getElementById("selected-items").innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
     }
 
-    renderEquipment("camera");
-
-    // 동의 체크 활성화
     document.getElementById("agreeCheck").addEventListener("change", e => {
       const btn = document.getElementById("toStep4");
       btn.disabled = !e.target.checked;
       btn.classList.toggle("opacity-50", !e.target.checked);
     });
+
+    renderEquipment("camera");
   </script>
 </body>
 </html>
