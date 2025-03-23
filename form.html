@@ -8,30 +8,50 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* 카드 클릭 시 노란 체크 아이콘이 뜨도록 */
+    /* 노란 체크 아이콘 */
     .check-icon {
       display: none;
     }
     .card.selected .check-icon {
-      display: flex; /* 보여주기 */
+      display: flex; /* 선택된 카드일 때 표시 */
     }
     .check-icon {
       @apply absolute top-2 right-2 w-6 h-6 bg-yellow-400 text-white
              rounded-full items-center justify-center text-sm font-bold;
     }
 
-    /* 이미지 조금 작게 */
+    /* 이미지 크기 조금 줄임 (정사각형에 가까운 비율) */
     .card-img {
-      @apply w-full h-24 object-cover;
+      @apply w-full h-24 object-cover mb-2;
     }
 
-    /* 그리드 카드 사이 간격 최소화 => '붙어 있는' 느낌 */
-    .grid-zero-gap {
-      @apply grid grid-cols-4 grid-rows-2; /* 4열 x 2행 = 8개 */
-      gap: 1px; /* 아주 얇은 라인 정도 */
+    /* 가로로 확장하면서도 4x2 보이도록 → grid-auto-flow: column; */
+    .scrolling-grid {
+      display: grid;
+      /* 2행(세로), 각 행 높이는 auto로 늘어날 수 있음 */
+      grid-template-rows: repeat(2, auto);
+      /* 열은 자동으로 생성 (가로로 이어짐) */
+      grid-auto-flow: column;
+      /* 한 열의 너비 고정 (4칸 × 2행이 기본 8개) */
+      grid-auto-columns: 140px; /* 아이템 폭, 필요 시 조절 */
+      gap: 1px; /* 거의 붙은 느낌 */
+      overflow-x: auto;
+      background: #e5e7eb; /* (gray-200) 섹션 배경 */
     }
-    .grid-zero-gap > * {
-      margin: 0; /* 카드 사이 여백 제거 */
+    .scrolling-grid::-webkit-scrollbar {
+      height: 8px;
+    }
+    .scrolling-grid::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 4px;
+    }
+
+    /* 카드 스타일 */
+    .card {
+      @apply relative bg-white p-3 cursor-pointer;
+    }
+    .card:hover {
+      @apply bg-gray-50;
     }
   </style>
 </head>
@@ -40,95 +60,95 @@
   <!-- 헤더 -->
   <header class="p-6 bg-white shadow text-center">
     <h1 class="text-3xl font-bold">기자재 대여 신청</h1>
-    <p class="text-sm text-gray-500 mt-1">4개 섹션, 각 8개 아이템을 붙여서 배치</p>
+    <p class="text-sm text-gray-500 mt-1">4개 섹션, 4×2 그리드, 가로 스크롤, 노란 체크 토글</p>
   </header>
 
-  <!-- 메인 -->
   <main class="max-w-5xl mx-auto px-4 py-8 space-y-12">
 
     <!-- 섹션: 카메라 -->
     <section>
       <h2 class="text-2xl font-bold mb-4">카메라</h2>
-      <!-- 8개 아이템, 4열x2행, gap 최소화 -->
-      <div class="grid-zero-gap relative bg-gray-200">
-        <!-- item1 -->
-        <div class="card relative bg-white p-3 cursor-pointer"
-             data-name="Blackmagic Pocket 6K">
+      <!-- 스크롤링 그리드 (4x2 한 화면, 아이템이 많으면 가로로 더 확장) -->
+      <div class="scrolling-grid">
+        <!-- 아이템 예시 (8개) -->
+        <div class="card" data-name="Blackmagic Pocket 6K">
           <div class="check-icon">✓</div>
-          <img src="https://images.unsplash.com/photo-1599350752070-7908a994cde9?auto=format&fit=crop&w=400&q=80"
-               alt="Blackmagic Pocket 6K"
-               class="card-img mb-2" />
-          <h3 class="text-sm font-semibold mb-1">Blackmagic Pocket 6K</h3>
+          <img
+            src="https://images.unsplash.com/photo-1599350752070-7908a994cde9?auto=format&fit=crop&w=400&q=80"
+            alt="Blackmagic Pocket 6K"
+            class="card-img"
+          />
+          <h3 class="text-sm font-semibold">Blackmagic Pocket 6K</h3>
           <p class="text-xs text-gray-600">수량: 3 (고정)</p>
         </div>
-        <!-- item2 -->
-        <div class="card relative bg-white p-3 cursor-pointer"
-             data-name="Sony A7S III">
+        <div class="card" data-name="Sony A7S III">
           <div class="check-icon">✓</div>
-          <img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=400&q=80"
-               alt="Sony A7S III"
-               class="card-img mb-2" />
-          <h3 class="text-sm font-semibold mb-1">Sony A7S III</h3>
+          <img
+            src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=400&q=80"
+            alt="Sony A7S III"
+            class="card-img"
+          />
+          <h3 class="text-sm font-semibold">Sony A7S III</h3>
           <p class="text-xs text-gray-600">수량: 5 (고정)</p>
         </div>
-        <!-- item3 -->
-        <div class="card relative bg-white p-3 cursor-pointer"
-             data-name="Canon C70">
+        <div class="card" data-name="Canon C70">
           <div class="check-icon">✓</div>
-          <img src="https://images.unsplash.com/photo-1588920226847-1fc7d8b1f55b?auto=format&fit=crop&w=400&q=80"
-               alt="Canon C70"
-               class="card-img mb-2" />
-          <h3 class="text-sm font-semibold mb-1">Canon C70</h3>
+          <img
+            src="https://images.unsplash.com/photo-1588920226847-1fc7d8b1f55b?auto=format&fit=crop&w=400&q=80"
+            alt="Canon C70"
+            class="card-img"
+          />
+          <h3 class="text-sm font-semibold">Canon C70</h3>
           <p class="text-xs text-gray-600">수량: 2 (고정)</p>
         </div>
-        <!-- item4 -->
-        <div class="card relative bg-white p-3 cursor-pointer"
-             data-name="Panasonic GH5">
+        <div class="card" data-name="Panasonic GH5">
           <div class="check-icon">✓</div>
-          <img src="https://images.unsplash.com/photo-1572279995775-3b0f3e7f51c5?auto=format&fit=crop&w=400&q=80"
-               alt="Panasonic GH5"
-               class="card-img mb-2" />
-          <h3 class="text-sm font-semibold mb-1">Panasonic GH5</h3>
+          <img
+            src="https://images.unsplash.com/photo-1572279995775-3b0f3e7f51c5?auto=format&fit=crop&w=400&q=80"
+            alt="Panasonic GH5"
+            class="card-img"
+          />
+          <h3 class="text-sm font-semibold">Panasonic GH5</h3>
           <p class="text-xs text-gray-600">수량: 4 (고정)</p>
         </div>
-        <!-- item5 -->
-        <div class="card relative bg-white p-3 cursor-pointer"
-             data-name="Canon EOS R5">
+        <div class="card" data-name="Canon EOS R5">
           <div class="check-icon">✓</div>
-          <img src="https://images.unsplash.com/photo-1600180758890-7dc62b19a6c6?auto=format&fit=crop&w=400&q=80"
-               alt="Canon EOS R5"
-               class="card-img mb-2" />
-          <h3 class="text-sm font-semibold mb-1">Canon EOS R5</h3>
+          <img
+            src="https://images.unsplash.com/photo-1600180758890-7dc62b19a6c6?auto=format&fit=crop&w=400&q=80"
+            alt="Canon EOS R5"
+            class="card-img"
+          />
+          <h3 class="text-sm font-semibold">Canon EOS R5</h3>
           <p class="text-xs text-gray-600">수량: 3 (고정)</p>
         </div>
-        <!-- item6 -->
-        <div class="card relative bg-white p-3 cursor-pointer"
-             data-name="Sony FX3">
+        <div class="card" data-name="Sony FX3">
           <div class="check-icon">✓</div>
-          <img src="https://images.unsplash.com/photo-1598447861940-d868649f811f?auto=format&fit=crop&w=400&q=80"
-               alt="Sony FX3"
-               class="card-img mb-2" />
-          <h3 class="text-sm font-semibold mb-1">Sony FX3</h3>
+          <img
+            src="https://images.unsplash.com/photo-1598447861940-d868649f811f?auto=format&fit=crop&w=400&q=80"
+            alt="Sony FX3"
+            class="card-img"
+          />
+          <h3 class="text-sm font-semibold">Sony FX3</h3>
           <p class="text-xs text-gray-600">수량: 2 (고정)</p>
         </div>
-        <!-- item7 -->
-        <div class="card relative bg-white p-3 cursor-pointer"
-             data-name="Blackmagic 4K">
+        <div class="card" data-name="Blackmagic 4K">
           <div class="check-icon">✓</div>
-          <img src="https://images.unsplash.com/photo-1590602846979-e99d8db533d1?auto=format&fit=crop&w=400&q=80"
-               alt="Blackmagic 4K"
-               class="card-img mb-2" />
-          <h3 class="text-sm font-semibold mb-1">Blackmagic 4K</h3>
+          <img
+            src="https://images.unsplash.com/photo-1590602846979-e99d8db533d1?auto=format&fit=crop&w=400&q=80"
+            alt="Blackmagic 4K"
+            class="card-img"
+          />
+          <h3 class="text-sm font-semibold">Blackmagic 4K</h3>
           <p class="text-xs text-gray-600">수량: 1 (고정)</p>
         </div>
-        <!-- item8 -->
-        <div class="card relative bg-white p-3 cursor-pointer"
-             data-name="Canon C200">
+        <div class="card" data-name="Canon C200">
           <div class="check-icon">✓</div>
-          <img src="https://images.unsplash.com/photo-1588920226869-39cc52bd8dc1?auto=format&fit=crop&w=400&q=80"
-               alt="Canon C200"
-               class="card-img mb-2" />
-          <h3 class="text-sm font-semibold mb-1">Canon C200</h3>
+          <img
+            src="https://images.unsplash.com/photo-1588920226869-39cc52bd8dc1?auto=format&fit=crop&w=400&q=80"
+            alt="Canon C200"
+            class="card-img"
+          />
+          <h3 class="text-sm font-semibold">Canon C200</h3>
           <p class="text-xs text-gray-600">수량: 2 (고정)</p>
         </div>
       </div>
@@ -137,8 +157,9 @@
     <!-- 섹션: 오디오 -->
     <section>
       <h2 class="text-2xl font-bold mb-4">오디오</h2>
-      <div class="grid-zero-gap relative bg-gray-200">
-        <!-- 여기도 8개 아이템 -> 예시 생략 / 원하시면 채워넣으세요 -->
+      <div class="scrolling-grid">
+        <!-- 8개 아이템 (예시 생략) -->
+        <!-- 동일한 방식으로 아이템 배치 -->
         <!-- ... -->
       </div>
     </section>
@@ -146,7 +167,7 @@
     <!-- 섹션: 조명 -->
     <section>
       <h2 class="text-2xl font-bold mb-4">조명</h2>
-      <div class="grid-zero-gap relative bg-gray-200">
+      <div class="scrolling-grid">
         <!-- 8개 아이템 -->
         <!-- ... -->
       </div>
@@ -155,7 +176,7 @@
     <!-- 섹션: 편집실 -->
     <section>
       <h2 class="text-2xl font-bold mb-4">편집실</h2>
-      <div class="grid-zero-gap relative bg-gray-200">
+      <div class="scrolling-grid">
         <!-- 8개 아이템 -->
         <!-- ... -->
       </div>
@@ -178,30 +199,28 @@
   <script>
     let selectedItems = [];
 
-    // 카드 토글
+    // 카드 클릭 시 .selected 토글
     document.querySelectorAll('.card').forEach(card => {
       card.addEventListener('click', () => {
         card.classList.toggle('selected');
         const itemName = card.getAttribute('data-name');
 
         if (card.classList.contains('selected')) {
-          // 추가
           if (!selectedItems.includes(itemName)) {
             selectedItems.push(itemName);
           }
         } else {
-          // 제거
           selectedItems = selectedItems.filter(i => i !== itemName);
         }
       });
     });
 
-    // 다음 단계
+    // 다음 단계 -> form_step2.html
     document.getElementById('btnNextStep').addEventListener('click', () => {
-      // localStorage 등에 저장 후 form_step2.html로 이동
+      // 선택된 아이템 목록 localStorage에 저장
       localStorage.setItem('selectedEquipments', JSON.stringify(selectedItems));
-      alert('선택된 아이템: ' + selectedItems.join(', '));
-      // 실제 이동
+      alert(`선택된 아이템: ${selectedItems.join(', ')}`);
+      // 페이지 이동
       window.location.href = 'form_step2.html';
     });
   </script>
