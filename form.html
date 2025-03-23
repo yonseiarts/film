@@ -2,14 +2,13 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 신청</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <style>
     .selected {
-      border-color: #1D4ED8;
-      background-color: #EFF6FF;
+      border-color: #facc15;
+      background-color: #fef9c3;
     }
     .checkmark {
       display: none;
@@ -17,22 +16,20 @@
     .selected .checkmark {
       display: inline-block;
     }
-    .tab-btn.active {
-      background-color: #1D4ED8;
-      color: white;
-    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
+  <!-- 헤더 -->
   <div class="bg-blue-700 text-white py-8 px-4">
     <div class="max-w-4xl mx-auto">
       <h1 class="text-2xl font-bold mb-2">기자재 대여 예약</h1>
-      <p class="text-blue-100">필요한 장비를 선택하고 날짜를 지정하여 간편하게 예약하세요. 관리자 승인 후 방문하여 수령하실 수 있습니다.</p>
+      <p class="text-blue-100">필요한 장비를 선택하고 날짜를 지정하여 간편하게 예약하세요.</p>
     </div>
   </div>
 
+  <!-- 본문 -->
   <div class="max-w-4xl mx-auto py-8 px-4">
-    <!-- 진행 단계 표시 -->
+    <!-- 단계 표시 -->
     <div class="flex justify-between items-center mb-6">
       <div class="flex items-center space-x-2">
         <div class="w-8 h-8 rounded-full bg-blue-700 text-white flex items-center justify-center font-bold">1</div>
@@ -55,15 +52,15 @@
     <h2 class="text-xl font-bold mb-4">장비 선택</h2>
     <p class="text-gray-600 mb-6">필요한 장비를 선택해주세요. 여러 개 선택 가능합니다.</p>
 
-    <!-- 탭 네비게이션 -->
+    <!-- 탭 -->
     <div class="flex space-x-4 mb-6">
-      <button class="tab-btn px-4 py-2 border rounded active" data-tab="camera">카메라</button>
+      <button class="tab-btn px-4 py-2 border rounded" data-tab="camera">카메라</button>
       <button class="tab-btn px-4 py-2 border rounded" data-tab="lighting">조명</button>
       <button class="tab-btn px-4 py-2 border rounded" data-tab="sound">사운드</button>
       <button class="tab-btn px-4 py-2 border rounded" data-tab="editing">편집실</button>
     </div>
 
-    <!-- 장비 리스트 -->
+    <!-- 장비 목록 -->
     <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
 
     <!-- 선택된 장비 -->
@@ -72,26 +69,26 @@
       <ul class="text-sm text-gray-700 space-y-1" id="selected-items"></ul>
     </div>
 
-    <!-- 다음 단계 버튼 -->
     <button id="next-step" class="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 hidden">다음 단계</button>
   </div>
 
+  <!-- 스크립트 -->
   <script>
     const equipmentData = {
       camera: [
-        { id: "1", name: "Sony FX3", available: 3 },
-        { id: "2", name: "Canon EOS R5", available: 2 },
-        { id: "3", name: "Canon EF 24-70mm", available: 4 },
+        { id: "1", name: "Sony FX3", available: 3, image: "https://images.unsplash.com/photo-1599350752070-7908a994cde9?q=80&w=400" },
+        { id: "2", name: "Canon EOS R5", available: 2, image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?q=80&w=400" },
+        { id: "3", name: "Canon EF 24-70mm", available: 4, image: "https://images.unsplash.com/photo-1617005082133-548c4dd9e290?q=80&w=400" },
       ],
       lighting: [
-        { id: "4", name: "ARRI SkyPanel S60-C", available: 4 },
+        { id: "4", name: "ARRI SkyPanel S60-C", available: 4, image: "https://images.unsplash.com/photo-1533928298208-27ff66555d8d?q=80&w=400" },
       ],
       sound: [
-        { id: "5", name: "Sennheiser MKH 416", available: 6 },
+        { id: "5", name: "Sennheiser MKH 416", available: 6, image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=400" },
       ],
       editing: [
-        { id: "6", name: "Premiere Pro 워크스테이션", available: 2 },
-        { id: "7", name: "DaVinci Resolve", available: 1 },
+        { id: "6", name: "Premiere Pro 워크스테이션", available: 2, image: "https://images.unsplash.com/photo-1576745517316-ad8b1bab37a6?q=80&w=400" },
+        { id: "7", name: "DaVinci Resolve", available: 1, image: "https://images.unsplash.com/photo-1535303311164-664fc9ec6532?q=80&w=400" },
       ]
     };
 
@@ -99,23 +96,23 @@
     const selectedList = document.getElementById("selected-list");
     const selectedItems = document.getElementById("selected-items");
     const nextStepBtn = document.getElementById("next-step");
-
     let selected = [];
 
     function renderEquipment(category) {
       equipmentList.innerHTML = "";
       equipmentData[category].forEach(item => {
         const div = document.createElement("div");
-        div.className = "border rounded-lg p-4 flex justify-between items-center cursor-pointer";
+        div.className = "border rounded-lg p-4 flex items-center space-x-4 cursor-pointer transition hover:shadow";
         div.dataset.id = item.id;
         div.dataset.name = item.name;
 
         div.innerHTML = `
-          <div>
-            <h3 class="font-semibold">${item.name}</h3>
+          <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded" />
+          <div class="flex-grow">
+            <h3 class="font-semibold text-lg">${item.name}</h3>
             <p class="text-sm text-gray-500">${item.available}대 대여 가능</p>
           </div>
-          <span class="checkmark text-yellow-500">✔️</span>
+          <span class="checkmark text-yellow-400 text-xl">✔️</span>
         `;
 
         div.addEventListener("click", () => toggleSelect(item, div));
@@ -148,8 +145,8 @@
 
     document.querySelectorAll(".tab-btn").forEach(btn => {
       btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("bg-blue-100"));
+        btn.classList.add("bg-blue-100");
         renderEquipment(btn.dataset.tab);
       });
     });
