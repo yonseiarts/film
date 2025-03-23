@@ -1,219 +1,165 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>기자재 대여 신청</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css" />
-
   <style>
-    /* 카드 전체 스타일 */
-    .equip-card {
-      width: 8rem;  /* 정사각형 형태 */
-      height: 8rem; /* 정사각형 형태 */
-    }
-
-    /* 노란 체크아이콘 숨김/표시 */
+    /* 카드 클릭 시 .selected가 붙으면, 노란 체크 아이콘을 보이게 함 */
     .check-icon {
-      /* 아이콘을 절대 위치시키기 위해 */
-      position: absolute;
-      top: 0.25rem;
-      right: 0.25rem;
-      width: 1.5rem;
-      height: 1.5rem;
-      color: #facc15; /* Tailwind yellow-400 근접 */
-      fill: currentColor;
-      display: none; /* 기본 숨김 */
+      display: none;
     }
-
-    /* 선택된 상태에서 체크아이콘 표시 */
-    .selected .check-icon {
-      display: block;
+    .card.selected .check-icon {
+      display: flex;
+    }
+    /* 노란 체크 아이콘 스타일 */
+    .check-icon {
+      @apply absolute top-1 right-1 w-6 h-6 bg-yellow-400 text-white text-sm
+             flex items-center justify-center rounded-full font-bold;
     }
   </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
-  <!-- 헤더 -->
-  <header class="p-6 text-center bg-white shadow">
+
+  <!-- 상단 헤더 -->
+  <header class="p-6 bg-white shadow text-center">
     <h1 class="text-3xl font-bold">기자재 대여 신청</h1>
-    <p class="text-sm text-gray-500">섹션별로 장비를 클릭(토글)하여 선택하세요</p>
+    <p class="text-sm text-gray-500 mt-1">한 섹션당 8개 아이템, 정사각형 카드, 노란 체크 표시</p>
   </header>
 
-  <main class="max-w-5xl mx-auto px-4 py-10 space-y-16">
-    <!-- 카메라 섹션 -->
-    <section>
-      <h2 class="text-2xl font-bold mb-4">카메라</h2>
-      <div class="grid grid-cols-4 gap-4">
-        <!-- 예시 8개 아이템 -->
-        <div class="relative border rounded shadow equip-card hover:shadow-md cursor-pointer"
-             data-available="3">
-          <!-- 노란 체크아이콘 (숨김 → 선택시 표시) -->
-          <svg viewBox="0 0 24 24" class="check-icon">
-            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3"
-                  stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
-          </svg>
-          <!-- 이미지 -->
-          <img src="https://images.unsplash.com/photo-1599350752070-7908a994cde9?auto=format&fit=crop&w=400&q=80"
-               alt="Cam1" class="w-full h-full object-cover" />
-          <!-- 수량 표시 -->
-          <div class="absolute bottom-1 left-1 bg-white text-xs px-1 py-0.5 rounded shadow-sm avail-text">
-            수량: 3
-          </div>
-          <!-- 이름 표시 -->
-          <div class="absolute top-1 left-1 text-sm font-semibold text-white bg-black/50 px-1 rounded">
-            Blackmagic
-          </div>
-        </div>
-
-        <div class="relative border rounded shadow equip-card hover:shadow-md cursor-pointer"
-             data-available="3">
-          <svg viewBox="0 0 24 24" class="check-icon">
-            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3"
-                  stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
-          </svg>
-          <img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=400&q=80"
-               alt="Cam2" class="w-full h-full object-cover" />
-          <div class="absolute bottom-1 left-1 bg-white text-xs px-1 py-0.5 rounded shadow-sm avail-text">
-            수량: 3
-          </div>
-          <div class="absolute top-1 left-1 text-sm font-semibold text-white bg-black/50 px-1 rounded">
-            Sony A7S III
-          </div>
-        </div>
-
-        <div class="relative border rounded shadow equip-card hover:shadow-md cursor-pointer"
-             data-available="3">
-          <svg viewBox="0 0 24 24" class="check-icon">
-            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3"
-                  stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
-          </svg>
-          <img src="https://images.unsplash.com/photo-1588920226847-1fc7d8b1f55b?auto=format&fit=crop&w=400&q=80"
-               alt="Cam3" class="w-full h-full object-cover" />
-          <div class="absolute bottom-1 left-1 bg-white text-xs px-1 py-0.5 rounded shadow-sm avail-text">
-            수량: 3
-          </div>
-          <div class="absolute top-1 left-1 text-sm font-semibold text-white bg-black/50 px-1 rounded">
-            Canon C70
-          </div>
-        </div>
-
-        <!-- 5개 더 아이템 (총 8개) -->
-        <div class="relative border rounded shadow equip-card hover:shadow-md cursor-pointer"
-             data-available="3">
-          <svg viewBox="0 0 24 24" class="check-icon">
-            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3"
-                  stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
-          </svg>
-          <img src="https://images.unsplash.com/photo-1602708194944-d02cbfd2eec3?auto=format&fit=crop&w=400&q=80"
-               alt="Cam4" class="w-full h-full object-cover" />
-          <div class="absolute bottom-1 left-1 bg-white text-xs px-1 py-0.5 rounded shadow-sm avail-text">
-            수량: 3
-          </div>
-          <div class="absolute top-1 left-1 text-sm font-semibold text-white bg-black/50 px-1 rounded">
-            Cam4
-          </div>
-        </div>
-        <div class="relative border rounded shadow equip-card hover:shadow-md cursor-pointer"
-             data-available="3">
-          <svg viewBox="0 0 24 24" class="check-icon">
-            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3"
-                  stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
-          </svg>
-          <img src="https://images.unsplash.com/photo-1617005082133-548c4dd9e290?auto=format&fit=crop&w=400&q=80"
-               alt="Cam5" class="w-full h-full object-cover" />
-          <div class="absolute bottom-1 left-1 bg-white text-xs px-1 py-0.5 rounded shadow-sm avail-text">
-            수량: 3
-          </div>
-          <div class="absolute top-1 left-1 text-sm font-semibold text-white bg-black/50 px-1 rounded">
-            Cam5
-          </div>
-        </div>
-        <div class="relative border rounded shadow equip-card hover:shadow-md cursor-pointer"
-             data-available="3">
-          <svg viewBox="0 0 24 24" class="check-icon">
-            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3"
-                  stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
-          </svg>
-          <img src="https://images.unsplash.com/photo-1590602846979-e99d8db533d1?auto=format&fit=crop&w=400&q=80"
-               alt="Cam6" class="w-full h-full object-cover" />
-          <div class="absolute bottom-1 left-1 bg-white text-xs px-1 py-0.5 rounded shadow-sm avail-text">
-            수량: 3
-          </div>
-          <div class="absolute top-1 left-1 text-sm font-semibold text-white bg-black/50 px-1 rounded">
-            Cam6
-          </div>
-        </div>
-        <div class="relative border rounded shadow equip-card hover:shadow-md cursor-pointer"
-             data-available="3">
-          <svg viewBox="0 0 24 24" class="check-icon">
-            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3"
-                  stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
-          </svg>
-          <img src="https://images.unsplash.com/photo-1506807803488-8eafc15315f0?auto=format&fit=crop&w=400&q=80"
-               alt="Cam7" class="w-full h-full object-cover" />
-          <div class="absolute bottom-1 left-1 bg-white text-xs px-1 py-0.5 rounded shadow-sm avail-text">
-            수량: 3
-          </div>
-          <div class="absolute top-1 left-1 text-sm font-semibold text-white bg-black/50 px-1 rounded">
-            Cam7
-          </div>
-        </div>
-        <div class="relative border rounded shadow equip-card hover:shadow-md cursor-pointer"
-             data-available="3">
-          <svg viewBox="0 0 24 24" class="check-icon">
-            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3"
-                  stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
-          </svg>
-          <img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=400&q=80"
-               alt="Cam8" class="w-full h-full object-cover" />
-          <div class="absolute bottom-1 left-1 bg-white text-xs px-1 py-0.5 rounded shadow-sm avail-text">
-            수량: 3
-          </div>
-          <div class="absolute top-1 left-1 text-sm font-semibold text-white bg-black/50 px-1 rounded">
-            Cam8
-          </div>
-        </div>
+  <!-- 메인 (세로 스크롤) -->
+  <main class="max-w-5xl mx-auto px-4 py-8">
+    <!-- 8개 아이템 (4열 x 2행) -->
+    <div class="grid grid-cols-4 gap-2">
+      <!-- 아이템 1 -->
+      <div
+        class="card relative border rounded-lg shadow bg-white cursor-pointer w-32 h-32 flex flex-col items-center justify-center hover:shadow-md transition"
+        data-name="Blackmagic Pocket 6K"
+      >
+        <!-- 노란 체크 -->
+        <div class="check-icon">✓</div>
+        <p class="text-xs text-gray-500 absolute bottom-1 right-1">수량: 3</p>
+        <h3 class="text-sm font-semibold">Blackmagic 6K</h3>
       </div>
-    </section>
 
-    <!-- 동일한 방식으로 '오디오', '조명', '편집실' 섹션도 8개씩 아이템 배치 -->
-    <!-- ... (생략 or 복사해서 동일 구조로 추가) -->
+      <!-- 아이템 2 -->
+      <div
+        class="card relative border rounded-lg shadow bg-white cursor-pointer w-32 h-32 flex flex-col items-center justify-center hover:shadow-md transition"
+        data-name="Sony A7S III"
+      >
+        <div class="check-icon">✓</div>
+        <p class="text-xs text-gray-500 absolute bottom-1 right-1">수량: 5</p>
+        <h3 class="text-sm font-semibold">Sony A7S III</h3>
+      </div>
 
+      <!-- 아이템 3 -->
+      <div
+        class="card relative border rounded-lg shadow bg-white cursor-pointer w-32 h-32 flex flex-col items-center justify-center hover:shadow-md transition"
+        data-name="Canon C70"
+      >
+        <div class="check-icon">✓</div>
+        <p class="text-xs text-gray-500 absolute bottom-1 right-1">수량: 2</p>
+        <h3 class="text-sm font-semibold">Canon C70</h3>
+      </div>
+
+      <!-- 아이템 4 -->
+      <div
+        class="card relative border rounded-lg shadow bg-white cursor-pointer w-32 h-32 flex flex-col items-center justify-center hover:shadow-md transition"
+        data-name="Godox SL-60W"
+      >
+        <div class="check-icon">✓</div>
+        <p class="text-xs text-gray-500 absolute bottom-1 right-1">수량: 4</p>
+        <h3 class="text-sm font-semibold">Godox SL-60W</h3>
+      </div>
+
+      <!-- 아이템 5 -->
+      <div
+        class="card relative border rounded-lg shadow bg-white cursor-pointer w-32 h-32 flex flex-col items-center justify-center hover:shadow-md transition"
+        data-name="Zoom H6 Recorder"
+      >
+        <div class="check-icon">✓</div>
+        <p class="text-xs text-gray-500 absolute bottom-1 right-1">수량: 1</p>
+        <h3 class="text-sm font-semibold">Zoom H6</h3>
+      </div>
+
+      <!-- 아이템 6 -->
+      <div
+        class="card relative border rounded-lg shadow bg-white cursor-pointer w-32 h-32 flex flex-col items-center justify-center hover:shadow-md transition"
+        data-name="RODE NTG2"
+      >
+        <div class="check-icon">✓</div>
+        <p class="text-xs text-gray-500 absolute bottom-1 right-1">수량: 8</p>
+        <h3 class="text-sm font-semibold">RODE NTG2</h3>
+      </div>
+
+      <!-- 아이템 7 -->
+      <div
+        class="card relative border rounded-lg shadow bg-white cursor-pointer w-32 h-32 flex flex-col items-center justify-center hover:shadow-md transition"
+        data-name="Premiere 편집실"
+      >
+        <div class="check-icon">✓</div>
+        <p class="text-xs text-gray-500 absolute bottom-1 right-1">수량: 2</p>
+        <h3 class="text-sm font-semibold">Premiere 편집실</h3>
+      </div>
+
+      <!-- 아이템 8 -->
+      <div
+        class="card relative border rounded-lg shadow bg-white cursor-pointer w-32 h-32 flex flex-col items-center justify-center hover:shadow-md transition"
+        data-name="DaVinci Color Suite"
+      >
+        <div class="check-icon">✓</div>
+        <p class="text-xs text-gray-500 absolute bottom-1 right-1">수량: 3</p>
+        <h3 class="text-sm font-semibold">DaVinci Color Suite</h3>
+      </div>
+    </div>
+
+    <!-- 다음 단계 버튼 -->
+    <div class="text-right mt-6">
+      <button
+        id="btnNextStep"
+        class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition-colors"
+      >
+        다음 단계 →
+      </button>
+    </div>
   </main>
 
   <footer class="text-center text-sm text-gray-500 py-6 border-t">
     고객센터: 02-1234-5678 | 운영시간: 평일 10:00 ~ 17:00 (점심시간 12:00~13:00)
   </footer>
 
-  <!-- JS: 클릭 시 토글 + 수량 변경 -->
   <script>
-    document.querySelectorAll('.equip-card').forEach(card => {
-      let available = parseInt(card.getAttribute('data-available'));
-      let isSelected = false;
+    // 선택된 아이템 목록
+    let selectedItems = [];
 
-      const checkIcon = card.querySelector('.check-icon');
-      const availEl = card.querySelector('.avail-text');
-
+    // 카드 클릭 → 노란 체크 아이콘 표시
+    document.querySelectorAll('.card').forEach(card => {
       card.addEventListener('click', () => {
-        if (!isSelected) {
-          // 선택하려고 할 때
-          if (available > 0) {
-            isSelected = true;
-            available--;
-            checkIcon.style.display = 'block';     // 노란 체크아이콘 표시
-            availEl.textContent = '수량: ' + available;
+        card.classList.toggle('selected');
+        const itemName = card.getAttribute('data-name');
+
+        if (card.classList.contains('selected')) {
+          // 추가
+          if (!selectedItems.includes(itemName)) {
+            selectedItems.push(itemName);
           }
         } else {
-          // 이미 선택된 상태 → 선택 해제
-          isSelected = false;
-          available++;
-          checkIcon.style.display = 'none';        // 체크아이콘 숨김
-          availEl.textContent = '수량: ' + available;
+          // 제거
+          selectedItems = selectedItems.filter(i => i !== itemName);
         }
       });
     });
+
+    // 다음 단계 버튼
+    document.getElementById('btnNextStep').addEventListener('click', () => {
+      // 여기서 selectedItems를 다음 페이지에 넘기는 로직
+      // 예: window.location.href = 'form_step2.html?items=' + encodeURIComponent(selectedItems.join(','));
+      alert('선택된 장비: ' + (selectedItems.join(', ') || '없음') + '\\n다음 단계로 이동...');
+    });
   </script>
+
 </body>
 </html>
