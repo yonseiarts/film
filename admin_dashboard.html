@@ -4,130 +4,64 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>관리자 대시보드</title>
-  <!-- Tailwind CSS -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 min-h-screen">
-  <!-- 상단 네비게이션 -->
-  <nav class="bg-white shadow p-4 flex justify-between">
-    <h1 class="font-bold text-xl">🎬 관리자 대시보드</h1>
-    <div class="space-x-4">
-      <button id="homeBtn" class="text-blue-600 hover:underline">홈으로</button>
-      <button id="logoutBtn" class="text-blue-600 hover:underline">로그아웃</button>
-    </div>
-  </nav>
+<body class="bg-gray-100">
 
-  <!-- 신청 목록 -->
-  <main class="max-w-4xl mx-auto mt-6 p-4 bg-white rounded shadow">
-    <h2 class="text-2xl font-bold mb-4">신청 목록</h2>
+  <div class="max-w-6xl mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-4">🎬 관리자 대시보드</h1>
     <div id="application-list" class="space-y-4">
-      <!-- Firestore 신청 문서들이 여기 렌더링됩니다. -->
+      <!-- 신청 항목이 여기에 출력됩니다 -->
     </div>
-  </main>
+  </div>
 
-  <!-- Firebase 모듈 스크립트 -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
-    import { getFirestore, collection, doc, onSnapshot, orderBy, query, updateDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
-
-    // ★ 본인의 Firebase config 정보로 교체
+  <script>
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
-      authDomain: "yonseirent-setup.firebaseapp.com",
-      projectId: "yonseirent-setup",
-      storageBucket: "yonseirent-setup.appspot.com",
-      messagingSenderId: "1072524969376",
-      appId: "1:1072524969376:web:e23491a7196f97fd3e10c5"
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
     };
 
-    // Firebase 초기화
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    // 네비게이션 버튼
-    const homeBtn = document.getElementById("homeBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-    homeBtn.addEventListener("click", () => {
-      // 홈 페이지로 이동 (원하는 URL로 변경)
-      window.location.href = "index.html";
-    });
-    logoutBtn.addEventListener("click", () => {
-      signOut(auth).then(() => {
-        window.location.href = "admin-login.html";
-      });
-    });
+    function renderApplications() {
+      const container = document.getElementById('application-list');
+      db.collection("applications").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+        container.innerHTML = "";
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const div = document.createElement("div");
+          div.className = "bg-white p-4 rounded shadow";
 
-    // 사용자 인증 상태 확인
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        // 로그인이 안 된 상태면 관리자 로그인 페이지로 이동
-        window.location.href = "admin-login.html";
-      } else {
-        // 로그인 성공 상태 → 신청 목록 불러오기
-        loadApplications();
-      }
-    });
-
-    // Firestore에서 신청 목록 실시간 불러오기
-    function loadApplications() {
-      const applicationList = document.getElementById("application-list");
-
-      // "applications" 컬렉션 (또는 "rentals") 명칭은 실제 사용하는 대로 변경
-      const q = query(collection(db, "applications"), orderBy("timestamp", "desc"));
-
-      onSnapshot(q, (snapshot) => {
-        applicationList.innerHTML = "";
-        snapshot.forEach((docSnap) => {
-          const data = docSnap.data();
-          applicationList.appendChild(renderApplicationItem(docSnap.id, data));
+          div.innerHTML = `
+            <h2 class="text-lg font-bold">${data.name || '신청자 미입력'}</h2>
+            <p>장비: ${data.items?.join(", ") || '없음'}</p>
+            <p>대여일자: ${data.date || '-'}</p>
+            <p>시간: ${data.time || '-'}</p>
+            <p>증명사진: ${data.proofPhoto ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>` : '없음'}</p>
+            <p>상태: <span class="font-semibold">${data.status || '대기중'}</span></p>
+            <div class="mt-2 space-x-2">
+              <button class="px-3 py-1 bg-green-500 text-white rounded" onclick="updateStatus('${doc.id}', '승인됨')">승인</button>
+              <button class="px-3 py-1 bg-red-500 text-white rounded" onclick="updateStatus('${doc.id}', '반려됨')">반려</button>
+            </div>
+          `;
+          container.appendChild(div);
         });
       });
     }
 
-    // 신청 항목 렌더링 함수
-    function renderApplicationItem(docId, data) {
-      const container = document.createElement("div");
-      container.className = "p-4 border rounded";
-
-      const applicant = data.name || "이름 없음";
-      const items = data.items?.join(", ") || "장비 미선택";
-      const date = data.date || "-";
-      const time = data.time || "-";
-      const status = data.status || "대기중";
-      const proofPhoto = data.proofPhoto || null;
-
-      container.innerHTML = `
-        <h3 class="text-lg font-bold mb-1">${applicant}</h3>
-        <p class="text-sm text-gray-700">장비: ${items}</p>
-        <p class="text-sm text-gray-700">대여일자: ${date}</p>
-        <p class="text-sm text-gray-700">시간: ${time}</p>
-        <p class="text-sm text-gray-700 mb-2">상태: <span class="font-semibold">${status}</span></p>
-        ${
-          proofPhoto
-            ? `<p class="mb-2 text-sm">
-                 증명사진: <a href="${proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>
-               </p>`
-            : ""
-        }
-        <div class="space-x-2">
-          <button class="px-3 py-1 bg-green-500 text-white rounded" onclick="updateStatus('${docId}', '승인됨')">승인</button>
-          <button class="px-3 py-1 bg-red-500 text-white rounded" onclick="updateStatus('${docId}', '반려됨')">반려</button>
-        </div>
-      `;
-      return container;
+    function updateStatus(id, status) {
+      db.collection("applications").doc(id).update({ status });
     }
 
-    // 상태 업데이트 함수 (승인/반려)
-    window.updateStatus = async function(docId, newStatus) {
-      const docRef = doc(db, "applications", docId);
-      try {
-        await updateDoc(docRef, { status: newStatus });
-      } catch (error) {
-        console.error("상태 업데이트 실패:", error);
-      }
-    }
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) renderApplications();
+      else window.location.href = "admin-login.html";
+    });
   </script>
 </body>
 </html>
