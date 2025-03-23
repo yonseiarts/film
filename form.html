@@ -10,7 +10,6 @@
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
     .tab-button.active { background-color: #dbeafe; font-weight: 600; }
     .equipment.selected { border-color: #facc15; background-color: #fefce8; }
-    .time-slot.selected { background-color: #facc15; color: white; }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -63,28 +62,10 @@
       <!-- 시간 선택 - 편집실 선택시만 -->
       <div id="time-selection" class="hidden">
         <label class="block mb-2 font-medium">대여 시작 시간 (24시 기준)</label>
-        <div class="grid grid-cols-6 gap-2 mb-4">
-          <div class="time-slot" data-time="9">9</div>
-          <div class="time-slot" data-time="10">10</div>
-          <div class="time-slot" data-time="11">11</div>
-          <div class="time-slot" data-time="12">12</div>
-          <div class="time-slot" data-time="13">13</div>
-          <div class="time-slot" data-time="14">14</div>
-        </div>
-        <div class="grid grid-cols-6 gap-2 mb-4">
-          <div class="time-slot" data-time="15">15</div>
-          <div class="time-slot" data-time="16">16</div>
-          <div class="time-slot" data-time="17">17</div>
-          <div class="time-slot" data-time="18">18</div>
-          <div class="time-slot" data-time="19">19</div>
-          <div class="time-slot" data-time="20">20</div>
-        </div>
-        <div class="grid grid-cols-6 gap-2 mb-4">
-          <div class="time-slot" data-time="21">21</div>
-          <div class="time-slot" data-time="22">22</div>
-          <div class="time-slot" data-time="23">23</div>
-          <div class="time-slot" data-time="0">0</div>
-        </div>
+        <input type="time" id="startTime" class="border p-2 rounded w-full mb-4"/>
+
+        <label class="block mb-2 font-medium">반납 시간 (24시 기준)</label>
+        <input type="time" id="endTime" class="border p-2 rounded w-full mb-4"/>
       </div>
 
       <div class="flex justify-between">
@@ -122,7 +103,7 @@
     <!-- Step 4: 완료 -->
     <div id="step4" class="step hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
-      <h3 class="text-lg font-bold mb-4 mt-6">선택한 장비 목록</h3>
+      <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
       <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
 
       <h3 class="text-lg font-bold mb-4 mt-6">대여 정보</h3>
@@ -210,4 +191,51 @@
         element.classList.remove("selected");
       } else {
         selected.push(item);
-        element.classList.add("
+        element.classList.add("selected");
+      }
+      document.getElementById("selected-section").classList.toggle("hidden", selected.length === 0);
+      document.getElementById("toStep2").classList.toggle("hidden", selected.length === 0);
+      document.getElementById("selected-items").innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
+    }
+
+    function validateStep2() {
+      rentalStartDate = document.getElementById('startDate').value;
+      rentalEndDate = document.getElementById('endDate').value;
+      proofImageName = document.getElementById('proofImage').files[0]?.name || '';
+      
+      if (!rentalStartDate || !rentalEndDate || !proofImageName) {
+        alert("모든 정보를 입력해주세요.");
+        return;
+      }
+
+      if (document.querySelector('[data-tab="editing"].active')) {
+        startTime = document.getElementById('startTime').value;
+        endTime = document.getElementById('endTime').value;
+      }
+
+      goToStep(3);
+    }
+
+    function displayFinalInfo() {
+      const selectedItemsList = selected.map(item => `<li>${item.name}</li>`).join("");
+      document.getElementById("final-selected-items").innerHTML = selectedItemsList;
+
+      const rentalInfo = `대여 시작일: ${rentalStartDate} <br> 반납일: ${rentalEndDate}`;
+      document.getElementById("final-rental-info").innerHTML = rentalInfo;
+
+      document.getElementById("final-proof-image").innerHTML = proofImageName;
+      
+      if (startTime && endTime) {
+        document.getElementById("final-time-info").innerHTML = `시작 시간: ${startTime} <br> 반납 시간: ${endTime}`;
+      }
+    }
+
+    // 동의 체크 활성화
+    document.getElementById("agreeCheck").addEventListener("change", e => {
+      const btn = document.getElementById("toStep4");
+      btn.disabled = !e.target.checked;
+      btn.classList.toggle("opacity-50", !e.target.checked);
+    });
+  </script>
+</body>
+</html>
