@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>기자재 선택</title>
+  <title>장비 선택</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -16,16 +16,10 @@
     <button onclick="showSection('editing')" class="section-tab">편집실</button>
   </div>
 
-  <!-- ✅ 선택된 장비 요약 -->
-  <div id="selectedItems" class="max-w-4xl mx-auto bg-white p-4 shadow mb-4 rounded hidden">
-    <h3 class="text-lg font-semibold mb-2">✅ 선택된 장비:</h3>
-    <ul id="selectedList" class="list-disc list-inside text-blue-600"></ul>
-  </div>
-
   <!-- ✅ 카테고리별 콘텐츠 -->
-  <div class="max-w-6xl mx-auto px-4 space-y-12">
+  <div class="max-w-6xl mx-auto px-4 space-y-12 pb-40">
 
-    <!-- 카메라 -->
+    <!-- 카메라 섹션 -->
     <div id="camera" class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="item" onclick="toggleItem(this, 'Sony FX3 (ILME-FX3)')">
         <img src="https://via.placeholder.com/150" class="rounded mb-2" />
@@ -67,7 +61,20 @@
     </div>
   </div>
 
-  <!-- ✅ 스타일 & 기능 -->
+  <!-- ✅ 하단 고정 선택된 장비 영역 -->
+  <div id="selectedItems" class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-md px-6 py-4 hidden z-50">
+    <div class="max-w-6xl mx-auto flex justify-between items-center flex-wrap">
+      <div>
+        <h3 class="text-sm font-semibold text-gray-800 mb-1">🧾 선택된 장비 (<span id="count">0</span>)</h3>
+        <ul id="selectedList" class="flex gap-3 flex-wrap text-sm text-blue-700 font-medium"></ul>
+      </div>
+      <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+        다음 단계 →
+      </button>
+    </div>
+  </div>
+
+  <!-- ✅ Tailwind + 스타일 -->
   <style>
     .section-tab {
       @apply w-28 h-16 border border-blue-500 rounded-lg text-blue-600 font-semibold hover:bg-blue-100 transition;
@@ -86,7 +93,7 @@
     }
     .item.selected {
       border: 2px solid #facc15;
-      background-color: #fefce8;
+      background-color: #fef9c3;
     }
     .item.selected::after {
       content: "✔";
@@ -106,12 +113,11 @@
     }
   </style>
 
+  <!-- ✅ JS 기능 -->
   <script>
     function showSection(id) {
       const all = ['camera', 'lighting', 'sound', 'editing'];
-      all.forEach(sec => {
-        document.getElementById(sec).classList.add('hidden');
-      });
+      all.forEach(sec => document.getElementById(sec).classList.add('hidden'));
       document.getElementById(id).classList.remove('hidden');
     }
 
@@ -126,12 +132,14 @@
       }
 
       const list = document.getElementById('selectedList');
+      const count = document.getElementById('count');
       list.innerHTML = '';
       selectedItems.forEach(item => {
         const li = document.createElement('li');
         li.textContent = item;
         list.appendChild(li);
       });
+      count.textContent = selectedItems.size;
 
       document.getElementById('selectedItems').classList.toggle('hidden', selectedItems.size === 0);
     }
