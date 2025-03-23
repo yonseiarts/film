@@ -74,7 +74,7 @@
 
       <!-- 시간 선택 - 편집실 선택시만 -->
       <div id="time-selection" class="hidden">
-        <h3 class="text-lg font-semibold mb-4">대여 시간 (24시 기준)</h3>
+        <h3 class="text-lg font-semibold mb-4">대여 시간 (00시부터 24시까지)</h3>
         <div class="time-slot" id="time-slot">
           <!-- 시간 슬롯들이 동적으로 생성됩니다. -->
         </div>
@@ -257,7 +257,7 @@
     function createTimeSlots() {
       const timeSlotContainer = document.getElementById("time-slot");
 
-      for (let hour = 00; hour <= 24; hour++) {
+      for (let hour = 0; hour < 24; hour++) {
         const timeSlot = document.createElement("input");
         timeSlot.type = "checkbox";
         timeSlot.id = `start-time-${hour}`;
