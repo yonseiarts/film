@@ -1,215 +1,41 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <title>기자재 대여 신청</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <style>
-    .selected {
-      border-color: #facc15;
-      background-color: #fefce8;
-    }
-    .checkmark {
-      display: none;
-    }
-    .selected .checkmark {
-      display: inline-block;
-    }
-    .item-img {
-      width: 56px;
-      height: 56px;
-      object-fit: cover;
-      margin-right: 12px;
-      border-radius: 6px;
-    }
-  </style>
-</head>
-<body class="bg-gray-50 text-gray-900">
+<!-- 3단계: 사용자 정보 입력 -->
+<div id="step-3" class="hidden">
+  <h2 class="text-xl font-bold mb-4">3단계: 사용자 정보 입력</h2>
 
-  <div class="bg-blue-700 text-white py-6">
-    <div class="max-w-4xl mx-auto px-4">
-      <h1 class="text-2xl font-bold">기자재 대여 신청</h1>
-      <p class="text-sm text-blue-100">필요한 장비를 선택하고, 날짜와 정보를 입력해 신청해주세요.</p>
-    </div>
+  <label class="block mb-2">이름</label>
+  <input type="text" id="name" class="w-full border p-2 rounded mb-4"/>
+
+  <label class="block mb-2">학번</label>
+  <input type="text" id="student-id" class="w-full border p-2 rounded mb-4"/>
+
+  <label class="block mb-2">연락처</label>
+  <input type="text" id="phone" class="w-full border p-2 rounded mb-6"/>
+
+  <div class="bg-gray-100 border rounded p-4 text-sm mb-4">
+    <h3 class="font-semibold mb-2">기자재 사용 규정</h3>
+    <ul class="list-disc list-inside text-gray-700 space-y-1">
+      <li>대여 시간: 월–금 10:00~17:00 (공휴일 제외)</li>
+      <li>점심시간(12:00–13:00) 대여 불가</li>
+      <li>일반 대여: 최대 3일, 특수 프로젝트: 최대 7일 (사전 승인 필요)</li>
+      <li>연세예술원 영화학과 재학생만 대여 가능 (학생증 확인 필수)</li>
+      <li>지정된 날짜와 시간에 반납 / 장비 상태 확인 후 반납 처리</li>
+      <li>손상/분실 시 전액 배상 / 연체 시 추가 대여 제한</li>
+    </ul>
   </div>
 
-  <div class="max-w-4xl mx-auto px-4 py-10">
-    <!-- 단계별 컨텐츠 -->
-    <div id="step-1">
-      <h2 class="text-xl font-bold mb-2">1단계: 장비 선택</h2>
-      <p class="text-sm text-gray-600 mb-4">카테고리를 선택하고 원하는 장비를 클릭하세요.</p>
+  <label class="inline-flex items-center mb-6">
+    <input type="checkbox" id="agree-terms" class="form-checkbox mr-2">
+    <span class="text-sm text-gray-700">위 항목에 동의합니다.</span>
+  </label>
 
-      <div class="flex space-x-2 mb-4">
-        <button class="tab-btn px-4 py-2 border rounded" data-tab="camera">카메라</button>
-        <button class="tab-btn px-4 py-2 border rounded" data-tab="lighting">조명</button>
-        <button class="tab-btn px-4 py-2 border rounded" data-tab="sound">사운드</button>
-        <button class="tab-btn px-4 py-2 border rounded" data-tab="editing">편집실</button>
-      </div>
-
-      <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"></div>
-
-      <div id="selected-list" class="bg-white border rounded p-4 hidden">
-        <h3 class="font-semibold mb-2">선택된 장비</h3>
-        <ul id="selected-items" class="text-sm space-y-1"></ul>
-      </div>
-
-      <div class="mt-6 flex justify-between">
-        <div></div>
-        <button onclick="goToStep(2)" id="next-btn-1" class="hidden bg-blue-600 text-white px-4 py-2 rounded">다음 단계</button>
-      </div>
-    </div>
-
-    <div id="step-2" class="hidden">
-      <h2 class="text-xl font-bold mb-4">2단계: 대여일 선택</h2>
-      <p class="text-sm text-gray-600 mb-4">일반 대여는 시작일 기준 최대 <span class="text-blue-600 font-semibold">3일</span>까지 가능합니다.</p>
-
-      <label class="block mb-2">대여 시작일</label>
-      <input type="date" id="start-date" class="w-full border p-2 rounded mb-4"/>
-
-      <label class="block mb-2">반납일</label>
-      <input type="date" id="end-date" class="w-full border p-2 rounded mb-4"/>
-
-      <label class="block mb-2">증명사진 업로드</label>
-      <input type="file" id="id-photo" accept="image/*" class="w-full mb-4"/>
-
-      <p class="text-sm text-gray-500 mb-4">※ 반납일은 시작일로부터 최대 3일까지만 선택할 수 있습니다.</p>
-
-      <div class="flex justify-between mt-6">
-        <button onclick="goToStep(1)" class="text-blue-600">← 이전 단계</button>
-        <button onclick="validateDates()" class="bg-blue-600 text-white px-4 py-2 rounded">다음 단계</button>
-      </div>
-    </div>
-
-    <div id="step-3" class="hidden">
-      <h2 class="text-xl font-bold mb-4">3단계: 사용자 정보 입력</h2>
-
-      <label class="block mb-2">이름</label>
-      <input type="text" id="name" class="w-full border p-2 rounded mb-4"/>
-
-      <label class="block mb-2">학번</label>
-      <input type="text" id="student-id" class="w-full border p-2 rounded mb-4"/>
-
-      <label class="block mb-2">연락처</label>
-      <input type="text" id="phone" class="w-full border p-2 rounded mb-6"/>
-
-      <div class="flex justify-between mt-6">
-        <button onclick="goToStep(2)" class="text-blue-600">← 이전 단계</button>
-        <button onclick="goToStep(4)" class="bg-blue-600 text-white px-4 py-2 rounded">신청 완료</button>
-      </div>
-    </div>
-
-    <div id="step-4" class="hidden text-center">
-      <h2 class="text-2xl font-bold mb-4">🎉 신청이 완료되었습니다!</h2>
-      <p class="text-gray-600 mb-6">관리자가 확인 후 연락드릴 예정입니다.</p>
-      <a href="index.html" class="text-blue-600 underline">메인으로 돌아가기</a>
-    </div>
+  <div class="flex justify-between">
+    <button onclick="goToStep(2)" class="text-blue-600">← 이전 단계</button>
+    <button onclick="submitForm()" id="submit-btn" class="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50" disabled>신청 완료</button>
   </div>
+</div>
 
-  <script>
-    const steps = [1, 2, 3, 4];
-    const selected = [];
-
-    const equipmentData = {
-      camera: [
-        { id: "1", name: "Sony FX3", available: 3, image: "https://images.unsplash.com/photo-1599350752070-7908a994cde9?q=80" },
-        { id: "2", name: "Canon EOS R5", available: 2, image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?q=80" },
-      ],
-      lighting: [
-        { id: "3", name: "ARRI SkyPanel", available: 4, image: "https://images.unsplash.com/photo-1533928298208-27ff66555d8d?q=80" },
-      ],
-      sound: [
-        { id: "4", name: "Rode Mic", available: 5, image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80" },
-      ],
-      editing: [
-        { id: "5", name: "Premiere Workstation", available: 2, image: "https://images.unsplash.com/photo-1576745517316-ad8b1bab37a6?q=80" }
-      ]
-    };
-
-    function goToStep(step) {
-      steps.forEach(i => document.getElementById(`step-${i}`).classList.add("hidden"));
-      document.getElementById(`step-${step}`).classList.remove("hidden");
-    }
-
-    function renderEquipment(category) {
-      const container = document.getElementById("equipment-list");
-      container.innerHTML = "";
-      equipmentData[category].forEach(item => {
-        const el = document.createElement("div");
-        el.className = "border rounded-lg p-4 flex items-center cursor-pointer transition";
-        el.dataset.id = item.id;
-        el.dataset.name = item.name;
-
-        el.innerHTML = `
-          <img src="${item.image}" alt="${item.name}" class="item-img"/>
-          <div class="flex-grow">
-            <h3 class="font-bold">${item.name}</h3>
-            <p class="text-sm text-gray-600">${item.available}대 대여 가능</p>
-          </div>
-          <span class="checkmark text-yellow-500 text-xl ml-2">✔</span>
-        `;
-
-        el.addEventListener("click", () => toggleItem(item, el));
-        container.appendChild(el);
-      });
-    }
-
-    function toggleItem(item, element) {
-      const found = selected.find(e => e.id === item.id);
-      if (found) {
-        selected.splice(selected.indexOf(found), 1);
-        element.classList.remove("selected");
-      } else {
-        selected.push(item);
-        element.classList.add("selected");
-      }
-      updateSelectedList();
-    }
-
-    function updateSelectedList() {
-      const list = document.getElementById("selected-list");
-      const items = document.getElementById("selected-items");
-      const nextBtn = document.getElementById("next-btn-1");
-
-      if (selected.length > 0) {
-        list.classList.remove("hidden");
-        nextBtn.classList.remove("hidden");
-        items.innerHTML = selected.map(i => `<li>${i.name}</li>`).join("");
-      } else {
-        list.classList.add("hidden");
-        nextBtn.classList.add("hidden");
-      }
-    }
-
-    function validateDates() {
-      const start = document.getElementById("start-date").value;
-      const end = document.getElementById("end-date").value;
-      if (!start || !end) {
-        alert("날짜를 모두 입력해주세요.");
-        return;
-      }
-
-      const startDate = new Date(start);
-      const endDate = new Date(end);
-      const diff = (endDate - startDate) / (1000 * 60 * 60 * 24);
-
-      if (diff < 0 || diff > 3) {
-        alert("반납일은 시작일로부터 최대 3일까지만 선택 가능합니다.");
-        return;
-      }
-      goToStep(3);
-    }
-
-    document.querySelectorAll(".tab-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("bg-yellow-100"));
-        btn.classList.add("bg-yellow-100");
-        renderEquipment(btn.dataset.tab);
-      });
-    });
-
-    renderEquipment("camera");
-  </script>
-
-</body>
-</html>
+<script>
+  document.getElementById('agree-terms').addEventListener('change', function() {
+    document.getElementById('submit-btn').disabled = !this.checked;
+  });
+</script>
