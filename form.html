@@ -54,12 +54,15 @@
   </style>
 </head>
 <body class="bg-gray-50">
+
+  <!-- 상단 타이틀 -->
   <div class="bg-blue-700 text-white py-6 text-center">
     <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
     <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
   </div>
 
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
+
     <!-- 상단 단계 표시 -->
     <div class="flex justify-between mb-8">
       <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
@@ -70,7 +73,9 @@
 
     <!-- Step 1: 장비 선택 -->
     <div id="step1">
-      <h2 class="text-xl font-bold mb-4">장비 선택</h2>
+      <h2 class="text-xl font-bold mb-2">장비 선택</h2>
+      <p class="text-xs text-red-600 mb-4">특수프로젝트는 기자재 총괄에게 문의</p>
+
       <p class="text-sm text-gray-600 mb-4">
         - 편집실을 선택하면 다른 장비는 담을 수 없습니다 (편집실은 단일 선택).<br/>
         - 카메라/조명/사운드는 여러 개 장비를 장바구니처럼 담을 수 있습니다.
@@ -86,7 +91,10 @@
         <h3 class="font-medium mb-2">선택된 장비</h3>
         <ul id="selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
       </div>
-      <div class="mt-6 text-right">
+      <div class="flex justify-between mt-6">
+        <!-- 홈으로 버튼 -->
+        <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
+
         <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">
           다음 단계 →
         </button>
@@ -129,8 +137,12 @@
       </div>
 
       <div class="flex justify-between mt-6">
-        <button onclick="goToStep(1)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
-        <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
+        <!-- 홈으로 버튼 -->
+        <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
+
+        <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          다음 단계 →
+        </button>
       </div>
     </div>
 
@@ -154,13 +166,13 @@
         <em>제2조 (행정실 업무)</em><br/>
         •기자재 대장 관리<br/>
         •예산 집행 및 회계 관리<br/>
-        <!-- ... 규정 전문 계속 삽입 ... -->
+        <!-- ... 전체 규정 전문 ... -->
         <strong>제7장 문서관리</strong><br/>
         <em>제1조 (문서보관)</em><br/>
         행정실과 문서관리 담당은 다음 각 호의 문서를 보관한다: <br/>
         •대여 신청서 및 승인서<br/>
         •촬영 계획서<br/>
-        <!-- ... etc ... -->
+        <!-- etc... -->
         <strong>부칙</strong><br/>
         제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
         제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
@@ -180,7 +192,9 @@
       </div>
 
       <div class="flex justify-between">
-        <button onclick="goToStep(2)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
+        <!-- 홈으로 버튼 -->
+        <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
+
         <button id="toStep4" onclick="goToStep(4)" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">
           완료
         </button>
@@ -208,10 +222,21 @@
         <p id="final-editing-date" class="text-sm text-gray-700"></p>
         <p id="final-editing-time" class="text-sm text-gray-700"></p>
       </div>
+
+      <div class="mt-8">
+        <!-- 홈으로 버튼 -->
+        <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
+      </div>
     </div>
   </div>
 
   <script>
+    // 홈으로 이동 (원하는 경로로 수정)
+    function goHome() {
+      // 예: index.html 로 이동
+      window.location.href = "index.html";
+    }
+
     let step = 1;
     let selected = [];
     let activeTab = "camera"; // 기본 탭
@@ -246,6 +271,7 @@
     renderEquipment("camera");
     updateSelectedUI();
 
+    // 단계 이동
     function goToStep(n) {
       // 3단계 이동 전
       if (n === 3) {
@@ -281,7 +307,7 @@
       // 편집실 요약 (3단계)
       if (n === 3 && activeTab === "editing") {
         document.getElementById("editingSummary").classList.remove("hidden");
-        document.getElementById("summaryPlace").textContent = editingLocation; // 편집실1 or 편집실2
+        document.getElementById("summaryPlace").textContent = editingLocation; // 편집실1 or 2
         document.getElementById("summaryDate").textContent = editingDate;
         document.getElementById("summaryTime").textContent = formatTimes(selectedTimes);
       } else {
@@ -289,6 +315,7 @@
       }
     }
 
+    // 최종 (4단계) 정보 표시
     function displayFinalInfo() {
       // 선택된 장비
       document.getElementById("final-selected-items").innerHTML =
@@ -318,8 +345,10 @@
     // 2단계 이동 시
     function validateStep2() {
       if (activeTab === "editing") {
+        // 편집실
         goToStep(3);
       } else {
+        // 카/조/사
         const sd = document.getElementById("startDate").value;
         const ed = document.getElementById("endDate").value;
         const pf = document.getElementById("proofImage").files[0];
@@ -331,9 +360,9 @@
       }
     }
 
-    // 장비 목록 렌더
+    // 장비 목록 렌더링
     function renderEquipment(tab) {
-      // 편집실 선택 시, 기존 선택 초기화
+      // 편집실 탭으로 전환 시 -> 기존 선택 초기화
       if (tab === "editing") {
         selected = [];
       } else {
@@ -367,19 +396,20 @@
       }
     }
 
-    // 장비 선택
+    // 장비 선택 로직
     function toggleItem(item, el) {
       if (activeTab === "editing") {
         // 편집실: 단일 선택
         selected = [item];
-        editingLocation = item.name; // 편집실1 or 편집실2
+        // 편집실1 or 2
+        editingLocation = item.name;
         // UI
         document.querySelectorAll("#equipment-list .equipment").forEach(e => e.classList.remove("selected"));
         el.classList.add("selected");
         // 대여장소 반영
         document.getElementById("editingLocation").value = editingLocation;
       } else {
-        // 카/조/사: 여러 개
+        // 카/조/사: 여러개
         const found = selected.find(s => s.id === item.id);
         if (found) {
           selected = selected.filter(s => s.id !== item.id);
