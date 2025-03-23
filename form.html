@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <!-- Step 2: 날짜 선택 + 시간 -->
+    <!-- Step 2: 날짜 선택 + 사진 -->
     <div id="step2" class="step hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
       <p class="text-sm mb-4 text-gray-600">일반 대여는 최대 <span class="font-bold text-blue-700">3일</span>까지 가능합니다.</p>
@@ -56,32 +56,16 @@
       <input type="date" id="endDate" class="border p-2 rounded w-full mb-4"/>
       <p class="text-sm text-gray-500 mb-4">※ 반납일은 시작일로부터 최대 3일 이내여야 합니다.</p>
 
+      <label class="block mb-2 font-medium">증명사진 첨부</label>
+      <input type="file" accept="image/*" id="proofImage" class="mb-6" />
+
       <!-- 시간 선택 - 편집실 선택시만 -->
       <div id="time-selection" class="hidden">
-        <label class="block mb-2 font-medium">대여 시간 (24시 기준)</label>
-        <table class="min-w-full table-auto">
-          <thead>
-            <tr>
-              <th class="px-4 py-2 border">시간</th>
-              <th class="px-4 py-2 border">선택</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="px-4 py-2 border">00:00 - 01:00</td>
-              <td class="px-4 py-2 border"><input type="checkbox" id="time00" /></td>
-            </tr>
-            <tr>
-              <td class="px-4 py-2 border">01:00 - 02:00</td>
-              <td class="px-4 py-2 border"><input type="checkbox" id="time01" /></td>
-            </tr>
-            <tr>
-              <td class="px-4 py-2 border">02:00 - 03:00</td>
-              <td class="px-4 py-2 border"><input type="checkbox" id="time02" /></td>
-            </tr>
-            <!-- Add more time slots as needed -->
-          </tbody>
-        </table>
+        <label class="block mb-2 font-medium">대여 시작 시간 (24시 기준)</label>
+        <input type="time" id="startTime" class="border p-2 rounded w-full mb-4"/>
+
+        <label class="block mb-2 font-medium">반납 시간 (24시 기준)</label>
+        <input type="time" id="endTime" class="border p-2 rounded w-full mb-4"/>
       </div>
 
       <div class="flex justify-between">
