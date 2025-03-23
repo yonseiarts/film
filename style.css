@@ -2,255 +2,150 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>기자재 대여 신청</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <!-- Tailwind CSS (CDN) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- 추가 CSS (style.css) -->
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    /* 사각형 섹션 버튼 */
-    .cat-square {
-      @apply w-28 h-28 flex flex-col items-center justify-center border border-blue-500
-             rounded-md text-blue-500 font-semibold cursor-pointer hover:bg-blue-50
-             transition-colors;
+    .selected {
+      border-color: #1D4ED8;
+      background-color: #EFF6FF;
     }
-    .cat-square.active {
-      @apply bg-blue-100;
+    .checkmark {
+      display: none;
     }
-
-    /* 아이템 카드 */
-    .item-card {
-      @apply relative flex items-center gap-2 p-3 rounded-md border border-gray-200 bg-white cursor-pointer;
-      transition: border-color 0.2s, background-color 0.2s;
-    }
-    .item-card img {
-      @apply w-12 h-12 object-cover rounded;
-      flex-shrink: 0;
-    }
-    /* 노란 체크 표시 */
-    .item-card.selected {
-      @apply border-yellow-500 bg-yellow-50;
-    }
-    .check-icon {
-      @apply hidden absolute top-2 right-2 w-5 h-5 bg-yellow-400 text-white text-xs rounded-full items-center justify-center font-bold;
-    }
-    .item-card.selected .check-icon {
-      @apply flex;
+    .selected .checkmark {
+      display: inline-block;
     }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
-
-  <!-- 상단 헤더 -->
-  <header class="bg-white shadow">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-      <a href="index.html" class="text-2xl font-bold text-blue-700 hover:text-blue-900 transition">
-        연세예술원 영화학
-      </a>
-      <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
-        <a href="index.html" class="hover:text-blue-600">홈</a>
-        <a href="admin_login.html" class="hover:text-blue-600">고객센터</a>
-        <a href="student_login.html" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-          기자재 대여 신청
-        </a>
-      </nav>
+<body class="bg-gray-50 min-h-screen">
+  <div class="bg-blue-700 text-white py-8 px-4">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-2xl font-bold mb-2">기자재 대여 예약</h1>
+      <p class="text-blue-100">필요한 장비를 선택하고 날짜를 지정하여 간편하게 예약하세요. 관리자 승인 후 방문하여 수령하실 수 있습니다.</p>
     </div>
-  </header>
+  </div>
 
-  <!-- 메인 -->
-  <main class="max-w-5xl mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold mb-6">원하는 섹션(사각형)을 클릭 후, 필요한 장비를 골라주세요.</h1>
-
-    <!-- 4개 사각형 버튼 (가로로) -->
-    <div class="flex gap-6 justify-center mb-8">
-      <div class="cat-square active" data-cat="camera">
-        <span>카메라</span>
+  <div class="max-w-4xl mx-auto py-8 px-4">
+    <div class="flex justify-between items-center mb-6">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded-full bg-blue-700 text-white flex items-center justify-center font-bold">1</div>
+        <span class="text-sm font-medium">장비 선택</span>
       </div>
-      <div class="cat-square" data-cat="light">
-        <span>조명</span>
+      <div class="flex items-center space-x-2 opacity-50">
+        <div class="w-8 h-8 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold">2</div>
+        <span class="text-sm font-medium">대여일 선택</span>
       </div>
-      <div class="cat-square" data-cat="sound">
-        <span>사운드</span>
+      <div class="flex items-center space-x-2 opacity-50">
+        <div class="w-8 h-8 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold">3</div>
+        <span class="text-sm font-medium">정보 입력</span>
       </div>
-      <div class="cat-square" data-cat="edit">
-        <span>편집실</span>
+      <div class="flex items-center space-x-2 opacity-50">
+        <div class="w-8 h-8 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold">4</div>
+        <span class="text-sm font-medium">완료</span>
       </div>
     </div>
 
-    <!-- 섹션들 -->
-    <div id="sectionContainer" class="space-y-8">
-      <!-- 1) 카메라 (기본 표시) -->
-      <section data-content="camera">
-        <h2 class="text-xl font-semibold mb-3">카메라</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <!-- 아이템 예시 1 -->
-          <div class="item-card" data-name="Sony FX3 (ILME-FX3)">
-            <div class="check-icon">✓</div>
-            <img
-              src="https://images.unsplash.com/photo-1599350752070-7908a994cde9?auto=format&fit=crop&w=400&q=80"
-              alt="Sony FX3"
-            />
-            <div>
-              <p class="font-medium">Sony FX3 (ILME-FX3)</p>
-              <p class="text-sm text-gray-500">수량: 4 (고정)</p>
-            </div>
-          </div>
-          <!-- 아이템 예시 2 -->
-          <div class="item-card" data-name="Canon EOS R5">
-            <div class="check-icon">✓</div>
-            <img
-              src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=400&q=80"
-              alt="Canon EOS R5"
-            />
-            <div>
-              <p class="font-medium">Canon EOS R5</p>
-              <p class="text-sm text-gray-500">수량: 3 (고정)</p>
-            </div>
-          </div>
-          <!-- ... 더 많은 카메라 아이템 -->
-        </div>
-      </section>
+    <h2 class="text-xl font-bold mb-4">장비 선택</h2>
+    <p class="text-gray-600 mb-6">필요한 장비를 선택해주세요. 여러 개 선택 가능합니다.</p>
 
-      <!-- 2) 조명 (초기 숨김) -->
-      <section class="hidden" data-content="light">
-        <h2 class="text-xl font-semibold mb-3">조명</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <div class="item-card" data-name="ARRI SkyPanel S60-C">
-            <div class="check-icon">✓</div>
-            <img
-              src="https://images.unsplash.com/photo-1598447861940-d868649f811f?auto=format&fit=crop&w=400&q=80"
-              alt="ARRI SkyPanel"
-            />
-            <div>
-              <p class="font-medium">ARRI SkyPanel S60-C</p>
-              <p class="text-sm text-gray-500">수량: 3 (고정)</p>
-            </div>
-          </div>
-          <!-- ... 조명 아이템들 -->
-        </div>
-      </section>
-
-      <!-- 3) 사운드 (초기 숨김) -->
-      <section class="hidden" data-content="sound">
-        <h2 class="text-xl font-semibold mb-3">사운드</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <div class="item-card" data-name="Sennheiser MKH 416">
-            <div class="check-icon">✓</div>
-            <img
-              src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=400&q=80"
-              alt="Sennheiser MKH 416"
-            />
-            <div>
-              <p class="font-medium">Sennheiser MKH 416</p>
-              <p class="text-sm text-gray-500">수량: 2 (고정)</p>
-            </div>
-          </div>
-          <!-- ... 사운드 아이템들 -->
-        </div>
-      </section>
-
-      <!-- 4) 편집실 (초기 숨김) -->
-      <section class="hidden" data-content="edit">
-        <h2 class="text-xl font-semibold mb-3">편집실</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <div class="item-card" data-name="DaVinci Resolve 편집실">
-            <div class="check-icon">✓</div>
-            <img
-              src="https://images.unsplash.com/photo-1602516607531-61d80b7f1fe8?auto=format&fit=crop&w=400&q=80"
-              alt="DaVinci Resolve"
-            />
-            <div>
-              <p class="font-medium">DaVinci Resolve 편집실</p>
-              <p class="text-sm text-gray-500">수량: 1 (고정)</p>
-            </div>
-          </div>
-          <!-- ... 편집실 아이템들 -->
-        </div>
-      </section>
+    <div class="flex space-x-4 mb-6">
+      <button class="tab-btn px-4 py-2 border rounded" data-tab="camera">카메라</button>
+      <button class="tab-btn px-4 py-2 border rounded" data-tab="lighting">조명</button>
+      <button class="tab-btn px-4 py-2 border rounded" data-tab="sound">사운드</button>
+      <button class="tab-btn px-4 py-2 border rounded" data-tab="editing">편집실</button>
     </div>
 
-    <!-- 선택된 장비 표시 & 다음 단계 -->
-    <div class="border-t pt-4 mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-      <!-- 선택된 장비 표시 -->
-      <div>
-        <p class="font-medium mb-1">
-          선택된 장비 (<span id="selectedCount">0</span>)
-        </p>
-        <ul id="selectedList" class="list-disc list-inside text-gray-700 text-sm"></ul>
-      </div>
-      <button
-        id="btnNextStep"
-        class="mt-4 sm:mt-0 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
-      >
-        다음 단계
-      </button>
-    </div>
-  </main>
+    <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
 
-  <footer class="text-center text-sm text-gray-500 py-6 border-t">
-    고객센터: 02-1234-5678 | 운영시간: 평일 10:00 ~ 17:00 (점심시간 12:00~13:00)
-  </footer>
+    <div id="selected-list" class="bg-white border rounded-lg p-4 mt-8 hidden">
+      <h2 class="font-semibold mb-2">선택된 장비</h2>
+      <ul class="text-sm text-gray-700 space-y-1" id="selected-items"></ul>
+    </div>
+
+    <button id="next-step" class="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 hidden">다음 단계</button>
+  </div>
 
   <script>
-    // 1) 섹션 버튼
-    const catSquares = document.querySelectorAll('.cat-square');
-    // 섹션들
-    const sections = document.querySelectorAll('[data-content]');
+    const equipmentData = {
+      camera: [
+        { id: "1", name: "Sony FX3", available: 3 },
+        { id: "2", name: "Canon EOS R5", available: 2 },
+        { id: "3", name: "Canon EF 24-70mm", available: 4 },
+      ],
+      lighting: [
+        { id: "4", name: "ARRI SkyPanel S60-C", available: 4 },
+      ],
+      sound: [
+        { id: "5", name: "Sennheiser MKH 416", available: 6 },
+      ],
+      editing: [
+        { id: "6", name: "Premiere Pro 워크스테이션", available: 2 },
+        { id: "7", name: "DaVinci Resolve", available: 1 },
+      ]
+    };
 
-    // camera만 기본 표시 (HTML에서 camera는 hidden이 안 붙었고, cat-square camera는 active)
-    catSquares.forEach(btn => {
-      btn.addEventListener('click', () => {
-        // 모든 btn 비활성
-        catSquares.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+    const equipmentList = document.getElementById("equipment-list");
+    const selectedList = document.getElementById("selected-list");
+    const selectedItems = document.getElementById("selected-items");
+    const nextStepBtn = document.getElementById("next-step");
 
-        const cat = btn.getAttribute('data-cat');
-        // 모든 섹션 숨김
-        sections.forEach(sec => sec.classList.add('hidden'));
-        // 해당 섹션만 표시
-        const targetSec = document.querySelector(`[data-content="${cat}"]`);
-        if (targetSec) targetSec.classList.remove('hidden');
-      });
-    });
+    let selected = [];
 
-    // 2) 아이템 선택
-    let selectedItems = [];
+    function renderEquipment(category) {
+      equipmentList.innerHTML = "";
+      equipmentData[category].forEach(item => {
+        const div = document.createElement("div");
+        div.className = "border rounded-lg p-4 flex justify-between items-center cursor-pointer";
+        div.dataset.id = item.id;
+        div.dataset.name = item.name;
 
-    document.querySelectorAll('.item-card').forEach(card => {
-      card.addEventListener('click', () => {
-        card.classList.toggle('selected');
-        const itemName = card.getAttribute('data-name');
-        if (card.classList.contains('selected')) {
-          if (!selectedItems.includes(itemName)) {
-            selectedItems.push(itemName);
-          }
-        } else {
-          selectedItems = selectedItems.filter(i => i !== itemName);
-        }
-        updateSelectedUI();
-      });
-    });
+        div.innerHTML = `
+          <div>
+            <h3 class="font-semibold">${item.name}</h3>
+            <p class="text-sm text-gray-500">${item.available}대 대여 가능</p>
+          </div>
+          <span class="checkmark text-yellow-500">✔️</span>
+        `;
 
-    function updateSelectedUI() {
-      const countEl = document.getElementById('selectedCount');
-      const listEl = document.getElementById('selectedList');
-      countEl.textContent = selectedItems.length;
-      listEl.innerHTML = '';
-
-      selectedItems.forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = item;
-        listEl.appendChild(li);
+        div.addEventListener("click", () => toggleSelect(item, div));
+        equipmentList.appendChild(div);
       });
     }
 
-    // 3) 다음 단계
-    document.getElementById('btnNextStep').addEventListener('click', () => {
-      localStorage.setItem('selectedEquipments', JSON.stringify(selectedItems));
-      // 페이지 이동
-      window.location.href = 'form_step2.html';
+    function toggleSelect(item, element) {
+      const already = selected.find(e => e.id === item.id);
+      if (already) {
+        selected = selected.filter(e => e.id !== item.id);
+        element.classList.remove("selected");
+      } else {
+        selected.push(item);
+        element.classList.add("selected");
+      }
+      updateSelectedList();
+    }
+
+    function updateSelectedList() {
+      if (selected.length === 0) {
+        selectedList.classList.add("hidden");
+        nextStepBtn.classList.add("hidden");
+      } else {
+        selectedList.classList.remove("hidden");
+        nextStepBtn.classList.remove("hidden");
+        selectedItems.innerHTML = selected.map(s => `<li>📷 ${s.name}</li>`).join("");
+      }
+    }
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("bg-blue-100"));
+        btn.classList.add("bg-blue-100");
+        renderEquipment(btn.dataset.tab);
+      });
     });
+
+    renderEquipment("camera");
   </script>
 </body>
 </html>
