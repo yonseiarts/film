@@ -121,8 +121,8 @@
         <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4"/>
         
         <label class="block mb-2 font-medium">대여장소</label>
-        <!-- 선택한 편집실이 '편집실 1'인지 '편집실 2'인지 자동으로 세팅 -->
-        <input type="text" id="editingLocation" value="편집실" disabled class="border p-2 rounded w-full bg-gray-100 text-gray-600 mb-4"/>
+        <!-- 선택한 편집실(편집실1 or 편집실2)이 자동으로 세팅됨 -->
+        <input type="text" id="editingLocation" value="" disabled class="border p-2 rounded w-full bg-gray-100 text-gray-600 mb-4"/>
 
         <h3 class="text-lg font-semibold mt-2 mb-2">대여 시간 (0시 ~ 23시)</h3>
         <div id="timeGrid" class="time-grid"></div>
@@ -154,7 +154,7 @@
         <em>제2조 (행정실 업무)</em><br/>
         •기자재 대장 관리<br/>
         •예산 집행 및 회계 관리<br/>
-        <!-- ... (전문 이어서 삽입) ... -->
+        <!-- ... 규정 전문 계속 삽입 ... -->
         <strong>제7장 문서관리</strong><br/>
         <em>제1조 (문서보관)</em><br/>
         행정실과 문서관리 담당은 다음 각 호의 문서를 보관한다: <br/>
@@ -222,8 +222,9 @@
     // 편집실
     let editingDate;
     let selectedTimes = [];
-    let editingLocation = ""; // 편집실 1, 편집실 2
+    let editingLocation = ""; // 편집실1 or 편집실2
 
+    // 장비 데이터
     const equipment = {
       camera: [
         { id: "1", name: "Sony FX3", image: "https://via.placeholder.com/80?text=Sony+FX3" },
@@ -245,7 +246,6 @@
     renderEquipment("camera");
     updateSelectedUI();
 
-    // 단계 이동
     function goToStep(n) {
       // 3단계 이동 전
       if (n === 3) {
@@ -281,7 +281,7 @@
       // 편집실 요약 (3단계)
       if (n === 3 && activeTab === "editing") {
         document.getElementById("editingSummary").classList.remove("hidden");
-        document.getElementById("summaryPlace").textContent = editingLocation; // 편집실1/2
+        document.getElementById("summaryPlace").textContent = editingLocation; // 편집실1 or 편집실2
         document.getElementById("summaryDate").textContent = editingDate;
         document.getElementById("summaryTime").textContent = formatTimes(selectedTimes);
       } else {
@@ -337,8 +337,8 @@
       if (tab === "editing") {
         selected = [];
       } else {
-        // 편집실->카/조/사 넘어갈 때도 편집실 선택 해제
-        selected = selected.filter(item => Number(item.id) < 5); 
+        // 편집실->카/조/사 넘어갈 때 편집실 선택 해제
+        selected = selected.filter(item => Number(item.id) < 5);
       }
       activeTab = tab;
       updateSelectedUI();
@@ -370,14 +370,16 @@
     // 장비 선택
     function toggleItem(item, el) {
       if (activeTab === "editing") {
-        // 편집실은 단일 선택
+        // 편집실: 단일 선택
         selected = [item];
-        editingLocation = item.name; // 편집실1/2
+        editingLocation = item.name; // 편집실1 or 편집실2
         // UI
         document.querySelectorAll("#equipment-list .equipment").forEach(e => e.classList.remove("selected"));
         el.classList.add("selected");
+        // 대여장소 반영
+        document.getElementById("editingLocation").value = editingLocation;
       } else {
-        // 카/조/사는 여러개 가능
+        // 카/조/사: 여러 개
         const found = selected.find(s => s.id === item.id);
         if (found) {
           selected = selected.filter(s => s.id !== item.id);
@@ -431,8 +433,6 @@
         container.appendChild(input);
         container.appendChild(label);
       }
-      // 편집실 location 값 갱신
-      document.getElementById("editingLocation").value = editingLocation;
     }
 
     // 규정 동의
