@@ -54,15 +54,12 @@
   </style>
 </head>
 <body class="bg-gray-50">
-
-  <!-- 상단 타이틀 -->
   <div class="bg-blue-700 text-white py-6 text-center">
     <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
     <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
   </div>
 
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-
     <!-- 상단 단계 표시 -->
     <div class="flex justify-between mb-8">
       <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
@@ -74,6 +71,7 @@
     <!-- Step 1: 장비 선택 -->
     <div id="step1">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
+      <!-- 빨간색 안내문 -->
       <p class="text-xs text-red-600 mb-4">특수프로젝트는 기자재 총괄에게 문의</p>
 
       <p class="text-sm text-gray-600 mb-4">
@@ -95,6 +93,7 @@
         <!-- 홈으로 버튼 -->
         <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
 
+        <!-- 다음단계 (2) -->
         <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">
           다음 단계 →
         </button>
@@ -137,9 +136,14 @@
       </div>
 
       <div class="flex justify-between mt-6">
-        <!-- 홈으로 버튼 -->
-        <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
+        <div class="flex space-x-4">
+          <!-- 홈으로 버튼 -->
+          <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
+          <!-- 이전 단계 (step1) -->
+          <button onclick="goToStep(1)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
+        </div>
 
+        <!-- 다음단계 (3) -->
         <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
           다음 단계 →
         </button>
@@ -191,10 +195,15 @@
         <p><strong>대여시간:</strong> <span id="summaryTime"></span></p>
       </div>
 
-      <div class="flex justify-between">
-        <!-- 홈으로 버튼 -->
-        <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
+      <div class="flex justify-between mt-6">
+        <div class="flex space-x-4">
+          <!-- 홈으로 버튼 -->
+          <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
+          <!-- 이전 단계 (step2) -->
+          <button onclick="goToStep(2)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
+        </div>
 
+        <!-- 완료 -> step4 -->
         <button id="toStep4" onclick="goToStep(4)" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">
           완료
         </button>
@@ -401,9 +410,7 @@
       if (activeTab === "editing") {
         // 편집실: 단일 선택
         selected = [item];
-        // 편집실1 or 2
-        editingLocation = item.name;
-        // UI
+        editingLocation = item.name; // 편집실1 or 편집실2
         document.querySelectorAll("#equipment-list .equipment").forEach(e => e.classList.remove("selected"));
         el.classList.add("selected");
         // 대여장소 반영
@@ -470,15 +477,6 @@
       const btn = document.getElementById("toStep4");
       btn.disabled = !e.target.checked;
       btn.classList.toggle("opacity-50", !e.target.checked);
-    });
-
-    // 탭 전환
-    document.querySelectorAll(".tab-button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        renderEquipment(btn.dataset.tab);
-      });
     });
   </script>
 </body>
