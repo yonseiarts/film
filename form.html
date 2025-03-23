@@ -257,6 +257,41 @@
       btn.disabled = !e.target.checked;
       btn.classList.toggle("opacity-50", !e.target.checked);
     });
+
+    // 편집실 선택 시 시간 선택 표 표시
+    document.querySelector('[data-tab="editing"]').addEventListener("click", () => {
+      document.getElementById("time-selection").classList.remove("hidden");
+      createTimeSlots();
+    });
+
+    function createTimeSlots() {
+      const timeSlotContainer = document.getElementById("time-slot");
+      const returnTimeSlotContainer = document.getElementById("return-time-slot");
+
+      for (let hour = 0; hour < 24; hour++) {
+        const timeSlot = document.createElement("input");
+        timeSlot.type = "checkbox";
+        timeSlot.id = `start-time-${hour}`;
+        timeSlot.value = hour;
+        const label = document.createElement("label");
+        label.setAttribute("for", timeSlot.id);
+        label.textContent = `${hour}:00`;
+
+        timeSlotContainer.appendChild(timeSlot);
+        timeSlotContainer.appendChild(label);
+
+        const returnTimeSlot = document.createElement("input");
+        returnTimeSlot.type = "checkbox";
+        returnTimeSlot.id = `end-time-${hour}`;
+        returnTimeSlot.value = hour;
+        const returnLabel = document.createElement("label");
+        returnLabel.setAttribute("for", returnTimeSlot.id);
+        returnLabel.textContent = `${hour}:00`;
+
+        returnTimeSlotContainer.appendChild(returnTimeSlot);
+        returnTimeSlotContainer.appendChild(returnLabel);
+      }
+    }
   </script>
 </body>
 </html>
