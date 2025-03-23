@@ -10,6 +10,24 @@
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
     .tab-button.active { background-color: #dbeafe; font-weight: 600; }
     .equipment.selected { border-color: #facc15; background-color: #fefce8; }
+    .time-slot {
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      gap: 4px;
+      margin-top: 20px;
+    }
+    .time-slot input {
+      width: 100%;
+      height: 40px;
+      background-color: #f3f4f6;
+      border-radius: 4px;
+      border: 1px solid #e5e7eb;
+      cursor: pointer;
+    }
+    .time-slot input.selected {
+      background-color: #60a5fa;
+      border-color: #1d4ed8;
+    }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -46,26 +64,20 @@
       </div>
     </div>
 
-    <!-- Step 2: 날짜 선택 + 사진 -->
+    <!-- Step 2: 날짜 선택 -->
     <div id="step2" class="step hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
       <p class="text-sm mb-4 text-gray-600">일반 대여는 최대 <span class="font-bold text-blue-700">3일</span>까지 가능합니다.</p>
-      <label class="block mb-2 font-medium">대여 시작일</label>
+      <label class="block mb-2 font-medium">대여일자</label>
       <input type="date" id="startDate" class="border p-2 rounded w-full mb-4"/>
-      <label class="block mb-2 font-medium">반납일</label>
-      <input type="date" id="endDate" class="border p-2 rounded w-full mb-4"/>
-      <p class="text-sm text-gray-500 mb-4">※ 반납일은 시작일로부터 최대 3일 이내여야 합니다.</p>
-
-      <label class="block mb-2 font-medium">증명사진 첨부</label>
-      <input type="file" accept="image/*" id="proofImage" class="mb-6" />
+      <p class="text-sm text-gray-500 mb-4">※ 대여일자는 3일 이내로 설정해 주세요.</p>
 
       <!-- 시간 선택 - 편집실 선택시만 -->
       <div id="time-selection" class="hidden">
-        <label class="block mb-2 font-medium">대여 시작 시간 (24시 기준)</label>
-        <input type="time" id="startTime" class="border p-2 rounded w-full mb-4"/>
-
-        <label class="block mb-2 font-medium">반납 시간 (24시 기준)</label>
-        <input type="time" id="endTime" class="border p-2 rounded w-full mb-4"/>
+        <h3 class="text-lg font-semibold mb-4">대여 시간 (00시부터 24시까지)</h3>
+        <div class="time-slot" id="time-slot">
+          <!-- 시간 슬롯들이 동적으로 생성됩니다. -->
+        </div>
       </div>
 
       <div class="flex justify-between">
@@ -136,11 +148,11 @@
       ]
     };
     let selected = [];
-    let rentalStartDate, rentalEndDate, proofImageName, startTime, endTime;
+    let rentalStartDate, proofImageName, startTime, endTime;
 
     function goToStep(n) {
       if (n === 4 && !document.getElementById('agreeCheck').checked) return;
-      if (n === 3 && (!document.getElementById('startDate').value || !document.getElementById('endDate').value || !document.getElementById('proofImage').files.length)) {
+      if (n === 3 && (!document.getElementById('startDate').value || !proofImageName)) {
         alert("2단계 정보를 모두 입력해주세요.");
         return;
       }
@@ -200,10 +212,9 @@
 
     function validateStep2() {
       rentalStartDate = document.getElementById('startDate').value;
-      rentalEndDate = document.getElementById('endDate').value;
       proofImageName = document.getElementById('proofImage').files[0]?.name || '';
       
-      if (!rentalStartDate || !rentalEndDate || !proofImageName) {
+      if (!rentalStartDate || !proofImageName) {
         alert("모든 정보를 입력해주세요.");
         return;
       }
@@ -220,7 +231,7 @@
       const selectedItemsList = selected.map(item => `<li>${item.name}</li>`).join("");
       document.getElementById("final-selected-items").innerHTML = selectedItemsList;
 
-      const rentalInfo = `대여 시작일: ${rentalStartDate} <br> 반납일: ${rentalEndDate}`;
+      const rentalInfo = `대여일자: ${rentalStartDate}`;
       document.getElementById("final-rental-info").innerHTML = rentalInfo;
 
       document.getElementById("final-proof-image").innerHTML = proofImageName;
@@ -236,6 +247,29 @@
       btn.disabled = !e.target.checked;
       btn.classList.toggle("opacity-50", !e.target.checked);
     });
+
+    // 편집실 선택 시 시간 선택 표 표시
+    document.querySelector('[data-tab="editing"]').addEventListener("click", () => {
+      document.getElementById("time-selection").classList.remove("hidden");
+      createTimeSlots();
+    });
+
+    function createTimeSlots() {
+      const timeSlotContainer = document.getElementById("time-slot");
+
+      for (let hour = 0; hour < 24; hour++) {
+        const timeSlot = document.createElement("input");
+        timeSlot.type = "checkbox";
+        timeSlot.id = `start-time-${hour}`;
+        timeSlot.value = hour;
+        const label = document.createElement("label");
+        label.setAttribute("for", timeSlot.id);
+        label.textContent = `${hour}:00`;
+
+        timeSlotContainer.appendChild(timeSlot);
+        timeSlotContainer.appendChild(label);
+      }
+    }
   </script>
 </body>
 </html>
