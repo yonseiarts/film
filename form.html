@@ -257,7 +257,7 @@
     function createTimeSlots() {
       const timeSlotContainer = document.getElementById("time-slot");
 
-      for (let hour = 12; hour <= 24; hour++) {
+      for (let hour = 00; hour <= 24; hour++) {
         const timeSlot = document.createElement("input");
         timeSlot.type = "checkbox";
         timeSlot.id = `start-time-${hour}`;
