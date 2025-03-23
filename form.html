@@ -1,425 +1,128 @@
-import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import { format } from "date-fns";
-import { ko } from "date-fns/locale";
-import { CalendarIcon, CircleDashed, Camera, Box, CheckCircle2, AlertTriangle, Video, Music, Edit } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { toast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-const RentalPage = () => {
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const initialEquipmentId = queryParams.get("equipment");
-
-  const [step, setStep] = useState(1);
-  const [selectedEquipment, setSelectedEquipment] = useState([]);
-  const [date, setDate] = useState<Date>();
-  const [returnDate, setReturnDate] = useState<Date>();
-  const [formData, setFormData] = useState({
-    name: "",
-    studentId: "",
-    email: "",
-    phone: "",
-    purpose: ""
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeTab, setActiveTab] = useState("camera");
-  
-  // 장비 목록 (실제 구현 시에는 API 또는 DB에서 가져옴)
-  const equipmentList = [
-    {
-      id: "1",
-      name: "Sony FX3 (ILME-FX3)",
-      category: "camera",
-      image: "https://images.unsplash.com/photo-1599350752070-7908a994cde9?q=80&w=1470&auto=format&fit=crop",
-      available: 3,
-      notes: "총 4대 중 1대는 수리 예정으로 대여 불가"
-    },
-    {
-      id: "2",
-      name: "Canon EOS R5",
-      category: "camera",
-      image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?q=80&w=1470&auto=format&fit=crop",
-      available: 2
-    },
-    {
-      id: "3",
-      name: "Canon EF 24-70mm f/2.8L II USM",
-      category: "camera",
-      image: "https://images.unsplash.com/photo-1617005082133-548c4dd9e290?q=80&w=1374&auto=format&fit=crop",
-      available: 4
-    },
-    {
-      id: "4",
-      name: "ARRI SkyPanel S60-C",
-      category: "lighting",
-      image: "https://images.unsplash.com/photo-1533928298208-27ff66555d8d?q=80&w=1470&auto=format&fit=crop",
-      available: 4
-    },
-    {
-      id: "5",
-      name: "Sennheiser MKH 416",
-      category: "sound",
-      image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=1374&auto=format&fit=crop",
-      available: 6
-    },
-    {
-      id: "6",
-      name: "Adobe Premiere Pro 워크스테이션",
-      category: "editing",
-      image: "https://images.unsplash.com/photo-1576745517316-ad8b1bab37a6?q=80&w=1470&auto=format&fit=crop",
-      available: 2
-    },
-    {
-      id: "7",
-      name: "DaVinci Resolve 워크스테이션",
-      category: "editing",
-      image: "https://images.unsplash.com/photo-1535303311164-664fc9ec6532?q=80&w=1374&auto=format&fit=crop",
-      available: 1
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>기자재 대여 신청</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .selected {
+      border-color: #1D4ED8;
+      background-color: #EFF6FF;
     }
-  ];
+    .checkmark {
+      display: none;
+    }
+    .selected .checkmark {
+      display: inline-block;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="max-w-4xl mx-auto py-12 px-4">
+    <h1 class="text-2xl font-bold mb-4">장비 선택</h1>
+    <p class="text-gray-600 mb-6">필요한 장비를 선택해주세요. 여러 개 선택 가능합니다.</p>
 
-  // 초기 장비 선택 (URL 파라미터로부터)
-  useEffect(() => {
-    if (initialEquipmentId) {
-      const equipment = equipmentList.find(item => item.id === initialEquipmentId);
-      if (equipment) {
-        setSelectedEquipment([equipment]);
-        setActiveTab(equipment.category);
+    <!-- 탭 버튼 -->
+    <div class="flex space-x-4 mb-6">
+      <button class="tab-btn px-4 py-2 border rounded" data-tab="camera">카메라</button>
+      <button class="tab-btn px-4 py-2 border rounded" data-tab="lighting">조명</button>
+      <button class="tab-btn px-4 py-2 border rounded" data-tab="sound">사운드</button>
+      <button class="tab-btn px-4 py-2 border rounded" data-tab="editing">편집실</button>
+    </div>
+
+    <!-- 장비 카드들 -->
+    <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+
+    <!-- 선택된 항목 -->
+    <div id="selected-list" class="bg-white border rounded-lg p-4 mt-8 hidden">
+      <h2 class="font-semibold mb-2">선택된 장비</h2>
+      <ul class="text-sm text-gray-700 space-y-1" id="selected-items"></ul>
+    </div>
+
+    <button id="next-step" class="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 hidden">다음 단계</button>
+  </div>
+
+  <script>
+    const equipmentData = {
+      camera: [
+        { id: "1", name: "Sony FX3", available: 3 },
+        { id: "2", name: "Canon EOS R5", available: 2 },
+        { id: "3", name: "Canon EF 24-70mm", available: 4 },
+      ],
+      lighting: [
+        { id: "4", name: "ARRI SkyPanel S60-C", available: 4 },
+      ],
+      sound: [
+        { id: "5", name: "Sennheiser MKH 416", available: 6 },
+      ],
+      editing: [
+        { id: "6", name: "Premiere Pro 워크스테이션", available: 2 },
+        { id: "7", name: "DaVinci Resolve", available: 1 },
+      ]
+    };
+
+    const equipmentList = document.getElementById("equipment-list");
+    const selectedList = document.getElementById("selected-list");
+    const selectedItems = document.getElementById("selected-items");
+    const nextStepBtn = document.getElementById("next-step");
+
+    let selected = [];
+
+    function renderEquipment(category) {
+      equipmentList.innerHTML = "";
+      equipmentData[category].forEach(item => {
+        const div = document.createElement("div");
+        div.className = "border rounded-lg p-4 flex justify-between items-center cursor-pointer";
+        div.dataset.id = item.id;
+        div.dataset.name = item.name;
+
+        div.innerHTML = `
+          <div>
+            <h3 class="font-semibold">${item.name}</h3>
+            <p class="text-sm text-gray-500">${item.available}대 대여 가능</p>
+          </div>
+          <span class="checkmark text-yellow-500">✔️</span>
+        `;
+
+        div.addEventListener("click", () => toggleSelect(item, div));
+        equipmentList.appendChild(div);
+      });
+    }
+
+    function toggleSelect(item, element) {
+      const already = selected.find(e => e.id === item.id);
+      if (already) {
+        selected = selected.filter(e => e.id !== item.id);
+        element.classList.remove("selected");
+      } else {
+        selected.push(item);
+        element.classList.add("selected");
+      }
+      updateSelectedList();
+    }
+
+    function updateSelectedList() {
+      if (selected.length === 0) {
+        selectedList.classList.add("hidden");
+        nextStepBtn.classList.add("hidden");
+      } else {
+        selectedList.classList.remove("hidden");
+        nextStepBtn.classList.remove("hidden");
+        selectedItems.innerHTML = selected.map(s => `<li>📷 ${s.name}</li>`).join("");
       }
     }
-  }, [initialEquipmentId]);
 
-  const handleEquipmentSelect = (equipment) => {
-    const isSelected = selectedEquipment.some(item => item.id === equipment.id);
-    
-    if (isSelected) {
-      setSelectedEquipment(selectedEquipment.filter(item => item.id !== equipment.id));
-    } else {
-      setSelectedEquipment([...selectedEquipment, equipment]);
-    }
-  };
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("bg-blue-100"));
+        btn.classList.add("bg-blue-100");
+        renderEquipment(btn.dataset.tab);
+      });
+    });
 
-  // ... keep existing code (handleInputChange, nextStep, prevStep, handleSubmit functions)
-
-  const steps = [
-    { number: 1, title: "장비 선택" },
-    { number: 2, title: "대여일 선택" },
-    { number: 3, title: "정보 입력" },
-    { number: 4, title: "완료" }
-  ];
-
-  // 카테고리별 장비 필터링
-  const getEquipmentByCategory = (category) => {
-    return equipmentList.filter(item => item.category === category);
-  };
-
-  // 카테고리 아이콘 렌더링
-  const renderCategoryIcon = (category) => {
-    switch (category) {
-      case "camera": return <Camera className="h-4 w-4 mr-2" />;
-      case "lighting": return <Video className="h-4 w-4 mr-2" />;
-      case "sound": return <Music className="h-4 w-4 mr-2" />;
-      case "editing": return <Edit className="h-4 w-4 mr-2" />;
-      default: return null;
-    }
-  };
-
-  return (
-    <div className="page-transition min-h-screen flex flex-col">
-      <Navbar />
-      <main className="flex-grow pt-20">
-        {/* 페이지 헤더 */}
-        <div className="bg-yonsei-blue text-white py-12">
-          <div className="container mx-auto px-4 md:px-6">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">기자재 대여 예약</h1>
-            <p className="text-xl opacity-90 max-w-3xl">
-              필요한 장비를 선택하고 날짜를 지정하여 간편하게 예약하세요.
-              관리자 승인 후 방문하여 수령하실 수 있습니다.
-            </p>
-          </div>
-        </div>
-
-        {/* 진행 단계 */}
-        <div className="bg-white border-b">
-          <div className="container mx-auto px-4 md:px-6 py-6">
-            <div className="max-w-3xl mx-auto">
-              <div className="flex justify-between items-center">
-                {steps.map((s, i) => (
-                  <div key={s.number} className="flex flex-col items-center flex-1">
-                    <div 
-                      className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2 ${
-                        step >= s.number 
-                          ? "bg-yonsei-blue text-white" 
-                          : "bg-gray-200 text-gray-500"
-                      }`}
-                    >
-                      {s.number}
-                    </div>
-                    <div className="text-sm text-center">
-                      {s.title}
-                    </div>
-                    {i < steps.length - 1 && (
-                      <div className={`hidden md:block h-0.5 absolute ${
-                        step > i + 1 ? "bg-yonsei-blue" : "bg-gray-200"
-                      }`} style={{ width: "calc(25% - 3rem)", left: `calc(${(i * 25) + 12.5}%)` }}></div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 예약 컨텐츠 */}
-        <div className="bg-gray-50 py-12">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-6 md:p-8">
-              {/* 1단계: 장비 선택 */}
-              {step === 1 && (
-                <div className="animate-fade-in">
-                  <h2 className="text-2xl font-bold mb-6">장비 선택</h2>
-                  <p className="mb-6 text-gray-600">필요한 장비를 선택해주세요. 여러 개 선택 가능합니다.</p>
-                  
-                  <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="mb-8">
-                    <TabsList className="grid grid-cols-4 mb-6">
-                      <TabsTrigger value="camera" className="flex items-center">
-                        <Camera className="h-4 w-4 mr-2" />
-                        카메라
-                      </TabsTrigger>
-                      <TabsTrigger value="lighting" className="flex items-center">
-                        <Video className="h-4 w-4 mr-2" />
-                        조명
-                      </TabsTrigger>
-                      <TabsTrigger value="sound" className="flex items-center">
-                        <Music className="h-4 w-4 mr-2" />
-                        사운드
-                      </TabsTrigger>
-                      <TabsTrigger value="editing" className="flex items-center">
-                        <Edit className="h-4 w-4 mr-2" />
-                        편집실
-                      </TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="camera" className="mt-0">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {getEquipmentByCategory("camera").map((equipment) => (
-                          <div 
-                            key={equipment.id} 
-                            className={`border rounded-lg p-4 flex items-center cursor-pointer transition-all ${
-                              selectedEquipment.some(item => item.id === equipment.id)
-                                ? "border-yonsei-blue bg-yonsei-blue/5"
-                                : "border-gray-200 hover:border-gray-300"
-                            }`}
-                            onClick={() => handleEquipmentSelect(equipment)}
-                          >
-                            <div className="h-16 w-16 rounded-md overflow-hidden mr-4 flex-shrink-0">
-                              <img 
-                                src={equipment.image} 
-                                alt={equipment.name}
-                                className="h-full w-full object-cover"
-                              />
-                            </div>
-                            <div className="flex-grow">
-                              <h3 className="font-medium">{equipment.name}</h3>
-                              <div className="flex items-center mt-1 text-sm text-gray-600">
-                                <CircleDashed className="h-4 w-4 mr-1" />
-                                <span>{equipment.available}대 대여 가능</span>
-                              </div>
-                            </div>
-                            <div className={`w-6 h-6 rounded-full flex-shrink-0 ${
-                              selectedEquipment.some(item => item.id === equipment.id)
-                                ? "bg-yonsei-blue text-white"
-                                : "bg-gray-200"
-                            }`}>
-                              {selectedEquipment.some(item => item.id === equipment.id) && (
-                                <CheckCircle2 className="h-6 w-6" />
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="lighting" className="mt-0">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {getEquipmentByCategory("lighting").map((equipment) => (
-                          <div 
-                            key={equipment.id} 
-                            className={`border rounded-lg p-4 flex items-center cursor-pointer transition-all ${
-                              selectedEquipment.some(item => item.id === equipment.id)
-                                ? "border-yonsei-blue bg-yonsei-blue/5"
-                                : "border-gray-200 hover:border-gray-300"
-                            }`}
-                            onClick={() => handleEquipmentSelect(equipment)}
-                          >
-                            <div className="h-16 w-16 rounded-md overflow-hidden mr-4 flex-shrink-0">
-                              <img 
-                                src={equipment.image} 
-                                alt={equipment.name}
-                                className="h-full w-full object-cover"
-                              />
-                            </div>
-                            <div className="flex-grow">
-                              <h3 className="font-medium">{equipment.name}</h3>
-                              <div className="flex items-center mt-1 text-sm text-gray-600">
-                                <CircleDashed className="h-4 w-4 mr-1" />
-                                <span>{equipment.available}대 대여 가능</span>
-                              </div>
-                            </div>
-                            <div className={`w-6 h-6 rounded-full flex-shrink-0 ${
-                              selectedEquipment.some(item => item.id === equipment.id)
-                                ? "bg-yonsei-blue text-white"
-                                : "bg-gray-200"
-                            }`}>
-                              {selectedEquipment.some(item => item.id === equipment.id) && (
-                                <CheckCircle2 className="h-6 w-6" />
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="sound" className="mt-0">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {getEquipmentByCategory("sound").map((equipment) => (
-                          <div 
-                            key={equipment.id} 
-                            className={`border rounded-lg p-4 flex items-center cursor-pointer transition-all ${
-                              selectedEquipment.some(item => item.id === equipment.id)
-                                ? "border-yonsei-blue bg-yonsei-blue/5"
-                                : "border-gray-200 hover:border-gray-300"
-                            }`}
-                            onClick={() => handleEquipmentSelect(equipment)}
-                          >
-                            <div className="h-16 w-16 rounded-md overflow-hidden mr-4 flex-shrink-0">
-                              <img 
-                                src={equipment.image} 
-                                alt={equipment.name}
-                                className="h-full w-full object-cover"
-                              />
-                            </div>
-                            <div className="flex-grow">
-                              <h3 className="font-medium">{equipment.name}</h3>
-                              <div className="flex items-center mt-1 text-sm text-gray-600">
-                                <CircleDashed className="h-4 w-4 mr-1" />
-                                <span>{equipment.available}대 대여 가능</span>
-                              </div>
-                            </div>
-                            <div className={`w-6 h-6 rounded-full flex-shrink-0 ${
-                              selectedEquipment.some(item => item.id === equipment.id)
-                                ? "bg-yonsei-blue text-white"
-                                : "bg-gray-200"
-                            }`}>
-                              {selectedEquipment.some(item => item.id === equipment.id) && (
-                                <CheckCircle2 className="h-6 w-6" />
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="editing" className="mt-0">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {getEquipmentByCategory("editing").map((equipment) => (
-                          <div 
-                            key={equipment.id} 
-                            className={`border rounded-lg p-4 flex items-center cursor-pointer transition-all ${
-                              selectedEquipment.some(item => item.id === equipment.id)
-                                ? "border-yonsei-blue bg-yonsei-blue/5"
-                                : "border-gray-200 hover:border-gray-300"
-                            }`}
-                            onClick={() => handleEquipmentSelect(equipment)}
-                          >
-                            <div className="h-16 w-16 rounded-md overflow-hidden mr-4 flex-shrink-0">
-                              <img 
-                                src={equipment.image} 
-                                alt={equipment.name}
-                                className="h-full w-full object-cover"
-                              />
-                            </div>
-                            <div className="flex-grow">
-                              <h3 className="font-medium">{equipment.name}</h3>
-                              <div className="flex items-center mt-1 text-sm text-gray-600">
-                                <CircleDashed className="h-4 w-4 mr-1" />
-                                <span>{equipment.available}대 대여 가능</span>
-                              </div>
-                            </div>
-                            <div className={`w-6 h-6 rounded-full flex-shrink-0 ${
-                              selectedEquipment.some(item => item.id === equipment.id)
-                                ? "bg-yonsei-blue text-white"
-                                : "bg-gray-200"
-                            }`}>
-                              {selectedEquipment.some(item => item.id === equipment.id) && (
-                                <CheckCircle2 className="h-6 w-6" />
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-
-                  {selectedEquipment.length > 0 && (
-                    <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                      <h3 className="font-medium mb-2">선택된 장비 ({selectedEquipment.length})</h3>
-                      <ul className="space-y-2">
-                        {selectedEquipment.map((equipment) => (
-                          <li key={equipment.id} className="flex items-center">
-                            {renderCategoryIcon(equipment.category)}
-                            <span>{equipment.name}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  <div className="flex justify-end">
-                    <Button 
-                      className="bg-yonsei-blue hover:bg-yonsei-dark-blue"
-                      onClick={nextStep}
-                    >
-                      다음 단계
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {/* 2단계: 대여일 선택 */}
-              {step === 2 && (
-                // ... keep existing code (대여일 선택 UI)
-              )}
-
-              {/* 3단계: 정보 입력 */}
-              {step === 3 && (
-                // ... keep existing code (정보 입력 UI)
-              )}
-
-              {/* 4단계: 완료 */}
-              {step === 4 && (
-                // ... keep existing code (완료 UI)
-              )}
-            </div>
-          </div>
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
-};
-
-export default RentalPage;
+    renderEquipment("camera"); // default
+  </script>
+</body>
+</html>
