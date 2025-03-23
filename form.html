@@ -1,30 +1,110 @@
-<script>
-  const selectedEquipment = new Set();
-
-  function toggleEquipment(card) {
-    const name = card.dataset.name;
-    const isSelected = card.classList.toggle("selected");
-
-    if (isSelected) {
-      selectedEquipment.add(name);
-    } else {
-      selectedEquipment.delete(name);
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>기자재 선택</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .equipment-card {
+      @apply relative border p-4 rounded-lg cursor-pointer hover:shadow transition;
     }
 
-    updateSelectedList();
-  }
+    .equipment-card.selected {
+      border-color: #facc15;
+      background-color: #fef9c3;
+    }
 
-  function updateSelectedList() {
-    const list = document.getElementById("equipmentNames");
-    const count = document.getElementById("count");
-    list.innerHTML = "";
+    .checkmark {
+      @apply absolute top-2 right-2 hidden w-6 h-6 flex items-center justify-center bg-yellow-400 text-white text-xs font-bold rounded-full;
+    }
 
-    selectedEquipment.forEach(name => {
-      const li = document.createElement("li");
-      li.textContent = name;
-      list.appendChild(li);
-    });
+    .equipment-card.selected .checkmark {
+      display: flex;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
 
-    count.textContent = selectedEquipment.size;
-  }
-</script>
+  <div class="max-w-4xl mx-auto py-10 px-4">
+    <h1 class="text-2xl font-bold mb-6">장비 선택</h1>
+    <p class="text-gray-600 mb-6">필요한 장비를 클릭해 선택하세요. 여러 개 선택 가능합니다.</p>
+
+    <!-- 장비 목록 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <div class="equipment-card" data-name="Sony FX3" onclick="toggleEquipment(this)">
+        <span class="checkmark">✔</span>
+        <h3 class="font-semibold text-lg mb-1">Sony FX3</h3>
+        <p class="text-sm text-gray-600">3대 대여 가능</p>
+      </div>
+      <div class="equipment-card" data-name="Canon EOS R5" onclick="toggleEquipment(this)">
+        <span class="checkmark">✔</span>
+        <h3 class="font-semibold text-lg mb-1">Canon EOS R5</h3>
+        <p class="text-sm text-gray-600">2대 대여 가능</p>
+      </div>
+      <div class="equipment-card" data-name="EF 24-70mm" onclick="toggleEquipment(this)">
+        <span class="checkmark">✔</span>
+        <h3 class="font-semibold text-lg mb-1">Canon EF 24-70mm</h3>
+        <p class="text-sm text-gray-600">4대 대여 가능</p>
+      </div>
+      <div class="equipment-card" data-name="Sennheiser MKH 416" onclick="toggleEquipment(this)">
+        <span class="checkmark">✔</span>
+        <h3 class="font-semibold text-lg mb-1">Sennheiser MKH 416</h3>
+        <p class="text-sm text-gray-600">5대 대여 가능</p>
+      </div>
+    </div>
+
+    <!-- 선택된 장비 영역 -->
+    <div id="selectedEquipmentList" class="bg-white rounded-xl p-4 shadow">
+      <h2 class="text-lg font-semibold mb-2">선택된 장비 (<span id="count">0</span>)</h2>
+      <ul id="equipmentNames" class="list-disc pl-5 text-sm text-gray-700 space-y-1"></ul>
+    </div>
+
+    <!-- 다음 단계 버튼 -->
+    <div class="mt-6 text-right">
+      <button onclick="goNext()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">다음 단계</button>
+    </div>
+  </div>
+
+  <script>
+    const selectedEquipment = new Set();
+
+    function toggleEquipment(card) {
+      const name = card.dataset.name;
+      const isSelected = card.classList.toggle("selected");
+
+      if (isSelected) {
+        selectedEquipment.add(name);
+      } else {
+        selectedEquipment.delete(name);
+      }
+
+      updateSelectedList();
+    }
+
+    function updateSelectedList() {
+      const list = document.getElementById("equipmentNames");
+      const count = document.getElementById("count");
+      list.innerHTML = "";
+
+      selectedEquipment.forEach(name => {
+        const li = document.createElement("li");
+        li.textContent = name;
+        list.appendChild(li);
+      });
+
+      count.textContent = selectedEquipment.size;
+    }
+
+    function goNext() {
+      if (selectedEquipment.size === 0) {
+        alert("장비를 한 개 이상 선택해주세요.");
+        return;
+      }
+
+      // 👉 실제 대여 페이지로 이동
+      window.location.href = "calendar.html"; // 다음단계로 변경하세요
+    }
+  </script>
+</body>
+</html>
