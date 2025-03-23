@@ -2,208 +2,202 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>기자재 대여 신청</title>
+  <title>기자재 대여 - 장비 선택</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* 노란 체크 아이콘 (토글 표시) */
-    .check-icon {
-      display: none;
+    /* 카드 선택 시 스타일 (파란색 테두리 + 아이콘) */
+    .equipment-card {
+      @apply relative border rounded-lg p-4 flex gap-3 items-center bg-white hover:shadow transition cursor-pointer;
     }
-    .card.selected .check-icon {
-      display: flex; /* 선택된 카드일 때 표시 */
-    }
-    .check-icon {
-      @apply absolute top-2 right-2 w-6 h-6 bg-yellow-400 text-white
-             rounded-full items-center justify-center text-sm font-bold;
+    .equipment-card.selected {
+      @apply border-blue-500 ring-1 ring-blue-500;
     }
 
-    /* 이미지 크기 조금 작게 (정사각형에 가깝게) */
-    .card-img {
-      @apply w-full h-24 object-cover mb-2;
+    /* 선택 아이콘(체크) - 우상단 */
+    .selected-icon {
+      @apply absolute top-2 right-2 bg-blue-600 text-white w-5 h-5 rounded-full
+             flex items-center justify-center text-xs hidden;
+    }
+    .equipment-card.selected .selected-icon {
+      @apply block;
     }
 
-    /* 4×2 한 화면 → 아이템이 많으면 가로 스크롤 확장 */
-    .scrolling-grid {
-      display: grid;
-      /* 2행 */
-      grid-template-rows: repeat(2, auto);
-      /* 열은 아이템 개수만큼 자동 생성 → 옆으로 스크롤 */
-      grid-auto-flow: column;
-      grid-auto-columns: 130px; /* 4칸씩 한 화면, 필요 시 조절 */
-      gap: 1px; /* 카드 간격 최소화 → 붙은 느낌 */
-      overflow-x: auto;
-      background: #e5e7eb; /* gray-200 배경 */
-      scroll-behavior: smooth;
-    }
-    .scrolling-grid::-webkit-scrollbar {
-      height: 8px;
-    }
-    .scrolling-grid::-webkit-scrollbar-thumb {
-      background: #ccc;
-      border-radius: 4px;
+    /* 장비 이미지 */
+    .equipment-image {
+      @apply w-16 h-16 object-cover rounded;
+      flex-shrink: 0;
     }
 
-    /* 카드 */
-    .card {
-      @apply relative bg-white p-3 cursor-pointer;
+    /* 장비 정보(제목 + 서브텍스트) */
+    .equipment-info h4 {
+      @apply text-sm font-semibold mb-1;
     }
-    .card:hover {
-      @apply bg-gray-50;
+    .equipment-info p {
+      @apply text-xs text-gray-500;
+    }
+
+    /* 섹션 제목 */
+    .section-title {
+      @apply text-lg font-bold mb-2;
     }
   </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
-
-  <!-- 헤더 -->
-  <header class="p-6 bg-white shadow text-center">
-    <h1 class="text-3xl font-bold">기자재 대여 신청</h1>
-    <p class="text-sm text-gray-500 mt-1">PDF 목록을 4섹션(카메라/오디오/조명/편집실)으로 예시 구성</p>
+  <header class="bg-white shadow">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="index.html" class="text-xl font-bold text-blue-700 hover:text-blue-900 transition">
+        연세예술원 영화학
+      </a>
+      <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+        <a href="index.html" class="hover:text-blue-600">홈</a>
+        <a href="admin_login.html" class="hover:text-blue-600">고객센터</a>
+        <a href="student_login.html" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+          기자재 대여 신청
+        </a>
+      </nav>
+    </div>
   </header>
 
-  <main class="max-w-5xl mx-auto px-4 py-8 space-y-12">
+  <main class="max-w-5xl mx-auto px-4 py-8 space-y-8">
+    <h1 class="text-2xl font-bold mb-4">필요한 장비를 선택해주세요.</h1>
+    <p class="text-sm text-gray-500 mb-6">여러 개 선택 가능합니다.</p>
 
-    <!-- 섹션 1: 카메라 -->
+    <!-- 1) 카메라 섹션 -->
     <section>
-      <h2 class="text-2xl font-bold mb-4">카메라</h2>
-      <div class="scrolling-grid">
-        <!-- 예시 8개 (PDF: 카메라/카메라 보조/액션캠/렌즈/필터 등) -->
-        <!-- 1 -->
-        <div class="card" data-name="ILME-FX3 (Sony FX3)">
-          <div class="check-icon">✓</div>
+      <h2 class="section-title">카메라</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <!-- 예시 아이템 1 -->
+        <div class="equipment-card" data-name="Sony FX3 (ILME-FX3)">
+          <div class="selected-icon">✓</div>
           <img
-            src="https://images.unsplash.com/photo-1599350752070-7908a994cde9?auto=format&fit=crop&w=400&q=80"
-            alt="ILME-FX3"
-            class="card-img"
+            src="https://images.unsplash.com/photo-1599350752070-7908a994cde9?auto=format&fit=crop&w=100&q=80"
+            alt="Sony FX3"
+            class="equipment-image"
           />
-          <h3 class="text-sm font-semibold">ILME-FX3</h3>
-          <p class="text-xs text-gray-600">수량: 4 (고정)</p>
+          <div class="equipment-info">
+            <h4>Sony FX3 (ILME-FX3)</h4>
+            <p>풀프레임 시네마 카메라</p>
+          </div>
         </div>
-        <!-- 2 -->
-        <div class="card" data-name="ILCE-7C/B (Sony A7C)">
-          <div class="check-icon">✓</div>
+        <!-- 예시 아이템 2 -->
+        <div class="equipment-card" data-name="Canon EOS R5">
+          <div class="selected-icon">✓</div>
           <img
-            src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=400&q=80"
-            alt="ILCE-7C/B"
-            class="card-img"
+            src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=100&q=80"
+            alt="Canon EOS R5"
+            class="equipment-image"
           />
-          <h3 class="text-sm font-semibold">ILCE-7C/B</h3>
-          <p class="text-xs text-gray-600">수량: 2 (고정)</p>
+          <div class="equipment-info">
+            <h4>Canon EOS R5</h4>
+            <p>고화소 풀프레임 미러리스</p>
+          </div>
         </div>
-        <!-- 3 -->
-        <div class="card" data-name="ILME-FX6 KIT">
-          <div class="check-icon">✓</div>
+        <!-- 예시 아이템 3 -->
+        <div class="equipment-card" data-name="Canon EF 24-70mm f/2.8L II USM">
+          <div class="selected-icon">✓</div>
           <img
-            src="https://images.unsplash.com/photo-1588920226869-39cc52bd8dc1?auto=format&fit=crop&w=400&q=80"
-            alt="ILME-FX6 KIT"
-            class="card-img"
+            src="https://images.unsplash.com/photo-1494080811071-d265f7b9d8d9?auto=format&fit=crop&w=100&q=80"
+            alt="Canon EF 24-70mm"
+            class="equipment-image"
           />
-          <h3 class="text-sm font-semibold">ILME-FX6 KIT</h3>
-          <p class="text-xs text-gray-600">수량: 1 (고정)</p>
+          <div class="equipment-info">
+            <h4>Canon EF 24-70mm f/2.8L II USM</h4>
+            <p>줌렌즈 (소니 어댑터 호환)</p>
+          </div>
         </div>
-        <!-- 4 -->
-        <div class="card" data-name="GoPro Hero 11 Black">
-          <div class="check-icon">✓</div>
+        <!-- 예시 아이템 4 -->
+        <div class="equipment-card" data-name="ARRI SkyPanel S60-C">
+          <div class="selected-icon">✓</div>
           <img
-            src="https://images.unsplash.com/photo-1542204165-65bf26472b9b?auto=format&fit=crop&w=400&q=80"
-            alt="GoPro Hero 11"
-            class="card-img"
+            src="https://images.unsplash.com/photo-1542204165-65bf26472b9b?auto=format&fit=crop&w=100&q=80"
+            alt="ARRI SkyPanel S60-C"
+            class="equipment-image"
           />
-          <h3 class="text-sm font-semibold">GoPro Hero 11</h3>
-          <p class="text-xs text-gray-600">수량: 2 (고정)</p>
-        </div>
-        <!-- 5 -->
-        <div class="card" data-name="SEL1635GM (Sony 16-35 f2.8 GM)">
-          <div class="check-icon">✓</div>
-          <img
-            src="https://images.unsplash.com/photo-1494080811071-d265f7b9d8d9?auto=format&fit=crop&w=400&q=80"
-            alt="SEL1635GM"
-            class="card-img"
-          />
-          <h3 class="text-sm font-semibold">SEL1635GM</h3>
-          <p class="text-xs text-gray-600">수량: 3 (고정)</p>
-        </div>
-        <!-- 6 -->
-        <div class="card" data-name="SEL2470GM2 (Sony 24-70 f2.8 GM II)">
-          <div class="check-icon">✓</div>
-          <img
-            src="https://images.unsplash.com/photo-1580575188199-53db1682d067?auto=format&fit=crop&w=400&q=80"
-            alt="SEL2470GM2"
-            class="card-img"
-          />
-          <h3 class="text-sm font-semibold">SEL2470GM2</h3>
-          <p class="text-xs text-gray-600">수량: 3 (고정)</p>
-        </div>
-        <!-- 7 -->
-        <div class="card" data-name="CEA-G160T (Sony CFexpress Type A)">
-          <div class="check-icon">✓</div>
-          <img
-            src="https://images.unsplash.com/photo-1546435932-86b43d1bd3fd?auto=format&fit=crop&w=400&q=80"
-            alt="CEA-G160T"
-            class="card-img"
-          />
-          <h3 class="text-sm font-semibold">CEA-G160T</h3>
-          <p class="text-xs text-gray-600">수량: 5 (고정)</p>
-        </div>
-        <!-- 8 -->
-        <div class="card" data-name="PLD-55S (카메라 보관함)">
-          <div class="check-icon">✓</div>
-          <img
-            src="https://images.unsplash.com/photo-1519121788533-b2860b7a0eed?auto=format&fit=crop&w=400&q=80"
-            alt="PLD-55S"
-            class="card-img"
-          />
-          <h3 class="text-sm font-semibold">PLD-55S</h3>
-          <p class="text-xs text-gray-600">수량: 8 (고정)</p>
+          <div class="equipment-info">
+            <h4>ARRI SkyPanel S60-C</h4>
+            <p>면조명 (RGBWW)</p>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- 2) 오디오 섹션 -->
     <section>
-      <h2 class="text-2xl font-bold mb-4">오디오</h2>
-      <div class="scrolling-grid">
-        <!-- 예시 8개 (ECM-XM1, UWP-D21, NTG4+, DR-701D, zoom f8N pro, 소니 무선 핀마이크, BK-1050N, BoomPro) -->
-        <!-- ... 같은 형식 -->
-        <div class="card" data-name="ECM-XM1">
-          <div class="check-icon">✓</div>
+      <h2 class="section-title">오디오</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <!-- 예시 아이템 -->
+        <div class="equipment-card" data-name="Sennheiser MKH 416">
+          <div class="selected-icon">✓</div>
           <img
-            src="https://images.unsplash.com/photo-1617005082133-548c4dd9e290?auto=format&fit=crop&w=400&q=80"
-            alt="ECM-XM1"
-            class="card-img"
+            src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=100&q=80"
+            alt="Sennheiser MKH 416"
+            class="equipment-image"
           />
-          <h3 class="text-sm font-semibold">ECM-XM1</h3>
-          <p class="text-xs text-gray-600">수량: 3 (고정)</p>
+          <div class="equipment-info">
+            <h4>Sennheiser MKH 416</h4>
+            <p>샷건 마이크</p>
+          </div>
         </div>
-        <!-- ... 나머지 7개 오디오 아이템 -->
+        <!-- ... 더 추가 -->
       </div>
     </section>
 
     <!-- 3) 조명 섹션 -->
     <section>
-      <h2 class="text-2xl font-bold mb-4">조명</h2>
-      <div class="scrolling-grid">
-        <!-- 예시 8개 (S60-C, SkyPanel Remote, Aputure 120D, Godox SL-60W, etc...) -->
-        <!-- ... 같은 형식 -->
+      <h2 class="section-title">조명</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <!-- 예시 아이템 -->
+        <div class="equipment-card" data-name="Aputure 120D II">
+          <div class="selected-icon">✓</div>
+          <img
+            src="https://images.unsplash.com/photo-1507224035462-59422e571429?auto=format&fit=crop&w=100&q=80"
+            alt="Aputure 120D II"
+            class="equipment-image"
+          />
+          <div class="equipment-info">
+            <h4>Aputure 120D II</h4>
+            <p>스팟 조명</p>
+          </div>
+        </div>
+        <!-- ... 더 추가 -->
       </div>
     </section>
 
     <!-- 4) 편집실 섹션 -->
     <section>
-      <h2 class="text-2xl font-bold mb-4">편집실</h2>
-      <div class="scrolling-grid">
-        <!-- 예시 8개 (LVM-181S 모니터, Hollyland Mars, 대형 TV, etc...) -->
-        <!-- ... 같은 형식 -->
+      <h2 class="section-title">편집실</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <!-- 예시 아이템 -->
+        <div class="equipment-card" data-name="Premiere 편집실">
+          <div class="selected-icon">✓</div>
+          <img
+            src="https://images.unsplash.com/photo-1527457443442-47a1e2b26481?auto=format&fit=crop&w=100&q=80"
+            alt="Premiere 편집실"
+            class="equipment-image"
+          />
+          <div class="equipment-info">
+            <h4>Premiere 편집실</h4>
+            <p>2실 사용 가능</p>
+          </div>
+        </div>
+        <!-- ... 더 추가 -->
       </div>
     </section>
 
+    <!-- 선택된 장비 표시 -->
+    <div class="bg-white border rounded-lg p-4" id="selectedSection" style="display: none;">
+      <h3 class="text-sm font-semibold mb-2">선택된 장비 (<span id="selectedCount">0</span>)</h3>
+      <ul id="selectedList" class="text-sm text-gray-600 list-disc list-inside"></ul>
+    </div>
+
     <!-- 다음 단계 버튼 -->
-    <div class="text-right mt-8">
+    <div class="text-right">
       <button id="btnNextStep"
               class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition-colors">
-        다음 단계 →
+        다음 단계
       </button>
     </div>
 
@@ -216,28 +210,52 @@
   <script>
     let selectedItems = [];
 
-    // 카드 클릭 시 .selected 토글
-    document.querySelectorAll('.card').forEach(card => {
+    // 모든 카드에 클릭 이벤트 추가
+    document.querySelectorAll('.equipment-card').forEach(card => {
       card.addEventListener('click', () => {
         card.classList.toggle('selected');
         const itemName = card.getAttribute('data-name');
 
         if (card.classList.contains('selected')) {
+          // 선택됨
           if (!selectedItems.includes(itemName)) {
             selectedItems.push(itemName);
           }
         } else {
+          // 선택 해제
           selectedItems = selectedItems.filter(i => i !== itemName);
         }
+
+        updateSelectedSection();
       });
     });
 
-    // 다음 단계
+    function updateSelectedSection() {
+      const selectedCountEl = document.getElementById('selectedCount');
+      const selectedListEl = document.getElementById('selectedList');
+      const selectedSectionEl = document.getElementById('selectedSection');
+
+      selectedCountEl.textContent = selectedItems.length;
+      selectedListEl.innerHTML = '';
+
+      if (selectedItems.length > 0) {
+        selectedSectionEl.style.display = 'block';
+        selectedItems.forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = item;
+          selectedListEl.appendChild(li);
+        });
+      } else {
+        selectedSectionEl.style.display = 'none';
+      }
+    }
+
+    // 다음 단계 버튼
     document.getElementById('btnNextStep').addEventListener('click', () => {
       // localStorage에 저장
       localStorage.setItem('selectedEquipments', JSON.stringify(selectedItems));
-      alert(`선택된 아이템: ${selectedItems.join(', ')}`);
-      // 페이지 이동 (실제 구현 시 'form_step2.html' 필요)
+      alert(`선택된 장비: ${selectedItems.join(', ') || '없음'}`);
+      // 페이지 이동
       window.location.href = 'form_step2.html';
     });
   </script>
