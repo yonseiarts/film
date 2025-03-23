@@ -1,15 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  ...
+  <meta charset="UTF-8" />
+  <title>기자재 대여 신청</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- Tailwind CSS (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 추가 CSS (style.css) -->
   <link rel="stylesheet" href="style.css" />
   <style>
+    /* 사각형 섹션 버튼 */
     .cat-square {
-      @apply w-32 h-16 flex items-center justify-center border border-blue-500
-             rounded-md text-blue-500 font-semibold cursor-pointer hover:bg-blue-50;
+      @apply w-28 h-28 flex flex-col items-center justify-center border border-blue-500
+             rounded-md text-blue-500 font-semibold cursor-pointer hover:bg-blue-50
+             transition-colors;
     }
     .cat-square.active {
       @apply bg-blue-100;
     }
-    ...
+
+    /* 아이템 카드 */
+    .item-card {
+      @apply relative flex items-center gap-2 p-3 rounded-md border border-gray-200 bg-white cursor-pointer;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    .item-card img {
+      @apply w-12 h-12 object-cover rounded;
+      flex-shrink: 0;
+    }
+    /* 노란 체크 표시 */
+    .item-card.selected {
+      @apply border-yellow-500 bg-yellow-50;
+    }
+    .check-icon {
+      @apply hidden absolute top-2 right-2 w-5 h-5 bg-yellow-400 text-white text-xs rounded-full items-center justify-center font-bold;
+    }
+    .item-card.selected .check-icon {
+      @apply flex;
+    }
   </style>
 </head>
+<body class="bg-gray-50 text-gray-900">
+
+  <!-- 상단 헤더 -->
+  <header class="bg-white shadow">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="index.html" class="text-2xl font-bold text-blue-700 hover:text-blue-900 transition">
+        연세예술원 영화학
+      </a>
+      <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+        <a href="index.html" class="hover:text-blue-600">홈</a>
+        <a href="admin_login.html" class="hover:text-blue-600">고객센터</a>
+        <a href="student_login.html" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+          기자재 대여 신청
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 메인 -->
+  <main class="max-w-5xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6">원하는 섹션(사각형)을 클릭 후, 필요한 장비를 골라주세요.</h1>
+
+    <!-- 4개 사각형 버튼 (가로로) -->
+    <div class="flex gap-6 justify-center mb-8">
+      <div class="cat-square active" data-cat="camera">
+        <span>카메라</span>
+      </div>
+      <div class="cat-square" data-cat="light">
+        <span>조명</span>
+      </div>
+      <div class="cat-square" data-cat="sound">
+        <span>사운드</span>
+      </div>
+      <div class="cat-square" data-cat="edit">
+        <span>편집실</span>
+      </div>
+    </div>
+
+    <!-- 섹션들 -->
+    <div id="sectionContainer" class="space-y-8">
+      <!-- 1) 카메라 (기본 표시) -->
+      <section data-content="camera">
+        <h2 class="text-xl font-semibold mb-3">카메라</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <!-- 아이템 예시 1 -->
+          <div class="item-card" data-name="Sony FX3 (ILME-FX3)">
+            <div class="check-icon">✓</div>
+            <img
+              src="https://images.unsplash.com/photo-1599350752070-7908a994cde9?auto=format&fit=crop&w=400&q=80"
+              alt="Sony FX3"
+            />
+            <div>
+              <p class="font-medium">Sony FX3 (ILME-FX3)</p>
+              <p class="text-sm text-gray-500">수량: 4 (고정)</p>
+            </div>
+          </div>
+          <!-- 아이템 예시 2 -->
+          <div class="item-card" data-name="Canon EOS R5">
+            <div class="check-icon">✓</div>
+            <img
+              src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=400&q=80"
+              alt="Canon EOS R5"
+            />
+            <div>
+              <p class="font-medium">Canon EOS R5</p>
+              <p class="text-sm text-gray-500">수량: 3 (고정)</p>
+            </div>
+          </div>
+          <!-- ... 더 많은 카메라 아이템 -->
+        </div>
+      </section>
+
+      <!-- 2) 조명 (초기 숨김) -->
+      <section class="hidden" data-content="light">
+        <h2 class="text-xl font-semibold mb-3">조명</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div class="item-card" data-name="ARRI SkyPanel S60-C">
+            <div class="check-icon">✓</div>
+            <img
+              src="https://images.unsplash.com/photo-1598447861940-d868649f811f?auto=format&fit=crop&w=400&q=80"
+              alt="ARRI SkyPanel"
+            />
+            <div>
+              <p class="font-medium">ARRI SkyPanel S60-C</p>
+              <p class="text-sm text-gray-500">수량: 3 (고정)</p>
+            </div>
+          </div>
+          <!-- ... 조명 아이템들 -->
+        </div>
+      </section>
+
+      <!-- 3) 사운드 (초기 숨김) -->
+      <section class="hidden" data-content="sound">
+        <h2 class="text-xl font-semibold mb-3">사운드</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div class="item-card" data-name="Sennheiser MKH 416">
+            <div class="check-icon">✓</div>
+            <img
+              src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=400&q=80"
+              alt="Sennheiser MKH 416"
+            />
+            <div>
+              <p class="font-medium">Sennheiser MKH 416</p>
+              <p class="text-sm text-gray-500">수량: 2 (고정)</p>
+            </div>
+          </div>
+          <!-- ... 사운드 아이템들 -->
+        </div>
+      </section>
+
+      <!-- 4) 편집실 (초기 숨김) -->
+      <section class="hidden" data-content="edit">
+        <h2 class="text-xl font-semibold mb-3">편집실</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div class="item-card" data-name="DaVinci Resolve 편집실">
+            <div class="check-icon">✓</div>
+            <img
+              src="https://images.unsplash.com/photo-1602516607531-61d80b7f1fe8?auto=format&fit=crop&w=400&q=80"
+              alt="DaVinci Resolve"
+            />
+            <div>
+              <p class="font-medium">DaVinci Resolve 편집실</p>
+              <p class="text-sm text-gray-500">수량: 1 (고정)</p>
+            </div>
+          </div>
+          <!-- ... 편집실 아이템들 -->
+        </div>
+      </section>
+    </div>
+
+    <!-- 선택된 장비 표시 & 다음 단계 -->
+    <div class="border-t pt-4 mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <!-- 선택된 장비 표시 -->
+      <div>
+        <p class="font-medium mb-1">
+          선택된 장비 (<span id="selectedCount">0</span>)
+        </p>
+        <ul id="selectedList" class="list-disc list-inside text-gray-700 text-sm"></ul>
+      </div>
+      <button
+        id="btnNextStep"
+        class="mt-4 sm:mt-0 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+      >
+        다음 단계
+      </button>
+    </div>
+  </main>
+
+  <footer class="text-center text-sm text-gray-500 py-6 border-t">
+    고객센터: 02-1234-5678 | 운영시간: 평일 10:00 ~ 17:00 (점심시간 12:00~13:00)
+  </footer>
+
+  <script>
+    // 1) 섹션 버튼
+    const catSquares = document.querySelectorAll('.cat-square');
+    // 섹션들
+    const sections = document.querySelectorAll('[data-content]');
+
+    // camera만 기본 표시 (HTML에서 camera는 hidden이 안 붙었고, cat-square camera는 active)
+    catSquares.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // 모든 btn 비활성
+        catSquares.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const cat = btn.getAttribute('data-cat');
+        // 모든 섹션 숨김
+        sections.forEach(sec => sec.classList.add('hidden'));
+        // 해당 섹션만 표시
+        const targetSec = document.querySelector(`[data-content="${cat}"]`);
+        if (targetSec) targetSec.classList.remove('hidden');
+      });
+    });
+
+    // 2) 아이템 선택
+    let selectedItems = [];
+
+    document.querySelectorAll('.item-card').forEach(card => {
+      card.addEventListener('click', () => {
+        card.classList.toggle('selected');
+        const itemName = card.getAttribute('data-name');
+        if (card.classList.contains('selected')) {
+          if (!selectedItems.includes(itemName)) {
+            selectedItems.push(itemName);
+          }
+        } else {
+          selectedItems = selectedItems.filter(i => i !== itemName);
+        }
+        updateSelectedUI();
+      });
+    });
+
+    function updateSelectedUI() {
+      const countEl = document.getElementById('selectedCount');
+      const listEl = document.getElementById('selectedList');
+      countEl.textContent = selectedItems.length;
+      listEl.innerHTML = '';
+
+      selectedItems.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        listEl.appendChild(li);
+      });
+    }
+
+    // 3) 다음 단계
+    document.getElementById('btnNextStep').addEventListener('click', () => {
+      localStorage.setItem('selectedEquipments', JSON.stringify(selectedItems));
+      // 페이지 이동
+      window.location.href = 'form_step2.html';
+    });
+  </script>
+</body>
+</html>
