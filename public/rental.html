@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>기자재 대여 신청</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-white text-gray-900">
+  <header class="bg-white border-b shadow-sm py-4">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-blue-800">연세예술원 영화학</h1>
+      <nav class="space-x-6 text-sm">
+        <a href="index.html" class="text-gray-600 hover:text-blue-700">홈</a>
+        <a href="equipment.html" class="text-gray-600 hover:text-blue-700">장비 카테고리</a>
+        <a href="rental.html" class="text-gray-600 hover:text-blue-700 font-semibold">예약하기</a>
+        <a href="#" class="text-gray-600 hover:text-blue-700">고객센터</a>
+        <a href="rental.html" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">기자재 대여 신청</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto py-12 px-4">
+    <h2 class="text-3xl font-bold mb-6">기자재 대여 신청</h2>
+    <p class="mb-8 text-gray-600">필요한 장비를 선택하고 날짜를 지정하여 간편하게 예약하세요.</p>
+
+    <form class="space-y-4">
+      <label class="block">
+        <span class="block text-sm font-medium text-gray-700 mb-1">장비 선택</span>
+        <select class="w-full border border-gray-300 rounded-md p-3">
+          <option>Blackmagic Camera</option>
+          <option>삼각대 Tripod</option>
+          <option>RODE 마이크</option>
+        </select>
+      </label>
+
+      <label class="block">
+        <span class="block text-sm font-medium text-gray-700 mb-1">대여 시작일</span>
+        <input type="date" class="w-full border border-gray-300 rounded-md p-3" required>
+      </label>
+
+      <label class="block">
+        <span class="block text-sm font-medium text-gray-700 mb-1">반납 예정일</span>
+        <input type="date" class="w-full border border-gray-300 rounded-md p-3" required>
+      </label>
+
+      <label class="block">
+        <span class="block text-sm font-medium text-gray-700 mb-1">이름</span>
+        <input type="text" class="w-full border border-gray-300 rounded-md p-3" required>
+      </label>
+
+      <label class="block">
+        <span class="block text-sm font-medium text-gray-700 mb-1">학번</span>
+        <input type="text" class="w-full border border-gray-300 rounded-md p-3" required>
+      </label>
+
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-md font-medium hover:bg-blue-700">신청 완료</button>
+    </form>
+  </main>
+
+  <footer class="mt-12 text-center text-sm text-gray-400 border-t pt-6">
+    © 2025 연세예술원 영화학과
+  </footer>
+</body>
+</html>
