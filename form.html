@@ -3,120 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>기자재 대여 신청</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-  <style>
-    .step-active {
-      background-color: #1D4ED8;
-      color: white;
-    }
-    .step-inactive {
-      background-color: #e5e7eb;
-      color: #6b7280;
-    }
-    .tab-button.active {
-      background-color: #dbeafe;
-      font-weight: 600;
-    }
-    .equipment.selected {
-      border-color: #facc15;
-      background-color: #fefce8;
-    }
-
-    /* 편집실 시간체크 표 */
-    .time-grid {
-      display: grid;
-      grid-template-columns: repeat(24, 1fr);
-      gap: 4px;
-      margin-top: 16px;
-    }
-    .time-grid label {
-      display: block;
-      text-align: center;
-      font-size: 0.75rem;
-      padding: 6px 0;
-      background-color: #f3f4f6;
-      border-radius: 4px;
-      border: 1px solid #e5e7eb;
-      cursor: pointer;
-      white-space: nowrap;
-      overflow: hidden;
-    }
-    .time-grid input[type="checkbox"] {
-      display: none;
-    }
-    .time-grid input[type="checkbox"]:checked + label {
-      background-color: #60a5fa;
-      border-color: #1d4ed8;
-      color: white;
-      font-weight: bold;
-    }
-  </style>
+  <title>관리자 대시보드</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50">
-  <div class="bg-blue-700 text-white py-6 text-center">
-    <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
-    <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
-  </div>
+<body class="bg-gray-100">
 
-  <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-    <!-- 상단 단계 표시 -->
-    <div class="flex justify-between mb-8">
-      <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
-      <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
-      <div id="step3Btn" class="flex-1 text-center p-2 rounded step-inactive">3. 규정 동의</div>
-      <div class="flex-1 text-center p-2 rounded bg-gray-200 text-gray-500">4. 완료</div>
+  <div class="max-w-6xl mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-4">🎬 관리자 대시보드</h1>
+    <div id="application-list" class="space-y-4">
+      <!-- 신청 항목이 여기에 출력됩니다 -->
     </div>
-
-    <!-- Step 1: 장비 선택 -->
-    <div id="step1">
-      <h2 class="text-xl font-bold mb-2">장비 선택</h2>
-      <p class="text-xs text-red-600 mb-4">특수프로젝트는 기자재 총괄에게 문의</p>
-      <p class="text-sm text-gray-600 mb-4">
-        - 편집실을 선택하면 다른 장비는 담을 수 없습니다 (편집실은 단일 선택).<br/>
-        - 카메라/조명/사운드는 여러 개 장비를 장바구니처럼 담을 수 있습니다.
-      </p>
-      <div class="flex space-x-2 mb-4">
-        <button class="tab-button px-4 py-1 border rounded active" data-tab="camera">카메라</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="lighting">조명</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="sound">사운드</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="editing">편집실</button>
-      </div>
-      <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6"></div>
-      <div id="selected-section" class="mt-6 hidden">
-        <h3 class="font-medium mb-2">선택된 장비</h3>
-        <ul id="selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
-      </div>
-      <div class="flex justify-between mt-6">
-        <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
-        <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">
-          다음 단계 →
-        </button>
-      </div>
-    </div>
-
-    <!-- Step 2: ... (중략 동일) -->
-    <!-- Step 3: ... (중략 동일) -->
-    <!-- Step 4: ... (중략 동일) -->
   </div>
 
   <script>
-    // 기존 코드 (장비, step 로직 등)...
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+    };
 
-    // ✨ [추가] 탭 클릭 이벤트 리스너
-    document.querySelectorAll(".tab-button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        // 1) 모든 탭에서 active 제거
-        document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
-        // 2) 현재 클릭된 탭에 active 추가
-        btn.classList.add("active");
-        // 3) 해당 data-tab 속성으로 renderEquipment() 호출
-        const cat = btn.dataset.tab;
-        renderEquipment(cat);
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function renderApplications() {
+      const container = document.getElementById('application-list');
+      db.collection("applications").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+        container.innerHTML = "";
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const div = document.createElement("div");
+          div.className = "bg-white p-4 rounded shadow";
+
+          div.innerHTML = `
+            <h2 class="text-lg font-bold">${data.name || '신청자 미입력'}</h2>
+            <p>장비: ${data.items?.join(", ") || '없음'}</p>
+            <p>대여일자: ${data.date || '-'}</p>
+            <p>시간: ${data.time || '-'}</p>
+            <p>증명사진: ${data.proofPhoto ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>` : '없음'}</p>
+            <p>상태: <span class="font-semibold">${data.status || '대기중'}</span></p>
+            <div class="mt-2 space-x-2">
+              <button class="px-3 py-1 bg-green-500 text-white rounded" onclick="updateStatus('${doc.id}', '승인됨')">승인</button>
+              <button class="px-3 py-1 bg-red-500 text-white rounded" onclick="updateStatus('${doc.id}', '반려됨')">반려</button>
+            </div>
+          `;
+          container.appendChild(div);
+        });
       });
-    });
+    }
 
-    // 나머지 script 동일...
+    function updateStatus(id, status) {
+      db.collection("applications").doc(id).update({ status });
+    }
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) renderApplications();
+      else window.location.href = "admin-login.html";
+    });
   </script>
 </body>
 </html>
