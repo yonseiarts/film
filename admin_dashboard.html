@@ -4,86 +4,218 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>관리자 대시보드</title>
-
   <!-- Firebase (compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
-
   <div class="max-w-6xl mx-auto p-6">
     <h1 class="text-2xl font-bold mb-4">🎬 관리자 대시보드</h1>
+    <div id="auth-status" class="mb-4"></div>
+    <div id="loading" class="p-4 bg-blue-100 text-blue-700 rounded mb-4">데이터를 불러오는 중...</div>
+    <div id="error-container" class="p-4 bg-red-100 text-red-700 rounded mb-4 hidden"></div>
     <div id="application-list" class="space-y-4">
       <!-- 신청 항목이 여기에 출력됩니다 -->
     </div>
   </div>
 
   <script>
-    // ✅ yonseirent-setup 프로젝트의 실제 config
-    const firebaseConfig = {
-      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-      authDomain: "yonseirent-setup.firebaseapp.com",
-      projectId: "yonseirent-setup",
-      storageBucket: "yonseirent-setup.appspot.com",
-      messagingSenderId: "1072524969376",
-      appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
-      measurementId: "G-P61J7CYTWZ"
-    };
-
-    // Firebase 초기화
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const auth = firebase.auth();
-
-    // 실시간 신청 목록 렌더링
-    function renderApplications() {
-      const container = document.getElementById('application-list');
-      db.collection("applications")
-        .orderBy("timestamp", "desc")
-        .onSnapshot(snapshot => {
-          container.innerHTML = "";
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            const div = document.createElement("div");
-            div.className = "bg-white p-4 rounded shadow";
-
-            div.innerHTML = `
-              <h2 class="text-lg font-bold">${data.name || '신청자 미입력'}</h2>
-              <p>장비: ${data.items?.join(", ") || '없음'}</p>
-              <p>대여일자: ${data.date || '-'}</p>
-              <p>시간: ${data.time || '-'}</p>
-              <p>증명사진: ${
-                data.proofPhoto
-                  ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>`
-                  : '없음'
-              }</p>
-              <p>상태: <span class="font-semibold">${data.status || '대기중'}</span></p>
-              <div class="mt-2 space-x-2">
-                <button class="px-3 py-1 bg-green-500 text-white rounded" onclick="updateStatus('${doc.id}', '승인됨')">승인</button>
-                <button class="px-3 py-1 bg-red-500 text-white rounded" onclick="updateStatus('${doc.id}', '반려됨')">반려</button>
-              </div>
-            `;
-            container.appendChild(div);
-          });
-        });
-    }
-
-    // 상태 업데이트
-    function updateStatus(docId, newStatus) {
-      db.collection("applications").doc(docId).update({ status: newStatus });
-    }
-
-    // 로그인 여부 확인
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        renderApplications();
-      } else {
-        window.location.href = "admin-login.html";
+    // 디버깅을 위한 로그 함수
+    function logMessage(message, type = 'info') {
+      console.log(`[${type.toUpperCase()}] ${message}`);
+      
+      if (type === 'error') {
+        const errorContainer = document.getElementById('error-container');
+        errorContainer.classList.remove('hidden');
+        errorContainer.textContent = `오류: ${message}`;
       }
-    });
+    }
+
+    // 로딩 상태 표시/숨김
+    function setLoading(isLoading) {
+      document.getElementById('loading').style.display = isLoading ? 'block' : 'none';
+    }
+
+    try {
+      logMessage('Firebase 초기화 시작');
+      
+      // Firebase 설정
+      const firebaseConfig = {
+        apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+        authDomain: "yonseirent-setup.firebaseapp.com",
+        projectId: "yonseirent-setup",
+        storageBucket: "yonseirent-setup.appspot.com",
+        messagingSenderId: "1072524969376",
+        appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
+        measurementId: "G-P61J7CYTWZ"
+      };
+
+      // Firebase 초기화
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      
+      const db = firebase.firestore();
+      const auth = firebase.auth();
+      
+      logMessage('Firebase 초기화 완료');
+
+      // 실시간 신청 목록 렌더링
+      function renderApplications() {
+        logMessage('신청 목록 렌더링 시작');
+        setLoading(true);
+        
+        const container = document.getElementById('application-list');
+        
+        try {
+          db.collection("applications")
+            .orderBy("timestamp", "desc")
+            .onSnapshot(
+              snapshot => {
+                setLoading(false);
+                container.innerHTML = "";
+                
+                if (snapshot.empty) {
+                  container.innerHTML = '<div class="bg-yellow-100 p-4 rounded shadow">등록된 신청이 없습니다.</div>';
+                  logMessage('데이터 없음: 등록된 신청이 없습니다.');
+                  return;
+                }
+                
+                logMessage(`${snapshot.size}개의 신청 항목을 렌더링합니다.`);
+                
+                snapshot.forEach(doc => {
+                  try {
+                    const data = doc.data();
+                    const div = document.createElement("div");
+                    div.className = "bg-white p-4 rounded shadow";
+                    div.innerHTML = `
+                      <h2 class="text-lg font-bold">${data.name || '신청자 미입력'}</h2>
+                      <p>장비: ${data.items?.join(", ") || '없음'}</p>
+                      <p>대여일자: ${data.date || '-'}</p>
+                      <p>시간: ${data.time || '-'}</p>
+                      <p>증명사진: ${
+                        data.proofPhoto
+                          ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>`
+                          : '없음'
+                      }</p>
+                      <p>상태: <span class="font-semibold ${getStatusClass(data.status)}">${data.status || '대기중'}</span></p>
+                      <div class="mt-2 space-x-2">
+                        <button class="px-3 py-1 bg-green-500 text-white rounded" 
+                                onclick="updateStatus('${doc.id}', '승인됨')">승인</button>
+                        <button class="px-3 py-1 bg-red-500 text-white rounded" 
+                                onclick="updateStatus('${doc.id}', '반려됨')">반려</button>
+                      </div>
+                    `;
+                    container.appendChild(div);
+                  } catch (docError) {
+                    logMessage(`항목 렌더링 오류: ${docError.message}`, 'error');
+                  }
+                });
+              },
+              error => {
+                setLoading(false);
+                logMessage(`Firestore 구독 오류: ${error.message}`, 'error');
+                container.innerHTML = `<div class="bg-red-100 p-4 rounded shadow">데이터를 가져오는 중 오류가 발생했습니다: ${error.message}</div>`;
+              }
+            );
+        } catch (renderError) {
+          setLoading(false);
+          logMessage(`렌더링 함수 오류: ${renderError.message}`, 'error');
+        }
+      }
+
+      // 상태에 따른 클래스 반환
+      function getStatusClass(status) {
+        switch(status) {
+          case '승인됨': return 'text-green-600';
+          case '반려됨': return 'text-red-600';
+          default: return 'text-yellow-600';
+        }
+      }
+
+      // 상태 업데이트
+      window.updateStatus = function(docId, newStatus) {
+        logMessage(`상태 업데이트: 문서 ID ${docId}, 새 상태 "${newStatus}"`);
+        
+        try {
+          db.collection("applications").doc(docId).update({ 
+            status: newStatus,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          })
+          .then(() => {
+            logMessage(`상태 업데이트 성공: 문서 ID ${docId}`);
+          })
+          .catch(error => {
+            logMessage(`상태 업데이트 실패: ${error.message}`, 'error');
+          });
+        } catch (updateError) {
+          logMessage(`상태 업데이트 실행 오류: ${updateError.message}`, 'error');
+        }
+      };
+
+      // 인증 상태 표시
+      function updateAuthUI(user) {
+        const authStatus = document.getElementById('auth-status');
+        
+        if (user) {
+          authStatus.innerHTML = `
+            <div class="bg-green-100 p-3 rounded flex justify-between items-center">
+              <span class="text-green-800">로그인 됨: ${user.email}</span>
+              <button id="logout-btn" class="px-3 py-1 bg-gray-500 text-white rounded">로그아웃</button>
+            </div>
+          `;
+          
+          document.getElementById('logout-btn').addEventListener('click', () => {
+            auth.signOut().then(() => {
+              logMessage('로그아웃 성공');
+            }).catch(error => {
+              logMessage(`로그아웃 오류: ${error.message}`, 'error');
+            });
+          });
+          
+        } else {
+          authStatus.innerHTML = `
+            <div class="bg-yellow-100 p-3 rounded">
+              <span class="text-yellow-800">인증되지 않은 사용자입니다. 로그인 페이지로 이동합니다...</span>
+            </div>
+          `;
+        }
+      }
+
+      // 로그인 여부 확인
+      auth.onAuthStateChanged(user => {
+        logMessage(`인증 상태 변경: ${user ? '로그인됨' : '로그인되지 않음'}`);
+        updateAuthUI(user);
+        
+        if (user) {
+          try {
+            renderApplications();
+          } catch (error) {
+            logMessage(`렌더링 시작 오류: ${error.message}`, 'error');
+          }
+        } else {
+          // 3초 후 로그인 페이지로 리다이렉트
+          setTimeout(() => {
+            logMessage('로그인 페이지로 리다이렉트');
+            window.location.href = "admin-login.html";
+          }, 3000);
+        }
+      });
+
+    } catch (initError) {
+      logMessage(`초기화 오류: ${initError.message}`, 'error');
+      document.body.innerHTML = `
+        <div class="max-w-6xl mx-auto p-6">
+          <div class="bg-red-100 p-6 rounded shadow">
+            <h1 class="text-2xl font-bold text-red-700 mb-4">오류가 발생했습니다</h1>
+            <p class="mb-4">${initError.message}</p>
+            <a href="admin-login.html" class="px-4 py-2 bg-blue-500 text-white rounded">로그인 페이지로 돌아가기</a>
+          </div>
+        </div>
+      `;
+    }
   </script>
 </body>
 </html>
