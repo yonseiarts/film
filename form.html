@@ -280,6 +280,23 @@
     renderEquipment("camera");
     updateSelectedUI();
 
+    // 탭 버튼에 이벤트 리스너 추가 (문제 해결)
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', function() {
+        // 모든 탭에서 active 클래스 제거
+        document.querySelectorAll('.tab-button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        
+        // 클릭된 탭에 active 클래스 추가
+        this.classList.add('active');
+        
+        // 해당 탭의 장비 목록 표시
+        const tabName = this.getAttribute('data-tab');
+        renderEquipment(tabName);
+      });
+    });
+
     // 단계 이동
     function goToStep(n) {
       // 3단계 이동 전
@@ -288,6 +305,10 @@
           editingDate = document.getElementById("editingDate").value;
           if (!editingDate) {
             alert("대여일자를 선택해주세요.");
+            return;
+          }
+          if (selectedTimes.length === 0) {
+            alert("최소 1개 이상의 시간대를 선택해주세요.");
             return;
           }
         } else {
@@ -392,6 +413,12 @@
           <strong>${item.name}</strong>
         `;
         div.onclick = () => toggleItem(item, div);
+        
+        // 선택된 장비는 selected 클래스 추가
+        if (selected.some(s => s.id === item.id)) {
+          div.classList.add("selected");
+        }
+        
         list.appendChild(div);
       });
 
@@ -445,7 +472,6 @@
 
     // 편집실 시간 슬롯 (0~23)
     function createTimeSlots() {
-      selectedTimes = [];
       const container = document.getElementById("timeGrid");
       container.innerHTML = "";
 
@@ -470,6 +496,12 @@
         container.appendChild(input);
         container.appendChild(label);
       }
+
+      // 이미 선택된 시간 체크
+      selectedTimes.forEach(hour => {
+        const input = document.getElementById(`hour-${hour}`);
+        if (input) input.checked = true;
+      });
     }
 
     // 규정 동의
