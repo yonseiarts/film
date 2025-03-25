@@ -22,6 +22,7 @@
       border-color: #facc15;
       background-color: #fefce8;
     }
+
     .time-grid {
       display: grid;
       grid-template-columns: repeat(24, 1fr);
@@ -113,7 +114,7 @@
           <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
           <button onclick="goToStep(1)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
         </div>
-        <button onclick="goToStep(3)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
           다음 단계 →
         </button>
       </div>
@@ -162,11 +163,6 @@
   </div>
 
   <script>
-    // 홈으로 이동 (원하는 경로로 수정)
-    function goHome() {
-      window.location.href = "index.html";
-    }
-
     let step = 1;
     let selected = [];
     let activeTab = "camera"; // 기본 탭
@@ -189,7 +185,6 @@
       ]
     };
 
-    // 장비 목록 렌더링
     function renderEquipment(tab) {
       selected = [];
       activeTab = tab;
@@ -207,7 +202,6 @@
       });
     }
 
-    // 장비 선택
     function toggleItem(item, el) {
       const found = selected.find(s => s.id === item.id);
       if (found) {
@@ -220,7 +214,6 @@
       updateSelectedUI();
     }
 
-    // 선택된 장비 업데이트
     function updateSelectedUI() {
       const sec = document.getElementById("selected-section");
       const btn = document.getElementById("toStep2");
@@ -235,7 +228,6 @@
         selected.map(s => `<li>${s.name}</li>`).join("");
     }
 
-    // 단계 이동
     function goToStep(n) {
       document.getElementById(`step${step}`).classList.add("hidden");
       document.getElementById(`step${n}`).classList.remove("hidden");
@@ -244,7 +236,6 @@
       step = n;
     }
 
-    // 유효성 검사 및 이동
     function validateStep2() {
       if (startDate && endDate && proofImage) {
         goToStep(3);
