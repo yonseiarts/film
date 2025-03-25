@@ -1,54 +1,142 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>관리자 대시보드</title>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    
+    // Firebase 설정
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      authDomain: "yonseirent-setup.firebaseapp.com",
+      projectId: "yonseirent-setup",
+      storageBucket: "yonseirent-setup.appspot.com",
+      messagingSenderId: "1072524969376",
+      appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
+      measurementId: "G-P61J7CYTWZ"
+    };
+
+    // Firebase 초기화
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // 인증 상태 변경 리스너 설정
+    auth.onAuthStateChanged(handleAuthStateChanged);
+
+    // 인증 상태에 따라 UI 업데이트
+    function handleAuthStateChanged(user) {
+      if (user) {
+        // 로그인 상태일 때 데이터 로드
+        loadApplicationData(user);
+      } else {
+        // 로그인하지 않으면 로그인 페이지로 리디렉션
+        window.location.href = 'admin-login.html';
+      }
+    }
+
+    // 신청 데이터 로드
+    function loadApplicationData(user) {
+      const applicationList = document.getElementById('application-list');
+      applicationList.innerHTML = "<p>데이터를 불러오는 중...</p>"; // 로딩 메시지
+
+      // Firestore에서 신청 데이터 가져오기
+      db.collection('applications').get().then(querySnapshot => {
+        applicationList.innerHTML = ''; // 로딩 메시지 제거 후 데이터 표시
+        querySnapshot.forEach(doc => {
+          const data = doc.data();
+          const application = document.createElement('div');
+          application.className = 'application-card';
+          application.innerHTML = `
+            <h3>${data.name}</h3>
+            <p>신청일: ${data.timestamp.toDate().toLocaleString()}</p>
+            <p>대여일자: ${data.date}</p>
+            <p>상태: ${data.status}</p>
+          `;
+          applicationList.appendChild(application);
+        });
+      }).catch(error => {
+        console.error("데이터 로드 실패:", error);
+        applicationList.innerHTML = "<p>데이터를 불러오는 데 실패했습니다.</p>";
+      });
+    }
+  </script>
+
+  <!-- Tailwind CSS -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .application-card {
+      background-color: #fff;
+      padding: 20px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .application-card h3 {
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+    .application-card p {
+      font-size: 1rem;
+      margin: 4px 0;
+    }
+  </style>
 </head>
-<body class="bg-gray-100">
 
-  <!-- 상단 네비게이션 -->
-  <nav class="bg-blue-600 p-4 text-white">
-    <div class="max-w-6xl mx-auto flex justify-between items-center">
-      <h1 class="text-2xl font-bold">관리자 대시보드</h1>
-      <a href="admin_login.html" class="text-white hover:text-gray-300">로그아웃</a>
-    </div>
-  </nav>
+<body class="bg-gray-100 min-h-screen">
+  <div class="max-w-6xl mx-auto p-4 sm:p-6">
+    <header class="bg-white p-4 rounded-lg shadow mb-6">
+      <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold">🎬 관리자 대시보드</h1>
+        <div id="auth-status"></div>
+      </div>
+    </header>
 
-  <!-- 대시보드 콘텐츠 -->
-  <div class="max-w-6xl mx-auto p-6">
-    <h2 class="text-3xl font-bold mb-6">환영합니다, 관리자님!</h2>
-
-    <!-- 데이터 표시 영역 (예시: 대여 신청 목록) -->
-    <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
-      <h3 class="text-2xl font-semibold mb-4">대여 신청 목록</h3>
-      <table class="min-w-full table-auto">
-        <thead>
-          <tr>
-            <th class="px-4 py-2 border">번호</th>
-            <th class="px-4 py-2 border">이름</th>
-            <th class="px-4 py-2 border">장비</th>
-            <th class="px-4 py-2 border">상태</th>
-            <th class="px-4 py-2 border">작업</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- 데이터가 없을 때 -->
-          <tr>
-            <td class="px-4 py-2 border" colspan="5" class="text-center">대여 신청 내역이 없습니다.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- 더 많은 관리자 기능을 위한 버튼들 -->
-    <div class="flex space-x-4">
-      <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">신규 신청 보기</button>
-      <button class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">장비 관리</button>
-      <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">통계 보기</button>
+    <!-- 신청 목록 영역 -->
+    <div id="application-list" class="space-y-4">
+      <!-- 데이터가 여기에 표시됩니다 -->
     </div>
   </div>
 
+  <!-- 로그아웃 버튼을 위한 이벤트 처리 -->
+  <script type="module">
+    // 로그아웃 버튼을 추가하여 로그아웃 기능 구현
+    document.addEventListener('DOMContentLoaded', () => {
+      const authStatus = document.getElementById('auth-status');
+      const user = auth.currentUser;
+      if (user) {
+        authStatus.innerHTML = `
+          <div class="flex items-center">
+            <span class="mr-4">${user.email}</span>
+            <button id="logout-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded">
+              로그아웃
+            </button>
+          </div>
+        `;
+        
+        // 로그아웃 버튼 클릭 시
+        document.getElementById('logout-btn').addEventListener('click', () => {
+          auth.signOut()
+            .then(() => {
+              window.location.href = 'admin-login.html'; // 로그아웃 후 로그인 페이지로 이동
+            })
+            .catch(error => {
+              console.error("로그아웃 실패:", error.message);
+            });
+        });
+      } else {
+        authStatus.innerHTML = `
+          <span class="text-red-600">로그인되지 않음</span>
+        `;
+      }
+    });
+  </script>
 </body>
 </html>
