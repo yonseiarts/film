@@ -5,10 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>관리자 대시보드</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
   <script type="module">
+    // Firebase SDK import
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-    
+
     // Firebase 설정
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
@@ -29,6 +31,8 @@
       const applicationsRef = collection(db, "applications");
       const querySnapshot = await getDocs(applicationsRef);
       const applicationList = document.getElementById("application-list");
+
+      applicationList.innerHTML = "";  // 기존 목록 초기화
 
       querySnapshot.forEach((docSnap) => {
         const data = docSnap.data();
@@ -94,11 +98,11 @@
 
     // 신청 상태 업데이트 함수
     async function updateApplicationStatus(docId, newStatus) {
-      const applicationRef = doc(db, "applications", docId);
+      const applicationRef = doc(db, "applications", docId);  // Firestore에서 해당 문서 참조
       try {
         await updateDoc(applicationRef, {
-          status: newStatus,
-          updatedAt: new Date()
+          status: newStatus,  // 상태 업데이트
+          updatedAt: new Date()  // 수정 시간 추가
         });
         alert(`상태가 ${newStatus}로 업데이트되었습니다.`);
         loadApplications(); // 상태 업데이트 후 목록 새로 고침
@@ -115,4 +119,3 @@
   </script>
 </body>
 </html>
-
