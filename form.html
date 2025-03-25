@@ -33,14 +33,14 @@
     .time-grid label {
       display: block;
       text-align: center;
-      font-size: 0.75rem;
+      font-size: 0.75rem; /* 글자 크기 줄임 */
       padding: 6px 0;
       background-color: #f3f4f6;
       border-radius: 4px;
       border: 1px solid #e5e7eb;
       cursor: pointer;
-      white-space: nowrap;
-      overflow: hidden;
+      white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+      overflow: hidden;    /* 밖으로 나가지 않도록 */
     }
     .time-grid input[type="checkbox"] {
       display: none;
@@ -71,7 +71,9 @@
     <!-- Step 1: 장비 선택 -->
     <div id="step1">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
+      <!-- 빨간색 안내문 -->
       <p class="text-xs text-red-600 mb-4">특수프로젝트는 기자재 총괄에게 문의</p>
+
       <p class="text-sm text-gray-600 mb-4">
         - 편집실을 선택하면 다른 장비는 담을 수 없습니다 (편집실은 단일 선택).<br/>
         - 카메라/조명/사운드는 여러 개 장비를 장바구니처럼 담을 수 있습니다.
@@ -88,7 +90,10 @@
         <ul id="selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
       </div>
       <div class="flex justify-between mt-6">
+        <!-- 홈으로 버튼 -->
         <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
+
+        <!-- 다음단계 (2) -->
         <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">
           다음 단계 →
         </button>
@@ -98,25 +103,47 @@
     <!-- Step 2: 대여 정보 -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
+
+      <!-- 카/조/사 전용 영역 -->
       <div id="commonSection">
         <label class="block mb-2 font-medium">대여 시작일</label>
         <input type="date" id="startDate" class="border p-2 rounded w-full mb-4"/>
+
         <label class="block mb-2 font-medium">반납일</label>
         <input type="date" id="endDate" class="border p-2 rounded w-full mb-4"/>
+        
         <p class="text-sm text-gray-500 mb-4">
           ※ 최대 3일 이내로 설정해주세요.
         </p>
+
         <div class="mb-4">
           <label class="block mb-2 font-medium">증명사진 첨부</label>
           <input type="file" id="proofImage" accept="image/*" class="block w-full border p-2 rounded"/>
         </div>
       </div>
 
+      <!-- 편집실 전용 영역 -->
+      <div id="editingSection" class="hidden">
+        <label class="block mb-2 font-medium">대여일자</label>
+        <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4"/>
+        
+        <label class="block mb-2 font-medium">대여장소</label>
+        <!-- 선택한 편집실(편집실1 or 편집실2)이 자동으로 세팅됨 -->
+        <input type="text" id="editingLocation" value="" disabled class="border p-2 rounded w-full bg-gray-100 text-gray-600 mb-4"/>
+
+        <h3 class="text-lg font-semibold mt-2 mb-2">대여 시간 (0시 ~ 23시)</h3>
+        <div id="timeGrid" class="time-grid"></div>
+      </div>
+
       <div class="flex justify-between mt-6">
         <div class="flex space-x-4">
+          <!-- 홈으로 버튼 -->
           <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
+          <!-- 이전 단계 (step1) -->
           <button onclick="goToStep(1)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
         </div>
+
+        <!-- 다음단계 (3) -->
         <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
           다음 단계 →
         </button>
@@ -133,16 +160,50 @@
         본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원 하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>
         <em>제2조 (적용범위)</em><br/>
         본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
+        <strong>제2장 관리체계</strong><br/>
+        <em>제1조 (주임교수의 권한)</em><br/>
+        •기자재 운영 정책 수립 및 변경<br/>
+        •기자재 담당 인력 임명<br/>
+        •장비 대여 승인<br/>
+        •외부 촬영 허가<br/>
+        •분쟁 조정 및 제재 조치 결정<br/><br/>
+        <em>제2조 (행정실 업무)</em><br/>
+        •기자재 대장 관리<br/>
+        •예산 집행 및 회계 관리<br/>
+        <!-- ... 전체 규정 전문 ... -->
+        <strong>제7장 문서관리</strong><br/>
+        <em>제1조 (문서보관)</em><br/>
+        행정실과 문서관리 담당은 다음 각 호의 문서를 보관한다: <br/>
+        •대여 신청서 및 승인서<br/>
+        •촬영 계획서<br/>
+        <!-- etc... -->
+        <strong>부칙</strong><br/>
+        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
+        제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
+        2025년 3월 23일<br/>
+        연세예술원 영화학 주임교수 유영식
       </div>
       <label class="flex items-center mb-4">
         <input type="checkbox" id="agreeCheck" class="mr-2"> 위 사용 규정에 동의합니다.
       </label>
 
+      <!-- 편집실 요약 (편집실 선택 시 표시) -->
+      <div id="editingSummary" class="hidden mt-6 p-4 bg-white border rounded text-sm text-gray-700">
+        <h3 class="text-lg font-semibold mb-2">편집실 대여 정보</h3>
+        <p><strong>대여장소:</strong> <span id="summaryPlace"></span></p>
+        <p><strong>대여일자:</strong> <span id="summaryDate"></span></p>
+        <p><strong>대여시간:</strong> <span id="summaryTime"></span></p>
+      </div>
+
       <div class="flex justify-between mt-6">
         <div class="flex space-x-4">
+          <!-- 홈으로 버튼 -->
           <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
+          <!-- 이전 단계 (step2) -->
           <button onclick="goToStep(2)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
         </div>
+
+        <!-- 완료 -> step4 -->
         <button id="toStep4" onclick="goToStep(4)" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">
           완료
         </button>
@@ -152,16 +213,52 @@
     <!-- Step 4: 완료 -->
     <div id="step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
+
       <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
       <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
+
+      <!-- 카/조/사 요약 -->
+      <div id="final-common" class="mt-8">
+        <h3 class="text-lg font-bold mb-4">대여 정보</h3>
+        <p id="final-rental-info" class="text-sm text-gray-700"></p>
+        <h3 class="text-lg font-bold mb-4 mt-6">첨부된 증명사진</h3>
+        <p id="final-proof-image" class="text-sm text-gray-700"></p>
+      </div>
+
+      <!-- 편집실 요약 -->
+      <div id="final-editing" class="mt-8 hidden">
+        <h3 class="text-lg font-bold mb-4">편집실 대여 정보</h3>
+        <p id="final-editing-date" class="text-sm text-gray-700"></p>
+        <p id="final-editing-time" class="text-sm text-gray-700"></p>
+      </div>
+
+      <div class="mt-8">
+        <!-- 홈으로 버튼 -->
+        <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
+      </div>
     </div>
   </div>
 
   <script>
+    // 홈으로 이동 (원하는 경로로 수정)
+    function goHome() {
+      // 예: index.html 로 이동
+      window.location.href = "index.html";
+    }
+
+    let step = 1;
     let selected = [];
-    let activeTab = "camera";
+    let activeTab = "camera"; // 기본 탭
+
+    // 카/조/사
     let startDate, endDate, proofImage;
 
+    // 편집실
+    let editingDate;
+    let selectedTimes = [];
+    let editingLocation = ""; // 편집실1 or 편집실2
+
+    // 장비 데이터
     const equipment = {
       camera: [
         { id: "1", name: "Sony FX3", image: "https://via.placeholder.com/80?text=Sony+FX3" },
@@ -179,10 +276,135 @@
       ]
     };
 
-    // 장비 렌더링 함수
+    // 초기 장비 목록
+    renderEquipment("camera");
+    updateSelectedUI();
+
+    // 탭 버튼에 이벤트 리스너 추가 (문제 해결)
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', function() {
+        // 모든 탭에서 active 클래스 제거
+        document.querySelectorAll('.tab-button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        
+        // 클릭된 탭에 active 클래스 추가
+        this.classList.add('active');
+        
+        // 해당 탭의 장비 목록 표시
+        const tabName = this.getAttribute('data-tab');
+        renderEquipment(tabName);
+      });
+    });
+
+    // 단계 이동
+    function goToStep(n) {
+      // 3단계 이동 전
+      if (n === 3) {
+        if (activeTab === "editing") {
+          editingDate = document.getElementById("editingDate").value;
+          if (!editingDate) {
+            alert("대여일자를 선택해주세요.");
+            return;
+          }
+          if (selectedTimes.length === 0) {
+            alert("최소 1개 이상의 시간대를 선택해주세요.");
+            return;
+          }
+        } else {
+          startDate = document.getElementById("startDate").value;
+          endDate = document.getElementById("endDate").value;
+          proofImage = document.getElementById("proofImage").files[0];
+          if (!startDate || !endDate || !proofImage) {
+            alert("시작일, 반납일, 증명사진을 모두 입력해주세요.");
+            return;
+          }
+        }
+      }
+      // 4단계 이동 전 규정 동의
+      if (n === 4) {
+        if (!document.getElementById("agreeCheck").checked) return;
+        displayFinalInfo();
+      }
+
+      // 페이지 전환
+      document.getElementById(`step${step}`).classList.add("hidden");
+      document.getElementById(`step${n}`).classList.remove("hidden");
+      document.getElementById(`step${step}Btn`)?.classList.replace("step-active", "step-inactive");
+      document.getElementById(`step${n}Btn`)?.classList.replace("step-inactive", "step-active");
+      step = n;
+
+      // 편집실 요약 (3단계)
+      if (n === 3 && activeTab === "editing") {
+        document.getElementById("editingSummary").classList.remove("hidden");
+        document.getElementById("summaryPlace").textContent = editingLocation; // 편집실1 or 2
+        document.getElementById("summaryDate").textContent = editingDate;
+        document.getElementById("summaryTime").textContent = formatTimes(selectedTimes);
+      } else {
+        document.getElementById("editingSummary").classList.add("hidden");
+      }
+    }
+
+    // 최종 (4단계) 정보 표시
+    function displayFinalInfo() {
+      // 선택된 장비
+      document.getElementById("final-selected-items").innerHTML =
+        selected.map(s => `<li>${s.name}</li>`).join("");
+
+      if (activeTab === "editing") {
+        // 편집실
+        document.getElementById("final-common").classList.add("hidden");
+        document.getElementById("final-editing").classList.remove("hidden");
+        document.getElementById("final-editing-date").innerText = `대여일자: ${editingDate}`;
+        document.getElementById("final-editing-time").innerText = `선택시간: ${formatTimes(selectedTimes)}`;
+      } else {
+        // 카/조/사
+        document.getElementById("final-common").classList.remove("hidden");
+        document.getElementById("final-editing").classList.add("hidden");
+        document.getElementById("final-rental-info").innerText = `시작: ${startDate}, 반납: ${endDate}`;
+        document.getElementById("final-proof-image").innerText = proofImage ? proofImage.name : "없음";
+      }
+    }
+
+    function formatTimes(arr) {
+      if (!arr.length) return "없음";
+      const sorted = [...arr].sort((a, b) => a - b);
+      return sorted.map(h => `${h}:00`).join(", ");
+    }
+
+    // 2단계 이동 시
+    function validateStep2() {
+      if (activeTab === "editing") {
+        // 편집실
+        goToStep(3);
+      } else {
+        // 카/조/사
+        const sd = document.getElementById("startDate").value;
+        const ed = document.getElementById("endDate").value;
+        const pf = document.getElementById("proofImage").files[0];
+        if (!sd || !ed || !pf) {
+          alert("시작일, 반납일, 증명사진을 모두 입력해주세요.");
+          return;
+        }
+        goToStep(3);
+      }
+    }
+
+    // 장비 목록 렌더링
     function renderEquipment(tab) {
+      // 편집실 탭으로 전환 시 -> 기존 선택 초기화
+      if (tab === "editing") {
+        selected = [];
+      } else {
+        // 편집실->카/조/사 넘어갈 때 편집실 선택 해제
+        selected = selected.filter(item => Number(item.id) < 5);
+      }
+      activeTab = tab;
+      updateSelectedUI();
+
       const list = document.getElementById("equipment-list");
       list.innerHTML = "";
+
       equipment[tab].forEach(item => {
         const div = document.createElement("div");
         div.className = "equipment border p-4 rounded flex items-center cursor-pointer";
@@ -192,21 +414,36 @@
         `;
         div.onclick = () => toggleItem(item, div);
         
+        // 선택된 장비는 selected 클래스 추가
         if (selected.some(s => s.id === item.id)) {
           div.classList.add("selected");
         }
         
         list.appendChild(div);
       });
+
+      if (tab === "editing") {
+        document.getElementById("commonSection").classList.add("hidden");
+        document.getElementById("editingSection").classList.remove("hidden");
+        createTimeSlots();
+      } else {
+        document.getElementById("commonSection").classList.remove("hidden");
+        document.getElementById("editingSection").classList.add("hidden");
+      }
     }
 
-    // 선택된 장비를 추가 또는 제거하는 함수
+    // 장비 선택 로직
     function toggleItem(item, el) {
       if (activeTab === "editing") {
+        // 편집실: 단일 선택
         selected = [item];
+        editingLocation = item.name; // 편집실1 or 편집실2
         document.querySelectorAll("#equipment-list .equipment").forEach(e => e.classList.remove("selected"));
         el.classList.add("selected");
+        // 대여장소 반영
+        document.getElementById("editingLocation").value = editingLocation;
       } else {
+        // 카/조/사: 여러개
         const found = selected.find(s => s.id === item.id);
         if (found) {
           selected = selected.filter(s => s.id !== item.id);
@@ -219,7 +456,6 @@
       updateSelectedUI();
     }
 
-    // 선택된 장비 목록 UI 업데이트
     function updateSelectedUI() {
       const sec = document.getElementById("selected-section");
       const btn = document.getElementById("toStep2");
@@ -234,23 +470,46 @@
         selected.map(s => `<li>${s.name}</li>`).join("");
     }
 
-    // 단계 이동
-    function goToStep(n) {
-      if (n === 2) {
-        // 대여 정보 페이지로 이동
-        if (selected.length === 0) {
-          alert("장비를 선택해주세요.");
-          return;
-        }
+    // 편집실 시간 슬롯 (0~23)
+    function createTimeSlots() {
+      const container = document.getElementById("timeGrid");
+      container.innerHTML = "";
+
+      for (let hour = 0; hour < 24; hour++) {
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.id = `hour-${hour}`;
+        input.value = hour;
+
+        input.addEventListener("change", () => {
+          if (input.checked) {
+            selectedTimes.push(hour);
+          } else {
+            selectedTimes = selectedTimes.filter(h => h !== hour);
+          }
+        });
+
+        const label = document.createElement("label");
+        label.setAttribute("for", `hour-${hour}`);
+        label.textContent = `${hour}:00`;
+
+        container.appendChild(input);
+        container.appendChild(label);
       }
 
-      document.getElementById(`step1`).classList.add("hidden");
-      document.getElementById(`step${n}`).classList.remove("hidden");
-      step = n;
+      // 이미 선택된 시간 체크
+      selectedTimes.forEach(hour => {
+        const input = document.getElementById(`hour-${hour}`);
+        if (input) input.checked = true;
+      });
     }
 
-    // 첫 페이지 로딩 시 장비 렌더링
-    renderEquipment("camera");
+    // 규정 동의
+    document.getElementById("agreeCheck").addEventListener("change", e => {
+      const btn = document.getElementById("toStep4");
+      btn.disabled = !e.target.checked;
+      btn.classList.toggle("opacity-50", !e.target.checked);
+    });
   </script>
 </body>
 </html>
