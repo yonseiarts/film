@@ -54,7 +54,7 @@
         auth.signInWithEmailAndPassword(email, password)
           .then(() => {
             logMessage('로그인 성공, 대시보드로 이동');
-            window.location.href = "admin-dashboard.html"; // 성공 시 이동
+            window.location.href = "admin_dashboard.html"; // 성공 시 이동
           })
           .catch((error) => {
             console.error(error);
