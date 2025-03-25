@@ -29,12 +29,6 @@
       const applicationsRef = collection(db, "applications");
       const querySnapshot = await getDocs(applicationsRef);
       const applicationList = document.getElementById("application-list");
-      
-      // 빈 리스트가 아닐 때만 반복문 돌기
-      if (querySnapshot.empty) {
-        console.log("No applications found.");
-        return;  // 데이터가 없을 경우 함수 종료
-      }
 
       querySnapshot.forEach((docSnap) => {
         const data = docSnap.data();
