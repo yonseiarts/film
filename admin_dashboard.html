@@ -13,26 +13,9 @@
   <div id="application-list" class="max-w-4xl mx-auto"></div>
 
   <script>
-    // 1. Firebase 초기화 설정 (반드시 실제 프로젝트 설정으로 교체)
+    // Firebase 설정
     var firebaseConfig = {
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>신청서 목록</title>
-  <!-- Firebase 라이브러리 (버전에 따라 수정 가능) -->
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
-  <!-- Tailwind CSS (선택 사항) -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100 p-4">
-  <div id="application-list" class="max-w-4xl mx-auto"></div>
-
-  <script>
-    // 1. Firebase 초기화 설정 (반드시 실제 프로젝트 설정으로 교체)
-    var firebaseConfig = {
-      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      apiKey: "AIzaSyD...",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
       // ...
@@ -40,7 +23,7 @@
     firebase.initializeApp(firebaseConfig);
     var db = firebase.firestore();
 
-    // 2. 상태에 따른 CSS 클래스 반환 함수
+    // 상태에 따른 CSS 클래스 반환 함수
     function getStatusClass(status) {
       switch(status) {
         case '승인됨':
@@ -52,19 +35,19 @@
       }
     }
 
-    // 3. Firestore 문서 상태 업데이트 함수
+    // Firestore 문서 상태 업데이트 함수
     async function updateApplicationStatus(docId, newStatus) {
       try {
         await db.collection("applications").doc(docId).update({ status: newStatus });
         alert('상태가 성공적으로 업데이트되었습니다.');
-        location.reload(); // 업데이트 후 새로고침
+        location.reload();
       } catch (error) {
         console.error("상태 업데이트 에러: ", error);
         alert('상태 업데이트 중 오류가 발생했습니다.');
       }
     }
 
-    // 4. Firestore에서 신청서 데이터를 불러와 화면에 표시
+    // Firestore에서 신청서 데이터를 불러와 화면에 표시
     async function loadApplications() {
       const applicationsRef = db.collection("applications");
       const querySnapshot = await applicationsRef.get();
@@ -75,7 +58,6 @@
         const listItem = document.createElement("div");
         listItem.classList.add("bg-white", "p-4", "rounded", "shadow", "mb-4");
 
-        // Firestore Timestamp 객체라면 Date 객체로 변환
         let timestamp = data.timestamp;
         if (timestamp instanceof firebase.firestore.Timestamp) {
           timestamp = timestamp.toDate();
@@ -83,7 +65,6 @@
           timestamp = "잘못된 날짜 형식";
         }
 
-        // items가 배열인지 확인 후 join 사용
         const itemsText = Array.isArray(data.items)
           ? data.items.join(", ")
           : data.items || '없음';
@@ -100,9 +81,7 @@
           <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
             <div>
               <p class="text-sm text-gray-600">신청일시</p>
-              <p class="font-medium">${
-                timestamp instanceof Date ? timestamp.toLocaleString() : timestamp
-              }</p>
+              <p class="font-medium">${timestamp instanceof Date ? timestamp.toLocaleString() : timestamp}</p>
             </div>
             <div>
               <p class="text-sm text-gray-600">대여일자</p>
@@ -138,134 +117,14 @@
             </button>
           </div>
         `;
-
         applicationList.appendChild(listItem);
 
-        // 승인 및 반려 버튼 이벤트 리스너 등록
+        // 승인/반려 버튼 이벤트 등록
         listItem.querySelector('.approve-btn').addEventListener('click', () => updateApplicationStatus(docSnap.id, '승인됨'));
         listItem.querySelector('.reject-btn').addEventListener('click', () => updateApplicationStatus(docSnap.id, '반려됨'));
       });
     }
 
-    // 5. 페이지 로드 시 신청서 데이터 로드
-    window.onload = loadApplications;
-  </script>
-</body>
-</html>
-
-      // ...
-    };
-    firebase.initializeApp(firebaseConfig);
-    var db = firebase.firestore();
-
-    // 2. 상태에 따른 CSS 클래스 반환 함수
-    function getStatusClass(status) {
-      switch(status) {
-        case '승인됨':
-          return { bg: 'bg-green-500', text: 'text-white' };
-        case '반려됨':
-          return { bg: 'bg-red-500', text: 'text-white' };
-        default:
-          return { bg: 'bg-gray-500', text: 'text-white' };
-      }
-    }
-
-    // 3. Firestore 문서 상태 업데이트 함수
-    async function updateApplicationStatus(docId, newStatus) {
-      try {
-        await db.collection("applications").doc(docId).update({ status: newStatus });
-        alert('상태가 성공적으로 업데이트되었습니다.');
-        location.reload(); // 업데이트 후 새로고침
-      } catch (error) {
-        console.error("상태 업데이트 에러: ", error);
-        alert('상태 업데이트 중 오류가 발생했습니다.');
-      }
-    }
-
-    // 4. Firestore에서 신청서 데이터를 불러와 화면에 표시
-    async function loadApplications() {
-      const applicationsRef = db.collection("applications");
-      const querySnapshot = await applicationsRef.get();
-      const applicationList = document.getElementById("application-list");
-
-      querySnapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        const listItem = document.createElement("div");
-        listItem.classList.add("bg-white", "p-4", "rounded", "shadow", "mb-4");
-
-        // Firestore Timestamp 객체라면 Date 객체로 변환
-        let timestamp = data.timestamp;
-        if (timestamp instanceof firebase.firestore.Timestamp) {
-          timestamp = timestamp.toDate();
-        } else {
-          timestamp = "잘못된 날짜 형식";
-        }
-
-        // items가 배열인지 확인 후 join 사용
-        const itemsText = Array.isArray(data.items)
-          ? data.items.join(", ")
-          : data.items || '없음';
-
-        listItem.innerHTML = `
-          <div class="flex justify-between items-start">
-            <h2 class="text-lg font-bold">${data.name || '신청자 미입력'}</h2>
-            <span class="px-2 py-1 rounded text-sm font-medium
-              ${getStatusClass(data.status).bg}
-              ${getStatusClass(data.status).text}">
-              ${data.status || '대기중'}
-            </span>
-          </div>
-          <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <div>
-              <p class="text-sm text-gray-600">신청일시</p>
-              <p class="font-medium">${
-                timestamp instanceof Date ? timestamp.toLocaleString() : timestamp
-              }</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-600">대여일자</p>
-              <p class="font-medium">${data.date || '-'}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-600">대여시간</p>
-              <p class="font-medium">${data.time || '-'}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-600">장비</p>
-              <p class="font-medium">${itemsText}</p>
-            </div>
-          </div>
-          <div class="mt-2">
-            <p class="text-sm text-gray-600">증명사진</p>
-            <p>${
-              data.proofPhoto
-                ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>`
-                : '없음'
-            }</p>
-          </div>
-          <div class="mt-4 flex space-x-2">
-            <button
-              class="approve-btn px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded"
-              data-id="${docSnap.id}">
-              승인
-            </button>
-            <button
-              class="reject-btn px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded"
-              data-id="${docSnap.id}">
-              반려
-            </button>
-          </div>
-        `;
-
-        applicationList.appendChild(listItem);
-
-        // 승인 및 반려 버튼 이벤트 리스너 등록
-        listItem.querySelector('.approve-btn').addEventListener('click', () => updateApplicationStatus(docSnap.id, '승인됨'));
-        listItem.querySelector('.reject-btn').addEventListener('click', () => updateApplicationStatus(docSnap.id, '반려됨'));
-      });
-    }
-
-    // 5. 페이지 로드 시 신청서 데이터 로드
     window.onload = loadApplications;
   </script>
 </body>
