@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>학생 로그인</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <title>관리자 로그인</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50">
-  <div class="max-w-md mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold text-center mb-6">학생 로그인</h2>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+    <h2 class="text-2xl font-bold mb-6 text-center">관리자 로그인</h2>
     
     <!-- 이메일 입력 필드 -->
     <input type="email" id="email" placeholder="이메일" class="border p-2 w-full mb-4 rounded" />
@@ -23,16 +23,35 @@
     <p id="error" class="text-red-500 text-sm mt-4 text-center hidden">이메일 또는 비밀번호가 잘못되었습니다.</p>
   </div>
 
-  <script>
-    // 로그인 버튼 클릭 시
+  <script type="module">
+    // Firebase SDK 가져오기
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    
+    // Firebase 설정
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      authDomain: "yonseirent-setup.firebaseapp.com",
+      projectId: "yonseirent-setup",
+      storageBucket: "yonseirent-setup.appspot.com",
+      messagingSenderId: "1072524969376",
+      appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
+      measurementId: "G-8G1D43NXMW"
+    };
+
+    // Firebase 앱 초기화
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // 로그인 버튼 클릭 시 이벤트 처리
     document.getElementById('loginBtn').addEventListener('click', () => {
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
-      // 이메일과 비밀번호가 일치하는지 확인
-      if (email === "validemail@domain.com" && password === "validpassword") {
-        // 로그인 성공 시 form.html로 이동
-        window.location.href = "form.html"; 
+      // 관리자 이메일과 비밀번호 확인
+      if (email === "admin@yonseiarts.kr" && password === "secureadmin123") {
+        // 로그인 성공 시 대시보드로 이동
+        window.location.href = "admin_dashboard.html"; // 관리자가 로그인 후 이동할 대시보드 페이지
       } else {
         // 로그인 실패 시 오류 메시지 표시
         document.getElementById("error").classList.remove("hidden");
