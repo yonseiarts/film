@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 신청</title>
-  <!-- Tailwind CSS (기존 디자인 그대로 유지) -->
+  <!-- Tailwind CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
   <style>
     .step-active {
@@ -34,14 +34,14 @@
     .time-grid label {
       display: block;
       text-align: center;
-      font-size: 0.75rem; /* 글자 크기 줄임 */
+      font-size: 0.75rem;
       padding: 6px 0;
       background-color: #f3f4f6;
       border-radius: 4px;
       border: 1px solid #e5e7eb;
       cursor: pointer;
-      white-space: nowrap; /* 텍스트 줄바꿈 방지 */
-      overflow: hidden;    /* 밖으로 나가지 않도록 */
+      white-space: nowrap;
+      overflow: hidden;
     }
     .time-grid input[type="checkbox"] {
       display: none;
@@ -155,7 +155,8 @@
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4">
         <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
-        <!-- ... 기존 규정 내용 ... -->
+        <!-- ... 규정 내용 그대로 ... -->
+        <p>예: 여기 규정 전문을 넣으시면 됩니다.</p>
       </div>
       <label class="flex items-center mb-4">
         <input type="checkbox" id="agreeCheck" class="mr-2"> 위 사용 규정에 동의합니다.
@@ -213,7 +214,7 @@
     </div>
   </div>
 
-  <!-- Firebase SDK (버전에 따라 수정 가능) -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
@@ -262,7 +263,7 @@
     let selectedTimes = [];
     let editingLocation = ""; // 편집실1 or 편집실2
 
-    // 장비 데이터 (기존)
+    // 장비 데이터 (원본)
     const equipment = {
       camera: [
         { id: "1", name: "Sony FX3", image: "https://via.placeholder.com/80?text=Sony+FX3" },
@@ -284,19 +285,16 @@
     renderEquipment("camera");
     updateSelectedUI();
 
-    // 탭 버튼 이벤트 (기존 로직)
+    // 탭 버튼 이벤트 (원본)
     document.querySelectorAll('.tab-button').forEach(button => {
       button.addEventListener('click', function() {
-        // 모든 탭에서 active 제거
         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        // 클릭된 탭 활성화
         this.classList.add('active');
-        // 해당 탭 장비 렌더
         renderEquipment(this.getAttribute('data-tab'));
       });
     });
 
-    // 규정 동의 → 완료 버튼 활성
+    // 규정 동의 체크
     document.getElementById("agreeCheck").addEventListener("change", e => {
       const btn = document.getElementById("toStep4");
       btn.disabled = !e.target.checked;
@@ -304,7 +302,7 @@
     });
 
     /********************************************************
-     * 단계 이동 (기존 로직)
+     * 단계 이동 (원본)
      ********************************************************/
     function goToStep(n) {
       // 3단계 이동 전
@@ -359,13 +357,11 @@
       }
     }
 
-    // 2단계에서 "다음 단계" 클릭 시
+    // 2단계 "다음 단계" (원본)
     function validateStep2() {
       if (activeTab === "editing") {
-        // 편집실
         goToStep(3);
       } else {
-        // 카/조/사
         const sd = document.getElementById("startDate").value;
         const ed = document.getElementById("endDate").value;
         const pf = document.getElementById("proofImage").files[0];
@@ -377,7 +373,7 @@
       }
     }
 
-    // 최종 (4단계) 정보 표시 (기존 로직)
+    // 최종(4단계) 화면 표시 (원본)
     function displayFinalInfo() {
       document.getElementById("final-selected-items").innerHTML =
         selected.map(s => `<li>${s.name}</li>`).join("");
@@ -410,7 +406,7 @@
           items: selected.map(s => s.name),
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
           status: "대기중",
-          isDeleted: false // 삭제 여부 (휴지통 기능 대비)
+          isDeleted: false // 휴지통 기능 대비
         };
 
         if (activeTab === "editing") {
@@ -441,7 +437,7 @@
       }
     }
 
-    // 장비 목록 렌더링 (기존 로직)
+    // 장비 목록 렌더링 (원본)
     function renderEquipment(tab) {
       if (tab === "editing") {
         selected = [];
@@ -479,7 +475,7 @@
       }
     }
 
-    // 장비 선택 로직 (기존)
+    // 장비 선택 로직 (원본)
     function toggleItem(item, el) {
       if (activeTab === "editing") {
         selected = [item];
@@ -514,7 +510,7 @@
         selected.map(s => `<li>${s.name}</li>`).join("");
     }
 
-    // 편집실 시간 슬롯 (0~23)
+    // 편집실 시간 슬롯 (0~23) (원본)
     function createTimeSlots() {
       const container = document.getElementById("timeGrid");
       container.innerHTML = "";
