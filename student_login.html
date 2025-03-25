@@ -1,77 +1,43 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>학생 로그인</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Tailwind CSS CDN -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" />
-  
-  <!-- (선택) 추가 커스텀 스타일이 필요하다면 여기서 inline style로 작성 가능합니다 -->
-  <style>
-    /* 여기에 추가 스타일이 있다면 작성 */
-  </style>
+  <!-- Tailwind (선택 사항) -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
 </head>
-<body class="bg-gray-100 text-gray-800">
-
-  <!-- 로그인 박스 -->
-  <div class="max-w-sm mx-auto mt-20 p-6 bg-white rounded shadow">
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-6 rounded shadow-md w-80">
     <h1 class="text-xl font-bold mb-4">학생 로그인</h1>
+    <label class="block mb-2 font-medium">이름</label>
+    <input type="text" id="studentName" class="border rounded w-full p-2 mb-4"/>
 
-    <input
-      id="studentIdInput"
-      type="text"
-      placeholder="학번"
-      class="w-full border p-2 mb-2 rounded"
-    />
-    <input
-      id="studentNameInput"
-      type="text"
-      placeholder="이름"
-      class="w-full border p-2 mb-2 rounded"
-    />
-    <input
-      id="studentPwInput"
-      type="password"
-      placeholder="비밀번호"
-      class="w-full border p-2 mb-4 rounded"
-    />
+    <label class="block mb-2 font-medium">학번</label>
+    <input type="text" id="studentID" class="border rounded w-full p-2 mb-6"/>
 
     <button
-      id="studentLoginBtn"
-      class="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700"
-    >
+      onclick="login()"
+      class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
       로그인
     </button>
   </div>
 
   <script>
-    // 학생 목록 예시
-    const studentList = [
-      { studentId: "AR23000501", studentName: "이창민", password: "1234" },
-      { studentId: "20230002", studentName: "이몽룡", password: "abcd" }
-    ];
-
-    document.getElementById('studentLoginBtn').addEventListener('click', () => {
-      const inputId = document.getElementById('studentIdInput').value.trim();
-      const inputName = document.getElementById('studentNameInput').value.trim();
-      const inputPw = document.getElementById('studentPwInput').value.trim();
-
-      // studentList에서 입력값과 일치하는 학생을 찾습니다
-      const found = studentList.find(student =>
-        student.studentId === inputId &&
-        student.studentName === inputName &&
-        student.password === inputPw
-      );
-
-      if (found) {
-        // 로그인 성공 → form.html로 이동 (또는 원하는 페이지로)
-        window.location.href = 'form.html';
-      } else {
-        alert('로그인 실패: 학번, 이름 또는 비밀번호가 일치하지 않습니다.');
+    function login() {
+      const name = document.getElementById("studentName").value.trim();
+      const id = document.getElementById("studentID").value.trim();
+      if (!name || !id) {
+        alert("이름과 학번을 모두 입력해주세요.");
+        return;
       }
-    });
+
+      // LocalStorage에 저장
+      localStorage.setItem("studentName", name);
+      localStorage.setItem("studentID", id);
+
+      // 대여 신청 페이지로 이동 (본인 경로로 수정)
+      window.location.href = "form.html";
+    }
   </script>
 </body>
 </html>
