@@ -14,7 +14,7 @@
   <nav class="bg-white shadow mb-4">
     <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
       <h1 class="text-2xl font-bold">관리자 페이지</h1>
-      <!-- 홈으로 버튼 예시 -->
+      <!-- 홈으로 버튼 -->
       <button onclick="goHome()" class="text-blue-600 underline text-sm">홈으로</button>
     </div>
   </nav>
@@ -41,7 +41,6 @@
     firebase.initializeApp(firebaseConfig);
     var db = firebase.firestore();
 
-    // 현재 '휴지통' 모드인지 여부
     let isTrashMode = false;
     let unsubscribe = null; // onSnapshot 해제용
 
@@ -101,10 +100,6 @@
         const data = docSnap.data();
         const docId = docSnap.id;
 
-        // 메인 카드
-        const item = document.createElement("div");
-        item.classList.add("bg-white", "p-4", "rounded", "shadow", "mb-4");
-
         let timestamp = data.timestamp;
         if (timestamp && timestamp.toDate) {
           timestamp = timestamp.toDate();
@@ -113,7 +108,9 @@
         // items
         const itemsText = Array.isArray(data.items) ? data.items.join(", ") : (data.items || "없음");
 
-        // HTML
+        // 메인 카드
+        const item = document.createElement("div");
+        item.classList.add("bg-white", "p-4", "rounded", "shadow", "mb-4");
         item.innerHTML = `
           <div class="flex justify-between items-start">
             <h2 class="text-lg font-bold">
@@ -157,16 +154,8 @@
             </p>
           </div>
           <div class="mt-4 flex space-x-2">
-            <button
-              class="approve-btn px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded"
-            >
-              승인
-            </button>
-            <button
-              class="reject-btn px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded"
-            >
-              반려
-            </button>
+            <button class="approve-btn px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded">승인</button>
+            <button class="reject-btn px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded">반려</button>
             ${
               isTrashMode
                 ? `<button class="restore-btn px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded">복구</button>`
@@ -174,7 +163,6 @@
             }
           </div>
         `;
-
         container.appendChild(item);
 
         // 승인/반려
@@ -187,12 +175,12 @@
 
         // 삭제 or 복구
         if (isTrashMode) {
-          // 휴지통 모드일 때 → 복구 버튼
+          // 휴지통 모드 → 복구 버튼
           item.querySelector('.restore-btn').addEventListener('click', () => {
             restoreFromTrash(docId);
           });
         } else {
-          // 일반 모드일 때 → 삭제 버튼
+          // 일반 모드 → 삭제 버튼
           item.querySelector('.delete-btn').addEventListener('click', () => {
             moveToTrash(docId);
           });
@@ -202,9 +190,7 @@
 
     // 일반 목록 구독
     function subscribeActive() {
-      // 기존 구독 해제
       if (unsubscribe) unsubscribe();
-
       unsubscribe = db.collection("applications")
         .where("isDeleted", "==", false)
         .onSnapshot((snapshot) => {
@@ -215,7 +201,6 @@
     // 휴지통 목록 구독
     function subscribeTrash() {
       if (unsubscribe) unsubscribe();
-
       unsubscribe = db.collection("applications")
         .where("isDeleted", "==", true)
         .onSnapshot((snapshot) => {
