@@ -5,17 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 신청</title>
 
-  <!-- 1. Firebase SDK (버전에 따라 수정 가능) -->
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
-
-  <!-- 2. Tailwind CSS (선택 사항, 기존 디자인 유지) -->
+  <!-- Tailwind CSS (기존 디자인 그대로 유지) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-
-  <!-- 3. 추가 스타일(기존 디자인 유지) -->
   <style>
-    /* 단계(스텝) 표시 관련 */
     .step-active {
       background-color: #1D4ED8;
       color: white;
@@ -36,21 +28,21 @@
     /* 편집실 시간체크 표 */
     .time-grid {
       display: grid;
-      grid-template-columns: repeat(24, 1fr); /* 0~23시 */
+      grid-template-columns: repeat(24, 1fr); /* 0~23시까지 총 24칸 */
       gap: 4px;
       margin-top: 16px;
     }
     .time-grid label {
       display: block;
       text-align: center;
-      font-size: 0.75rem;
+      font-size: 0.75rem; /* 글자 크기 줄임 */
       padding: 6px 0;
       background-color: #f3f4f6;
       border-radius: 4px;
       border: 1px solid #e5e7eb;
       cursor: pointer;
-      white-space: nowrap;
-      overflow: hidden;
+      white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+      overflow: hidden;    /* 밖으로 나가지 않도록 */
     }
     .time-grid input[type="checkbox"] {
       display: none;
@@ -63,18 +55,15 @@
     }
   </style>
 </head>
-
 <body class="bg-gray-50">
-  <!-- 상단 헤더 영역 -->
+  <!-- 상단 헤더 영역(기존 유지) -->
   <div class="bg-blue-700 text-white py-6 text-center">
     <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
     <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
   </div>
 
-  <!-- 메인 컨테이너 -->
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-
-    <!-- 상단 단계 표시 -->
+    <!-- 상단 단계 표시 (기존 유지) -->
     <div class="flex justify-between mb-8">
       <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
       <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
@@ -85,13 +74,12 @@
     <!-- Step 1: 장비 선택 -->
     <div id="step1">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
+      <!-- 빨간색 안내문 (기존 유지) -->
       <p class="text-xs text-red-600 mb-4">특수프로젝트는 기자재 총괄에게 문의</p>
       <p class="text-sm text-gray-600 mb-4">
         - 편집실을 선택하면 다른 장비는 담을 수 없습니다 (편집실은 단일 선택).<br/>
         - 카메라/조명/사운드는 여러 개 장비를 장바구니처럼 담을 수 있습니다.
       </p>
-
-      <!-- 탭 버튼 -->
       <div class="flex space-x-2 mb-4">
         <button class="tab-button px-4 py-1 border rounded active" data-tab="camera">카메라</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="lighting">조명</button>
@@ -99,20 +87,19 @@
         <button class="tab-button px-4 py-1 border rounded" data-tab="editing">편집실</button>
       </div>
 
-      <!-- 장비 목록 -->
+      <!-- 장비 목록 (기존 유지) -->
       <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6"></div>
 
-      <!-- 선택된 장비 표시 -->
+      <!-- 선택된 장비 섹션 (기존 유지) -->
       <div id="selected-section" class="mt-6 hidden">
         <h3 class="font-medium mb-2">선택된 장비</h3>
         <ul id="selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
       </div>
 
       <div class="flex justify-between mt-6">
-        <!-- 홈으로 버튼(원한다면 다른 경로로 이동) -->
+        <!-- 홈으로 버튼 (기존 유지) -->
         <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
-
-        <!-- 다음단계 (2) 버튼 -->
+        <!-- 다음단계 (2) -->
         <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden>
           다음 단계 →
         </button>
@@ -123,11 +110,7 @@
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
 
-      <!-- 이름 입력 (학생 이름) -->
-      <label class="block mb-2 font-medium">이름</label>
-      <input type="text" id="studentName" class="border p-2 rounded w-full mb-4"/>
-
-      <!-- 카메라/조명/사운드 전용 영역 -->
+      <!-- 카/조/사 전용 영역 (기존 유지) -->
       <div id="commonSection">
         <label class="block mb-2 font-medium">대여 시작일</label>
         <input type="date" id="startDate" class="border p-2 rounded w-full mb-4"/>
@@ -145,12 +128,13 @@
         </div>
       </div>
 
-      <!-- 편집실 전용 영역 -->
+      <!-- 편집실 전용 영역 (기존 유지) -->
       <div id="editingSection" class="hidden">
         <label class="block mb-2 font-medium">대여일자</label>
         <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4"/>
         
         <label class="block mb-2 font-medium">대여장소</label>
+        <!-- 선택한 편집실(편집실1 or 편집실2)이 자동으로 세팅됨 -->
         <input type="text" id="editingLocation" value="" disabled class="border p-2 rounded w-full bg-gray-100 text-gray-600 mb-4"/>
 
         <h3 class="text-lg font-semibold mt-2 mb-2">대여 시간 (0시 ~ 23시)</h3>
@@ -159,7 +143,7 @@
 
       <div class="flex justify-between mt-6">
         <div class="flex space-x-4">
-          <!-- 홈으로 버튼 -->
+          <!-- 홈으로 버튼 (기존 유지) -->
           <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
           <!-- 이전 단계 (step1) -->
           <button onclick="goToStep(1)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
@@ -175,15 +159,32 @@
     <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4">
-        <!-- 규정 내용 -->
-        <strong>연세예술원 영화학 기자재 대여 규정</strong>  
-        <br/><br/> … (필요한 규정 전문) …
+        <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
+        <strong>제1장 총칙</strong><br/>
+        <em>제1조 (목적)</em><br/>
+        본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원 하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>
+        <em>제2조 (적용범위)</em><br/>
+        본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
+        <strong>제2장 관리체계</strong><br/>
+        <em>제1조 (주임교수의 권한)</em><br/>
+        •기자재 운영 정책 수립 및 변경<br/>
+        •기자재 담당 인력 임명<br/>
+        •장비 대여 승인<br/>
+        •외부 촬영 허가<br/>
+        •분쟁 조정 및 제재 조치 결정<br/><br/>
+        <em>제2조 (행정실 업무)</em><br/>
+        •기자재 대장 관리<br/>
+        •예산 집행 및 회계 관리<br/>
+        <!-- ... 전체 규정 ... -->
+        <strong>부칙</strong><br/>
+        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
+        <!-- etc... -->
       </div>
       <label class="flex items-center mb-4">
         <input type="checkbox" id="agreeCheck" class="mr-2"> 위 사용 규정에 동의합니다.
       </label>
 
-      <!-- 편집실 요약 (편집실 선택 시 표시) -->
+      <!-- 편집실 요약 (편집실 선택 시 표시, 기존 유지) -->
       <div id="editingSummary" class="hidden mt-6 p-4 bg-white border rounded text-sm text-gray-700">
         <h3 class="text-lg font-semibold mb-2">편집실 대여 정보</h3>
         <p><strong>대여장소:</strong> <span id="summaryPlace"></span></p>
@@ -208,6 +209,7 @@
     <!-- Step 4: 완료 -->
     <div id="step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
+
       <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
       <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
 
@@ -233,38 +235,43 @@
     </div>
   </div>
 
-  <!-- JavaScript 로직 -->
   <script>
     /********************************************************
-     * 0. Firebase 초기화 (본인 프로젝트 설정으로 교체)
+     * [1] Firebase 초기화 (본인 프로젝트 설정으로 교체)
      ********************************************************/
     var firebaseConfig = {
-      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
+
       // ...
     };
     firebase.initializeApp(firebaseConfig);
     var db = firebase.firestore();
     var storage = firebase.storage();
 
+    // 홈으로 이동 (기존 코드 그대로)
+    function goHome() {
+      window.location.href = "index.html";
+    }
+
     /********************************************************
-     * 전역 변수들
+     * 기존 변수들 (디자인/기능 유지)
      ********************************************************/
-    let step = 1;             // 현재 단계
-    let selected = [];        // 선택된 장비 목록
+    let step = 1;
+    let selected = [];
     let activeTab = "camera"; // 기본 탭
     let submitted = false;    // 중복 제출 방지
 
-    // 카메라/조명/사운드
+    // 카/조/사
     let startDate, endDate, proofImage;
 
     // 편집실
     let editingDate;
     let selectedTimes = [];
-    let editingLocation = "";
+    let editingLocation = ""; // 편집실1 or 편집실2
 
-    // 장비 목록(예시)
+    // 장비 데이터 (기존 유지)
     const equipment = {
       camera: [
         { id: "1", name: "Sony FX3", image: "https://via.placeholder.com/80?text=Sony+FX3" },
@@ -283,24 +290,21 @@
     };
 
     /********************************************************
-     * 1. 초기 화면 렌더링 (Step1)
+     * 초기 장비 목록 렌더링 (기존 로직)
      ********************************************************/
     renderEquipment("camera");
     updateSelectedUI();
 
-    // 탭 버튼 이벤트
+    // 탭 버튼 이벤트 (기존 로직)
     document.querySelectorAll('.tab-button').forEach(button => {
       button.addEventListener('click', function() {
-        // 모든 탭에서 active 제거
         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        // 클릭된 탭 활성화
         this.classList.add('active');
-        // 해당 탭 장비 목록 렌더링
         renderEquipment(this.getAttribute('data-tab'));
       });
     });
 
-    // 규정 동의 체크 시 완료 버튼 활성화
+    // 규정 동의 체크 → 완료 버튼 활성/비활성
     document.getElementById("agreeCheck").addEventListener("change", e => {
       const btn = document.getElementById("toStep4");
       btn.disabled = !e.target.checked;
@@ -308,41 +312,58 @@
     });
 
     /********************************************************
-     * 2. 단계 이동 로직
+     * 단계 이동 함수 (기존 로직 유지)
      ********************************************************/
-    function goHome() {
-      // 필요 시 다른 페이지로 이동
-      window.location.href = "index.html";
-    }
-
     function goToStep(n) {
-      // Step3로 이동 전 (2 -> 3): 대여정보 확인
+      // 3단계 이동 전 (2->3)
       if (n === 3) {
-        if (!validateStep2()) return;
+        if (activeTab === "editing") {
+          editingDate = document.getElementById("editingDate").value;
+          if (!editingDate) {
+            alert("대여일자를 선택해주세요.");
+            return;
+          }
+          if (selectedTimes.length === 0) {
+            alert("최소 1개 이상의 시간대를 선택해주세요.");
+            return;
+          }
+        } else {
+          startDate = document.getElementById("startDate").value;
+          endDate = document.getElementById("endDate").value;
+          proofImage = document.getElementById("proofImage").files[0];
+          if (!startDate || !endDate || !proofImage) {
+            alert("시작일, 반납일, 증명사진을 모두 입력해주세요.");
+            return;
+          }
+        }
       }
-      // Step4로 이동 전 (3 -> 4): 규정 동의, Firestore 저장
+
+      // 4단계 이동 전 (3->4)
       if (n === 4) {
+        // 규정 동의 체크
         if (!document.getElementById("agreeCheck").checked) return;
+
+        // 화면에 최종 정보 표시
         displayFinalInfo();
 
-        // 한 번만 제출 (중복 방지)
+        // **Firestore에 저장** (중복 제출 방지)
         if (!submitted) {
           submitToFirestore();
           submitted = true;
         }
       }
 
-      // UI 전환
+      // 단계 전환 (UI)
       document.getElementById(`step${step}`).classList.add("hidden");
       document.getElementById(`step${n}`).classList.remove("hidden");
       document.getElementById(`step${step}Btn`)?.classList.replace("step-active", "step-inactive");
       document.getElementById(`step${n}Btn`)?.classList.replace("step-inactive", "step-active");
       step = n;
 
-      // 편집실 요약 표시
+      // 편집실 요약 (3단계)
       if (n === 3 && activeTab === "editing") {
         document.getElementById("editingSummary").classList.remove("hidden");
-        document.getElementById("summaryPlace").textContent = editingLocation;
+        document.getElementById("summaryPlace").textContent = editingLocation; 
         document.getElementById("summaryDate").textContent = editingDate;
         document.getElementById("summaryTime").textContent = formatTimes(selectedTimes);
       } else {
@@ -350,37 +371,8 @@
       }
     }
 
-    function validateStep2() {
-      const studentName = document.getElementById("studentName").value.trim();
-      if (!studentName) {
-        alert("이름을 입력해주세요.");
-        return false;
-      }
-
-      if (activeTab === "editing") {
-        editingDate = document.getElementById("editingDate").value;
-        if (!editingDate) {
-          alert("편집실 대여일자를 선택해주세요.");
-          return false;
-        }
-        if (selectedTimes.length === 0) {
-          alert("최소 1개 이상의 시간대를 선택해주세요.");
-          return false;
-        }
-      } else {
-        startDate = document.getElementById("startDate").value;
-        endDate = document.getElementById("endDate").value;
-        proofImage = document.getElementById("proofImage").files[0];
-        if (!startDate || !endDate || !proofImage) {
-          alert("이름, 시작일, 반납일, 증명사진을 모두 입력해주세요.");
-          return false;
-        }
-      }
-      return true;
-    }
-
     /********************************************************
-     * 3. 최종 요약 표시 (Step4)
+     * 최종 Step4: 화면 표시 (기존 로직)
      ********************************************************/
     function displayFinalInfo() {
       // 선택된 장비
@@ -397,62 +389,62 @@
         // 카/조/사
         document.getElementById("final-common").classList.remove("hidden");
         document.getElementById("final-editing").classList.add("hidden");
-        document.getElementById("final-rental-info").innerText =
-          `시작: ${startDate}, 반납: ${endDate}`;
-        document.getElementById("final-proof-image").innerText =
-          proofImage ? proofImage.name : "없음";
+        document.getElementById("final-rental-info").innerText = `시작: ${startDate}, 반납: ${endDate}`;
+        document.getElementById("final-proof-image").innerText = proofImage ? proofImage.name : "없음";
       }
     }
 
     /********************************************************
-     * 4. Firestore에 신청 정보 저장
+     * Firestore에 신청 정보 저장 (추가된 로직)
      ********************************************************/
     async function submitToFirestore() {
       try {
-        const studentName = document.getElementById("studentName").value.trim();
+        // 기본 필드
         let docData = {
-          name: studentName,
-          items: selected.map(s => s.name), // 장비 이름 배열
+          items: selected.map(s => s.name), // 선택된 장비 이름 배열
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-          status: "대기중" // 기본 상태
+          status: "대기중" // 초기 상태
         };
 
         if (activeTab === "editing") {
           // 편집실
           docData.date = editingDate;
           docData.time = formatTimes(selectedTimes);
-          docData.proofPhoto = ""; // 편집실은 증명사진 없이도 가능
+          docData.proofPhoto = ""; // 편집실은 증명사진 없이 가능
         } else {
-          // 카/조/사
+          // 카메라/조명/사운드
           docData.startDate = startDate;
           docData.endDate = endDate;
           docData.date = `${startDate} ~ ${endDate}`;
-          docData.time = "-"; // 편집실 아닌 경우 time은 임시로 '-'
+          docData.time = "-"; // 편집실이 아닌 경우 time은 '-'
 
           // 증명사진을 Firebase Storage에 업로드
           let proofPhotoUrl = "";
           if (proofImage) {
             const storageRef = storage.ref();
             const fileRef = storageRef.child(`proofPhotos/${Date.now()}_${proofImage.name}`);
+            // 업로드
             await fileRef.put(proofImage);
+            // 다운로드 URL
             proofPhotoUrl = await fileRef.getDownloadURL();
           }
           docData.proofPhoto = proofPhotoUrl;
         }
 
+        // Firestore에 문서 추가
         await db.collection("applications").add(docData);
         console.log("신청 정보가 Firestore에 저장되었습니다.");
       } catch (error) {
-        console.error("Firestore 저장 오류: ", error);
+        console.error("Firestore 저장 오류:", error);
         alert("신청 저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
       }
     }
 
     /********************************************************
-     * 5. 장비 목록/선택 로직
+     * 장비 목록 렌더링 (기존 로직)
      ********************************************************/
     function renderEquipment(tab) {
-      // 편집실 탭으로 전환 시 -> 기존 선택 초기화
+      // 편집실 탭 → 기존 선택 초기화
       if (tab === "editing") {
         selected = [];
       } else {
@@ -473,7 +465,7 @@
           <strong>${item.name}</strong>
         `;
         div.onclick = () => toggleItem(item, div);
-
+        
         // 이미 선택된 장비면 표시
         if (selected.some(s => s.id === item.id)) {
           div.classList.add("selected");
@@ -481,7 +473,6 @@
         list.appendChild(div);
       });
 
-      // 편집실이면 commonSection 숨기고, editingSection 보이기
       if (tab === "editing") {
         document.getElementById("commonSection").classList.add("hidden");
         document.getElementById("editingSection").classList.remove("hidden");
@@ -492,13 +483,15 @@
       }
     }
 
+    // 장비 선택 (기존 로직)
     function toggleItem(item, el) {
       if (activeTab === "editing") {
         // 편집실: 단일 선택
         selected = [item];
-        editingLocation = item.name; // 편집실1 or 2
+        editingLocation = item.name; 
         document.querySelectorAll("#equipment-list .equipment").forEach(e => e.classList.remove("selected"));
         el.classList.add("selected");
+        // 대여장소 반영
         document.getElementById("editingLocation").value = editingLocation;
       } else {
         // 카/조/사: 다중 선택
@@ -514,6 +507,7 @@
       updateSelectedUI();
     }
 
+    // 선택된 장비 UI 갱신 (기존 로직)
     function updateSelectedUI() {
       const sec = document.getElementById("selected-section");
       const btn = document.getElementById("toStep2");
@@ -532,7 +526,9 @@
     function createTimeSlots() {
       const container = document.getElementById("timeGrid");
       container.innerHTML = "";
-      selectedTimes = []; // 시간 선택 초기화
+
+      // 선택값 초기화 (편집실 전환 시)
+      selectedTimes = [];
 
       for (let hour = 0; hour < 24; hour++) {
         const input = document.createElement("input");
@@ -557,6 +553,7 @@
       }
     }
 
+    // 편집실 시간 배열을 문자열로
     function formatTimes(arr) {
       if (!arr.length) return "없음";
       const sorted = [...arr].sort((a, b) => a - b);
