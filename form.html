@@ -27,7 +27,7 @@
     /* 편집실 시간체크 표 */
     .time-grid {
       display: grid;
-      grid-template-columns: repeat(24, 1fr); /* 0~23시까지 총 24칸 */
+      grid-template-columns: repeat(24, 1fr);
       gap: 4px;
       margin-top: 16px;
     }
@@ -95,7 +95,7 @@
         <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
 
         <!-- 다음단계 (2) -->
-        <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">
+        <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden>
           다음 단계 →
         </button>
       </div>
@@ -154,7 +154,7 @@
     <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4">
-        <!-- 규정 전문 (사용자님이 주신 내용 그대로 복사) -->
+        <!-- 규정 전문 그대로 -->
         <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
         <strong>제1장 총칙</strong><br/>
         <em>제1조 (목적)</em><br/>
@@ -170,12 +170,8 @@
         •분쟁 조정 및 제재 조치 결정<br/><br/>
         <em>제2조 (행정실 업무)</em><br/>
         •기자재 대장 관리<br/>
-        •예산 집행 및 회계 관리<br/><br/>
-        <strong>제7장 문서관리</strong><br/>
-        <em>제1조 (문서보관)</em><br/>
-        행정실과 문서관리 담당은 다음 각 호의 문서를 보관한다: <br/>
-        •대여 신청서 및 승인서<br/>
-        •촬영 계획서<br/><br/>
+        •예산 집행 및 회계 관리<br/>
+        <!-- 필요 시 규정 전문 추가 -->
         <strong>부칙</strong><br/>
         제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
         제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
@@ -248,9 +244,9 @@
      * Firebase 초기화 (본인 프로젝트 설정)
      ********************************************************/
     var firebaseConfig = {
-       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-      authDomain: "yonseirent-setup.firebaseapp.com",
-      projectId: "yonseirent-setup",
+      AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ
+yonseirent-setup.firebaseapp.com
+yonseirent-setup
 
       // ...
     };
@@ -266,7 +262,7 @@
       window.location.href = "index.html";
     }
 
-    // 로그인 정보 확인
+    // 로그인 정보 확인 (이름/학번)
     let storedName = localStorage.getItem("studentName");
     let storedID = localStorage.getItem("studentID");
     if (!storedName || !storedID) {
@@ -284,7 +280,7 @@
     // 편집실
     let editingDate;
     let selectedTimes = [];
-    let editingLocation = ""; // 편집실1 or 편집실2
+    let editingLocation = "";
 
     // 장비 데이터 (원본)
     const equipment = {
@@ -308,7 +304,7 @@
     renderEquipment("camera");
     updateSelectedUI();
 
-    // 탭 버튼 이벤트 (원본)
+    // 탭 버튼 이벤트
     document.querySelectorAll('.tab-button').forEach(button => {
       button.addEventListener('click', function() {
         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
@@ -325,7 +321,7 @@
     });
 
     /********************************************************
-     * 단계 이동 (원본)
+     * 단계 이동
      ********************************************************/
     function goToStep(n) {
       // 3단계 이동 전
@@ -379,7 +375,6 @@
       }
     }
 
-    // 2단계 "다음 단계"
     function validateStep2() {
       if (activeTab === "editing") {
         goToStep(3);
@@ -395,7 +390,6 @@
       }
     }
 
-    // 최종(4단계) 화면 표시
     function displayFinalInfo() {
       document.getElementById("final-selected-items").innerHTML =
         selected.map(s => `<li>${s.name}</li>`).join("");
@@ -428,7 +422,7 @@
           items: selected.map(s => s.name),
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
           status: "대기중",
-          isDeleted: false // 휴지통 기능 대비
+          isDeleted: false
         };
 
         if (activeTab === "editing") {
@@ -459,7 +453,6 @@
       }
     }
 
-    // 장비 목록 렌더링 (원본)
     function renderEquipment(tab) {
       if (tab === "editing") {
         selected = [];
@@ -497,7 +490,6 @@
       }
     }
 
-    // 장비 선택 로직 (원본)
     function toggleItem(item, el) {
       if (activeTab === "editing") {
         selected = [item];
@@ -532,7 +524,6 @@
         selected.map(s => `<li>${s.name}</li>`).join("");
     }
 
-    // 편집실 시간 슬롯 (0~23)
     function createTimeSlots() {
       const container = document.getElementById("timeGrid");
       container.innerHTML = "";
