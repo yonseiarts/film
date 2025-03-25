@@ -1,30 +1,147 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>관리자 홈페이지</title>
-  <!-- Firebase (버전에 따라 수정 가능) -->
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
-  <!-- Tailwind CSS (선택 사항) -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100 min-h-screen">
+Skip to content
+Navigation Menu
+yonseiarts
+film
 
-  <!-- 상단 네비게이션/헤더 -->
-  <nav class="bg-white shadow mb-4">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-gray-800">관리자 홈페이지</h1>
+Type / to search
+Code
+Issues
+Pull requests
+Actions
+Projects
+Wiki
+Security
+2
+Insights
+Settings
+film
+/
+form.html
+in
+public
+
+Edit
+
+Preview
+Indent mode
+
+Spaces
+Indent size
+
+2
+Line wrap mode
+
+No wrap
+Editing form.html file contents
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+        <p id="final-rental-info" class="text-sm text-gray-700"></p>
+        <h3 class="text-lg font-bold mb-4 mt-6">첨부된 증명사진</h3>
+        <p id="final-proof-image" class="text-sm text-gray-700"></p>
+      </div>
+
+      <!-- 편집실 요약 -->
+      <div id="final-editing" class="mt-8 hidden">
+        <h3 class="text-lg font-bold mb-4">편집실 대여 정보</h3>
+        <p id="final-editing-date" class="text-sm text-gray-700"></p>
+        <p id="final-editing-time" class="text-sm text-gray-700"></p>
+      </div>
+
+      <div class="mt-8">
+        <!-- 홈으로 버튼 -->
+        <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
+      </div>
     </div>
-  </nav>
-
-  <!-- 메인 컨테이너 -->
-  <div class="max-w-6xl mx-auto px-4" id="application-list"></div>
+  </div>
 
   <script>
     /********************************************************
-     * 1. Firebase 초기화 (본인 프로젝트 설정으로 교체)
+     * 0. Firebase 초기화 (본인 프로젝트 설정으로 교체)
      ********************************************************/
     var firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
@@ -34,133 +151,61 @@
     };
     firebase.initializeApp(firebaseConfig);
     var db = firebase.firestore();
+    var storage = firebase.storage();
 
     /********************************************************
-     * 2. 상태별 CSS 클래스 지정 함수
+     * 글로벌 변수들
      ********************************************************/
-    function getStatusClass(status) {
-      switch (status) {
-        case '승인됨':
-          return { bg: 'bg-green-500', text: 'text-white' };
-        case '반려됨':
-          return { bg: 'bg-red-500', text: 'text-white' };
-        default:
-          return { bg: 'bg-gray-500', text: 'text-white' };
-      }
-    }
+    let step = 1;
+    let selected = [];      
+    let activeTab = "camera"; 
+    let submitted = false;  
 
-    /********************************************************
-     * 3. Firestore 문서 상태 업데이트 함수
-     ********************************************************/
-    async function updateApplicationStatus(docId, newStatus) {
-      try {
-        await db.collection("applications").doc(docId).update({ status: newStatus });
-        alert('상태가 성공적으로 업데이트되었습니다.');
-      } catch (error) {
-        console.error("상태 업데이트 에러: ", error);
-        alert('상태 업데이트 중 오류가 발생했습니다.');
-      }
-    }
+    // 카/조/사
+    let startDate, endDate, proofImage;
 
-    /********************************************************
-     * 4. 실시간(onSnapshot)으로 데이터 수신 → 화면 렌더링
-     ********************************************************/
-    function renderApplications(querySnapshot) {
-      // 렌더링할 컨테이너 초기화
-      const applicationList = document.getElementById("application-list");
-      applicationList.innerHTML = "";
+    // 편집실
+    let editingDate;
+    let selectedTimes = [];
+    let editingLocation = "";
 
-      querySnapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        const listItem = document.createElement("div");
-        listItem.classList.add("bg-white", "p-4", "rounded", "shadow", "mb-4");
+    // 장비 데이터 (예시)
+    const equipment = {
+      camera: [
+        { id: "1", name: "Sony FX3", image: "https://via.placeholder.com/80?text=Sony+FX3" },
+        { id: "2", name: "Canon EOS R5", image: "https://via.placeholder.com/80?text=Canon+R5" }
+      ],
+      lighting: [
+        { id: "3", name: "ARRI SkyPanel", image: "https://via.placeholder.com/80?text=SkyPanel" }
+      ],
+      sound: [
+        { id: "4", name: "Sennheiser MKH", image: "https://via.placeholder.com/80?text=MKH" }
+      ],
+      editing: [
+        { id: "5", name: "편집실 1", image: "https://via.placeholder.com/80?text=%ED%8E%B8%EC%A7%91%EC%8B%A4+1" },
+        { id: "6", name: "편집실 2", image: "https://via.placeholder.com/80?text=%ED%8E%B8%EC%A7%91%EC%8B%A4+2" }
+      ]
+    };
 
-        // timestamp 처리
-        let timestamp = data.timestamp;
-        if (timestamp && timestamp.toDate) {
-          timestamp = timestamp.toDate();
-        }
+    // 초기 렌더링
+    renderEquipment("camera");
+    updateSelectedUI();
 
-        // items가 배열이면 join, 아니면 그대로
-        const itemsText = Array.isArray(data.items)
-          ? data.items.join(", ")
-          : (data.items || '없음');
-
-        listItem.innerHTML = `
-          <div class="flex justify-between items-start">
-            <h2 class="text-lg font-bold">${data.name || '신청자 미입력'}</h2>
-            <span class="px-2 py-1 rounded text-sm font-medium
-              ${getStatusClass(data.status).bg}
-              ${getStatusClass(data.status).text}">
-              ${data.status || '대기중'}
-            </span>
-          </div>
-          <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <div>
-              <p class="text-sm text-gray-600">신청일시</p>
-              <p class="font-medium">
-                ${timestamp instanceof Date ? timestamp.toLocaleString() : '-'}
-              </p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-600">대여일자</p>
-              <p class="font-medium">${data.date || '-'}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-600">대여시간</p>
-              <p class="font-medium">${data.time || '-'}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-600">장비</p>
-              <p class="font-medium">${itemsText}</p>
-            </div>
-          </div>
-          <div class="mt-2">
-            <p class="text-sm text-gray-600">증명사진</p>
-            <p>
-              ${
-                data.proofPhoto
-                  ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>`
-                  : '없음'
-              }
-            </p>
-          </div>
-          <div class="mt-4 flex space-x-2">
-            <button
-              class="approve-btn px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded"
-              data-id="${docSnap.id}">
-              승인
-            </button>
-            <button
-              class="reject-btn px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded"
-              data-id="${docSnap.id}">
-              반려
-            </button>
-          </div>
-        `;
-
-        applicationList.appendChild(listItem);
-
-        // 승인/반려 버튼 이벤트
-        listItem.querySelector('.approve-btn').addEventListener('click', () => {
-          updateApplicationStatus(docSnap.id, '승인됨');
-        });
-        listItem.querySelector('.reject-btn').addEventListener('click', () => {
-          updateApplicationStatus(docSnap.id, '반려됨');
-        });
+    // 탭 버튼 이벤트
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', function() {
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        renderEquipment(this.getAttribute('data-tab'));
       });
-    }
+    });
 
-    /********************************************************
-     * 5. 페이지 로드 시 onSnapshot으로 실시간 구독
-     ********************************************************/
-    function init() {
-      db.collection("applications").onSnapshot((snapshot) => {
-        renderApplications(snapshot);
-      });
-    }
+    // 규정 동의 체크
+    document.getElementById("agreeCheck").addEventListener("change", e => {
+      const btn = document.getElementById("toStep4");
+      btn.disabled = !e.target.checked;
+      btn.classList.toggle("opacity-50", !e.target.checked);
+    });
 
-    window.onload = init;
-  </script>
-</body>
-</html>
+Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc then tab to move to the next interactive element on the page.
+Editing film/form.html at public · yonseiarts/film
