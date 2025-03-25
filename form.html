@@ -154,9 +154,33 @@
     <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4">
+        <!-- 규정 전문 (사용자님이 주신 내용 그대로 복사) -->
         <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
-        <!-- ... 규정 내용 그대로 ... -->
-        <p>예: 여기 규정 전문을 넣으시면 됩니다.</p>
+        <strong>제1장 총칙</strong><br/>
+        <em>제1조 (목적)</em><br/>
+        본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>
+        <em>제2조 (적용범위)</em><br/>
+        본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
+        <strong>제2장 관리체계</strong><br/>
+        <em>제1조 (주임교수의 권한)</em><br/>
+        •기자재 운영 정책 수립 및 변경<br/>
+        •기자재 담당 인력 임명<br/>
+        •장비 대여 승인<br/>
+        •외부 촬영 허가<br/>
+        •분쟁 조정 및 제재 조치 결정<br/><br/>
+        <em>제2조 (행정실 업무)</em><br/>
+        •기자재 대장 관리<br/>
+        •예산 집행 및 회계 관리<br/><br/>
+        <strong>제7장 문서관리</strong><br/>
+        <em>제1조 (문서보관)</em><br/>
+        행정실과 문서관리 담당은 다음 각 호의 문서를 보관한다: <br/>
+        •대여 신청서 및 승인서<br/>
+        •촬영 계획서<br/><br/>
+        <strong>부칙</strong><br/>
+        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
+        제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
+        2025년 3월 23일<br/>
+        연세예술원 영화학 주임교수 유영식
       </div>
       <label class="flex items-center mb-4">
         <input type="checkbox" id="agreeCheck" class="mr-2"> 위 사용 규정에 동의합니다.
@@ -224,7 +248,7 @@
      * Firebase 초기화 (본인 프로젝트 설정)
      ********************************************************/
     var firebaseConfig = {
-        apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
 
@@ -242,11 +266,10 @@
       window.location.href = "index.html";
     }
 
-    // [추가] 로그인 정보 확인
+    // 로그인 정보 확인
     let storedName = localStorage.getItem("studentName");
     let storedID = localStorage.getItem("studentID");
     if (!storedName || !storedID) {
-      // 로그인 안 했으면 login.html로
       alert("로그인이 필요합니다.");
       window.location.href = "login.html";
     }
@@ -294,7 +317,7 @@
       });
     });
 
-    // 규정 동의 체크
+    // 규정 동의
     document.getElementById("agreeCheck").addEventListener("change", e => {
       const btn = document.getElementById("toStep4");
       btn.disabled = !e.target.checked;
@@ -339,7 +362,6 @@
         }
       }
 
-      // UI 전환
       document.getElementById(`step${step}`).classList.add("hidden");
       document.getElementById(`step${n}`).classList.remove("hidden");
       document.getElementById(`step${step}Btn`)?.classList.replace("step-active", "step-inactive");
@@ -357,7 +379,7 @@
       }
     }
 
-    // 2단계 "다음 단계" (원본)
+    // 2단계 "다음 단계"
     function validateStep2() {
       if (activeTab === "editing") {
         goToStep(3);
@@ -373,7 +395,7 @@
       }
     }
 
-    // 최종(4단계) 화면 표시 (원본)
+    // 최종(4단계) 화면 표시
     function displayFinalInfo() {
       document.getElementById("final-selected-items").innerHTML =
         selected.map(s => `<li>${s.name}</li>`).join("");
@@ -510,7 +532,7 @@
         selected.map(s => `<li>${s.name}</li>`).join("");
     }
 
-    // 편집실 시간 슬롯 (0~23) (원본)
+    // 편집실 시간 슬롯 (0~23)
     function createTimeSlots() {
       const container = document.getElementById("timeGrid");
       container.innerHTML = "";
