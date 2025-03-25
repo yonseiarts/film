@@ -6,26 +6,22 @@
   <!-- Firebase (버전에 따라 수정 가능) -->
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
   <!-- Tailwind CSS (선택 사항) -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 min-h-screen">
-
-  <!-- 상단 네비게이션/헤더 -->
+<body class="bg-gray-100 p-4">
+  <!-- 상단 헤더/디자인: 기존 그대로 -->
   <nav class="bg-white shadow mb-4">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-gray-800">관리자 홈페이지</h1>
+    <div class="max-w-4xl mx-auto px-4 py-4">
+      <h1 class="text-2xl font-bold">관리자 홈페이지</h1>
     </div>
   </nav>
 
-  <!-- 메인 컨테이너 -->
-  <div class="max-w-6xl mx-auto px-4" id="application-list"></div>
+  <!-- 신청서 목록을 표시할 영역 -->
+  <div id="application-list" class="max-w-4xl mx-auto"></div>
 
   <script>
-    /********************************************************
-     * 1. Firebase 초기화 (본인 프로젝트 설정으로 교체)
-     ********************************************************/
+    // 1. Firebase 초기화 (기존 설정 유지)
     var firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
@@ -35,11 +31,9 @@
     firebase.initializeApp(firebaseConfig);
     var db = firebase.firestore();
 
-    /********************************************************
-     * 2. 상태별 CSS 클래스 지정 함수
-     ********************************************************/
+    // 2. 상태별 CSS 클래스 반환 (기존 코드 유지)
     function getStatusClass(status) {
-      switch (status) {
+      switch(status) {
         case '승인됨':
           return { bg: 'bg-green-500', text: 'text-white' };
         case '반려됨':
@@ -49,42 +43,35 @@
       }
     }
 
-    /********************************************************
-     * 3. Firestore 문서 상태 업데이트 함수
-     ********************************************************/
+    // 3. Firestore 문서 상태 업데이트 (기존 코드 유지)
     async function updateApplicationStatus(docId, newStatus) {
       try {
         await db.collection("applications").doc(docId).update({ status: newStatus });
         alert('상태가 성공적으로 업데이트되었습니다.');
+        // 실시간 구독 중이라 별도 reload() 불필요
       } catch (error) {
         console.error("상태 업데이트 에러: ", error);
         alert('상태 업데이트 중 오류가 발생했습니다.');
       }
     }
 
-    /********************************************************
-     * 4. 실시간(onSnapshot)으로 데이터 수신 → 화면 렌더링
-     ********************************************************/
+    // 4. 신청서 목록을 화면에 렌더링 (기존 코드 유지)
     function renderApplications(querySnapshot) {
-      // 렌더링할 컨테이너 초기화
       const applicationList = document.getElementById("application-list");
-      applicationList.innerHTML = "";
+      applicationList.innerHTML = ""; // 매번 초기화
 
       querySnapshot.forEach((docSnap) => {
         const data = docSnap.data();
         const listItem = document.createElement("div");
         listItem.classList.add("bg-white", "p-4", "rounded", "shadow", "mb-4");
 
-        // timestamp 처리
+        // Timestamp -> Date 변환
         let timestamp = data.timestamp;
-        if (timestamp && timestamp.toDate) {
+        if (timestamp instanceof firebase.firestore.Timestamp) {
           timestamp = timestamp.toDate();
+        } else {
+          timestamp = "잘못된 날짜 형식";
         }
-
-        // items가 배열이면 join, 아니면 그대로
-        const itemsText = Array.isArray(data.items)
-          ? data.items.join(", ")
-          : (data.items || '없음');
 
         listItem.innerHTML = `
           <div class="flex justify-between items-start">
@@ -98,9 +85,7 @@
           <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
             <div>
               <p class="text-sm text-gray-600">신청일시</p>
-              <p class="font-medium">
-                ${timestamp instanceof Date ? timestamp.toLocaleString() : '-'}
-              </p>
+              <p class="font-medium">${timestamp instanceof Date ? timestamp.toLocaleString() : timestamp}</p>
             </div>
             <div>
               <p class="text-sm text-gray-600">대여일자</p>
@@ -112,36 +97,33 @@
             </div>
             <div>
               <p class="text-sm text-gray-600">장비</p>
-              <p class="font-medium">${itemsText}</p>
+              <p class="font-medium">${
+                Array.isArray(data.items)
+                  ? data.items.join(", ")
+                  : data.items || '없음'
+              }</p>
             </div>
           </div>
           <div class="mt-2">
             <p class="text-sm text-gray-600">증명사진</p>
-            <p>
-              ${
-                data.proofPhoto
-                  ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>`
-                  : '없음'
-              }
-            </p>
+            <p>${
+              data.proofPhoto
+                ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>`
+                : '없음'
+            }</p>
           </div>
           <div class="mt-4 flex space-x-2">
-            <button
-              class="approve-btn px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded"
-              data-id="${docSnap.id}">
+            <button class="approve-btn px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded" data-id="${docSnap.id}">
               승인
             </button>
-            <button
-              class="reject-btn px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded"
-              data-id="${docSnap.id}">
+            <button class="reject-btn px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded" data-id="${docSnap.id}">
               반려
             </button>
           </div>
         `;
-
         applicationList.appendChild(listItem);
 
-        // 승인/반려 버튼 이벤트
+        // 승인/반려 버튼 이벤트 (기존 코드 유지)
         listItem.querySelector('.approve-btn').addEventListener('click', () => {
           updateApplicationStatus(docSnap.id, '승인됨');
         });
@@ -151,16 +133,15 @@
       });
     }
 
-    /********************************************************
-     * 5. 페이지 로드 시 onSnapshot으로 실시간 구독
-     ********************************************************/
-    function init() {
+    // 5. 페이지 로드 시 실시간(onSnapshot) 구독 (기존 .get() 대신 변경)
+    function loadApplications() {
       db.collection("applications").onSnapshot((snapshot) => {
+        // 스냅샷 변경 시마다 render
         renderApplications(snapshot);
       });
     }
 
-    window.onload = init;
+    window.onload = loadApplications; // 페이지 로드 시 호출
   </script>
 </body>
 </html>
