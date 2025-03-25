@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 신청</title>
-  <!-- Tailwind CSS (기존 디자인 그대로) -->
+  <!-- Tailwind CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
   <style>
     .step-active {
@@ -150,7 +150,7 @@
     <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4">
-        <!-- 규정 내용 (생략) -->
+        <!-- 규정 내용 -->
         <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
         <!-- ... -->
       </div>
@@ -173,7 +173,6 @@
           <!-- 이전 단계 (step2) -->
           <button onclick="goToStep(2)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
         </div>
-
         <!-- 완료 -> step4 -->
         <button id="toStep4" onclick="goToStep(4)" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">
           완료
@@ -216,7 +215,7 @@
 
   <script>
     /********************************************************
-     * Firebase 초기화 (본인 프로젝트 설정)
+     * 1. Firebase 초기화 (본인 프로젝트 설정)
      ********************************************************/
     var firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
@@ -237,6 +236,14 @@
       window.location.href = "index.html";
     }
 
+    // 로그인 정보 확인 (studentName, studentID)
+    let storedName = localStorage.getItem("studentName");
+    let storedID = localStorage.getItem("studentID");
+    if (!storedName || !storedID) {
+      alert("로그인이 필요합니다.");
+      window.location.href = "login.html";
+    }
+
     let step = 1;
     let selected = [];
     let activeTab = "camera"; // 기본 탭
@@ -249,7 +256,7 @@
     let selectedTimes = [];
     let editingLocation = "";
 
-    // 장비 데이터 (기존 그대로)
+    // 장비 데이터 (기존)
     const equipment = {
       camera: [
         { id: "1", name: "Sony FX3", image: "https://via.placeholder.com/80?text=Sony+FX3" },
@@ -267,11 +274,11 @@
       ]
     };
 
-    // 초기 렌더링
+    // 초기 장비 목록
     renderEquipment("camera");
     updateSelectedUI();
 
-    // 탭 버튼 이벤트 (기존 로직)
+    // 탭 버튼 이벤트
     document.querySelectorAll('.tab-button').forEach(button => {
       button.addEventListener('click', function() {
         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
@@ -288,22 +295,10 @@
     });
 
     /********************************************************
-     * [NEW] 로그인 정보 확인
-     ********************************************************/
-    // 만약 학생이 login.html에서 이미 로그인했다면, localStorage에 저장되어 있을 것
-    let storedName = localStorage.getItem("studentName");
-    let storedID = localStorage.getItem("studentID");
-    if (!storedName || !storedID) {
-      // 로그인 정보가 없다면, 로그인 페이지로 되돌려보냄
-      alert("로그인이 필요합니다.");
-      window.location.href = "login.html";
-    }
-
-    /********************************************************
      * 단계 이동
      ********************************************************/
     function goToStep(n) {
-      // (중략) 기존 로직 그대로 ...
+      // 3단계 이동 전
       if (n === 3) {
         if (activeTab === "editing") {
           editingDate = document.getElementById("editingDate").value;
@@ -325,6 +320,7 @@
           }
         }
       }
+      // 4단계 이동 전
       if (n === 4) {
         if (!document.getElementById("agreeCheck").checked) return;
         displayFinalInfo();
@@ -340,7 +336,7 @@
       document.getElementById(`step${n}Btn`)?.classList.replace("step-inactive", "step-active");
       step = n;
 
-      // 편집실 요약
+      // 편집실 요약 (3단계)
       if (n === 3 && activeTab === "editing") {
         document.getElementById("editingSummary").classList.remove("hidden");
         document.getElementById("summaryPlace").textContent = editingLocation;
@@ -352,7 +348,6 @@
     }
 
     function validateStep2() {
-      // (중략) 기존 로직 그대로
       if (activeTab === "editing") {
         goToStep(3);
       } else {
@@ -368,7 +363,6 @@
     }
 
     function displayFinalInfo() {
-      // (중략) 기존 로직 그대로
       document.getElementById("final-selected-items").innerHTML =
         selected.map(s => `<li>${s.name}</li>`).join("");
 
@@ -386,18 +380,19 @@
     }
 
     /********************************************************
-     * Firestore 저장 (학생 이름/학번 추가)
+     * Firestore에 신청 정보 저장
      ********************************************************/
     async function submitToFirestore() {
       try {
+        // localStorage에서 이름/학번 불러오기
         let docData = {
-          // 로그인 정보 추가
           studentName: storedName,
           studentID: storedID,
 
           items: selected.map(s => s.name),
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-          status: "대기중"
+          status: "대기중",
+          isDeleted: false // 초기엔 삭제 아님
         };
 
         if (activeTab === "editing") {
@@ -421,16 +416,14 @@
         }
 
         await db.collection("applications").add(docData);
-        console.log("신청 정보가 Firestore에 저장되었습니다. (학생 이름/학번 포함)");
+        console.log("신청 정보가 Firestore에 저장되었습니다.");
       } catch (error) {
         console.error("Firestore 저장 오류: ", error);
         alert("신청 저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
       }
     }
 
-    /********************************************************
-     * 장비 목록/선택 (기존 로직)
-     ********************************************************/
+    // 나머지 장비 선택/편집실 시간 로직 (기존)
     function renderEquipment(tab) {
       if (tab === "editing") {
         selected = [];
