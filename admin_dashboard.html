@@ -2,38 +2,57 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>관리자 홈페이지</title>
-  <!-- Firebase (버전에 따라 수정 가능) -->
+  <title>관리자 페이지</title>
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
   <!-- Tailwind CSS (선택 사항) -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 p-4">
-  <!-- 상단 헤더/디자인: 기존 그대로 -->
+<body class="bg-gray-100 min-h-screen">
+
   <nav class="bg-white shadow mb-4">
-    <div class="max-w-4xl mx-auto px-4 py-4">
-      <h1 class="text-2xl font-bold">관리자 홈페이지</h1>
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">관리자 페이지</h1>
+      <!-- 홈으로 버튼 예시 -->
+      <button onclick="goHome()" class="text-blue-600 underline text-sm">홈으로</button>
     </div>
   </nav>
 
-  <!-- 신청서 목록을 표시할 영역 -->
-  <div id="application-list" class="max-w-4xl mx-auto"></div>
+  <div class="max-w-6xl mx-auto px-4 mb-4 flex space-x-4">
+    <!-- 일반 목록, 휴지통 전환 버튼 -->
+    <button id="showActiveBtn" class="px-4 py-2 bg-blue-500 text-white rounded">일반 목록</button>
+    <button id="showTrashBtn" class="px-4 py-2 bg-gray-500 text-white rounded">휴지통</button>
+  </div>
+
+  <div id="application-list" class="max-w-6xl mx-auto px-4"></div>
 
   <script>
-    // 1. Firebase 초기화 (기존 설정 유지)
+    /********************************************************
+     * 1. Firebase 초기화 (본인 설정)
+     ********************************************************/
     var firebaseConfig = {
-      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+        apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
+
       // ...
     };
     firebase.initializeApp(firebaseConfig);
     var db = firebase.firestore();
 
-    // 2. 상태별 CSS 클래스 반환 (기존 코드 유지)
+    // 현재 '휴지통' 모드인지 여부
+    let isTrashMode = false;
+    let unsubscribe = null; // onSnapshot 해제용
+
+    function goHome() {
+      // 홈으로 이동 (예: index.html)
+      window.location.href = "index.html";
+    }
+
+    // 상태별 CSS
     function getStatusClass(status) {
-      switch(status) {
+      switch (status) {
         case '승인됨':
           return { bg: 'bg-green-500', text: 'text-white' };
         case '반려됨':
@@ -43,39 +62,64 @@
       }
     }
 
-    // 3. Firestore 문서 상태 업데이트 (기존 코드 유지)
+    // 상태 업데이트
     async function updateApplicationStatus(docId, newStatus) {
       try {
         await db.collection("applications").doc(docId).update({ status: newStatus });
-        alert('상태가 성공적으로 업데이트되었습니다.');
-        // 실시간 구독 중이라 별도 reload() 불필요
+        alert('상태 업데이트 완료');
       } catch (error) {
-        console.error("상태 업데이트 에러: ", error);
-        alert('상태 업데이트 중 오류가 발생했습니다.');
+        console.error("상태 업데이트 에러:", error);
       }
     }
 
-    // 4. 신청서 목록을 화면에 렌더링 (기존 코드 유지)
-    function renderApplications(querySnapshot) {
-      const applicationList = document.getElementById("application-list");
-      applicationList.innerHTML = ""; // 매번 초기화
+    // 삭제(휴지통으로 이동)
+    async function moveToTrash(docId) {
+      try {
+        await db.collection("applications").doc(docId).update({ isDeleted: true });
+        alert("삭제(휴지통 이동) 완료");
+      } catch (error) {
+        console.error("삭제 에러:", error);
+      }
+    }
 
-      querySnapshot.forEach((docSnap) => {
+    // 복구(휴지통 -> 일반 목록)
+    async function restoreFromTrash(docId) {
+      try {
+        await db.collection("applications").doc(docId).update({ isDeleted: false });
+        alert("복구 완료");
+      } catch (error) {
+        console.error("복구 에러:", error);
+      }
+    }
+
+    // 실시간 렌더링
+    function renderApplications(snapshot) {
+      const container = document.getElementById("application-list");
+      container.innerHTML = "";
+
+      snapshot.forEach(docSnap => {
         const data = docSnap.data();
-        const listItem = document.createElement("div");
-        listItem.classList.add("bg-white", "p-4", "rounded", "shadow", "mb-4");
+        const docId = docSnap.id;
 
-        // Timestamp -> Date 변환
+        // 메인 카드
+        const item = document.createElement("div");
+        item.classList.add("bg-white", "p-4", "rounded", "shadow", "mb-4");
+
         let timestamp = data.timestamp;
-        if (timestamp instanceof firebase.firestore.Timestamp) {
+        if (timestamp && timestamp.toDate) {
           timestamp = timestamp.toDate();
-        } else {
-          timestamp = "잘못된 날짜 형식";
         }
 
-        listItem.innerHTML = `
+        // items
+        const itemsText = Array.isArray(data.items) ? data.items.join(", ") : (data.items || "없음");
+
+        // HTML
+        item.innerHTML = `
           <div class="flex justify-between items-start">
-            <h2 class="text-lg font-bold">${data.name || '신청자 미입력'}</h2>
+            <h2 class="text-lg font-bold">
+              ${data.studentName || '이름없음'} 
+              <span class="text-sm text-gray-500">(${data.studentID || '-'})</span>
+            </h2>
             <span class="px-2 py-1 rounded text-sm font-medium
               ${getStatusClass(data.status).bg}
               ${getStatusClass(data.status).text}">
@@ -85,7 +129,9 @@
           <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
             <div>
               <p class="text-sm text-gray-600">신청일시</p>
-              <p class="font-medium">${timestamp instanceof Date ? timestamp.toLocaleString() : timestamp}</p>
+              <p class="font-medium">
+                ${timestamp instanceof Date ? timestamp.toLocaleString() : '-'}
+              </p>
             </div>
             <div>
               <p class="text-sm text-gray-600">대여일자</p>
@@ -97,51 +143,103 @@
             </div>
             <div>
               <p class="text-sm text-gray-600">장비</p>
-              <p class="font-medium">${
-                Array.isArray(data.items)
-                  ? data.items.join(", ")
-                  : data.items || '없음'
-              }</p>
+              <p class="font-medium">${itemsText}</p>
             </div>
           </div>
           <div class="mt-2">
             <p class="text-sm text-gray-600">증명사진</p>
-            <p>${
-              data.proofPhoto
-                ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>`
-                : '없음'
-            }</p>
+            <p>
+              ${
+                data.proofPhoto
+                  ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>`
+                  : '없음'
+              }
+            </p>
           </div>
           <div class="mt-4 flex space-x-2">
-            <button class="approve-btn px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded" data-id="${docSnap.id}">
+            <button
+              class="approve-btn px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded"
+            >
               승인
             </button>
-            <button class="reject-btn px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded" data-id="${docSnap.id}">
+            <button
+              class="reject-btn px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded"
+            >
               반려
             </button>
+            ${
+              isTrashMode
+                ? `<button class="restore-btn px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded">복구</button>`
+                : `<button class="delete-btn px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded">삭제</button>`
+            }
           </div>
         `;
-        applicationList.appendChild(listItem);
 
-        // 승인/반려 버튼 이벤트 (기존 코드 유지)
-        listItem.querySelector('.approve-btn').addEventListener('click', () => {
-          updateApplicationStatus(docSnap.id, '승인됨');
+        container.appendChild(item);
+
+        // 승인/반려
+        item.querySelector('.approve-btn').addEventListener('click', () => {
+          updateApplicationStatus(docId, '승인됨');
         });
-        listItem.querySelector('.reject-btn').addEventListener('click', () => {
-          updateApplicationStatus(docSnap.id, '반려됨');
+        item.querySelector('.reject-btn').addEventListener('click', () => {
+          updateApplicationStatus(docId, '반려됨');
         });
+
+        // 삭제 or 복구
+        if (isTrashMode) {
+          // 휴지통 모드일 때 → 복구 버튼
+          item.querySelector('.restore-btn').addEventListener('click', () => {
+            restoreFromTrash(docId);
+          });
+        } else {
+          // 일반 모드일 때 → 삭제 버튼
+          item.querySelector('.delete-btn').addEventListener('click', () => {
+            moveToTrash(docId);
+          });
+        }
       });
     }
 
-    // 5. 페이지 로드 시 실시간(onSnapshot) 구독 (기존 .get() 대신 변경)
-    function loadApplications() {
-      db.collection("applications").onSnapshot((snapshot) => {
-        // 스냅샷 변경 시마다 render
-        renderApplications(snapshot);
-      });
+    // 일반 목록 구독
+    function subscribeActive() {
+      // 기존 구독 해제
+      if (unsubscribe) unsubscribe();
+
+      unsubscribe = db.collection("applications")
+        .where("isDeleted", "==", false)
+        .onSnapshot((snapshot) => {
+          renderApplications(snapshot);
+        });
     }
 
-    window.onload = loadApplications; // 페이지 로드 시 호출
+    // 휴지통 목록 구독
+    function subscribeTrash() {
+      if (unsubscribe) unsubscribe();
+
+      unsubscribe = db.collection("applications")
+        .where("isDeleted", "==", true)
+        .onSnapshot((snapshot) => {
+          renderApplications(snapshot);
+        });
+    }
+
+    // 초기화
+    function init() {
+      document.getElementById("showActiveBtn").addEventListener("click", () => {
+        isTrashMode = false;
+        subscribeActive();
+      });
+      document.getElementById("showTrashBtn").addEventListener("click", () => {
+        isTrashMode = true;
+        subscribeTrash();
+      });
+
+      // 기본은 일반 목록
+      isTrashMode = false;
+      subscribeActive();
+    }
+
+    window.onload = init;
   </script>
 </body>
 </html>
