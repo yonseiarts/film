@@ -9,6 +9,7 @@
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
   <div class="bg-white p-6 rounded shadow-md w-80">
     <h1 class="text-xl font-bold mb-4">학생 로그인</h1>
+
     <label class="block mb-2 font-medium">이름</label>
     <input type="text" id="studentName" class="border rounded w-full p-2 mb-4"/>
 
@@ -23,19 +24,41 @@
   </div>
 
   <script>
+    // 허용된 아이디(학번) 목록 (하드코딩)
+    // key: 학번, value: 이름
+    const allowedUsers = {
+      "AR23000501":"이창민",
+      "20230002": "김철수",
+      "20230003": "박영희"
+      // etc...
+    };
+
     function login() {
       const name = document.getElementById("studentName").value.trim();
       const id = document.getElementById("studentID").value.trim();
+
       if (!name || !id) {
         alert("이름과 학번을 모두 입력해주세요.");
         return;
       }
 
-      // LocalStorage에 저장
+      // 학번이 allowedUsers에 있는지?
+      if (!allowedUsers[id]) {
+        alert("허용되지 않은 학번입니다.");
+        return;
+      }
+
+      // 학번에 해당하는 이름이 일치하는지?
+      if (allowedUsers[id] !== name) {
+        alert("이름이 학번과 일치하지 않습니다.");
+        return;
+      }
+
+      // 로그인 성공 → localStorage 저장
       localStorage.setItem("studentName", name);
       localStorage.setItem("studentID", id);
 
-      // 대여 신청 페이지로 이동 (본인 경로로 수정)
+      // form.html로 이동
       window.location.href = "form.html";
     }
   </script>
