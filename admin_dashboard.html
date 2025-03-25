@@ -4,11 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>관리자 대시보드</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-    
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js"></script>
+</head>
+<body>
+  <h1>관리자 대시보드</h1>
+  <div id="application-list"></div>
+
+  <script>
     // Firebase 설정
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
@@ -20,20 +24,28 @@
       measurementId: "G-8G1D43NXMW"
     };
 
-    // Firebase 앱 초기화
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    // Firebase 초기화
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
     // 신청 목록을 불러오는 함수
     async function loadApplications() {
-      const applicationsRef = collection(db, "applications");
-      const querySnapshot = await getDocs(applicationsRef);
+      const applicationsRef = db.collection("applications");
+      const querySnapshot = await applicationsRef.get();
       const applicationList = document.getElementById("application-list");
 
       querySnapshot.forEach((docSnap) => {
         const data = docSnap.data();
         const listItem = document.createElement("div");
         listItem.classList.add("bg-white", "p-4", "rounded", "shadow");
+
+        // timestamp가 Firestore Timestamp 객체인지 확인하고, Date로 변환
+        let timestamp = data.timestamp;
+        if (timestamp instanceof firebase.firestore.Timestamp) {
+          timestamp = timestamp.toDate(); // Timestamp -> Date 변환
+        } else {
+          timestamp = "잘못된 날짜 형식"; // 오류 처리
+        }
 
         listItem.innerHTML = `
           <div class="flex justify-between items-start">
@@ -45,7 +57,7 @@
           <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
             <div>
               <p class="text-sm text-gray-600">신청일시</p>
-              <p class="font-medium">${data.timestamp.toDate().toLocaleString()}</p>
+              <p class="font-medium">${timestamp.toLocaleString() || '-'}</p>
             </div>
             <div>
               <p class="text-sm text-gray-600">대여일자</p>
@@ -94,9 +106,9 @@
 
     // 신청 상태 업데이트 함수
     async function updateApplicationStatus(docId, newStatus) {
-      const applicationRef = doc(db, "applications", docId);
+      const applicationRef = db.collection("applications").doc(docId);
       try {
-        await updateDoc(applicationRef, {
+        await applicationRef.update({
           status: newStatus,
           updatedAt: new Date()
         });
