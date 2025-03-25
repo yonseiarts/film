@@ -3,14 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>관리자 대시보드</title>
-
-  <!-- Firebase SDK -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
     
     // Firebase 설정
     const firebaseConfig = {
@@ -20,122 +17,100 @@
       storageBucket: "yonseirent-setup.appspot.com",
       messagingSenderId: "1072524969376",
       appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
-      measurementId: "G-P61J7CYTWZ"
+      measurementId: "G-8G1D43NXMW"
     };
 
-    // Firebase 초기화
+    // Firebase 앱 초기화
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // 인증 상태 변경 리스너 설정
-    auth.onAuthStateChanged(handleAuthStateChanged);
+    // 신청 목록을 불러오는 함수
+    async function loadApplications() {
+      const applicationsRef = collection(db, "applications");
+      const querySnapshot = await getDocs(applicationsRef);
+      const applicationList = document.getElementById("application-list");
 
-    // 인증 상태에 따라 UI 업데이트
-    function handleAuthStateChanged(user) {
-      if (user) {
-        // 로그인 상태일 때 데이터 로드
-        loadApplicationData(user);
-      } else {
-        // 로그인하지 않으면 로그인 페이지로 리디렉션
-        window.location.href = 'admin-login.html';
-      }
-    }
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const listItem = document.createElement("div");
+        listItem.classList.add("bg-white", "p-4", "rounded", "shadow");
 
-    // 신청 데이터 로드
-    function loadApplicationData(user) {
-      const applicationList = document.getElementById('application-list');
-      applicationList.innerHTML = "<p>데이터를 불러오는 중...</p>"; // 로딩 메시지
-
-      // Firestore에서 신청 데이터 가져오기
-      db.collection('applications').get().then(querySnapshot => {
-        applicationList.innerHTML = ''; // 로딩 메시지 제거 후 데이터 표시
-        querySnapshot.forEach(doc => {
-          const data = doc.data();
-          const application = document.createElement('div');
-          application.className = 'application-card';
-          application.innerHTML = `
-            <h3>${data.name}</h3>
-            <p>신청일: ${data.timestamp.toDate().toLocaleString()}</p>
-            <p>대여일자: ${data.date}</p>
-            <p>상태: ${data.status}</p>
-          `;
-          applicationList.appendChild(application);
-        });
-      }).catch(error => {
-        console.error("데이터 로드 실패:", error);
-        applicationList.innerHTML = "<p>데이터를 불러오는 데 실패했습니다.</p>";
-      });
-    }
-  </script>
-
-  <!-- Tailwind CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <style>
-    .application-card {
-      background-color: #fff;
-      padding: 20px;
-      margin: 10px 0;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    .application-card h3 {
-      font-size: 1.25rem;
-      font-weight: bold;
-    }
-    .application-card p {
-      font-size: 1rem;
-      margin: 4px 0;
-    }
-  </style>
-</head>
-
-<body class="bg-gray-100 min-h-screen">
-  <div class="max-w-6xl mx-auto p-4 sm:p-6">
-    <header class="bg-white p-4 rounded-lg shadow mb-6">
-      <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold">🎬 관리자 대시보드</h1>
-        <div id="auth-status"></div>
-      </div>
-    </header>
-
-    <!-- 신청 목록 영역 -->
-    <div id="application-list" class="space-y-4">
-      <!-- 데이터가 여기에 표시됩니다 -->
-    </div>
-  </div>
-
-  <!-- 로그아웃 버튼을 위한 이벤트 처리 -->
-  <script type="module">
-    // 로그아웃 버튼을 추가하여 로그아웃 기능 구현
-    document.addEventListener('DOMContentLoaded', () => {
-      const authStatus = document.getElementById('auth-status');
-      const user = auth.currentUser;
-      if (user) {
-        authStatus.innerHTML = `
-          <div class="flex items-center">
-            <span class="mr-4">${user.email}</span>
-            <button id="logout-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded">
-              로그아웃
-            </button>
+        listItem.innerHTML = `
+          <div class="flex justify-between items-start">
+            <h2 class="text-lg font-bold">${data.name || '신청자 미입력'}</h2>
+            <span class="px-2 py-1 rounded text-sm font-medium ${getStatusClass(data.status).bg} ${getStatusClass(data.status).text}">
+              ${data.status || '대기중'}
+            </span>
+          </div>
+          <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div>
+              <p class="text-sm text-gray-600">신청일시</p>
+              <p class="font-medium">${data.timestamp.toDate().toLocaleString()}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">대여일자</p>
+              <p class="font-medium">${data.date || '-'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">대여시간</p>
+              <p class="font-medium">${data.time || '-'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">장비</p>
+              <p class="font-medium">${data.items?.join(", ") || '없음'}</p>
+            </div>
+          </div>
+          <div class="mt-2">
+            <p class="text-sm text-gray-600">증명사진</p>
+            <p>${data.proofPhoto
+              ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>`
+              : '없음'}</p>
+          </div>
+          <div class="mt-4 flex space-x-2">
+            <button class="approve-btn px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded" data-id="${docSnap.id}">승인</button>
+            <button class="reject-btn px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded" data-id="${docSnap.id}">반려</button>
           </div>
         `;
         
-        // 로그아웃 버튼 클릭 시
-        document.getElementById('logout-btn').addEventListener('click', () => {
-          auth.signOut()
-            .then(() => {
-              window.location.href = 'admin-login.html'; // 로그아웃 후 로그인 페이지로 이동
-            })
-            .catch(error => {
-              console.error("로그아웃 실패:", error.message);
-            });
-        });
-      } else {
-        authStatus.innerHTML = `
-          <span class="text-red-600">로그인되지 않음</span>
-        `;
+        applicationList.appendChild(listItem);
+
+        // 승인 및 반려 버튼 클릭 이벤트
+        listItem.querySelector('.approve-btn').addEventListener('click', () => updateApplicationStatus(docSnap.id, '승인됨'));
+        listItem.querySelector('.reject-btn').addEventListener('click', () => updateApplicationStatus(docSnap.id, '반려됨'));
+      });
+    }
+
+    // 상태 클래스 설정
+    function getStatusClass(status) {
+      switch(status) {
+        case '승인됨': 
+          return { bg: 'bg-green-100', text: 'text-green-800' };
+        case '반려됨': 
+          return { bg: 'bg-red-100', text: 'text-red-800' };
+        default: 
+          return { bg: 'bg-yellow-100', text: 'text-yellow-800' };
       }
+    }
+
+    // 신청 상태 업데이트 함수
+    async function updateApplicationStatus(docId, newStatus) {
+      const applicationRef = doc(db, "applications", docId);
+      try {
+        await updateDoc(applicationRef, {
+          status: newStatus,
+          updatedAt: new Date()
+        });
+        alert(`상태가 ${newStatus}로 업데이트되었습니다.`);
+        loadApplications(); // 상태 업데이트 후 목록 새로 고침
+      } catch (error) {
+        console.error("상태 업데이트 오류: ", error);
+        alert("상태 업데이트에 실패했습니다.");
+      }
+    }
+
+    // 페이지 로드 시 신청 데이터 불러오기
+    document.addEventListener("DOMContentLoaded", () => {
+      loadApplications();
     });
   </script>
 </body>
