@@ -1,62 +1,119 @@
-async function loadApplications() {
-  const applicationsRef = db.collection("applications");
-  const querySnapshot = await applicationsRef.get();
-  const applicationList = document.getElementById("application-list");
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>신청서 목록</title>
+  <!-- Firebase 라이브러리 로드 (버전에 따라 URL 업데이트) -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+  <!-- Tailwind CSS를 사용 중이라면 아래 CDN을 추가 -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4">
+  <div id="application-list" class="max-w-4xl mx-auto"></div>
 
-  querySnapshot.forEach((docSnap) => {
-    const data = docSnap.data();
-    const listItem = document.createElement("div");
-    listItem.classList.add("bg-white", "p-4", "rounded", "shadow");
+  <script>
+    // Firebase 설정 (자신의 프로젝트 설정으로 대체)
+    var firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      // 그 외 필요한 설정...
+    };
+    // Firebase 초기화
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.firestore();
 
-    // timestamp가 Firestore Timestamp 객체인지 확인하고, Date로 변환
-    let timestamp = data.timestamp;
-    if (timestamp instanceof firebase.firestore.Timestamp) {
-      timestamp = timestamp.toDate(); // Timestamp -> Date 변환
-    } else {
-      timestamp = "잘못된 날짜 형식"; // 오류 처리
+    // 상태에 따른 CSS 클래스 반환 함수
+    function getStatusClass(status) {
+      switch(status) {
+        case '승인됨':
+          return { bg: 'bg-green-500', text: 'text-white' };
+        case '반려됨':
+          return { bg: 'bg-red-500', text: 'text-white' };
+        default:
+          return { bg: 'bg-gray-500', text: 'text-white' };
+      }
     }
 
-    listItem.innerHTML = `
-      <div class="flex justify-between items-start">
-        <h2 class="text-lg font-bold">${data.name || '신청자 미입력'}</h2>
-        <span class="px-2 py-1 rounded text-sm font-medium ${getStatusClass(data.status).bg} ${getStatusClass(data.status).text}">
-          ${data.status || '대기중'}
-        </span>
-      </div>
-      <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-        <div>
-          <p class="text-sm text-gray-600">신청일시</p>
-          <p class="font-medium">${timestamp.toLocaleString() || '-'}</p>
-        </div>
-        <div>
-          <p class="text-sm text-gray-600">대여일자</p>
-          <p class="font-medium">${data.date || '-'}</p>
-        </div>
-        <div>
-          <p class="text-sm text-gray-600">대여시간</p>
-          <p class="font-medium">${data.time || '-'}</p>
-        </div>
-        <div>
-          <p class="text-sm text-gray-600">장비</p>
-          <p class="font-medium">${data.items?.join(", ") || '없음'}</p>
-        </div>
-      </div>
-      <div class="mt-2">
-        <p class="text-sm text-gray-600">증명사진</p>
-        <p>${data.proofPhoto
-          ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>`
-          : '없음'}</p>
-      </div>
-      <div class="mt-4 flex space-x-2">
-        <button class="approve-btn px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded" data-id="${docSnap.id}">승인</button>
-        <button class="reject-btn px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded" data-id="${docSnap.id}">반려</button>
-      </div>
-    `;
-    
-    applicationList.appendChild(listItem);
+    // Firestore의 신청서 문서 상태 업데이트 함수
+    async function updateApplicationStatus(docId, newStatus) {
+      try {
+        await db.collection("applications").doc(docId).update({ status: newStatus });
+        alert('상태가 성공적으로 업데이트되었습니다.');
+        location.reload(); // 업데이트 후 페이지 새로고침 (원하는 방식으로 변경 가능)
+      } catch (error) {
+        console.error("상태 업데이트 에러: ", error);
+        alert('상태 업데이트 중 오류가 발생했습니다.');
+      }
+    }
 
-    // 승인 및 반려 버튼 클릭 이벤트
-    listItem.querySelector('.approve-btn').addEventListener('click', () => updateApplicationStatus(docSnap.id, '승인됨'));
-    listItem.querySelector('.reject-btn').addEventListener('click', () => updateApplicationStatus(docSnap.id, '반려됨'));
-  });
-}
+    // Firestore에서 신청서 데이터를 불러와 렌더링하는 함수
+    async function loadApplications() {
+      const applicationsRef = db.collection("applications");
+      const querySnapshot = await applicationsRef.get();
+      const applicationList = document.getElementById("application-list");
+
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const listItem = document.createElement("div");
+        listItem.classList.add("bg-white", "p-4", "rounded", "shadow", "mb-4");
+
+        // Firestore Timestamp 객체이면 Date 객체로 변환
+        let timestamp = data.timestamp;
+        if (timestamp instanceof firebase.firestore.Timestamp) {
+          timestamp = timestamp.toDate();
+        } else {
+          timestamp = "잘못된 날짜 형식";
+        }
+
+        listItem.innerHTML = `
+          <div class="flex justify-between items-start">
+            <h2 class="text-lg font-bold">${data.name || '신청자 미입력'}</h2>
+            <span class="px-2 py-1 rounded text-sm font-medium ${getStatusClass(data.status).bg} ${getStatusClass(data.status).text}">
+              ${data.status || '대기중'}
+            </span>
+          </div>
+          <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div>
+              <p class="text-sm text-gray-600">신청일시</p>
+              <p class="font-medium">${timestamp instanceof Date ? timestamp.toLocaleString() : timestamp || '-'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">대여일자</p>
+              <p class="font-medium">${data.date || '-'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">대여시간</p>
+              <p class="font-medium">${data.time || '-'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">장비</p>
+              <p class="font-medium">${data.items ? data.items.join(", ") : '없음'}</p>
+            </div>
+          </div>
+          <div class="mt-2">
+            <p class="text-sm text-gray-600">증명사진</p>
+            <p>${data.proofPhoto
+              ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>`
+              : '없음'}</p>
+          </div>
+          <div class="mt-4 flex space-x-2">
+            <button class="approve-btn px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded" data-id="${docSnap.id}">승인</button>
+            <button class="reject-btn px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded" data-id="${docSnap.id}">반려</button>
+          </div>
+        `;
+
+        applicationList.appendChild(listItem);
+
+        // 승인 및 반려 버튼 이벤트 리스너 등록
+        listItem.querySelector('.approve-btn').addEventListener('click', () => updateApplicationStatus(docSnap.id, '승인됨'));
+        listItem.querySelector('.reject-btn').addEventListener('click', () => updateApplicationStatus(docSnap.id, '반려됨'));
+      });
+    }
+
+    // 페이지 로드 시 신청서 데이터를 불러옴
+    window.onload = loadApplications;
+  </script>
+</body>
+</html>
