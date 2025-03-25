@@ -23,23 +23,24 @@
       background-color: #fefce8;
     }
 
+    /* 편집실 시간체크 표 */
     .time-grid {
       display: grid;
-      grid-template-columns: repeat(24, 1fr);
+      grid-template-columns: repeat(24, 1fr); /* 0~23시까지 총 24칸 */
       gap: 4px;
       margin-top: 16px;
     }
     .time-grid label {
       display: block;
       text-align: center;
-      font-size: 0.75rem;
+      font-size: 0.75rem; /* 글자 크기 줄임 */
       padding: 6px 0;
       background-color: #f3f4f6;
       border-radius: 4px;
       border: 1px solid #e5e7eb;
       cursor: pointer;
-      white-space: nowrap;
-      overflow: hidden;
+      white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+      overflow: hidden;    /* 밖으로 나가지 않도록 */
     }
     .time-grid input[type="checkbox"] {
       display: none;
@@ -102,7 +103,9 @@
         <input type="date" id="startDate" class="border p-2 rounded w-full mb-4"/>
         <label class="block mb-2 font-medium">반납일</label>
         <input type="date" id="endDate" class="border p-2 rounded w-full mb-4"/>
-        <p class="text-sm text-gray-500 mb-4">※ 최대 3일 이내로 설정해주세요.</p>
+        <p class="text-sm text-gray-500 mb-4">
+          ※ 최대 3일 이내로 설정해주세요.
+        </p>
         <div class="mb-4">
           <label class="block mb-2 font-medium">증명사진 첨부</label>
           <input type="file" id="proofImage" accept="image/*" class="block w-full border p-2 rounded"/>
@@ -127,14 +130,9 @@
         <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
         <strong>제1장 총칙</strong><br/>
         <em>제1조 (목적)</em><br/>
-        본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>
-        <strong>제7장 문서관리</strong><br/>
-        <em>제1조 (문서보관)</em><br/>
-        행정실과 문서관리 담당은 다음 각 호의 문서를 보관한다: <br/>
-        •대여 신청서 및 승인서<br/>
-        •촬영 계획서<br/>
-        <strong>부칙</strong><br/>
-        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
+        본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원 하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>
+        <em>제2조 (적용범위)</em><br/>
+        본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
       </div>
       <label class="flex items-center mb-4">
         <input type="checkbox" id="agreeCheck" class="mr-2"> 위 사용 규정에 동의합니다.
@@ -156,17 +154,22 @@
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
       <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
       <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
-      <div class="mt-8">
-        <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
-      </div>
     </div>
   </div>
 
   <script>
+    function goHome() {
+      window.location.href = "index.html";
+    }
+
     let step = 1;
     let selected = [];
-    let activeTab = "camera"; // 기본 탭
+    let activeTab = "camera";
+
     let startDate, endDate, proofImage;
+    let editingDate;
+    let selectedTimes = [];
+    let editingLocation = "";
 
     const equipment = {
       camera: [
@@ -185,11 +188,113 @@
       ]
     };
 
+    renderEquipment("camera");
+    updateSelectedUI();
+
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', function() {
+        document.querySelectorAll('.tab-button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        this.classList.add('active');
+        const tabName = this.getAttribute('data-tab');
+        renderEquipment(tabName);
+      });
+    });
+
+    function goToStep(n) {
+      if (n === 3) {
+        if (activeTab === "editing") {
+          editingDate = document.getElementById("editingDate").value;
+          if (!editingDate) {
+            alert("대여일자를 선택해주세요.");
+            return;
+          }
+          if (selectedTimes.length === 0) {
+            alert("최소 1개 이상의 시간대를 선택해주세요.");
+            return;
+          }
+        } else {
+          startDate = document.getElementById("startDate").value;
+          endDate = document.getElementById("endDate").value;
+          proofImage = document.getElementById("proofImage").files[0];
+          if (!startDate || !endDate || !proofImage) {
+            alert("시작일, 반납일, 증명사진을 모두 입력해주세요.");
+            return;
+          }
+        }
+      }
+      if (n === 4) {
+        if (!document.getElementById("agreeCheck").checked) return;
+        displayFinalInfo();
+      }
+
+      document.getElementById(`step${step}`).classList.add("hidden");
+      document.getElementById(`step${n}`).classList.remove("hidden");
+      document.getElementById(`step${step}Btn`)?.classList.replace("step-active", "step-inactive");
+      document.getElementById(`step${n}Btn`)?.classList.replace("step-inactive", "step-active");
+      step = n;
+
+      if (n === 3 && activeTab === "editing") {
+        document.getElementById("editingSummary").classList.remove("hidden");
+        document.getElementById("summaryPlace").textContent = editingLocation;
+        document.getElementById("summaryDate").textContent = editingDate;
+        document.getElementById("summaryTime").textContent = formatTimes(selectedTimes);
+      } else {
+        document.getElementById("editingSummary").classList.add("hidden");
+      }
+    }
+
+    function displayFinalInfo() {
+      document.getElementById("final-selected-items").innerHTML =
+        selected.map(s => `<li>${s.name}</li>`).join("");
+
+      if (activeTab === "editing") {
+        document.getElementById("final-common").classList.add("hidden");
+        document.getElementById("final-editing").classList.remove("hidden");
+        document.getElementById("final-editing-date").innerText = `대여일자: ${editingDate}`;
+        document.getElementById("final-editing-time").innerText = `선택시간: ${formatTimes(selectedTimes)}`;
+      } else {
+        document.getElementById("final-common").classList.remove("hidden");
+        document.getElementById("final-editing").classList.add("hidden");
+        document.getElementById("final-rental-info").innerText = `시작: ${startDate}, 반납: ${endDate}`;
+        document.getElementById("final-proof-image").innerText = proofImage ? proofImage.name : "없음";
+      }
+    }
+
+    function formatTimes(arr) {
+      if (!arr.length) return "없음";
+      const sorted = [...arr].sort((a, b) => a - b);
+      return sorted.map(h => `${h}:00`).join(", ");
+    }
+
+    function validateStep2() {
+      if (activeTab === "editing") {
+        goToStep(3);
+      } else {
+        const sd = document.getElementById("startDate").value;
+        const ed = document.getElementById("endDate").value;
+        const pf = document.getElementById("proofImage").files[0];
+        if (!sd || !ed || !pf) {
+          alert("시작일, 반납일, 증명사진을 모두 입력해주세요.");
+          return;
+        }
+        goToStep(3);
+      }
+    }
+
     function renderEquipment(tab) {
-      selected = [];
+      if (tab === "editing") {
+        selected = [];
+      } else {
+        selected = selected.filter(item => Number(item.id) < 5);
+      }
       activeTab = tab;
+      updateSelectedUI();
+
       const list = document.getElementById("equipment-list");
       list.innerHTML = "";
+
       equipment[tab].forEach(item => {
         const div = document.createElement("div");
         div.className = "equipment border p-4 rounded flex items-center cursor-pointer";
@@ -198,18 +303,40 @@
           <strong>${item.name}</strong>
         `;
         div.onclick = () => toggleItem(item, div);
+        
+        if (selected.some(s => s.id === item.id)) {
+          div.classList.add("selected");
+        }
+        
         list.appendChild(div);
       });
+
+      if (tab === "editing") {
+        document.getElementById("commonSection").classList.add("hidden");
+        document.getElementById("editingSection").classList.remove("hidden");
+        createTimeSlots();
+      } else {
+        document.getElementById("commonSection").classList.remove("hidden");
+        document.getElementById("editingSection").classList.add("hidden");
+      }
     }
 
     function toggleItem(item, el) {
-      const found = selected.find(s => s.id === item.id);
-      if (found) {
-        selected = selected.filter(s => s.id !== item.id);
-        el.classList.remove("selected");
-      } else {
-        selected.push(item);
+      if (activeTab === "editing") {
+        selected = [item];
+        editingLocation = item.name;
+        document.querySelectorAll("#equipment-list .equipment").forEach(e => e.classList.remove("selected"));
         el.classList.add("selected");
+        document.getElementById("editingLocation").value = editingLocation;
+      } else {
+        const found = selected.find(s => s.id === item.id);
+        if (found) {
+          selected = selected.filter(s => s.id !== item.id);
+          el.classList.remove("selected");
+        } else {
+          selected.push(item);
+          el.classList.add("selected");
+        }
       }
       updateSelectedUI();
     }
@@ -228,21 +355,43 @@
         selected.map(s => `<li>${s.name}</li>`).join("");
     }
 
-    function goToStep(n) {
-      document.getElementById(`step${step}`).classList.add("hidden");
-      document.getElementById(`step${n}`).classList.remove("hidden");
-      document.getElementById(`step${step}Btn`).classList.replace("step-active", "step-inactive");
-      document.getElementById(`step${n}Btn`).classList.replace("step-inactive", "step-active");
-      step = n;
+    function createTimeSlots() {
+      const container = document.getElementById("timeGrid");
+      container.innerHTML = "";
+
+      for (let hour = 0; hour < 24; hour++) {
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.id = `hour-${hour}`;
+        input.value = hour;
+
+        input.addEventListener("change", () => {
+          if (input.checked) {
+            selectedTimes.push(hour);
+          } else {
+            selectedTimes = selectedTimes.filter(h => h !== hour);
+          }
+        });
+
+        const label = document.createElement("label");
+        label.setAttribute("for", `hour-${hour}`);
+        label.textContent = `${hour}:00`;
+
+        container.appendChild(input);
+        container.appendChild(label);
+      }
+
+      selectedTimes.forEach(hour => {
+        const input = document.getElementById(`hour-${hour}`);
+        if (input) input.checked = true;
+      });
     }
 
-    function validateStep2() {
-      if (startDate && endDate && proofImage) {
-        goToStep(3);
-      } else {
-        alert("시작일, 반납일, 증명사진을 모두 입력해주세요.");
-      }
-    }
+    document.getElementById("agreeCheck").addEventListener("change", e => {
+      const btn = document.getElementById("toStep4");
+      btn.disabled = !e.target.checked;
+      btn.classList.toggle("opacity-50", !e.target.checked);
+    });
   </script>
 </body>
 </html>
