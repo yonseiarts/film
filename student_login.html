@@ -1,65 +1,102 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>학생 로그인</title>
-  <!-- Tailwind (선택 사항) -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <!-- Tailwind CSS (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.2.7/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Firebase v9+compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-  <div class="bg-white p-6 rounded shadow-md w-80">
-    <h1 class="text-xl font-bold mb-4">학생 로그인</h1>
-
-    <label class="block mb-2 font-medium">이름</label>
-    <input type="text" id="studentName" class="border rounded w-full p-2 mb-4"/>
-
-    <label class="block mb-2 font-medium">학번</label>
-    <input type="text" id="studentID" class="border rounded w-full p-2 mb-6"/>
-
-    <button
-      onclick="login()"
-      class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-      로그인
-    </button>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-6 rounded shadow-md w-full max-w-sm">
+    <h1 class="text-2xl font-bold mb-4 text-center">학생 로그인</h1>
+    <form id="loginForm" class="space-y-4">
+      <!-- 이름 입력 -->
+      <div>
+        <label for="name" class="block text-gray-700">이름</label>
+        <input type="text" id="name" name="name" placeholder="이름을 입력하세요" class="mt-1 block w-full p-2 border rounded focus:outline-none focus:ring focus:border-blue-300" required>
+      </div>
+      <!-- 학번 입력 -->
+      <div>
+        <label for="studentId" class="block text-gray-700">학번</label>
+        <input type="text" id="studentId" name="studentId" placeholder="학번을 입력하세요" class="mt-1 block w-full p-2 border rounded focus:outline-none focus:ring focus:border-blue-300" required>
+      </div>
+      <!-- 비밀번호 입력 -->
+      <div>
+        <label for="password" class="block text-gray-700">비밀번호</label>
+        <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" class="mt-1 block w-full p-2 border rounded focus:outline-none focus:ring focus:border-blue-300" required>
+      </div>
+      <!-- 로그인 버튼 -->
+      <div>
+        <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium p-2 rounded">로그인</button>
+      </div>
+    </form>
   </div>
 
   <script>
-    // 허용된 아이디(학번) 목록 (하드코딩)
-    // key: 학번, value: 이름
-    const allowedUsers = {
-      "AR243000501": "이창민",
-      "20230002": "김철수",
-      "20230003": "박영희"
-      // 필요 시 더 추가...
+    /***********************************************************************
+     * Firebase 설정 및 초기화
+     ***********************************************************************/
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      authDomain: "yonseirent-setup.firebaseapp.com",
+      projectId: "yonseirent-setup",
+      storageBucket: "yonseirent-setup.appspot.com",
+      messagingSenderId: "1072524969376",
+      appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
+      measurementId: "G-8G1D43NXMW"
     };
 
-    function login() {
-      const name = document.getElementById("studentName").value.trim();
-      const id = document.getElementById("studentID").value.trim();
+    // Firebase 초기화 (v9+compat 사용)
+    firebase.initializeApp(firebaseConfig);
 
-      if (!name || !id) {
-        alert("이름과 학번을 모두 입력해주세요.");
+    // Firestore 인스턴스
+    const db = firebase.firestore();
+
+    /***********************************************************************
+     * 로그인 폼 제출 이벤트
+     * 로그인 시 학생 정보를 Firestore에 기록하여 관리자 페이지에서 확인할 수 있도록 함.
+     ***********************************************************************/
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // 입력값 가져오기
+      const name = document.getElementById('name').value.trim();
+      const studentId = document.getElementById('studentId').value.trim();
+      const password = document.getElementById('password').value;
+
+      // 간단한 검증
+      if (!name || !studentId || !password) {
+        alert('모든 항목을 입력해주세요.');
         return;
       }
 
-      // 학번이 allowedUsers에 있는지?
-      if (!allowedUsers[id]) {
-        alert("허용되지 않은 학번입니다.");
-        return;
-      }
-      // 이름이 해당 학번과 일치하는지?
-      if (allowedUsers[id] !== name) {
-        alert("이름이 학번과 일치하지 않습니다.");
-        return;
-      }
+      try {
+        // 여기서는 실제 로그인 인증 없이 Firestore에 기록하는 예시입니다.
+        // 실제 로그인 기능은 Firebase Auth 또는 서버 API와 연동하세요.
+        const loginData = {
+          name,
+          studentId,
+          // 보안을 위해 비밀번호는 평문으로 저장하지 않도록 주의하세요.
+          // 실제 환경에서는 해시 처리 또는 인증 시스템을 이용해야 합니다.
+          password,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
 
-      // 로그인 성공 → localStorage 저장
-      localStorage.setItem("studentName", name);
-      localStorage.setItem("studentID", id);
+        // Firestore의 'studentLogins' 컬렉션에 로그인 정보를 추가
+        await db.collection('studentLogins').add(loginData);
 
-      // form.html로 이동
-      window.location.href = "form.html";
-    }
+        alert('로그인 성공! 관리자 페이지에서 확인할 수 있습니다.');
+        // 로그인 후 원하는 페이지로 이동시키거나 추가 로직을 실행할 수 있습니다.
+      } catch (error) {
+        console.error("로그인 정보 기록 오류:", error);
+        alert('로그인 처리 중 오류가 발생했습니다.');
+      }
+    });
   </script>
 </body>
 </html>
