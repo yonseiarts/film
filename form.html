@@ -54,13 +54,14 @@
   </style>
 </head>
 <body class="bg-gray-50">
+  <!-- 헤더 -->
   <div class="bg-blue-700 text-white py-6 text-center">
     <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
     <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
   </div>
 
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-    <!-- 상단 단계 표시 -->
+    <!-- 단계별 진행 표시 -->
     <div class="flex justify-between mb-8">
       <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
       <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
@@ -204,45 +205,45 @@
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
 
   <script>
-    // Firebase 초기화 (student_login.html와 동일한 설정)
+    // Firebase 초기화 (student_login.html와 동일)
     var firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
-      projectId: "yonseirent-setup",
-      // ... 필요한 추가 설정
+      projectId: "yonseirent-setup"
+      // 필요한 추가 설정이 있을 경우 여기에 추가
     };
     firebase.initializeApp(firebaseConfig);
     var db = firebase.firestore();
     var storage = firebase.storage();
 
-    let submitted = false;
+    var submitted = false;
     function goHome() {
       window.location.href = "index.html";
     }
 
     // 로그인 정보 확인 (studentInfo JSON 객체)
-    const storedStudent = localStorage.getItem("studentInfo");
+    var storedStudent = localStorage.getItem("studentInfo");
     if (!storedStudent) {
       alert("로그인이 필요합니다.");
       window.location.href = "student_login.html";
     }
-    const studentInfo = JSON.parse(storedStudent);
-    document.getElementById('studentInfoDisplay')?.textContent =
-      `로그인: ${studentInfo.name} (${studentInfo.studentId})`;
+    var studentInfo = JSON.parse(storedStudent);
+    // (선택사항) 상단에 로그인 정보 표시: 필요 시 해당 요소를 디자인에 맞게 추가하세요.
+    // 예: document.getElementById('studentInfoDisplay').textContent = `로그인: ${studentInfo.name} (${studentInfo.studentId})`;
 
     // 단계 관련 변수
-    let step = 1;
-    let selected = [];
-    let activeTab = "camera"; // 기본 탭
+    var step = 1;
+    var selected = [];
+    var activeTab = "camera"; // 기본 탭
 
     // 카메라/조명/사운드 전용 변수
-    let startDate, endDate, proofImage;
+    var startDate, endDate, proofImage;
     // 편집실 전용 변수
-    let editingDate;
-    let selectedTimes = [];
-    let editingLocation = "";
+    var editingDate;
+    var selectedTimes = [];
+    var editingLocation = "";
 
-    const equipment = {
+    var equipment = {
       camera: [
         { id: "1", name: "Sony FX3", image: "https://via.placeholder.com/80?text=Sony+FX3" },
         { id: "2", name: "Canon EOS R5", image: "https://via.placeholder.com/80?text=Canon+R5" }
@@ -259,20 +260,23 @@
       ]
     };
 
-    // 초기 렌더링
+    // 초기 장비 목록 렌더링 및 선택 UI 업데이트
     renderEquipment("camera");
     updateSelectedUI();
 
-    document.querySelectorAll('.tab-button').forEach(button => {
+    // 탭 버튼 이벤트
+    document.querySelectorAll('.tab-button').forEach(function(button) {
       button.addEventListener('click', function() {
-        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-button').forEach(function(btn) {
+          btn.classList.remove('active');
+        });
         this.classList.add('active');
         renderEquipment(this.getAttribute('data-tab'));
       });
     });
 
-    document.getElementById("agreeCheck").addEventListener("change", e => {
-      const btn = document.getElementById("toStep4");
+    document.getElementById("agreeCheck").addEventListener("change", function(e) {
+      var btn = document.getElementById("toStep4");
       btn.disabled = !e.target.checked;
       btn.classList.toggle("opacity-50", !e.target.checked);
     });
@@ -307,10 +311,10 @@
           submitted = true;
         }
       }
-      document.getElementById(`step${step}`).classList.add("hidden");
-      document.getElementById(`step${n}`).classList.remove("hidden");
-      document.getElementById(`step${step}Btn`)?.classList.replace("step-active", "step-inactive");
-      document.getElementById(`step${n}Btn`)?.classList.replace("step-inactive", "step-active");
+      document.getElementById("step" + step).classList.add("hidden");
+      document.getElementById("step" + n).classList.remove("hidden");
+      document.getElementById("step" + step + "Btn")?.classList.replace("step-active", "step-inactive");
+      document.getElementById("step" + n + "Btn")?.classList.replace("step-inactive", "step-active");
       step = n;
       if (n === 3 && activeTab === "editing") {
         document.getElementById("editingSummary").classList.remove("hidden");
@@ -326,9 +330,9 @@
       if (activeTab === "editing") {
         goToStep(3);
       } else {
-        const sd = document.getElementById("startDate").value;
-        const ed = document.getElementById("endDate").value;
-        const pf = document.getElementById("proofImage").files[0];
+        var sd = document.getElementById("startDate").value;
+        var ed = document.getElementById("endDate").value;
+        var pf = document.getElementById("proofImage").files[0];
         if (!sd || !ed || !pf) {
           alert("시작일, 반납일, 증명사진을 모두 입력해주세요.");
           return;
@@ -339,29 +343,28 @@
 
     function displayFinalInfo() {
       document.getElementById("final-selected-items").innerHTML =
-        selected.map(s => `<li>${s.name}</li>`).join("");
+        selected.map(function(s) { return "<li>" + s.name + "</li>"; }).join("");
       if (activeTab === "editing") {
         document.getElementById("final-common").classList.add("hidden");
         document.getElementById("final-editing").classList.remove("hidden");
-        document.getElementById("final-editing-date").innerText = `대여일자: ${editingDate}`;
-        document.getElementById("final-editing-time").innerText = `선택시간: ${formatTimes(selectedTimes)}`;
+        document.getElementById("final-editing-date").innerText = "대여일자: " + editingDate;
+        document.getElementById("final-editing-time").innerText = "선택시간: " + formatTimes(selectedTimes);
       } else {
         document.getElementById("final-common").classList.remove("hidden");
         document.getElementById("final-editing").classList.add("hidden");
-        document.getElementById("final-rental-info").innerText = `시작: ${startDate}, 반납: ${endDate}`;
+        document.getElementById("final-rental-info").innerText = "시작: " + startDate + ", 반납: " + endDate;
         document.getElementById("final-proof-image").innerText = proofImage ? proofImage.name : "없음";
       }
     }
 
     async function submitToFirestore() {
       try {
-        // studentInfo에서 이름과 학번 추출
-        const studentName = studentInfo.name;
-        const studentID = studentInfo.studentId;
-        let docData = {
+        var studentName = studentInfo.name;
+        var studentID = studentInfo.studentId;
+        var docData = {
           studentName: studentName,
           studentID: studentID,
-          items: selected.map(s => s.name),
+          items: selected.map(function(s) { return s.name; }),
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
           status: "대기중",
           isDeleted: false
@@ -373,12 +376,12 @@
         } else {
           docData.startDate = startDate;
           docData.endDate = endDate;
-          docData.date = `${startDate} ~ ${endDate}`;
+          docData.date = startDate + " ~ " + endDate;
           docData.time = "-";
-          let proofPhotoUrl = "";
+          var proofPhotoUrl = "";
           if (proofImage) {
-            const storageRef = storage.ref();
-            const fileRef = storageRef.child(`proofPhotos/${Date.now()}_${proofImage.name}`);
+            var storageRef = storage.ref();
+            var fileRef = storageRef.child("proofPhotos/" + Date.now() + "_" + proofImage.name);
             await fileRef.put(proofImage);
             proofPhotoUrl = await fileRef.getDownloadURL();
           }
@@ -396,21 +399,21 @@
       if (tab === "editing") {
         selected = [];
       } else {
-        selected = selected.filter(item => Number(item.id) < 5);
+        selected = selected.filter(function(item) {
+          return Number(item.id) < 5;
+        });
       }
       activeTab = tab;
       updateSelectedUI();
-      const list = document.getElementById("equipment-list");
+      var list = document.getElementById("equipment-list");
       list.innerHTML = "";
-      equipment[tab].forEach(item => {
-        const div = document.createElement("div");
+      equipment[tab].forEach(function(item) {
+        var div = document.createElement("div");
         div.className = "equipment border p-4 rounded flex items-center cursor-pointer";
-        div.innerHTML = `
-          <img src="${item.image}" alt="${item.name}" class="w-14 h-14 rounded mr-4"/>
-          <strong>${item.name}</strong>
-        `;
-        div.onclick = () => toggleItem(item, div);
-        if (selected.some(s => s.id === item.id)) {
+        div.innerHTML = '<img src="' + item.image + '" alt="' + item.name + '" class="w-14 h-14 rounded mr-4"/>' +
+                        '<strong>' + item.name + '</strong>';
+        div.onclick = function() { toggleItem(item, div); };
+        if (selected.some(function(s) { return s.id === item.id; })) {
           div.classList.add("selected");
         }
         list.appendChild(div);
@@ -429,13 +432,15 @@
       if (activeTab === "editing") {
         selected = [item];
         editingLocation = item.name;
-        document.querySelectorAll("#equipment-list .equipment").forEach(e => e.classList.remove("selected"));
+        document.querySelectorAll("#equipment-list .equipment").forEach(function(e) {
+          e.classList.remove("selected");
+        });
         el.classList.add("selected");
         document.getElementById("editingLocation").value = editingLocation;
       } else {
-        const found = selected.find(s => s.id === item.id);
+        var found = selected.find(function(s) { return s.id === item.id; });
         if (found) {
-          selected = selected.filter(s => s.id !== item.id);
+          selected = selected.filter(function(s) { return s.id !== item.id; });
           el.classList.remove("selected");
         } else {
           selected.push(item);
@@ -446,8 +451,8 @@
     }
 
     function updateSelectedUI() {
-      const sec = document.getElementById("selected-section");
-      const btn = document.getElementById("toStep2");
+      var sec = document.getElementById("selected-section");
+      var btn = document.getElementById("toStep2");
       if (selected.length === 0) {
         sec.classList.add("hidden");
         btn.classList.add("hidden");
@@ -456,28 +461,29 @@
         btn.classList.remove("hidden");
       }
       document.getElementById("selected-items").innerHTML =
-        selected.map(s => `<li>${s.name}</li>`).join("");
+        selected.map(function(s) { return "<li>" + s.name + "</li>"; }).join("");
     }
 
     function createTimeSlots() {
-      const container = document.getElementById("timeGrid");
+      var container = document.getElementById("timeGrid");
       container.innerHTML = "";
       selectedTimes = [];
-      for (let hour = 0; hour < 24; hour++) {
-        const input = document.createElement("input");
+      for (var hour = 0; hour < 24; hour++) {
+        var input = document.createElement("input");
         input.type = "checkbox";
-        input.id = `hour-${hour}`;
+        input.id = "hour-" + hour;
         input.value = hour;
-        input.addEventListener("change", () => {
-          if (input.checked) {
-            selectedTimes.push(hour);
+        input.addEventListener("change", function() {
+          var value = parseInt(this.value);
+          if (this.checked) {
+            selectedTimes.push(value);
           } else {
-            selectedTimes = selectedTimes.filter(h => h !== hour);
+            selectedTimes = selectedTimes.filter(function(h) { return h !== value; });
           }
         });
-        const label = document.createElement("label");
-        label.setAttribute("for", `hour-${hour}`);
-        label.textContent = `${hour}:00`;
+        var label = document.createElement("label");
+        label.setAttribute("for", "hour-" + hour);
+        label.textContent = hour + ":00";
         container.appendChild(input);
         container.appendChild(label);
       }
@@ -485,8 +491,8 @@
 
     function formatTimes(arr) {
       if (!arr.length) return "없음";
-      const sorted = [...arr].sort((a, b) => a - b);
-      return sorted.map(h => `${h}:00`).join(", ");
+      var sorted = arr.slice().sort(function(a, b) { return a - b; });
+      return sorted.map(function(h) { return h + ":00"; }).join(", ");
     }
   </script>
 </body>
