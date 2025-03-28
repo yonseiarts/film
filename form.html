@@ -95,7 +95,7 @@
         <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
 
         <!-- 다음단계 (2) -->
-        <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden>
+        <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">
           다음 단계 →
         </button>
       </div>
@@ -234,7 +234,7 @@
     </div>
   </div>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDK (버전 8 사용) -->
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
@@ -244,11 +244,10 @@
      * Firebase 초기화 (본인 프로젝트 설정)
      ********************************************************/
     var firebaseConfig = {
-  apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
-
-      // ...
+      // ... 필요한 추가 설정
     };
     firebase.initializeApp(firebaseConfig);
     var db = firebase.firestore();
@@ -262,22 +261,29 @@
       window.location.href = "index.html";
     }
 
-    // 로그인 정보 확인 (이름/학번)
-    let storedName = localStorage.getItem("studentName");
-    let storedID = localStorage.getItem("studentID");
-    if (!storedName || !storedID) {
+    /********************************************************
+     * 로그인 정보 확인
+     * 기존에는 "studentName"과 "studentID"를 별도로 사용하던 부분을,
+     * 로그인 페이지에서 저장한 "studentInfo" JSON 객체를 사용하도록 수정함.
+     ********************************************************/
+    const storedStudent = localStorage.getItem("studentInfo");
+    if (!storedStudent) {
       alert("로그인이 필요합니다.");
-      window.location.href = "login.html";
+      window.location.href = "student_login.html";
     }
+    const studentInfo = JSON.parse(storedStudent);
+    document.getElementById('studentInfoDisplay').textContent =
+      `로그인: ${studentInfo.name} (${studentInfo.studentId})`;
 
+    // 단계 관련 변수 및 초기 상태
     let step = 1;
     let selected = [];
     let activeTab = "camera"; // 기본 탭
 
-    // 카/조/사
+    // 카/조/사 전용 변수
     let startDate, endDate, proofImage;
 
-    // 편집실
+    // 편집실 전용 변수
     let editingDate;
     let selectedTimes = [];
     let editingLocation = "";
@@ -300,7 +306,7 @@
       ]
     };
 
-    // 초기 장비 목록
+    // 초기 장비 목록 렌더링 및 선택 UI 업데이트
     renderEquipment("camera");
     updateSelectedUI();
 
@@ -313,7 +319,7 @@
       });
     });
 
-    // 규정 동의
+    // 규정 동의 체크 이벤트
     document.getElementById("agreeCheck").addEventListener("change", e => {
       const btn = document.getElementById("toStep4");
       btn.disabled = !e.target.checked;
@@ -324,7 +330,7 @@
      * 단계 이동
      ********************************************************/
     function goToStep(n) {
-      // 3단계 이동 전
+      // 3단계 이동 전 확인
       if (n === 3) {
         if (activeTab === "editing") {
           editingDate = document.getElementById("editingDate").value;
@@ -346,12 +352,11 @@
           }
         }
       }
-      // 4단계 이동 전
+      // 4단계 이동 전 확인 및 Firestore 저장
       if (n === 4) {
         if (!document.getElementById("agreeCheck").checked) return;
         displayFinalInfo();
 
-        // Firestore 저장 (한 번만)
         if (!submitted) {
           submitToFirestore();
           submitted = true;
@@ -364,7 +369,6 @@
       document.getElementById(`step${n}Btn`)?.classList.replace("step-inactive", "step-active");
       step = n;
 
-      // 편집실 요약 (3단계)
       if (n === 3 && activeTab === "editing") {
         document.getElementById("editingSummary").classList.remove("hidden");
         document.getElementById("summaryPlace").textContent = editingLocation;
@@ -412,9 +416,9 @@
      ********************************************************/
     async function submitToFirestore() {
       try {
-        // localStorage에서 이름/학번 불러오기
-        const studentName = storedName;
-        const studentID = storedID;
+        // 로그인 정보는 studentInfo 객체에서 가져옴
+        const studentName = studentInfo.name;
+        const studentID = studentInfo.studentId;
 
         let docData = {
           studentName: studentName,
