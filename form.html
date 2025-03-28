@@ -4,25 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 신청</title>
-  <!-- Tailwind CSS (버전 2.2.19, 기존 디자인 유지) -->
+  <!-- Tailwind CSS (버전 2.2.19) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
   <style>
-    .step-active {
-      background-color: #1D4ED8;
-      color: white;
-    }
-    .step-inactive {
-      background-color: #e5e7eb;
-      color: #6b7280;
-    }
-    .tab-button.active {
-      background-color: #dbeafe;
-      font-weight: 600;
-    }
-    .equipment.selected {
-      border-color: #facc15;
-      background-color: #fefce8;
-    }
+    .step-active { background-color: #1D4ED8; color: white; }
+    .step-inactive { background-color: #e5e7eb; color: #6b7280; }
+    .tab-button.active { background-color: #dbeafe; font-weight: 600; }
+    .equipment.selected { border-color: #facc15; background-color: #fefce8; }
     /* 편집실 시간체크 표 */
     .time-grid {
       display: grid;
@@ -42,9 +30,7 @@
       white-space: nowrap;
       overflow: hidden;
     }
-    .time-grid input[type="checkbox"] {
-      display: none;
-    }
+    .time-grid input[type="checkbox"] { display: none; }
     .time-grid input[type="checkbox"]:checked + label {
       background-color: #60a5fa;
       border-color: #1d4ed8;
@@ -59,7 +45,7 @@
     <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
     <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
   </div>
-
+  
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
     <!-- 단계별 진행 표시 -->
     <div class="flex justify-between mb-8">
@@ -68,7 +54,7 @@
       <div id="step3Btn" class="flex-1 text-center p-2 rounded step-inactive">3. 규정 동의</div>
       <div class="flex-1 text-center p-2 rounded bg-gray-200 text-gray-500">4. 완료</div>
     </div>
-
+  
     <!-- Step 1: 장비 선택 -->
     <div id="step1">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
@@ -95,8 +81,8 @@
         </button>
       </div>
     </div>
-
-    <!-- Step 2: 대여 정보 -->
+  
+    <!-- Step 2: 대여 정보 (사진 전송 기능 포함) -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
       <!-- 카메라/조명/사운드 전용 영역 -->
@@ -136,7 +122,7 @@
         </button>
       </div>
     </div>
-
+  
     <!-- Step 3: 규정 동의 -->
     <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
@@ -182,7 +168,7 @@
         </button>
       </div>
     </div>
-
+  
     <!-- Step 4: 완료 -->
     <div id="step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
@@ -204,15 +190,15 @@
       </div>
     </div>
   </div>
-
+  
   <!-- Firebase SDK (버전 8 사용) -->
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
-
+  
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Firebase 초기화 (student_login.html와 동일한 설정)
+      // Firebase 초기화 (student_login.html와 동일 설정)
       var firebaseConfig = {
         apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
         authDomain: "yonseirent-setup.firebaseapp.com",
@@ -222,27 +208,30 @@
       firebase.initializeApp(firebaseConfig);
       var db = firebase.firestore();
       var storage = firebase.storage();
-
+  
       var submitted = false;
       function goHome() { window.location.href = "index.html"; }
-
+  
       // 로그인 정보 확인 (studentInfo JSON 객체)
       var storedStudent = localStorage.getItem("studentInfo");
-      if (!storedStudent) { alert("로그인이 필요합니다."); window.location.href = "student_login.html"; }
+      if (!storedStudent) {
+        alert("로그인이 필요합니다.");
+        window.location.href = "student_login.html";
+      }
       var studentInfo = JSON.parse(storedStudent);
-
+  
       // 단계 관련 변수
       var step = 1;
       var selected = [];
       var activeTab = "camera"; // 기본 탭
-
+  
       // 카메라/조명/사운드 전용 변수
       var startDate, endDate, proofImage;
       // 편집실 전용 변수
       var editingDate;
       var selectedTimes = [];
       var editingLocation = "";
-
+  
       var equipment = {
         camera: [
           { id: "1", name: "Sony FX3", image: "https://via.placeholder.com/80?text=Sony+FX3" },
@@ -259,8 +248,8 @@
           { id: "6", name: "편집실 2", image: "https://via.placeholder.com/80?text=%ED%8E%B8%EC%A7%91%EC%8B%A4+2" }
         ]
       };
-
-      // 사진 미리보기
+  
+      // 파일 미리보기
       document.getElementById("proofImage").addEventListener("change", function(e) {
         var file = e.target.files[0];
         var preview = document.getElementById("proofPreview");
@@ -276,26 +265,28 @@
           reader.readAsDataURL(file);
         }
       });
-
+  
       // 초기 렌더링
       renderEquipment("camera");
       updateSelectedUI();
-
+  
       // 탭 버튼 이벤트
       document.querySelectorAll('.tab-button').forEach(function(button) {
         button.addEventListener('click', function() {
-          document.querySelectorAll('.tab-button').forEach(function(btn) { btn.classList.remove('active'); });
+          document.querySelectorAll('.tab-button').forEach(function(btn) {
+            btn.classList.remove('active');
+          });
           this.classList.add('active');
           renderEquipment(this.getAttribute('data-tab'));
         });
       });
-
+  
       document.getElementById("agreeCheck").addEventListener("change", function(e) {
         var btn = document.getElementById("toStep4");
         btn.disabled = !e.target.checked;
         btn.classList.toggle("opacity-50", !e.target.checked);
       });
-
+  
       window.goToStep = function(n) {
         if (n === 3) {
           if (activeTab === "editing") {
@@ -328,7 +319,7 @@
           document.getElementById("editingSummary").classList.add("hidden");
         }
       };
-
+  
       window.validateStep2 = function() {
         if (activeTab === "editing") { goToStep(3); }
         else {
@@ -339,7 +330,7 @@
           goToStep(3);
         }
       };
-
+  
       function displayFinalInfo() {
         document.getElementById("final-selected-items").innerHTML =
           selected.map(function(s) { return "<li>" + s.name + "</li>"; }).join("");
@@ -355,7 +346,7 @@
           document.getElementById("final-proof-image").innerText = proofImage ? proofImage.name : "없음";
         }
       }
-
+  
       async function submitToFirestore() {
         try {
           var studentName = studentInfo.name;
@@ -408,10 +399,13 @@
           alert("신청 저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
         }
       }
-
+  
       function renderEquipment(tab) {
-        if (tab === "editing") { selected = []; }
-        else { selected = selected.filter(function(item) { return Number(item.id) < 5; }); }
+        if (tab === "editing") {
+          selected = [];
+        } else {
+          selected = selected.filter(function(item) { return Number(item.id) < 5; });
+        }
         activeTab = tab;
         updateSelectedUI();
         var list = document.getElementById("equipment-list");
@@ -434,12 +428,14 @@
           document.getElementById("editingSection").classList.add("hidden");
         }
       }
-
+  
       function toggleItem(item, el) {
         if (activeTab === "editing") {
           selected = [item];
           editingLocation = item.name;
-          document.querySelectorAll("#equipment-list .equipment").forEach(function(e) { e.classList.remove("selected"); });
+          document.querySelectorAll("#equipment-list .equipment").forEach(function(e) {
+            e.classList.remove("selected");
+          });
           el.classList.add("selected");
           document.getElementById("editingLocation").value = editingLocation;
         } else {
@@ -449,7 +445,7 @@
         }
         updateSelectedUI();
       }
-
+  
       function updateSelectedUI() {
         var sec = document.getElementById("selected-section");
         var btn = document.getElementById("toStep2");
@@ -458,7 +454,7 @@
         document.getElementById("selected-items").innerHTML =
           selected.map(function(s) { return "<li>" + s.name + "</li>"; }).join("");
       }
-
+  
       function createTimeSlots() {
         var container = document.getElementById("timeGrid");
         container.innerHTML = "";
@@ -477,4 +473,16 @@
           label.setAttribute("for", "hour-" + hour);
           label.textContent = hour + ":00";
           container.appendChild(input);
-          container.appendChild(label
+          container.appendChild(label);
+        }
+      }
+  
+      function formatTimes(arr) {
+        if (!arr.length) return "없음";
+        var sorted = arr.slice().sort(function(a, b) { return a - b; });
+        return sorted.map(function(h) { return h + ":00"; }).join(", ");
+      }
+    });
+  </script>
+</body>
+</html>
