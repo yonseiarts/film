@@ -3,47 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>학생 로그인</title>
-  <!-- 기존 디자인에 사용되던 Tailwind CSS CDN -->
+  <title>장비 대여 신청</title>
+  <!-- 기존 디자인 Tailwind CSS CDN -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.2.7/dist/tailwind.min.css" rel="stylesheet">
-  <!-- Firebase v9+compat: 기존 v8 문법 사용 -->
+  <!-- Firebase v9+compat (v8 문법 사용) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-gray-100">
-  <div class="min-h-screen flex items-center justify-center">
-    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-sm">
-      <h1 class="block text-gray-700 text-xl font-bold mb-4 text-center">학생 로그인</h1>
-      <form id="loginForm">
-        <!-- 이름 -->
+  <div class="min-h-screen flex flex-col items-center justify-center p-4">
+    <!-- 학생 정보 표시 -->
+    <div id="studentInfoDisplay" class="mb-6 text-lg font-semibold text-gray-800"></div>
+
+    <!-- 장비 대여 신청 폼 -->
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 w-full max-w-lg">
+      <h1 class="block text-gray-700 text-xl font-bold mb-4 text-center">장비 대여 신청</h1>
+      <form id="rentalForm">
+        <!-- 대여 날짜 -->
         <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
-            이름
-          </label>
-          <input id="name" type="text" placeholder="이름 입력" required
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="rentalDate">대여 날짜</label>
+          <input id="rentalDate" type="date" required
                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
         </div>
-        <!-- 학번 -->
+        <!-- 대여 시간 -->
         <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="studentId">
-            학번
-          </label>
-          <input id="studentId" type="text" placeholder="학번 입력" required
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="rentalTime">대여 시간</label>
+          <input id="rentalTime" type="time" required
                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
         </div>
-        <!-- 비밀번호 -->
+        <!-- 대여 장비 (콤마 구분 입력) -->
         <div class="mb-6">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
-            비밀번호
-          </label>
-          <input id="password" type="password" placeholder="비밀번호 입력" required
-                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="equipment">대여 장비</label>
+          <input id="equipment" type="text" placeholder="예: 카메라, 조명, 마이크"
+                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
         </div>
         <div class="flex items-center justify-between">
           <button type="submit"
-                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-            로그인
+                  class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            신청하기
           </button>
         </div>
       </form>
@@ -52,7 +49,7 @@
 
   <script>
     /***********************************************************************
-     * Firebase 설정 및 초기화 (실제 Firebase 콘솔 설정값으로 교체)
+     * Firebase 설정 및 초기화 (student_login.html와 동일한 firebaseConfig 사용)
      ***********************************************************************/
     const firebaseConfig = {
       apiKey:"AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
@@ -67,49 +64,51 @@
     const db = firebase.firestore();
 
     /***********************************************************************
-     * 미리 정의된 허용된 학생 로그인 정보
+     * 학생 로그인 후 로컬 스토리지에서 학생 정보 가져오기 및 표시
      ***********************************************************************/
-    // 입력한 정보가 정확히 일치해야 접속이 허용됩니다.
-    const allowedUsers = [
-      { name: "이창민", studentId: "ar23000501", password: "1234" },
-    ];
+    const storedStudent = localStorage.getItem('studentInfo');
+    if (!storedStudent) {
+      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
+      location.href = "student_login.html";
+    }
+    const studentInfo = JSON.parse(storedStudent);
+    document.getElementById('studentInfoDisplay').textContent =
+      `로그인: ${studentInfo.name} (${studentInfo.studentId})`;
 
     /***********************************************************************
-     * 로그인 폼 제출 이벤트
+     * 장비 대여 신청 폼 제출 이벤트
      ***********************************************************************/
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    document.getElementById('rentalForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      
-      // 입력값 가져오기 (비밀번호에도 trim 적용)
-      const name = document.getElementById('name').value.trim();
-      const studentId = document.getElementById('studentId').value.trim();
-      const password = document.getElementById('password').value.trim();
 
-      console.log("입력값 확인:", { name, studentId, password }); // 디버깅용
+      const rentalDate = document.getElementById('rentalDate').value;
+      const rentalTime = document.getElementById('rentalTime').value;
+      const equipmentRaw = document.getElementById('equipment').value;
+      // 장비 입력은 콤마(,)로 구분된 문자열을 배열로 변환
+      const equipment = equipmentRaw.split(',').map(item => item.trim()).filter(item => item);
 
-      // 허용된 정보와 일치하는지 확인 (대소문자, 공백 주의)
-      const user = allowedUsers.find(u => 
-        u.name === name && u.studentId === studentId && u.password === password
-      );
+      if (!rentalDate || !rentalTime) {
+        alert("대여 날짜와 시간을 입력해주세요.");
+        return;
+      }
 
-      if (user) {
-        try {
-          // 로그인 성공 시 Firestore에 로그인 정보를 기록 (관리자 페이지에서 확인 가능)
-          const loginData = {
-            name,
-            studentId,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-          };
-          await db.collection('studentLogins').add(loginData);
-          alert("접속이 허용되었습니다.\n관리자 페이지에서 로그인 정보를 확인하세요.");
-          // 필요에 따라 관리자 페이지로 이동 처리 가능
-          // location.href = 'admin_dashboard.html';
-        } catch (error) {
-          console.error("로그인 정보 기록 오류:", error);
-          alert("로그인 처리 중 오류가 발생했습니다.");
-        }
-      } else {
-        alert("입력한 로그인 정보가 정확하지 않습니다.");
+      try {
+        // 대여 신청 정보를 Firestore에 기록 (대여 신청 내역)
+        const rentalData = {
+          studentName: studentInfo.name,
+          studentId: studentInfo.studentId,
+          rentalDate,
+          rentalTime,
+          equipment,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        await db.collection('rentalApplications').add(rentalData);
+        alert("대여 신청이 완료되었습니다.");
+        // 신청 후 폼 초기화
+        document.getElementById('rentalForm').reset();
+      } catch (error) {
+        console.error("대여 신청 오류:", error);
+        alert("대여 신청 처리 중 오류가 발생했습니다: " + error.message);
       }
     });
   </script>
