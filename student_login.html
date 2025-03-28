@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>학생 로그인</title>
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS CDN (기존 디자인 유지) -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.2.7/dist/tailwind.min.css" rel="stylesheet">
   <!-- Firebase v9+compat (v8 문법 사용) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -45,7 +45,7 @@
   </div>
 
   <script>
-    // Firebase 설정 (실제 프로젝트 설정값으로 교체)
+    // Firebase 설정 (실제 Firebase 콘솔 설정값으로 교체)
     const firebaseConfig = {
       apiKey:"AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
@@ -58,7 +58,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 미리 정의된 허용된 학생 로그인 정보
+    // 미리 정의된 허용된 학생 로그인 정보 (기존 정보 그대로)
     const allowedUsers = [
       { name: "이창민", studentId: "ar23000501", password: "1234" }
     ];
@@ -78,7 +78,7 @@
 
       if (user) {
         try {
-          // Firestore에 로그인 기록 저장 (관리자에서 확인)
+          // Firestore에 로그인 기록 저장 (관리자 페이지에서 확인)
           const loginData = {
             name,
             studentId,
@@ -87,7 +87,7 @@
           await db.collection('studentLogins').add(loginData);
           // 로컬 스토리지에 학생 정보 저장
           localStorage.setItem('studentInfo', JSON.stringify({ name, studentId }));
-          alert("로그인 성공! 장비 대여 신청 페이지로 이동합니다.");
+          alert("로그인 성공! 기자재 대여 신청 페이지로 이동합니다.");
           location.href = "form.html";
         } catch (error) {
           console.error("로그인 기록 오류:", error);
