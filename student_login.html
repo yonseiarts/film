@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>학생 로그인</title>
-  <!-- Tailwind CSS CDN (버전 3.2.7) -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.2.7/dist/tailwind.min.css" rel="stylesheet">
-  <!-- Firebase v9+compat (v8 스타일 사용) -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <!-- Tailwind CSS (버전 2.2.19) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <!-- Firebase SDK 버전 8 사용 -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
 </head>
 <body class="bg-gray-100">
   <div class="min-h-screen flex items-center justify-center">
@@ -46,53 +46,47 @@
 
   <script>
     // Firebase 설정 (실제 프로젝트 설정값으로 교체)
-    const firebaseConfig = {
-      apiKey:"AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+    var firebaseConfig = {
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
       storageBucket: "yonseirent-setup.appspot.com",
       messagingSenderId: "1072524969376",
-      appId:"1:1072524969376:web:e23491a7196f97fd3e10c5",
+      appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
       measurementId: "G-8G1D43NXMW"
     };
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    var db = firebase.firestore();
 
-    // 미리 정의된 허용된 학생 로그인 정보
-    const allowedUsers = [
+    // 미리 정의된 허용된 학생 로그인 정보 (원래 디자인 및 기능 그대로)
+    var allowedUsers = [
       { name: "이창민", studentId: "ar23000501", password: "1234" }
     ];
 
-    // 로그인 폼 제출 이벤트
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
       e.preventDefault();
+      var name = document.getElementById('name').value.trim();
+      var studentId = document.getElementById('studentId').value.trim();
+      var password = document.getElementById('password').value.trim();
       
-      const name = document.getElementById('name').value.trim();
-      const studentId = document.getElementById('studentId').value.trim();
-      const password = document.getElementById('password').value.trim();
-
-      // 허용된 정보와 일치하는지 확인
-      const user = allowedUsers.find(u => 
-        u.name === name && u.studentId === studentId && u.password === password
-      );
-
+      var user = allowedUsers.find(function(u) {
+        return u.name === name && u.studentId === studentId && u.password === password;
+      });
+      
       if (user) {
-        try {
-          // Firestore에 로그인 기록 저장 (관리자에서 확인 가능)
-          const loginData = {
-            name,
-            studentId,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-          };
-          await db.collection('studentLogins').add(loginData);
-          // 로컬 스토리지에 학생 정보 저장
-          localStorage.setItem('studentInfo', JSON.stringify({ name, studentId }));
-          alert("로그인 성공! 장비 대여 신청 페이지로 이동합니다.");
-          location.href = "form.html";
-        } catch (error) {
+        // 로그인 성공 시 Firestore에 기록 및 로컬 스토리지에 학생 정보 저장 후 form.html로 이동
+        db.collection('studentLogins').add({
+          name: name,
+          studentId: studentId,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(function() {
+          localStorage.setItem('studentInfo', JSON.stringify({ name: name, studentId: studentId }));
+          alert("로그인 성공! 기자재 대여 신청 페이지로 이동합니다.");
+          window.location.href = "form.html";
+        }).catch(function(error) {
           console.error("로그인 기록 오류:", error);
           alert("로그인 처리 중 오류가 발생했습니다: " + error.message);
-        }
+        });
       } else {
         alert("입력한 로그인 정보가 정확하지 않습니다.");
       }
