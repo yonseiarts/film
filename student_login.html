@@ -12,10 +12,10 @@
 </head>
 <body class="bg-gray-100">
   <div class="min-h-screen flex flex-col items-center justify-center p-4">
-    <!-- 학생 정보 표시 -->
+    <!-- 학생 정보 표시 (이전 디자인 유지) -->
     <div id="studentInfoDisplay" class="mb-6 text-lg font-semibold text-gray-800"></div>
 
-    <!-- 장비 대여 신청 폼 -->
+    <!-- 장비 대여 신청 폼 (이전 디자인 유지) -->
     <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 w-full max-w-lg">
       <h1 class="block text-gray-700 text-xl font-bold mb-4 text-center">장비 대여 신청</h1>
       <form id="rentalForm">
@@ -84,7 +84,7 @@
       const rentalDate = document.getElementById('rentalDate').value;
       const rentalTime = document.getElementById('rentalTime').value;
       const equipmentRaw = document.getElementById('equipment').value;
-      // 장비 입력은 콤마(,)로 구분된 문자열을 배열로 변환
+      // 콤마(,) 구분 입력을 배열로 변환
       const equipment = equipmentRaw.split(',').map(item => item.trim()).filter(item => item);
 
       if (!rentalDate || !rentalTime) {
@@ -93,7 +93,7 @@
       }
 
       try {
-        // 대여 신청 정보를 Firestore에 기록 (대여 신청 내역)
+        // 대여 신청 정보를 Firestore에 기록 (관리자에서 확인 가능)
         const rentalData = {
           studentName: studentInfo.name,
           studentId: studentInfo.studentId,
@@ -104,7 +104,6 @@
         };
         await db.collection('rentalApplications').add(rentalData);
         alert("대여 신청이 완료되었습니다.");
-        // 신청 후 폼 초기화
         document.getElementById('rentalForm').reset();
       } catch (error) {
         console.error("대여 신청 오류:", error);
