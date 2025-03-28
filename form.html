@@ -7,15 +7,50 @@
   <!-- Tailwind CSS (버전 2.2.19, 기존 디자인 유지) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
   <style>
-    .step-active { background-color: #1D4ED8; color: white; }
-    .step-inactive { background-color: #e5e7eb; color: #6b7280; }
-    .tab-button.active { background-color: #dbeafe; font-weight: 600; }
-    .equipment.selected { border-color: #facc15; background-color: #fefce8; }
+    .step-active {
+      background-color: #1D4ED8;
+      color: white;
+    }
+    .step-inactive {
+      background-color: #e5e7eb;
+      color: #6b7280;
+    }
+    .tab-button.active {
+      background-color: #dbeafe;
+      font-weight: 600;
+    }
+    .equipment.selected {
+      border-color: #facc15;
+      background-color: #fefce8;
+    }
     /* 편집실 시간체크 표 */
-    .time-grid { display: grid; grid-template-columns: repeat(24, 1fr); gap: 4px; margin-top: 16px; }
-    .time-grid label { display: block; text-align: center; font-size: 0.75rem; padding: 6px 0; background-color: #f3f4f6; border-radius: 4px; border: 1px solid #e5e7eb; cursor: pointer; white-space: nowrap; overflow: hidden; }
-    .time-grid input[type="checkbox"] { display: none; }
-    .time-grid input[type="checkbox"]:checked + label { background-color: #60a5fa; border-color: #1d4ed8; color: white; font-weight: bold; }
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      gap: 4px;
+      margin-top: 16px;
+    }
+    .time-grid label {
+      display: block;
+      text-align: center;
+      font-size: 0.75rem;
+      padding: 6px 0;
+      background-color: #f3f4f6;
+      border-radius: 4px;
+      border: 1px solid #e5e7eb;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .time-grid input[type="checkbox"] {
+      display: none;
+    }
+    .time-grid input[type="checkbox"]:checked + label {
+      background-color: #60a5fa;
+      border-color: #1d4ed8;
+      color: white;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -34,7 +69,7 @@
       <div class="flex-1 text-center p-2 rounded bg-gray-200 text-gray-500">4. 완료</div>
     </div>
 
-    <!-- Step 1: 장비 선택 (기존 내용 유지) -->
+    <!-- Step 1: 장비 선택 -->
     <div id="step1">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
       <p class="text-xs text-red-600 mb-4">특수프로젝트는 기자재 총괄에게 문의</p>
@@ -61,7 +96,7 @@
       </div>
     </div>
 
-    <!-- Step 2: 대여 정보 (사진 전송 기능 개선 포함) -->
+    <!-- Step 2: 대여 정보 -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
       <!-- 카메라/조명/사운드 전용 영역 -->
@@ -82,7 +117,7 @@
           <div id="proofPreview" class="mt-2"></div>
         </div>
       </div>
-      <!-- 편집실 전용 영역 (기존 내용 유지) -->
+      <!-- 편집실 전용 영역 -->
       <div id="editingSection" class="hidden">
         <label class="block mb-2 font-medium">대여일자</label>
         <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4"/>
@@ -102,7 +137,7 @@
       </div>
     </div>
 
-    <!-- Step 3: 규정 동의 (기존 내용 유지) -->
+    <!-- Step 3: 규정 동의 -->
     <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4">
@@ -148,7 +183,7 @@
       </div>
     </div>
 
-    <!-- Step 4: 완료 (기존 내용 유지) -->
+    <!-- Step 4: 완료 -->
     <div id="step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
       <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
@@ -193,12 +228,8 @@
 
       // 로그인 정보 확인 (studentInfo JSON 객체)
       var storedStudent = localStorage.getItem("studentInfo");
-      if (!storedStudent) {
-        alert("로그인이 필요합니다.");
-        window.location.href = "student_login.html";
-      }
+      if (!storedStudent) { alert("로그인이 필요합니다."); window.location.href = "student_login.html"; }
       var studentInfo = JSON.parse(storedStudent);
-      // (선택) 로그인 정보 표시 요소가 있으면 표시
 
       // 단계 관련 변수
       var step = 1;
@@ -229,7 +260,7 @@
         ]
       };
 
-      // 파일 미리보기
+      // 사진 미리보기
       document.getElementById("proofImage").addEventListener("change", function(e) {
         var file = e.target.files[0];
         var preview = document.getElementById("proofPreview");
@@ -299,9 +330,8 @@
       };
 
       window.validateStep2 = function() {
-        if (activeTab === "editing") {
-          goToStep(3);
-        } else {
+        if (activeTab === "editing") { goToStep(3); }
+        else {
           var sd = document.getElementById("startDate").value;
           var ed = document.getElementById("endDate").value;
           var pf = document.getElementById("proofImage").files[0];
@@ -342,16 +372,16 @@
             docData.date = editingDate;
             docData.time = formatTimes(selectedTimes);
             docData.proofPhoto = "";
+            await db.collection("applications").add(docData);
+            console.log("신청 정보가 Firestore에 저장되었습니다. (편집실)");
           } else {
             docData.startDate = startDate;
             docData.endDate = endDate;
             docData.date = startDate + " ~ " + endDate;
             docData.time = "-";
-            var proofPhotoUrl = "";
             if (proofImage) {
               var storageRef = storage.ref();
               var fileRef = storageRef.child("proofPhotos/" + Date.now() + "_" + proofImage.name);
-              // 업로드 진행률 표시
               var uploadTask = fileRef.put(proofImage);
               uploadTask.on('state_changed', function(snapshot) {
                 var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
@@ -362,16 +392,17 @@
                 console.error("사진 업로드 오류:", error);
                 alert("사진 업로드에 실패했습니다.");
               }, async function() {
-                proofPhotoUrl = await fileRef.getDownloadURL();
+                var proofPhotoUrl = await fileRef.getDownloadURL();
                 docData.proofPhoto = proofPhotoUrl;
                 await db.collection("applications").add(docData);
                 console.log("신청 정보가 Firestore에 저장되었습니다. (이름/학번 포함)");
               });
               return;
+            } else {
+              await db.collection("applications").add(docData);
+              console.log("신청 정보가 Firestore에 저장되었습니다. (이름/학번 포함)");
             }
           }
-          await db.collection("applications").add(docData);
-          console.log("신청 정보가 Firestore에 저장되었습니다. (이름/학번 포함)");
         } catch (error) {
           console.error("Firestore 저장 오류: ", error);
           alert("신청 저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
@@ -446,16 +477,4 @@
           label.setAttribute("for", "hour-" + hour);
           label.textContent = hour + ":00";
           container.appendChild(input);
-          container.appendChild(label);
-        }
-      }
-
-      function formatTimes(arr) {
-        if (!arr.length) return "없음";
-        var sorted = arr.slice().sort(function(a, b) { return a - b; });
-        return sorted.map(function(h) { return h + ":00"; }).join(", ");
-      }
-    });
-  </script>
-</body>
-</html>
+          container.appendChild(label
