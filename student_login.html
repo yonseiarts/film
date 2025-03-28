@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>학생 로그인</title>
-  <!-- 기존 디자인에 사용되던 Tailwind CSS CDN (최소한의 변경) -->
+  <!-- 기존 디자인에 사용되던 Tailwind CSS CDN -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.2.7/dist/tailwind.min.css" rel="stylesheet">
   <!-- Firebase v9+compat: 기존 v8 문법 사용 -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -56,13 +55,13 @@
      * Firebase 설정 및 초기화 (실제 Firebase 콘솔 설정값으로 교체)
      ***********************************************************************/
     const firebaseConfig = {
-     apiKey:"AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-     authDomain: "yonseirent-setup.firebaseapp.com",
-     projectId: "yonseirent-setup",
-     storageBucket: "yonseirent-setup.appspot.com",
-     messagingSenderId: "1072524969376",
-     appId:"1:1072524969376:web:e23491a7196f97fd3e10c5",
-     measurementId: "G-8G1D43NXMW"
+      apiKey:"AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      authDomain: "yonseirent-setup.firebaseapp.com",
+      projectId: "yonseirent-setup",
+      storageBucket: "yonseirent-setup.appspot.com",
+      messagingSenderId: "1072524969376",
+      appId:"1:1072524969376:web:e23491a7196f97fd3e10c5",
+      measurementId: "G-8G1D43NXMW"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
@@ -70,7 +69,7 @@
     /***********************************************************************
      * 미리 정의된 허용된 학생 로그인 정보
      ***********************************************************************/
-    // 여기서 값을 실제 허용하는 학생 정보로 수정하세요.
+    // 입력한 정보가 정확히 일치해야 접속이 허용됩니다.
     const allowedUsers = [
       { name: "이창민", studentId: "ar23000501", password: "1234" },
     ];
@@ -80,12 +79,15 @@
      ***********************************************************************/
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-
+      
+      // 입력값 가져오기 (비밀번호에도 trim 적용)
       const name = document.getElementById('name').value.trim();
       const studentId = document.getElementById('studentId').value.trim();
-      const password = document.getElementById('password').value;
+      const password = document.getElementById('password').value.trim();
 
-      // 허용된 정보와 일치하는지 확인 (대소문자 및 공백 주의)
+      console.log("입력값 확인:", { name, studentId, password }); // 디버깅용
+
+      // 허용된 정보와 일치하는지 확인 (대소문자, 공백 주의)
       const user = allowedUsers.find(u => 
         u.name === name && u.studentId === studentId && u.password === password
       );
@@ -100,7 +102,7 @@
           };
           await db.collection('studentLogins').add(loginData);
           alert("접속이 허용되었습니다.\n관리자 페이지에서 로그인 정보를 확인하세요.");
-          // 관리자 페이지로 이동하거나 추가 처리를 수행할 수 있음.
+          // 필요에 따라 관리자 페이지로 이동 처리 가능
           // location.href = 'admin_dashboard.html';
         } catch (error) {
           console.error("로그인 정보 기록 오류:", error);
