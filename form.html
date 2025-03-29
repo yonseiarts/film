@@ -11,6 +11,7 @@
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
     .tab-button.active { background-color: #dbeafe; font-weight: 600; }
     .equipment.selected { border-color: #facc15; background-color: #fefce8; }
+
     /* 편집실 시간체크 표 */
     .time-grid {
       display: grid;
@@ -30,7 +31,9 @@
       white-space: nowrap;
       overflow: hidden;
     }
-    .time-grid input[type="checkbox"] { display: none; }
+    .time-grid input[type="checkbox"] {
+      display: none;
+    }
     .time-grid input[type="checkbox"]:checked + label {
       background-color: #60a5fa;
       border-color: #1d4ed8;
@@ -39,28 +42,28 @@
     }
   </style>
   
-  <!-- Firebase 모듈형 SDK 초기화 (스크립트는 모듈형으로 로드) -->
+  <!-- Firebase 모듈형 SDK 초기화 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getFirestore, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
     import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
     
-    // 아래 storageBucket 값을 실제 존재하는 버킷 이름으로 수정하세요.
+    // storageBucket을 실제 존재하는 버킷으로 수정하세요.
     const firebaseConfig = {
-      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      apiKey: "AIzaSyDqG...",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
-      storageBucket: "yonseiarts-custom-bucket-1234",
+      storageBucket: "yonseiarts-custom-bucket-1234", 
       messagingSenderId: "1072524969376",
       appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
       measurementId: "G-8G1D43NXMW"
     };
-    
+
     const app = initializeApp(firebaseConfig);
     const dbModule = getFirestore(app);
     const storageModule = getStorage(app);
-    
-    // 전역 변수로 할당 (기존 코드에서 window.XXX로 사용)
+
+    // 전역 변수로 할당 (기존 코드와 호환)
     window.db = dbModule;
     window.storage = storageModule;
     window.serverTimestamp = serverTimestamp;
@@ -78,7 +81,7 @@
   </div>
   
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-    <!-- 단계 표시 -->
+    <!-- 단계별 진행 표시 -->
     <div class="flex justify-between mb-8">
       <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
       <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
@@ -113,10 +116,10 @@
       </div>
     </div>
 
-    <!-- Step 2: 대여 정보 -->
+    <!-- Step 2: 대여 정보 (사진 전송 기능 포함) -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-      <!-- 카메라/조명/사운드 전용 -->
+      <!-- 카메라/조명/사운드 전용 영역 -->
       <div id="commonSection">
         <label class="block mb-2 font-medium">대여 시작일</label>
         <input type="date" id="startDate" class="border p-2 rounded w-full mb-4"/>
@@ -130,11 +133,12 @@
           <div id="uploadProgress" class="w-full bg-gray-200 rounded mt-2 hidden">
             <div id="uploadProgressBar" class="bg-blue-600 text-xs leading-none py-1 text-center text-white" style="width: 0%"></div>
           </div>
-          <!-- 미리보기 -->
+          <!-- 이미지 미리보기 -->
           <div id="proofPreview" class="mt-2"></div>
         </div>
       </div>
-      <!-- 편집실 전용 -->
+
+      <!-- 편집실 전용 영역 -->
       <div id="editingSection" class="hidden">
         <label class="block mb-2 font-medium">대여일자</label>
         <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4"/>
@@ -143,6 +147,7 @@
         <h3 class="text-lg font-semibold mt-2 mb-2">대여 시간 (0시 ~ 23시)</h3>
         <div id="timeGrid" class="time-grid"></div>
       </div>
+
       <div class="flex justify-between mt-6">
         <div class="flex space-x-4">
           <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
@@ -159,8 +164,26 @@
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4">
         <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
-        <!-- 실제 규정 내용 추가 -->
-        ...
+        <strong>제1장 총칙</strong><br/>
+        <em>제1조 (목적)</em><br/>
+        본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>
+        <em>제2조 (적용범위)</em><br/>
+        본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
+        <strong>제2장 관리체계</strong><br/>
+        <em>제1조 (주임교수의 권한)</em><br/>
+        • 기자재 운영 정책 수립 및 변경<br/>
+        • 기자재 담당 인력 임명<br/>
+        • 장비 대여 승인<br/>
+        • 외부 촬영 허가<br/>
+        • 분쟁 조정 및 제재 조치 결정<br/><br/>
+        <em>제2조 (행정실 업무)</em><br/>
+        • 기자재 대장 관리<br/>
+        • 예산 집행 및 회계 관리<br/><br/>
+        <strong>부칙</strong><br/>
+        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
+        제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
+        2025년 3월 23일<br/>
+        연세예술원 영화학 주임교수 유영식
       </div>
       <label class="flex items-center mb-4">
         <input type="checkbox" id="agreeCheck" class="mr-2"> 위 사용 규정에 동의합니다.
@@ -204,7 +227,7 @@
     </div>
   </div>
 
-  <!-- 스크립트: DOMContentLoaded 내부 -->
+  <!-- 메인 스크립트 (DOMContentLoaded) -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       var submitted = false;
@@ -261,6 +284,7 @@
         }
       });
 
+      // 초기 탭 렌더링
       renderEquipment("camera");
       updateSelectedUI();
 
@@ -317,6 +341,7 @@
         document.getElementById("step" + step + "Btn")?.classList.replace("step-active", "step-inactive");
         document.getElementById("step" + n + "Btn")?.classList.replace("step-inactive", "step-active");
         step = n;
+
         if (n === 3 && activeTab === "editing") {
           document.getElementById("editingSummary").classList.remove("hidden");
           document.getElementById("summaryPlace").textContent = editingLocation;
@@ -370,6 +395,7 @@
             status: "대기중",
             isDeleted: false
           };
+
           if (activeTab === "editing") {
             docData.date = editingDate;
             docData.time = formatTimes(selectedTimes);
@@ -382,11 +408,12 @@
             docData.date = startDate + " ~ " + endDate;
             docData.time = "-";
             if (proofImage) {
-              // 파일 이름을 "file_{timestamp}.{ext}"로 강제 생성
+              // 파일 이름을 "file_{timestamp}.{ext}" 형태로 생성
               const originalExt = proofImage.name.split('.').pop().toLowerCase();
               const generatedFileName = `file_${Date.now()}.${originalExt}`;
               var storageRef = window.ref(storage, "proofPhotos/" + generatedFileName);
               var uploadTask = window.uploadBytesResumable(storageRef, proofImage);
+
               uploadTask.on('state_changed', function(snapshot) {
                 var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 document.getElementById('uploadProgress').classList.remove("hidden");
@@ -417,13 +444,12 @@
         if (tab === "editing") {
           selected = [];
         } else {
-          // 편집실 외 장비만 유지
-          selected = selected.filter(function(item) {
-            return Number(item.id) < 5;
-          });
+          // 편집실 제외한 장비만 유지
+          selected = selected.filter(function(item) { return Number(item.id) < 5; });
         }
         activeTab = tab;
         updateSelectedUI();
+
         var list = document.getElementById("equipment-list");
         list.innerHTML = "";
         equipment[tab].forEach(function(item) {
@@ -433,14 +459,14 @@
             <img src="${item.image}" alt="${item.name}" class="w-14 h-14 rounded mr-4"/>
             <strong>${item.name}</strong>
           `;
-          div.onclick = function() {
-            toggleItem(item, div);
-          };
-          if (selected.some(function(s) { return s.id === item.id; })) {
+          div.onclick = () => toggleItem(item, div);
+
+          if (selected.some(s => s.id === item.id)) {
             div.classList.add("selected");
           }
           list.appendChild(div);
         });
+
         if (tab === "editing") {
           document.getElementById("commonSection").classList.add("hidden");
           document.getElementById("editingSection").classList.remove("hidden");
@@ -453,18 +479,15 @@
 
       function toggleItem(item, el) {
         if (activeTab === "editing") {
-          // 편집실은 단일 선택
           selected = [item];
           editingLocation = item.name;
-          document.querySelectorAll("#equipment-list .equipment").forEach(function(e) {
-            e.classList.remove("selected");
-          });
+          document.querySelectorAll("#equipment-list .equipment").forEach(e => e.classList.remove("selected"));
           el.classList.add("selected");
           document.getElementById("editingLocation").value = editingLocation;
         } else {
-          var found = selected.find(function(s) { return s.id === item.id; });
+          const found = selected.find(s => s.id === item.id);
           if (found) {
-            selected = selected.filter(function(s) { return s.id !== item.id; });
+            selected = selected.filter(s => s.id !== item.id);
             el.classList.remove("selected");
           } else {
             selected.push(item);
@@ -475,8 +498,8 @@
       }
 
       function updateSelectedUI() {
-        var sec = document.getElementById("selected-section");
-        var btn = document.getElementById("toStep2");
+        const sec = document.getElementById("selected-section");
+        const btn = document.getElementById("toStep2");
         if (selected.length === 0) {
           sec.classList.add("hidden");
           btn.classList.add("hidden");
@@ -485,29 +508,32 @@
           btn.classList.remove("hidden");
         }
         document.getElementById("selected-items").innerHTML =
-          selected.map(function(s) { return "<li>" + s.name + "</li>"; }).join("");
+          selected.map(s => `<li>${s.name}</li>`).join("");
       }
 
       function createTimeSlots() {
-        var container = document.getElementById("timeGrid");
+        const container = document.getElementById("timeGrid");
         container.innerHTML = "";
         selectedTimes = [];
-        for (var hour = 0; hour < 24; hour++) {
-          var input = document.createElement("input");
+        for (let hour = 0; hour < 24; hour++) {
+          const input = document.createElement("input");
           input.type = "checkbox";
-          input.id = "hour-" + hour;
+          input.id = `hour-${hour}`;
           input.value = hour;
+
           input.addEventListener("change", function() {
-            var value = parseInt(this.value);
+            const value = parseInt(this.value, 10);
             if (this.checked) {
               selectedTimes.push(value);
             } else {
-              selectedTimes = selectedTimes.filter(function(h) { return h !== value; });
+              selectedTimes = selectedTimes.filter(h => h !== value);
             }
           });
-          var label = document.createElement("label");
-          label.setAttribute("for", "hour-" + hour);
-          label.textContent = hour + ":00";
+
+          const label = document.createElement("label");
+          label.setAttribute("for", `hour-${hour}`);
+          label.textContent = `${hour}:00`;
+
           container.appendChild(input);
           container.appendChild(label);
         }
@@ -515,8 +541,8 @@
 
       function formatTimes(arr) {
         if (!arr.length) return "없음";
-        var sorted = arr.slice().sort(function(a, b) { return a - b; });
-        return sorted.map(function(h) { return h + ":00"; }).join(", ");
+        const sorted = [...arr].sort((a, b) => a - b);
+        return sorted.map(h => `${h}:00`).join(", ");
       }
     });
   </script>
