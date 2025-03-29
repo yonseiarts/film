@@ -41,29 +41,28 @@
       font-weight: bold;
     }
   </style>
-
-  <!-- Firebase 모듈형 SDK -->
+  
+  <!-- Firebase 모듈형 SDK 초기화: 전역 변수 할당 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getFirestore, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
     import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
-
-    // 실제로 GCP 콘솔에 "yonseiarts-custom-bucket"이 존재해야 합니다.
+    
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
-      storageBucket: "yonseiarts-custom-bucket",
+      // 아래 이름을 실제 존재하는 버킷으로 변경하세요
+      storageBucket: "yonseiarts-custom-bucket-1234",
       messagingSenderId: "1072524969376",
       appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
       measurementId: "G-8G1D43NXMW"
     };
-
-    // Firebase 초기화
+    
     const app = initializeApp(firebaseConfig);
     const dbModule = getFirestore(app);
     const storageModule = getStorage(app);
-
+    
     // 전역 변수로 할당
     window.db = dbModule;
     window.storage = storageModule;
@@ -75,6 +74,7 @@
   </script>
 </head>
 <body class="bg-gray-50">
+  <!-- 헤더 -->
   <div class="bg-blue-700 text-white py-6 text-center">
     <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
     <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
@@ -162,8 +162,7 @@
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4">
         <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
-        <!-- 규정 내용 -->
-        ...
+        <!-- 규정 내용 추가 -->
       </div>
       <label class="flex items-center mb-4">
         <input type="checkbox" id="agreeCheck" class="mr-2"> 위 사용 규정에 동의합니다.
@@ -207,13 +206,13 @@
     </div>
   </div>
 
-  <!-- 나머지 스크립트 -->
+  <!-- 나머지 스크립트 (DOMContentLoaded 내부) -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       var submitted = false;
       function goHome() { window.location.href = "index.html"; }
 
-      // 로그인 정보 확인
+      // 로그인 정보 확인 (studentInfo)
       var storedStudent = localStorage.getItem("studentInfo");
       if (!storedStudent) {
         alert("로그인이 필요합니다.");
@@ -266,7 +265,7 @@
       renderEquipment("camera");
       updateSelectedUI();
 
-      // 탭 버튼
+      // 탭 버튼 이벤트
       document.querySelectorAll('.tab-button').forEach(function(button) {
         button.addEventListener('click', function() {
           document.querySelectorAll('.tab-button').forEach(function(btn) {
@@ -348,6 +347,7 @@
       function displayFinalInfo() {
         document.getElementById("final-selected-items").innerHTML =
           selected.map(function(s) { return "<li>" + s.name + "</li>"; }).join("");
+
         if (activeTab === "editing") {
           document.getElementById("final-common").classList.add("hidden");
           document.getElementById("final-editing").classList.remove("hidden");
@@ -387,7 +387,7 @@
             docData.time = "-";
 
             if (proofImage) {
-              // 파일 이름을 "file_{timestamp}.{ext}"로 변경
+              // 파일 이름: "file_{timestamp}.{ext}"
               const originalExt = proofImage.name.split('.').pop().toLowerCase();
               const generatedFileName = `file_${Date.now()}.${originalExt}`;
 
@@ -422,12 +422,11 @@
 
       function renderEquipment(tab) {
         if (tab === "editing") {
+          // 편집실은 단일 선택
           selected = [];
         } else {
-          // 편집실 외 장비만 유지
-          selected = selected.filter(function(item) {
-            return Number(item.id) < 5;
-          });
+          // 편집실 제외한 장비만 유지
+          selected = selected.filter(function(item) { return Number(item.id) < 5; });
         }
         activeTab = tab;
         updateSelectedUI();
@@ -527,12 +526,8 @@
 
       function formatTimes(arr) {
         if (!arr.length) return "없음";
-        var sorted = arr.slice().sort(function(a, b) {
-          return a - b;
-        });
-        return sorted.map(function(h) {
-          return h + ":00";
-        }).join(", ");
+        var sorted = arr.slice().sort(function(a, b) { return a - b; });
+        return sorted.map(function(h) { return h + ":00"; }).join(", ");
       }
     });
   </script>
