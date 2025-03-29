@@ -215,6 +215,8 @@
     // 전역 변수로 할당하여 기존 코드와 연동
     window.db = dbModule;
     window.storage = storageModule;
+    window.serverTimestamp = serverTimestamp;
+    window.addDoc = addDoc;
   </script>
   
   <!-- 나머지 스크립트 (DOMContentLoaded 내부) -->
@@ -355,7 +357,7 @@
             studentName: studentName,
             studentID: studentID,
             items: selected.map(function(s) { return s.name; }),
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            timestamp: window.serverTimestamp(),  // firebase 대신 전역 변수 사용
             status: "대기중",
             isDeleted: false
           };
@@ -363,7 +365,7 @@
             docData.date = editingDate;
             docData.time = formatTimes(selectedTimes);
             docData.proofPhoto = "";
-            await addDoc(db, "applications", docData);
+            await window.addDoc(db, "applications", docData);
             console.log("신청 정보가 Firestore에 저장되었습니다. (편집실)");
           } else {
             docData.startDate = startDate;
@@ -384,12 +386,12 @@
               }, async function() {
                 var proofPhotoUrl = await getDownloadURL(storageRef);
                 docData.proofPhoto = proofPhotoUrl;
-                await addDoc(db, "applications", docData);
+                await window.addDoc(db, "applications", docData);
                 console.log("신청 정보가 Firestore에 저장되었습니다. (이름/학번 포함)");
               });
               return;
             } else {
-              await addDoc(db, "applications", docData);
+              await window.addDoc(db, "applications", docData);
               console.log("신청 정보가 Firestore에 저장되었습니다. (이름/학번 포함)");
             }
           }
