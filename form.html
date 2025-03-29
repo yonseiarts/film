@@ -11,7 +11,6 @@
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
     .tab-button.active { background-color: #dbeafe; font-weight: 600; }
     .equipment.selected { border-color: #facc15; background-color: #fefce8; }
-
     /* 편집실 시간체크 표 */
     .time-grid {
       display: grid;
@@ -41,14 +40,15 @@
       font-weight: bold;
     }
   </style>
-
-  <!-- Firebase 모듈형 SDK 초기화 (v9) -->
+  
+  <!-- Firebase 모듈형 SDK 초기화 (v9) 및 전역 변수/함수 등록 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getFirestore, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
     import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
     
-    // storageBucket을 yonseirent-setup.firebasestorage.app으로 설정
+    // storageBucket를 Firebase 콘솔에서 설정된 기본 버킷 이름으로 수정하세요.
+    // 여기서는 예시로 "yonseirent-setup.firebasestorage.app"를 사용합니다.
     const firebaseConfig = {
       apiKey: "AIzaSyDqG...",
       authDomain: "yonseirent-setup.firebaseapp.com",
@@ -59,19 +59,23 @@
       measurementId: "G-8G1D43NXMW"
     };
 
-    // Firebase 초기화
     const app = initializeApp(firebaseConfig);
     const dbModule = getFirestore(app);
     const storageModule = getStorage(app);
 
-    // 전역 변수로 할당 (기존 코드와 호환)
+    // 전역 변수로 할당
     window.db = dbModule;
     window.storage = storageModule;
-    window.serverTimestamp = serverTimestamp;
+    window.serverTimestamp = serverTimestamp; // 함수 그대로 할당
     window.addDoc = addDoc;
     window.ref = ref;
     window.uploadBytesResumable = uploadBytesResumable;
     window.getDownloadURL = getDownloadURL;
+
+    // 전역 함수 goHome 등록 (inline onclick에서도 호출 가능)
+    window.goHome = function() {
+      window.location.href = "index.html";
+    };
   </script>
 </head>
 <body class="bg-gray-50">
@@ -110,17 +114,16 @@
         <ul id="selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
       </div>
       <div class="flex justify-between mt-6">
+        <!-- 홈으로 버튼은 inline onclick="goHome()"로 호출 -->
         <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
-        <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">
-          다음 단계 →
-        </button>
+        <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">다음 단계 →</button>
       </div>
     </div>
 
-    <!-- Step 2: 대여 정보 -->
+    <!-- Step 2: 대여일 선택 -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-      <!-- 카/조/사 -->
+      <!-- 카메라/조명/사운드 영역 -->
       <div id="commonSection">
         <label class="block mb-2 font-medium">대여 시작일</label>
         <input type="date" id="startDate" class="border p-2 rounded w-full mb-4"/>
@@ -130,7 +133,7 @@
         <div class="mb-4">
           <label class="block mb-2 font-medium">증명사진 첨부</label>
           <input type="file" id="proofImage" accept="image/*" class="block w-full border p-2 rounded"/>
-          <!-- 업로드 진행률 표시 -->
+          <!-- 업로드 진행률 -->
           <div id="uploadProgress" class="w-full bg-gray-200 rounded mt-2 hidden">
             <div id="uploadProgressBar" class="bg-blue-600 text-xs leading-none py-1 text-center text-white" style="width: 0%"></div>
           </div>
@@ -138,8 +141,7 @@
           <div id="proofPreview" class="mt-2"></div>
         </div>
       </div>
-
-      <!-- 편집실 -->
+      <!-- 편집실 영역 -->
       <div id="editingSection" class="hidden">
         <label class="block mb-2 font-medium">대여일자</label>
         <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4"/>
@@ -148,15 +150,12 @@
         <h3 class="text-lg font-semibold mt-2 mb-2">대여 시간 (0시 ~ 23시)</h3>
         <div id="timeGrid" class="time-grid"></div>
       </div>
-
       <div class="flex justify-between mt-6">
         <div class="flex space-x-4">
           <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
           <button onclick="goToStep(1)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
         </div>
-        <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          다음 단계 →
-        </button>
+        <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
       </div>
     </div>
 
@@ -200,9 +199,7 @@
           <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
           <button onclick="goToStep(2)" class="text-blue-600 text-sm">&larr; 이전 단계</button>
         </div>
-        <button id="toStep4" onclick="goToStep(4)" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">
-          완료
-        </button>
+        <button id="toStep4" onclick="goToStep(4)" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">완료</button>
       </div>
     </div>
 
@@ -231,7 +228,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       let submitted = false;
-      function goHome() { window.location.href = "index.html"; }
+      // goHome 함수는 전역으로 등록되었으므로 여기서는 재정의할 필요 없음.
 
       // 로그인 정보 확인
       const storedStudent = localStorage.getItem("studentInfo");
@@ -284,7 +281,6 @@
         }
       });
 
-      // 초기 탭 렌더
       renderEquipment("camera");
       updateSelectedUI();
 
@@ -339,7 +335,6 @@
         document.getElementById("step" + step + "Btn")?.classList.replace("step-active", "step-inactive");
         document.getElementById("step" + n + "Btn")?.classList.replace("step-inactive", "step-active");
         step = n;
-
         if (n === 3 && activeTab === "editing") {
           document.getElementById("editingSummary").classList.remove("hidden");
           document.getElementById("summaryPlace").textContent = editingLocation;
@@ -389,7 +384,7 @@
             studentName,
             studentID,
             items: selected.map(s => s.name),
-            timestamp: window.serverTimestamp(), // serverTimestamp() 함수 호출
+            timestamp: window.serverTimestamp(), // 함수 호출
             status: "대기중",
             isDeleted: false
           };
@@ -440,10 +435,8 @@
 
       function renderEquipment(tab) {
         if (tab === "editing") {
-          // 편집실은 단일 선택
           selected = [];
         } else {
-          // 편집실 제외한 장비만 유지
           selected = selected.filter(item => Number(item.id) < 5);
         }
         activeTab = tab;
@@ -527,11 +520,9 @@
               selectedTimes = selectedTimes.filter(h => h !== value);
             }
           });
-
           const label = document.createElement("label");
           label.setAttribute("for", `hour-${hour}`);
           label.textContent = `${hour}:00`;
-
           container.appendChild(input);
           container.appendChild(label);
         }
