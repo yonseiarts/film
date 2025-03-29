@@ -9,89 +9,131 @@
   <!-- Firestore (compat 버전) -->
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
   <style>
-    /* 기본 스타일 */
-    body {
-      font-family: 'Noto Sans KR', sans-serif;
+    /* 기본 리셋 및 폰트 */
+    body, html {
       margin: 0;
       padding: 0;
-      background-color: #f5f5f5;
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #f0f2f5;
+      color: #333;
     }
-    header {
-      background-color: #3F51B5;
+    /* 상단 헤더 */
+    .header {
+      background-color: #4e73df;
       color: #fff;
-      padding: 15px 20px;
+      padding: 20px;
       text-align: center;
     }
-    nav {
-      background-color: #283593;
-      padding: 10px 20px;
+    /* 전체 레이아웃: 좌측 사이드바 + 우측 메인 컨텐츠 */
+    .container {
       display: flex;
-      gap: 10px;
+      min-height: calc(100vh - 70px);
     }
-    nav button {
-      background-color: #3F51B5;
+    /* 좌측 사이드바 */
+    .sidebar {
+      width: 240px;
+      background-color: #2e59d9;
       color: #fff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    nav button:hover {
-      background-color: #303F9F;
-    }
-    #contentArea {
       padding: 20px;
     }
-    .data-item {
-      background-color: #fff;
-      margin-bottom: 15px;
+    .sidebar h2 {
+      font-size: 18px;
+      margin: 0 0 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      padding-bottom: 10px;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+    .sidebar ul li {
+      padding: 12px 15px;
+      margin-bottom: 10px;
       border-radius: 4px;
+      cursor: pointer;
+    }
+    .sidebar ul li:hover, .sidebar ul li.active {
+      background-color: rgba(255,255,255,0.2);
+    }
+    /* 우측 메인 컨텐츠 */
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      background: #fff;
+    }
+    .main-content .card {
+      background: #fff;
+      border: 1px solid #e3e6f0;
+      border-radius: 5px;
       padding: 15px;
+      margin-bottom: 20px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    .data-item h3 {
+    .main-content .card h3 {
       margin-top: 0;
-      color: #3F51B5;
+      color: #4e73df;
     }
-    .data-item p {
+    .main-content .card p {
       margin: 5px 0;
     }
-    .actions button {
-      background-color: #3F51B5;
-      color: #fff;
-      border: none;
-      padding: 5px 10px;
-      margin-right: 5px;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 12px;
+    .main-content .card .actions {
+      margin-top: 10px;
     }
-    .actions button:hover {
-      background-color: #303F9F;
+    .main-content .card .actions button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 3px;
+      margin-right: 5px;
+      background-color: #4e73df;
+      color: #fff;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .main-content .card .actions button:hover {
+      background-color: #375a9c;
+    }
+    /* 로딩 문구 중앙 정렬 */
+    .loading {
+      text-align: center;
+      font-size: 16px;
+      padding: 40px 0;
     }
   </style>
 </head>
 <body>
-  <!-- 헤더 영역 -->
-  <header>
+  <!-- 상단 헤더 영역 -->
+  <div class="header">
     <h1>관리자 대시보드</h1>
-  </header>
-  <!-- 네비게이션 탭 -->
-  <nav>
-    <button onclick="loadData('pending')">신청 내역 (대기)</button>
-    <button onclick="loadData('approved')">승인 내역</button>
-    <button onclick="loadData('rejected')">반려 내역</button>
-    <button onclick="loadData('trash')">휴지통</button>
-    <button onclick="loadData('login')">로그인 내역</button>
-  </nav>
-  <!-- 데이터 표시 영역 -->
-  <div id="contentArea">
-    <p>데이터를 로딩 중입니다...</p>
   </div>
-
+  
+  <div class="container">
+    <!-- 좌측 사이드바 영역 -->
+    <div class="sidebar">
+      <h2>메뉴</h2>
+      <ul>
+        <li onclick="setActive(this); loadData('pending');" class="active">대기 내역</li>
+        <li onclick="setActive(this); loadData('approved');">승인 내역</li>
+        <li onclick="setActive(this); loadData('rejected');">반려 내역</li>
+        <li onclick="setActive(this); loadData('trash');">휴지통</li>
+        <li onclick="setActive(this); loadData('login');">로그인 내역</li>
+      </ul>
+    </div>
+    
+    <!-- 우측 메인 컨텐츠 영역 -->
+    <div class="main-content" id="contentArea">
+      <div class="loading">데이터를 로딩 중입니다...</div>
+    </div>
+  </div>
+  
   <script>
-    // Firebase 구성 객체 (본인의 프로젝트 설정 값으로 교체하세요)
+    // 사이드바 활성화 함수
+    function setActive(element) {
+      const items = document.querySelectorAll('.sidebar ul li');
+      items.forEach(item => item.classList.remove('active'));
+      element.classList.add('active');
+    }
+
+    // Firebase 구성 객체 (본인 설정으로 변경)
        const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXg...",
       authDomain: "yonseirent-setup.firebaseapp.com",
@@ -100,72 +142,69 @@
       messagingSenderId: "1072524969376",
       appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
       measurementId: "G-8G1D43NXMW"
-    };
 
     // Firebase 초기화
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 현재 활성 리스너의 구독 해제를 위한 변수
+    // 현재 활성 리스너 구독 해제 함수 저장 변수
     let currentUnsubscribe = null;
 
-    /**
-     * 선택한 카테고리(대기, 승인, 반려, 휴지통, 로그인 내역)에 따라 데이터를 로드합니다.
-     * @param {string} category - 'pending', 'approved', 'rejected', 'trash', 'login'
-     */
+    // 데이터 로드 함수 (카테고리: pending, approved, rejected, trash, login)
     function loadData(category) {
       // 기존 리스너 해제
       if (currentUnsubscribe) {
         currentUnsubscribe();
         currentUnsubscribe = null;
       }
-
       const contentArea = document.getElementById('contentArea');
-      contentArea.innerHTML = '<p>데이터 로딩 중입니다...</p>';
-
+      contentArea.innerHTML = '<div class="loading">데이터를 로딩 중입니다...</div>';
+      
       let query;
       if (category === 'login') {
-        // 로그인 내역은 별도의 컬렉션에서 조회
+        // 로그인 기록은 loginLogs 컬렉션에서 읽기
         query = db.collection('loginLogs').orderBy('loginTime', 'desc');
       } else {
-        // rentals 컬렉션에서 각 상태별로 필터링
+        // 대여 신청 내역은 rentals 컬렉션에서 상태 필터링
         let status;
         if (category === 'pending') status = '대기';
         else if (category === 'approved') status = '승인';
         else if (category === 'rejected') status = '반려';
         else if (category === 'trash') status = '휴지통';
-
+        
         query = db.collection('rentals')
                   .where('status', '==', status)
                   .orderBy('createdAt', 'desc');
       }
-
-      // 실시간 리스너 등록
+      
       currentUnsubscribe = query.onSnapshot(snapshot => {
         if (snapshot.empty) {
-          contentArea.innerHTML = '<p>표시할 데이터가 없습니다.</p>';
+          contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
           return;
         }
         let html = '';
         snapshot.forEach(doc => {
           const data = doc.data();
           if (category === 'login') {
-            // 로그인 내역 항목
-            html += `<div class="data-item">
-                        <h3>로그인 내역</h3>
-                        <p><strong>사용자:</strong> ${data.userName}</p>
-                        <p><strong>로그인 시간:</strong> ${data.loginTime.toDate ? data.loginTime.toDate().toLocaleString() : data.loginTime}</p>
-                     </div>`;
+            // 로그인 내역 카드
+            html += `
+              <div class="card">
+                <h3>로그인 내역</h3>
+                <p><strong>사용자:</strong> ${data.userName}</p>
+                <p><strong>로그인 시간:</strong> ${data.loginTime.toDate ? data.loginTime.toDate().toLocaleString() : data.loginTime}</p>
+              </div>
+            `;
           } else {
-            // 대여 신청 항목
-            html += `<div class="data-item">
-                        <h3>대여 신청 내역</h3>
-                        <p><strong>이름:</strong> ${data.userName}</p>
-                        <p><strong>기자재:</strong> ${data.equipment}</p>
-                        <p><strong>대여 날짜:</strong> ${data.rentDate}</p>
-                        <p><strong>상태:</strong> ${data.status}</p>
-                        <div class="actions">`;
-            // 상태에 따른 액션 버튼 노출
+            // 대여 신청 내역 카드
+            html += `
+              <div class="card">
+                <h3>대여 신청 내역</h3>
+                <p><strong>이름:</strong> ${data.userName}</p>
+                <p><strong>기자재:</strong> ${data.equipment}</p>
+                <p><strong>대여 날짜:</strong> ${data.rentDate}</p>
+                <p><strong>상태:</strong> ${data.status}</p>
+                <div class="actions">
+            `;
             if (data.status === '대기') {
               html += `<button onclick="updateStatus('${doc.id}', '승인')">승인</button>
                        <button onclick="updateStatus('${doc.id}', '반려')">반려</button>`;
@@ -176,22 +215,20 @@
             if (data.status === '휴지통') {
               html += `<button onclick="updateStatus('${doc.id}', '대기')">복원</button>`;
             }
-            html += `   </div>
-                     </div>`;
+            html += `
+                </div>
+              </div>
+            `;
           }
         });
         contentArea.innerHTML = html;
       }, err => {
         console.error('데이터 수신 에러:', err);
-        contentArea.innerHTML = `<p>데이터를 불러오는 중 오류가 발생했습니다: ${err.message}</p>`;
+        contentArea.innerHTML = `<div class="loading">데이터를 불러오는 중 오류가 발생했습니다: ${err.message}</div>`;
       });
     }
 
-    /**
-     * 특정 대여 신청 문서의 상태를 업데이트합니다.
-     * @param {string} docId - 문서 ID
-     * @param {string} newStatus - 변경할 상태 ('승인', '반려', '휴지통', '대기')
-     */
+    // 상태 업데이트 함수
     function updateStatus(docId, newStatus) {
       if (!confirm(`해당 항목의 상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
       db.collection('rentals').doc(docId).update({ status: newStatus })
@@ -204,7 +241,7 @@
         });
     }
 
-    // 페이지 로드 시 기본 탭(대기) 데이터 로드
+    // 페이지 로드 시 기본 카테고리(대기 내역) 로드
     loadData('pending');
   </script>
 </body>
