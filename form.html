@@ -406,36 +406,36 @@
         } else {
           document.getElementById("final-common").classList.remove("hidden");
           document.getElementById("final-editing").classList.add("hidden");
-          document.getElementById("final-rental-info").innerText = `시작: ${startDate}, 반납: ${endDate}`;
+          document.getElementById("final-rental-info").innerText = `대여 기간: ${startDate} ~ ${endDate}`;
           document.getElementById("final-proof-image").innerText = proofImage ? proofImage.name : "없음";
         }
       }
 
       async function submitToFirestore() {
         try {
-          const studentName = studentInfo.name;
-          const studentID = studentInfo.studentId;
-          // status 값을 "대기"로 변경하여 관리자 쿼리와 일치시킵니다.
-          // 또한, createdAt 필드로 저장하여 관리자 대시보드 쿼리와 일치시킵니다.
+          // 관리자 대시보드에서 기대하는 필드 이름에 맞게 저장합니다.
           const docData = {
-            studentName,
-            studentID,
-            items: selected.map(s => s.name),
+            userName: studentInfo.name,
+            studentID: studentInfo.studentId,
+            equipment: selected.map(s => s.name).join(", "),
             createdAt: window.serverTimestamp(),
+            rentDate: "", // 아래에서 설정
             status: "대기",
             isDeleted: false
           };
 
           if (activeTab === "editing") {
-            docData.date = editingDate;
+            // 편집실의 경우, 대여일자 및 선택 시간 사용
+            docData.rentDate = editingDate;
+            docData.equipment = selected.map(s => s.name).join(", ");
             docData.time = formatTimes(selectedTimes);
             docData.proofPhoto = "";
             const docRef = await window.addDoc(window.collection(db, "applications"), docData);
             console.log("신청 정보가 Firestore에 저장되었습니다. (편집실) - 문서 ID:", docRef.id);
           } else {
-            docData.startDate = startDate;
-            docData.endDate = endDate;
-            docData.date = `${startDate} ~ ${endDate}`;
+            // 일반 대여의 경우, 시작일과 반납일 사용
+            const rentDateStr = `${startDate} ~ ${endDate}`;
+            docData.rentDate = rentDateStr;
             docData.time = "-";
 
             if (proofImage) {
@@ -456,12 +456,12 @@
                 const proofPhotoUrl = await window.getDownloadURL(storageRef);
                 docData.proofPhoto = proofPhotoUrl;
                 const docRef = await window.addDoc(window.collection(db, "applications"), docData);
-                console.log("신청 정보가 Firestore에 저장되었습니다. (이름/학번 포함) - 문서 ID:", docRef.id);
+                console.log("신청 정보가 Firestore에 저장되었습니다. (일반) - 문서 ID:", docRef.id);
               });
               return;
             } else {
               const docRef = await window.addDoc(window.collection(db, "applications"), docData);
-              console.log("신청 정보가 Firestore에 저장되었습니다. (이름/학번 포함) - 문서 ID:", docRef.id);
+              console.log("신청 정보가 Firestore에 저장되었습니다. (일반) - 문서 ID:", docRef.id);
             }
           }
         } catch (error) {
