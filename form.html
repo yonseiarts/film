@@ -201,7 +201,7 @@
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
-      storageBucket: "yonseirent-setup.appspot.com", // storageBucket 추가
+      storageBucket: "yonseirent-setup.appspot.com", // 수정된 storageBucket
       messagingSenderId: "1072524969376",
       appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
       measurementId: "G-8G1D43NXMW"
@@ -212,12 +212,12 @@
     const dbModule = getFirestore(app);
     const storageModule = getStorage(app);
     
-    // 기존 코드와 통합하기 위해, 위 모듈형 변수(dbModule, storageModule)를 아래 전역 변수(db, storage)로 할당
+    // 전역 변수로 할당하여 기존 코드와 연동
     window.db = dbModule;
     window.storage = storageModule;
   </script>
   
-  <!-- 나머지 스크립트 (기존 form.html 내 DOMContentLoaded 코드) -->
+  <!-- 나머지 스크립트 (DOMContentLoaded 내부) -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       var submitted = false;
@@ -238,18 +238,18 @@
   
       var equipment = {
         camera: [
-          { id: "1", name: "Sony FX3", image: "https://via.placeholder.com/80?text=Sony+FX3" },
-          { id: "2", name: "Canon EOS R5", image: "https://via.placeholder.com/80?text=Canon+R5" }
+          { id: "1", name: "Sony FX3", image: "https://placehold.co/80x80?text=Sony+FX3" },
+          { id: "2", name: "Canon EOS R5", image: "https://placehold.co/80x80?text=Canon+R5" }
         ],
         lighting: [
-          { id: "3", name: "ARRI SkyPanel", image: "https://via.placeholder.com/80?text=SkyPanel" }
+          { id: "3", name: "ARRI SkyPanel", image: "https://placehold.co/80x80?text=SkyPanel" }
         ],
         sound: [
-          { id: "4", name: "Sennheiser MKH", image: "https://via.placeholder.com/80?text=MKH" }
+          { id: "4", name: "Sennheiser MKH", image: "https://placehold.co/80x80?text=MKH" }
         ],
         editing: [
-          { id: "5", name: "편집실 1", image: "https://via.placeholder.com/80?text=%ED%8E%B8%EC%A7%91%EC%8B%A4+1" },
-          { id: "6", name: "편집실 2", image: "https://via.placeholder.com/80?text=%ED%8E%B8%EC%A7%91%EC%8B%A4+2" }
+          { id: "5", name: "편집실 1", image: "https://placehold.co/80x80?text=%ED%8E%B8%EC%A7%91%EC%8B%A4+1" },
+          { id: "6", name: "편집실 2", image: "https://placehold.co/80x80?text=%ED%8E%B8%EC%A7%91%EC%8B%A4+2" }
         ]
       };
   
@@ -400,11 +400,8 @@
       }
   
       function renderEquipment(tab) {
-        if (tab === "editing") {
-          selected = [];
-        } else {
-          selected = selected.filter(function(item) { return Number(item.id) < 5; });
-        }
+        if (tab === "editing") { selected = []; }
+        else { selected = selected.filter(function(item) { return Number(item.id) < 5; }); }
         activeTab = tab;
         updateSelectedUI();
         var list = document.getElementById("equipment-list");
@@ -432,9 +429,7 @@
         if (activeTab === "editing") {
           selected = [item];
           editingLocation = item.name;
-          document.querySelectorAll("#equipment-list .equipment").forEach(function(e) {
-            e.classList.remove("selected");
-          });
+          document.querySelectorAll("#equipment-list .equipment").forEach(function(e) { e.classList.remove("selected"); });
           el.classList.add("selected");
           document.getElementById("editingLocation").value = editingLocation;
         } else {
