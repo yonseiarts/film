@@ -47,8 +47,8 @@
     import { getFirestore, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
     import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
 
-    // Firebase 설정 (예시)
-        const firebaseConfig = {
+    // Firebase 설정 (Firebase 콘솔에서 복사한 구성 정보를 사용하세요)
+    const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXg...",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
@@ -62,7 +62,7 @@
     const dbModule = getFirestore(app);
     const storageModule = getStorage(app);
 
-    // 전역 변수 할당
+    // 전역 변수 할당 (다른 스크립트에서도 사용 가능)
     window.db = dbModule;
     window.storage = storageModule;
     window.serverTimestamp = serverTimestamp;
@@ -414,12 +414,13 @@
         try {
           const studentName = studentInfo.name;
           const studentID = studentInfo.studentId;
+          // 여기서 status 값을 "대기중" 대신 "대기"로 수정하여, 관리자 쿼리와 일치시킵니다.
           const docData = {
             studentName,
             studentID,
             items: selected.map(s => s.name),
             timestamp: window.serverTimestamp(),
-            status: "대기중",
+            status: "대기",
             isDeleted: false
           };
 
