@@ -1,21 +1,40 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>대여 신청 관리자 대시보드</title>
+  <title>관리자 대시보드</title>
   <!-- Firebase App (compat 버전) -->
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
   <!-- Firestore (compat 버전) -->
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    nav { margin-bottom: 20px; }
+    nav button { margin-right: 10px; padding: 8px 16px; cursor: pointer; }
+    ul { list-style: none; padding: 0; }
+    li { border: 1px solid #ccc; padding: 10px; margin-bottom: 8px; }
+    .actions button { margin-right: 5px; }
+  </style>
 </head>
 <body>
-  <h1>대여 신청 관리자 대시보드</h1>
-  <ul id="rentalList"></ul>
+  <h1>관리자 대시보드</h1>
+  <!-- 탭 메뉴 -->
+  <nav>
+    <button onclick="loadData('pending')">신청 내역 (대기)</button>
+    <button onclick="loadData('approved')">승인 내역</button>
+    <button onclick="loadData('rejected')">반려 내역</button>
+    <button onclick="loadData('trash')">휴지통</button>
+    <button onclick="loadData('login')">로그인 내역</button>
+  </nav>
+
+  <!-- 데이터 표시 영역 -->
+  <div id="contentArea"></div>
 
   <script>
-    // Firebase 구성 객체 (본인 프로젝트의 설정 값으로 변경하세요)
-      const firebaseConfig = {
+    // Firebase 구성 (본인의 프로젝트 설정 값으로 교체)
+       const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXg...",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
@@ -29,24 +48,108 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 관리자 대시보드의 리스트 요소
-    const rentalList = document.getElementById('rentalList');
+    // 현재 활성화된 리스너의 구독 해제 함수 저장
+    let currentUnsubscribe = null;
 
-    // 'rentals' 컬렉션의 실시간 리스너 등록
-    db.collection('rentals').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-      // 기존 목록을 초기화(덮어쓰기)
-      rentalList.innerHTML = '';
+    /**
+     * 대시보드의 탭을 변경하여 데이터를 로드하는 함수
+     * @param {string} category - 'pending', 'approved', 'rejected', 'trash', 'login'
+     */
+    function loadData(category) {
+      // 기존 리스너 해제
+      if (currentUnsubscribe) {
+        currentUnsubscribe();
+        currentUnsubscribe = null;
+      }
 
-      // 컬렉션 내의 각 문서를 순회하며 목록에 추가
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const listItem = document.createElement('li');
-        listItem.textContent = `이름: ${data.userName} / 기자재: ${data.equipment} / 대여 날짜: ${data.rentDate}`;
-        rentalList.appendChild(listItem);
+      const contentArea = document.getElementById('contentArea');
+      contentArea.innerHTML = '<p>데이터 로딩 중...</p>';
+
+      let query;
+
+      if (category === 'login') {
+        // 로그인 내역은 별도 컬렉션에서 읽음
+        query = db.collection('loginLogs').orderBy('loginTime', 'desc');
+      } else {
+        // rentals 컬렉션에서 상태별로 필터링
+        let statusFilter;
+        if (category === 'pending') statusFilter = '대기';
+        else if (category === 'approved') statusFilter = '승인';
+        else if (category === 'rejected') statusFilter = '반려';
+        else if (category === 'trash') statusFilter = '휴지통';
+
+        query = db.collection('rentals')
+                  .where('status', '==', statusFilter)
+                  .orderBy('createdAt', 'desc');
+      }
+
+      currentUnsubscribe = query.onSnapshot(snapshot => {
+        // 데이터가 없을 경우 처리
+        if (snapshot.empty) {
+          contentArea.innerHTML = '<p>표시할 데이터가 없습니다.</p>';
+          return;
+        }
+
+        // 결과를 리스트로 작성
+        let listHTML = '<ul>';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          // 기본 정보 표시 (대여 신청 항목)
+          if (category !== 'login') {
+            listHTML += `<li>
+              <strong>이름:</strong> ${data.userName} <br>
+              <strong>기자재:</strong> ${data.equipment} <br>
+              <strong>대여 날짜:</strong> ${data.rentDate} <br>
+              <strong>상태:</strong> ${data.status} <br>
+              <div class="actions">`;
+
+            // 각 상태에 따른 액션 버튼 추가
+            if (data.status === '대기') {
+              listHTML += `<button onclick="updateStatus('${doc.id}', '승인')">승인</button>
+                           <button onclick="updateStatus('${doc.id}', '반려')">반려</button>`;
+            }
+            if (data.status === '승인' || data.status === '반려') {
+              listHTML += `<button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>`;
+            }
+            if (data.status === '휴지통') {
+              listHTML += `<button onclick="updateStatus('${doc.id}', '대기')">복원</button>`;
+            }
+            listHTML += `</div></li>`;
+          } else {
+            // 로그인 내역 항목
+            listHTML += `<li>
+              <strong>사용자:</strong> ${data.userName} <br>
+              <strong>로그인 시간:</strong> ${data.loginTime.toDate ? data.loginTime.toDate().toLocaleString() : data.loginTime} 
+            </li>`;
+          }
+        });
+        listHTML += '</ul>';
+        contentArea.innerHTML = listHTML;
+      }, err => {
+        console.error('데이터 수신 에러:', err);
+        contentArea.innerHTML = `<p>데이터를 불러오는 중 오류가 발생했습니다: ${err.message}</p>`;
       });
-    }, err => {
-      console.error('데이터 수신 에러:', err);
-    });
+    }
+
+    /**
+     * 특정 대여 신청 문서의 상태를 업데이트하는 함수
+     * @param {string} docId - Firestore 문서 ID
+     * @param {string} newStatus - 변경할 상태 (예: '승인', '반려', '휴지통', '대기')
+     */
+    function updateStatus(docId, newStatus) {
+      if (!confirm(`해당 항목의 상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
+      db.collection('rentals').doc(docId).update({ status: newStatus })
+        .then(() => {
+          alert('상태가 성공적으로 업데이트되었습니다.');
+        })
+        .catch(err => {
+          console.error('상태 업데이트 오류:', err);
+          alert('상태 업데이트 중 오류가 발생했습니다.');
+        });
+    }
+
+    // 페이지 로드 시 기본 탭 (대기 상태) 데이터 로드
+    loadData('pending');
   </script>
 </body>
 </html>
