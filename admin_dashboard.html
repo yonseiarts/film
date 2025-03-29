@@ -114,10 +114,9 @@
   </div>
   
   <script>
-    // 1. Firebase 설정 (본인 프로젝트의 값으로 수정)
+    // 1. Firebase 설정 (아래 firebaseConfig를 Firebase 콘솔에서 복사한 값으로 업데이트)
     const firebaseConfig = {
-      const firebaseConfig = {
-      apiKey: "AIzaSyDqGToBXg...",
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
       storageBucket: "yonseirent-setup.firebasestorage.app",
@@ -125,6 +124,7 @@
       appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
       measurementId: "G-8G1D43NXMW"
     };
+    
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     
@@ -134,8 +134,7 @@
       el.classList.add('active');
     }
     
-    // 3. 데이터 로드 함수
-    // "login" 이외의 경우, 여기서는 "applications" 컬렉션을 사용합니다.
+    // 3. 데이터 로드 함수 (여기서는 "applications" 컬렉션에서 데이터를 읽습니다)
     let currentUnsubscribe = null;
     function loadData(category) {
       if (currentUnsubscribe) {
@@ -148,10 +147,10 @@
       
       let query;
       if (category === 'login') {
-        // 로그인 내역은 별도의 컬렉션 (예: loginLogs)
+        // 로그인 내역: loginLogs 컬렉션 사용
         query = db.collection('loginLogs').orderBy('loginTime', 'desc');
       } else {
-        // 대기, 승인, 반려, 휴지통의 경우 "applications" 컬렉션에서 읽음
+        // 나머지 경우: applications 컬렉션 사용
         let statusValue;
         if (category === 'pending') statusValue = '대기';
         else if (category === 'approved') statusValue = '승인';
