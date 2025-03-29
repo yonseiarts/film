@@ -44,7 +44,7 @@
   <!-- Firebase 모듈형 SDK 초기화 (v9) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getFirestore, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getFirestore, serverTimestamp, addDoc, collection } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
     import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
 
     // Firebase 설정 (Firebase 콘솔에서 복사한 구성 정보를 사용하세요)
@@ -67,6 +67,7 @@
     window.storage = storageModule;
     window.serverTimestamp = serverTimestamp;
     window.addDoc = addDoc;
+    window.collection = collection;
     window.ref = ref;
     window.uploadBytesResumable = uploadBytesResumable;
     window.getDownloadURL = getDownloadURL;
@@ -414,7 +415,7 @@
         try {
           const studentName = studentInfo.name;
           const studentID = studentInfo.studentId;
-          // 여기서 status 값을 "대기중" 대신 "대기"로 수정하여, 관리자 쿼리와 일치시킵니다.
+          // status 값을 "대기"로 변경하여 관리자 쿼리와 일치시킵니다.
           const docData = {
             studentName,
             studentID,
@@ -428,7 +429,7 @@
             docData.date = editingDate;
             docData.time = formatTimes(selectedTimes);
             docData.proofPhoto = "";
-            await window.addDoc(db, "applications", docData);
+            await window.addDoc(window.collection(db, "applications"), docData);
             console.log("신청 정보가 Firestore에 저장되었습니다. (편집실)");
           } else {
             docData.startDate = startDate;
@@ -453,12 +454,12 @@
               }, async () => {
                 const proofPhotoUrl = await window.getDownloadURL(storageRef);
                 docData.proofPhoto = proofPhotoUrl;
-                await window.addDoc(db, "applications", docData);
+                await window.addDoc(window.collection(db, "applications"), docData);
                 console.log("신청 정보가 Firestore에 저장되었습니다. (이름/학번 포함)");
               });
               return;
             } else {
-              await window.addDoc(db, "applications", docData);
+              await window.addDoc(window.collection(db, "applications"), docData);
               console.log("신청 정보가 Firestore에 저장되었습니다. (이름/학번 포함)");
             }
           }
