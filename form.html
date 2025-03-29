@@ -49,7 +49,7 @@
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
-      storageBucket: "yonseiarts-custom-bucket",  // 변경된 버킷 이름
+      storageBucket: "yonseiarts-custom-bucket", // 실제 생성한 버킷 이름 사용
       messagingSenderId: "1072524969376",
       appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
       measurementId: "G-8G1D43NXMW"
@@ -59,7 +59,7 @@
     const dbModule = getFirestore(app);
     const storageModule = getStorage(app);
     
-    // 전역 변수에 할당하여 기존 코드에서 window.XXX로 사용
+    // 전역 변수로 할당 (window.XXX로 기존 코드에서 사용)
     window.db = dbModule;
     window.storage = storageModule;
     window.serverTimestamp = serverTimestamp;
@@ -375,7 +375,9 @@
             docData.date = startDate + " ~ " + endDate;
             docData.time = "-";
             if (proofImage) {
-              var storageRef = window.ref(storage, "proofPhotos/" + Date.now() + "_" + proofImage.name);
+              // 파일 이름을 안전한 문자열로 변환
+              const safeFileName = proofImage.name.replace(/[^\w.-]/g, '_');
+              var storageRef = window.ref(storage, "proofPhotos/" + Date.now() + "_" + safeFileName);
               var uploadTask = window.uploadBytesResumable(storageRef, proofImage);
               uploadTask.on('state_changed', function(snapshot) {
                 var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
