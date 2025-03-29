@@ -59,7 +59,7 @@
     const dbModule = getFirestore(app);
     const storageModule = getStorage(app);
     
-    // 전역 변수로 할당 (window.XXX로 기존 코드에서 사용)
+    // 전역 변수에 할당 (window.XXX로 기존 코드에서 사용)
     window.db = dbModule;
     window.storage = storageModule;
     window.serverTimestamp = serverTimestamp;
@@ -376,7 +376,12 @@
             docData.time = "-";
             if (proofImage) {
               // 파일 이름을 안전한 문자열로 변환
-              const safeFileName = proofImage.name.replace(/[^\w.-]/g, '_');
+              let safeFileName = proofImage.name.replace(/[^\w.-]/g, '_');
+              // 파일 이름에 적어도 하나의 영문 또는 숫자가 없으면 기본 이름 사용
+              if (!/[A-Za-z0-9]/.test(safeFileName)) {
+                const ext = proofImage.name.split('.').pop();
+                safeFileName = "file." + ext;
+              }
               var storageRef = window.ref(storage, "proofPhotos/" + Date.now() + "_" + safeFileName);
               var uploadTask = window.uploadBytesResumable(storageRef, proofImage);
               uploadTask.on('state_changed', function(snapshot) {
