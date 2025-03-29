@@ -191,43 +191,47 @@
     </div>
   </div>
   
-  <!-- Firebase SDK (버전 8 사용) -->
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
+  <!-- Firebase 모듈형 SDK (버전 9.22.2) 사용 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getFirestore, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      authDomain: "yonseirent-setup.firebaseapp.com",
+      projectId: "yonseirent-setup",
+      storageBucket: "yonseirent-setup.appspot.com", // storageBucket 추가
+      messagingSenderId: "1072524969376",
+      appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
+      measurementId: "G-8G1D43NXMW"
+    };
+    
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const dbModule = getFirestore(app);
+    const storageModule = getStorage(app);
+    
+    // 기존 코드와 통합하기 위해, 위 모듈형 변수(dbModule, storageModule)를 아래 전역 변수(db, storage)로 할당
+    window.db = dbModule;
+    window.storage = storageModule;
+  </script>
   
+  <!-- 나머지 스크립트 (기존 form.html 내 DOMContentLoaded 코드) -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Firebase 초기화 (student_login.html와 동일 설정)
-      var firebaseConfig = {
-        apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-        authDomain: "yonseirent-setup.firebaseapp.com",
-        projectId: "yonseirent-setup"
-        // 필요한 추가 설정
-      };
-      firebase.initializeApp(firebaseConfig);
-      var db = firebase.firestore();
-      var storage = firebase.storage();
-  
       var submitted = false;
       function goHome() { window.location.href = "index.html"; }
   
       // 로그인 정보 확인 (studentInfo JSON 객체)
       var storedStudent = localStorage.getItem("studentInfo");
-      if (!storedStudent) {
-        alert("로그인이 필요합니다.");
-        window.location.href = "student_login.html";
-      }
+      if (!storedStudent) { alert("로그인이 필요합니다."); window.location.href = "student_login.html"; }
       var studentInfo = JSON.parse(storedStudent);
   
-      // 단계 관련 변수
       var step = 1;
       var selected = [];
-      var activeTab = "camera"; // 기본 탭
-  
-      // 카메라/조명/사운드 전용 변수
+      var activeTab = "camera";
       var startDate, endDate, proofImage;
-      // 편집실 전용 변수
       var editingDate;
       var selectedTimes = [];
       var editingLocation = "";
@@ -266,16 +270,12 @@
         }
       });
   
-      // 초기 렌더링
       renderEquipment("camera");
       updateSelectedUI();
   
-      // 탭 버튼 이벤트
       document.querySelectorAll('.tab-button').forEach(function(button) {
         button.addEventListener('click', function() {
-          document.querySelectorAll('.tab-button').forEach(function(btn) {
-            btn.classList.remove('active');
-          });
+          document.querySelectorAll('.tab-button').forEach(function(btn) { btn.classList.remove('active'); });
           this.classList.add('active');
           renderEquipment(this.getAttribute('data-tab'));
         });
@@ -363,7 +363,7 @@
             docData.date = editingDate;
             docData.time = formatTimes(selectedTimes);
             docData.proofPhoto = "";
-            await db.collection("applications").add(docData);
+            await addDoc(db, "applications", docData);
             console.log("신청 정보가 Firestore에 저장되었습니다. (편집실)");
           } else {
             docData.startDate = startDate;
@@ -371,9 +371,8 @@
             docData.date = startDate + " ~ " + endDate;
             docData.time = "-";
             if (proofImage) {
-              var storageRef = storage.ref();
-              var fileRef = storageRef.child("proofPhotos/" + Date.now() + "_" + proofImage.name);
-              var uploadTask = fileRef.put(proofImage);
+              var storageRef = ref(storage, "proofPhotos/" + Date.now() + "_" + proofImage.name);
+              var uploadTask = uploadBytesResumable(storageRef, proofImage);
               uploadTask.on('state_changed', function(snapshot) {
                 var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 document.getElementById('uploadProgress').classList.remove("hidden");
@@ -383,14 +382,14 @@
                 console.error("사진 업로드 오류:", error);
                 alert("사진 업로드에 실패했습니다.");
               }, async function() {
-                var proofPhotoUrl = await fileRef.getDownloadURL();
+                var proofPhotoUrl = await getDownloadURL(storageRef);
                 docData.proofPhoto = proofPhotoUrl;
-                await db.collection("applications").add(docData);
+                await addDoc(db, "applications", docData);
                 console.log("신청 정보가 Firestore에 저장되었습니다. (이름/학번 포함)");
               });
               return;
             } else {
-              await db.collection("applications").add(docData);
+              await addDoc(db, "applications", docData);
               console.log("신청 정보가 Firestore에 저장되었습니다. (이름/학번 포함)");
             }
           }
