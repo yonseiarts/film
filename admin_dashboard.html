@@ -1,140 +1,118 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
   <title>관리자 대시보드</title>
-  <!-- Firebase App (compat 버전) -->
+  <!-- Firebase (compat 버전) -->
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
-  <!-- Firestore (compat 버전) -->
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
+
+  <!-- 기존 디자인에 쓰인 CSS를 모두 포함해야 동일하게 복원 가능 -->
   <style>
-    /* 기본 리셋 및 폰트 */
+    /* 레이아웃 기본 */
     body, html {
-      margin: 0;
-      padding: 0;
-      font-family: 'Noto Sans KR', sans-serif;
-      background: #f0f2f5;
-      color: #333;
+      margin: 0; padding: 0;
+      font-family: "Noto Sans KR", sans-serif;
+      background-color: #f5f5f5;
     }
-    /* 상단 헤더 */
-    .header {
+    header {
       background-color: #4e73df;
       color: #fff;
-      padding: 20px;
+      padding: 15px;
       text-align: center;
     }
-    /* 전체 레이아웃: 좌측 사이드바 + 우측 메인 컨텐츠 */
     .container {
       display: flex;
-      min-height: calc(100vh - 70px);
+      min-height: calc(100vh - 60px);
     }
-    /* 좌측 사이드바 */
+    /* 왼쪽 사이드바 */
     .sidebar {
       width: 240px;
       background-color: #2e59d9;
-      color: #fff;
       padding: 20px;
+      color: #fff;
     }
     .sidebar h2 {
-      font-size: 18px;
-      margin: 0 0 20px;
-      border-bottom: 1px solid rgba(255,255,255,0.3);
-      padding-bottom: 10px;
+      margin-top: 0;
+      margin-bottom: 20px;
     }
     .sidebar ul {
       list-style: none;
-      padding: 0;
+      margin: 0; padding: 0;
     }
     .sidebar ul li {
-      padding: 12px 15px;
-      margin-bottom: 10px;
-      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 8px;
       cursor: pointer;
+      border-radius: 4px;
     }
     .sidebar ul li:hover, .sidebar ul li.active {
       background-color: rgba(255,255,255,0.2);
     }
-    /* 우측 메인 컨텐츠 */
-    .main-content {
+    /* 메인 영역 */
+    .main {
       flex: 1;
       padding: 20px;
-      background: #fff;
+      background-color: #fff;
     }
-    .main-content .card {
-      background: #fff;
-      border: 1px solid #e3e6f0;
+    .card {
+      background-color: #fff;
+      border: 1px solid #ddd;
       border-radius: 5px;
       padding: 15px;
       margin-bottom: 20px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    .main-content .card h3 {
+    .card h3 {
       margin-top: 0;
       color: #4e73df;
     }
-    .main-content .card p {
+    .card p {
       margin: 5px 0;
     }
-    .main-content .card .actions {
-      margin-top: 10px;
-    }
-    .main-content .card .actions button {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 3px;
+    .actions button {
       margin-right: 5px;
       background-color: #4e73df;
       color: #fff;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 3px;
       cursor: pointer;
-      font-size: 13px;
     }
-    .main-content .card .actions button:hover {
+    .actions button:hover {
       background-color: #375a9c;
     }
-    /* 로딩 문구 중앙 정렬 */
     .loading {
       text-align: center;
-      font-size: 16px;
-      padding: 40px 0;
+      padding: 30px 0;
     }
   </style>
 </head>
 <body>
-  <!-- 상단 헤더 영역 -->
-  <div class="header">
+  <header>
     <h1>관리자 대시보드</h1>
-  </div>
-  
+  </header>
   <div class="container">
-    <!-- 좌측 사이드바 영역 -->
+    <!-- 사이드바 -->
     <div class="sidebar">
       <h2>메뉴</h2>
       <ul>
-        <li onclick="setActive(this); loadData('pending');" class="active">대기 내역</li>
-        <li onclick="setActive(this); loadData('approved');">승인 내역</li>
-        <li onclick="setActive(this); loadData('rejected');">반려 내역</li>
-        <li onclick="setActive(this); loadData('trash');">휴지통</li>
-        <li onclick="setActive(this); loadData('login');">로그인 내역</li>
+        <li id="menuPending" class="active" onclick="activateMenu(this); loadData('pending')">대기 내역</li>
+        <li id="menuApproved" onclick="activateMenu(this); loadData('approved')">승인 내역</li>
+        <li id="menuRejected" onclick="activateMenu(this); loadData('rejected')">반려 내역</li>
+        <li id="menuTrash" onclick="activateMenu(this); loadData('trash')">휴지통</li>
+        <li id="menuLogin" onclick="activateMenu(this); loadData('login')">로그인 내역</li>
       </ul>
     </div>
-    
-    <!-- 우측 메인 컨텐츠 영역 -->
-    <div class="main-content" id="contentArea">
-      <div class="loading">데이터를 로딩 중입니다...</div>
+    <!-- 메인 컨텐츠 -->
+    <div class="main" id="contentArea">
+      <div class="loading">데이터 로딩 중...</div>
     </div>
   </div>
-  
-  <script>
-    // 사이드바 활성화 함수
-    function setActive(element) {
-      const items = document.querySelectorAll('.sidebar ul li');
-      items.forEach(item => item.classList.remove('active'));
-      element.classList.add('active');
-    }
 
-    // Firebase 구성 객체 (본인 설정으로 변경)
-       const firebaseConfig = {
+  <script>
+    // (1) Firebase 설정
+    const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXg...",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
@@ -142,41 +120,47 @@
       messagingSenderId: "1072524969376",
       appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
       measurementId: "G-8G1D43NXMW"
-
-    // Firebase 초기화
+    };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 현재 활성 리스너 구독 해제 함수 저장 변수
+    // (2) 메뉴 활성화 표시
+    function activateMenu(el) {
+      document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
+      el.classList.add('active');
+    }
+
     let currentUnsubscribe = null;
 
-    // 데이터 로드 함수 (카테고리: pending, approved, rejected, trash, login)
+    // (3) 데이터 로드
     function loadData(category) {
       // 기존 리스너 해제
       if (currentUnsubscribe) {
         currentUnsubscribe();
         currentUnsubscribe = null;
       }
+
       const contentArea = document.getElementById('contentArea');
-      contentArea.innerHTML = '<div class="loading">데이터를 로딩 중입니다...</div>';
-      
+      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
+
       let query;
       if (category === 'login') {
-        // 로그인 기록은 loginLogs 컬렉션에서 읽기
+        // 로그인 로그
         query = db.collection('loginLogs').orderBy('loginTime', 'desc');
       } else {
-        // 대여 신청 내역은 rentals 컬렉션에서 상태 필터링
+        // rentals 컬렉션에서 상태별 필터
         let status;
         if (category === 'pending') status = '대기';
         else if (category === 'approved') status = '승인';
         else if (category === 'rejected') status = '반려';
         else if (category === 'trash') status = '휴지통';
-        
+
         query = db.collection('rentals')
                   .where('status', '==', status)
                   .orderBy('createdAt', 'desc');
       }
-      
+
+      // onSnapshot 리스너
       currentUnsubscribe = query.onSnapshot(snapshot => {
         if (snapshot.empty) {
           contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
@@ -186,19 +170,23 @@
         snapshot.forEach(doc => {
           const data = doc.data();
           if (category === 'login') {
-            // 로그인 내역 카드
+            // 로그인 기록 카드
             html += `
               <div class="card">
                 <h3>로그인 내역</h3>
                 <p><strong>사용자:</strong> ${data.userName}</p>
-                <p><strong>로그인 시간:</strong> ${data.loginTime.toDate ? data.loginTime.toDate().toLocaleString() : data.loginTime}</p>
+                <p><strong>로그인 시간:</strong> ${
+                  data.loginTime.toDate
+                    ? data.loginTime.toDate().toLocaleString()
+                    : data.loginTime
+                }</p>
               </div>
             `;
           } else {
-            // 대여 신청 내역 카드
+            // 대여 신청 카드
             html += `
               <div class="card">
-                <h3>대여 신청 내역</h3>
+                <h3>대여 신청</h3>
                 <p><strong>이름:</strong> ${data.userName}</p>
                 <p><strong>기자재:</strong> ${data.equipment}</p>
                 <p><strong>대여 날짜:</strong> ${data.rentDate}</p>
@@ -206,42 +194,40 @@
                 <div class="actions">
             `;
             if (data.status === '대기') {
-              html += `<button onclick="updateStatus('${doc.id}', '승인')">승인</button>
-                       <button onclick="updateStatus('${doc.id}', '반려')">반려</button>`;
+              html += `<button onclick="updateStatus('${doc.id}','승인')">승인</button>
+                       <button onclick="updateStatus('${doc.id}','반려')">반려</button>`;
             }
             if (data.status === '승인' || data.status === '반려') {
-              html += `<button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>`;
+              html += `<button onclick="updateStatus('${doc.id}','휴지통')">휴지통</button>`;
             }
             if (data.status === '휴지통') {
-              html += `<button onclick="updateStatus('${doc.id}', '대기')">복원</button>`;
+              html += `<button onclick="updateStatus('${doc.id}','대기')">복원</button>`;
             }
-            html += `
-                </div>
-              </div>
-            `;
+            html += `</div></div>`;
           }
         });
         contentArea.innerHTML = html;
       }, err => {
-        console.error('데이터 수신 에러:', err);
+        // 인덱스 필요 에러 등
+        console.error('Firestore 에러:', err);
         contentArea.innerHTML = `<div class="loading">데이터를 불러오는 중 오류가 발생했습니다: ${err.message}</div>`;
       });
     }
 
-    // 상태 업데이트 함수
+    // (4) 상태 업데이트
     function updateStatus(docId, newStatus) {
-      if (!confirm(`해당 항목의 상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
+      if (!confirm(`상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
       db.collection('rentals').doc(docId).update({ status: newStatus })
         .then(() => {
-          alert('상태가 업데이트되었습니다.');
+          alert('상태가 변경되었습니다.');
         })
         .catch(err => {
-          console.error('상태 업데이트 실패:', err);
-          alert('상태 업데이트 중 오류가 발생했습니다.');
+          console.error('상태 변경 실패:', err);
+          alert('오류가 발생했습니다.');
         });
     }
 
-    // 페이지 로드 시 기본 카테고리(대기 내역) 로드
+    // 초기 진입 시 '대기' 카테고리
     loadData('pending');
   </script>
 </body>
