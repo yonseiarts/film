@@ -46,7 +46,11 @@
     import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
     
     // 아래 storageBucket 값을 실제 존재하는 버킷 이름으로 수정하세요.
-    const firebaseConfig = yonseiarts-custom-bucket-1234
+    const firebaseConfig = {
+  // ...
+  storageBucket: "yonseiarts-custom-bucket-1234", 
+  // ...
+};
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
