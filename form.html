@@ -30,7 +30,9 @@
       white-space: nowrap;
       overflow: hidden;
     }
-    .time-grid input[type="checkbox"] { display: none; }
+    .time-grid input[type="checkbox"] {
+      display: none;
+    }
     .time-grid input[type="checkbox"]:checked + label {
       background-color: #60a5fa;
       border-color: #1d4ed8;
@@ -49,7 +51,7 @@
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
-      storageBucket: "yonseiarts-custom-bucket", // 실제 생성한 버킷 이름 사용
+      storageBucket: "yonseiarts-custom-bucket", // 실제 생성한 버킷 이름
       messagingSenderId: "1072524969376",
       appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
       measurementId: "G-8G1D43NXMW"
@@ -59,7 +61,7 @@
     const dbModule = getFirestore(app);
     const storageModule = getStorage(app);
     
-    // 전역 변수에 할당 (window.XXX로 기존 코드에서 사용)
+    // 전역 변수로 할당 (window.XXX로 기존 코드에서 사용)
     window.db = dbModule;
     window.storage = storageModule;
     window.serverTimestamp = serverTimestamp;
@@ -112,10 +114,10 @@
       </div>
     </div>
   
-    <!-- Step 2: 대여 정보 (사진 전송 기능 포함) -->
+    <!-- Step 2: 대여 정보 -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-      <!-- 카메라/조명/사운드 전용 영역 -->
+      <!-- 카/조/사 전용 -->
       <div id="commonSection">
         <label class="block mb-2 font-medium">대여 시작일</label>
         <input type="date" id="startDate" class="border p-2 rounded w-full mb-4"/>
@@ -129,11 +131,11 @@
           <div id="uploadProgress" class="w-full bg-gray-200 rounded mt-2 hidden">
             <div id="uploadProgressBar" class="bg-blue-600 text-xs leading-none py-1 text-center text-white" style="width: 0%"></div>
           </div>
-          <!-- 이미지 미리보기 -->
+          <!-- 미리보기 -->
           <div id="proofPreview" class="mt-2"></div>
         </div>
       </div>
-      <!-- 편집실 전용 영역 -->
+      <!-- 편집실 전용 -->
       <div id="editingSection" class="hidden">
         <label class="block mb-2 font-medium">대여일자</label>
         <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4"/>
@@ -229,7 +231,10 @@
   
       // 로그인 정보 확인 (studentInfo JSON 객체)
       var storedStudent = localStorage.getItem("studentInfo");
-      if (!storedStudent) { alert("로그인이 필요합니다."); window.location.href = "student_login.html"; }
+      if (!storedStudent) {
+        alert("로그인이 필요합니다.");
+        window.location.href = "student_login.html";
+      }
       var studentInfo = JSON.parse(storedStudent);
   
       var step = 1;
@@ -279,7 +284,9 @@
   
       document.querySelectorAll('.tab-button').forEach(function(button) {
         button.addEventListener('click', function() {
-          document.querySelectorAll('.tab-button').forEach(function(btn) { btn.classList.remove('active'); });
+          document.querySelectorAll('.tab-button').forEach(function(btn) {
+            btn.classList.remove('active');
+          });
           this.classList.add('active');
           renderEquipment(this.getAttribute('data-tab'));
         });
@@ -295,25 +302,38 @@
         if (n === 3) {
           if (activeTab === "editing") {
             editingDate = document.getElementById("editingDate").value;
-            if (!editingDate) { alert("대여일자를 선택해주세요."); return; }
-            if (selectedTimes.length === 0) { alert("최소 1개 이상의 시간대를 선택해주세요."); return; }
+            if (!editingDate) {
+              alert("대여일자를 선택해주세요.");
+              return;
+            }
+            if (selectedTimes.length === 0) {
+              alert("최소 1개 이상의 시간대를 선택해주세요.");
+              return;
+            }
           } else {
             startDate = document.getElementById("startDate").value;
             endDate = document.getElementById("endDate").value;
             proofImage = document.getElementById("proofImage").files[0];
-            if (!startDate || !endDate || !proofImage) { alert("시작일, 반납일, 증명사진을 모두 입력해주세요."); return; }
+            if (!startDate || !endDate || !proofImage) {
+              alert("시작일, 반납일, 증명사진을 모두 입력해주세요.");
+              return;
+            }
           }
         }
         if (n === 4) {
           if (!document.getElementById("agreeCheck").checked) return;
           displayFinalInfo();
-          if (!submitted) { submitToFirestore(); submitted = true; }
+          if (!submitted) {
+            submitToFirestore();
+            submitted = true;
+          }
         }
         document.getElementById("step" + step).classList.add("hidden");
         document.getElementById("step" + n).classList.remove("hidden");
         document.getElementById("step" + step + "Btn")?.classList.replace("step-active", "step-inactive");
         document.getElementById("step" + n + "Btn")?.classList.replace("step-inactive", "step-active");
         step = n;
+  
         if (n === 3 && activeTab === "editing") {
           document.getElementById("editingSummary").classList.remove("hidden");
           document.getElementById("summaryPlace").textContent = editingLocation;
@@ -325,12 +345,16 @@
       };
   
       window.validateStep2 = function() {
-        if (activeTab === "editing") { goToStep(3); }
-        else {
+        if (activeTab === "editing") {
+          goToStep(3);
+        } else {
           var sd = document.getElementById("startDate").value;
           var ed = document.getElementById("endDate").value;
           var pf = document.getElementById("proofImage").files[0];
-          if (!sd || !ed || !pf) { alert("시작일, 반납일, 증명사진을 모두 입력해주세요."); return; }
+          if (!sd || !ed || !pf) {
+            alert("시작일, 반납일, 증명사진을 모두 입력해주세요.");
+            return;
+          }
           goToStep(3);
         }
       };
@@ -363,6 +387,7 @@
             status: "대기중",
             isDeleted: false
           };
+  
           if (activeTab === "editing") {
             docData.date = editingDate;
             docData.time = formatTimes(selectedTimes);
@@ -374,16 +399,16 @@
             docData.endDate = endDate;
             docData.date = startDate + " ~ " + endDate;
             docData.time = "-";
+  
             if (proofImage) {
-              // 파일 이름을 안전한 문자열로 변환
-              let safeFileName = proofImage.name.replace(/[^\w.-]/g, '_');
-              // 파일 이름에 적어도 하나의 영문 또는 숫자가 없으면 기본 이름 사용
-              if (!/[A-Za-z0-9]/.test(safeFileName)) {
-                const ext = proofImage.name.split('.').pop();
-                safeFileName = "file." + ext;
-              }
-              var storageRef = window.ref(storage, "proofPhotos/" + Date.now() + "_" + safeFileName);
+              // 원본 파일 확장자 추출
+              const originalExt = proofImage.name.split('.').pop().toLowerCase();
+              // "file_타임스탬프.확장자" 형태로 생성
+              const generatedFileName = `file_${Date.now()}.${originalExt}`;
+  
+              var storageRef = window.ref(storage, "proofPhotos/" + generatedFileName);
               var uploadTask = window.uploadBytesResumable(storageRef, proofImage);
+  
               uploadTask.on('state_changed', function(snapshot) {
                 var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 document.getElementById('uploadProgress').classList.remove("hidden");
@@ -391,7 +416,7 @@
                 document.getElementById('uploadProgressBar').textContent = Math.floor(progress) + "%";
               }, function(error) {
                 console.error("사진 업로드 오류:", error);
-                alert("사진 업로드에 실패했습니다.");
+                alert("사진 업로드에 실패했습니다. " + error.message);
               }, async function() {
                 var proofPhotoUrl = await window.getDownloadURL(storageRef);
                 docData.proofPhoto = proofPhotoUrl;
@@ -411,8 +436,11 @@
       }
   
       function renderEquipment(tab) {
-        if (tab === "editing") { selected = []; }
-        else { selected = selected.filter(function(item) { return Number(item.id) < 5; }); }
+        if (tab === "editing") {
+          selected = [];
+        } else {
+          selected = selected.filter(function(item) { return Number(item.id) < 5; });
+        }
         activeTab = tab;
         updateSelectedUI();
         var list = document.getElementById("equipment-list");
@@ -420,10 +448,16 @@
         equipment[tab].forEach(function(item) {
           var div = document.createElement("div");
           div.className = "equipment border p-4 rounded flex items-center cursor-pointer";
-          div.innerHTML = '<img src="' + item.image + '" alt="' + item.name + '" class="w-14 h-14 rounded mr-4"/>' +
-                          '<strong>' + item.name + '</strong>';
-          div.onclick = function() { toggleItem(item, div); };
-          if (selected.some(function(s) { return s.id === item.id; })) { div.classList.add("selected"); }
+          div.innerHTML = `
+            <img src="${item.image}" alt="${item.name}" class="w-14 h-14 rounded mr-4"/>
+            <strong>${item.name}</strong>
+          `;
+          div.onclick = function() {
+            toggleItem(item, div);
+          };
+          if (selected.some(function(s) { return s.id === item.id; })) {
+            div.classList.add("selected");
+          }
           list.appendChild(div);
         });
         if (tab === "editing") {
@@ -440,13 +474,20 @@
         if (activeTab === "editing") {
           selected = [item];
           editingLocation = item.name;
-          document.querySelectorAll("#equipment-list .equipment").forEach(function(e) { e.classList.remove("selected"); });
+          document.querySelectorAll("#equipment-list .equipment").forEach(function(e) {
+            e.classList.remove("selected");
+          });
           el.classList.add("selected");
           document.getElementById("editingLocation").value = editingLocation;
         } else {
           var found = selected.find(function(s) { return s.id === item.id; });
-          if (found) { selected = selected.filter(function(s) { return s.id !== item.id; }); el.classList.remove("selected"); }
-          else { selected.push(item); el.classList.add("selected"); }
+          if (found) {
+            selected = selected.filter(function(s) { return s.id !== item.id; });
+            el.classList.remove("selected");
+          } else {
+            selected.push(item);
+            el.classList.add("selected");
+          }
         }
         updateSelectedUI();
       }
@@ -454,10 +495,17 @@
       function updateSelectedUI() {
         var sec = document.getElementById("selected-section");
         var btn = document.getElementById("toStep2");
-        if (selected.length === 0) { sec.classList.add("hidden"); btn.classList.add("hidden"); }
-        else { sec.classList.remove("hidden"); btn.classList.remove("hidden"); }
+        if (selected.length === 0) {
+          sec.classList.add("hidden");
+          btn.classList.add("hidden");
+        } else {
+          sec.classList.remove("hidden");
+          btn.classList.remove("hidden");
+        }
         document.getElementById("selected-items").innerHTML =
-          selected.map(function(s) { return "<li>" + s.name + "</li>"; }).join("");
+          selected.map(function(s) {
+            return "<li>" + s.name + "</li>";
+          }).join("");
       }
   
       function createTimeSlots() {
@@ -471,8 +519,13 @@
           input.value = hour;
           input.addEventListener("change", function() {
             var value = parseInt(this.value);
-            if (this.checked) { selectedTimes.push(value); }
-            else { selectedTimes = selectedTimes.filter(function(h) { return h !== value; }); }
+            if (this.checked) {
+              selectedTimes.push(value);
+            } else {
+              selectedTimes = selectedTimes.filter(function(h) {
+                return h !== value;
+              });
+            }
           });
           var label = document.createElement("label");
           label.setAttribute("for", "hour-" + hour);
@@ -484,8 +537,12 @@
   
       function formatTimes(arr) {
         if (!arr.length) return "없음";
-        var sorted = arr.slice().sort(function(a, b) { return a - b; });
-        return sorted.map(function(h) { return h + ":00"; }).join(", ");
+        var sorted = arr.slice().sort(function(a, b) {
+          return a - b;
+        });
+        return sorted.map(function(h) {
+          return h + ":00";
+        }).join(", ");
       }
     });
   </script>
