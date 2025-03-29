@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>관리자 페이지</title>
-  <!-- Firebase -->
+  <!-- Firebase (v8) -->
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
-  <!-- Tailwind CSS (선택 사항) -->
+  <!-- Tailwind CSS -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -14,122 +14,61 @@
   <nav class="bg-white shadow mb-4">
     <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
       <h1 class="text-2xl font-bold">관리자 페이지</h1>
-      <!-- 홈으로 버튼 -->
       <button onclick="goHome()" class="text-blue-600 underline text-sm">홈으로</button>
     </div>
   </nav>
 
   <div class="max-w-6xl mx-auto px-4 mb-4 flex space-x-4">
-    <!-- 일반 목록, 휴지통 전환 버튼 -->
-    <button id="showActiveBtn" class="px-4 py-2 bg-blue-500 text-white rounded">일반 목록</button>
-    <button id="showTrashBtn" class="px-4 py-2 bg-gray-500 text-white rounded">휴지통</button>
+    <!-- 탭 버튼: 신청 내역 / 로그인 기록 -->
+    <button id="showApplicationsBtn" class="px-4 py-2 bg-blue-500 text-white rounded">대여 신청 내역</button>
+    <button id="showLoginsBtn" class="px-4 py-2 bg-gray-500 text-white rounded">로그인 기록</button>
   </div>
 
-  <div id="application-list" class="max-w-6xl mx-auto px-4"></div>
+  <!-- 대여 신청 내역 영역 -->
+  <div id="applicationsSection" class="max-w-6xl mx-auto px-4"></div>
+
+  <!-- 로그인 기록 영역 (초기에는 숨김) -->
+  <div id="loginsSection" class="max-w-6xl mx-auto px-4 hidden"></div>
 
   <script>
-    /********************************************************
-     * 1. Firebase 초기화 (본인 설정)
-     ********************************************************/
+    // Firebase 초기화 (v8)
     var firebaseConfig = {
- apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
-
-
-      // ...
+      // 필요한 추가 설정
     };
     firebase.initializeApp(firebaseConfig);
     var db = firebase.firestore();
 
-    let isTrashMode = false;
-    let unsubscribe = null; // onSnapshot 해제용
-
+    // 홈으로 이동
     function goHome() {
-      // 홈으로 이동 (예: index.html)
       window.location.href = "index.html";
     }
 
-    // 상태별 CSS
-    function getStatusClass(status) {
-      switch (status) {
-        case '승인됨':
-          return { bg: 'bg-green-500', text: 'text-white' };
-        case '반려됨':
-          return { bg: 'bg-red-500', text: 'text-white' };
-        default:
-          return { bg: 'bg-gray-500', text: 'text-white' };
-      }
-    }
-
-    // 상태 업데이트
-    async function updateApplicationStatus(docId, newStatus) {
-      try {
-        await db.collection("applications").doc(docId).update({ status: newStatus });
-        alert('상태 업데이트 완료');
-      } catch (error) {
-        console.error("상태 업데이트 에러:", error);
-      }
-    }
-
-    // 삭제(휴지통으로 이동)
-    async function moveToTrash(docId) {
-      try {
-        await db.collection("applications").doc(docId).update({ isDeleted: true });
-        alert("삭제(휴지통 이동) 완료");
-      } catch (error) {
-        console.error("삭제 에러:", error);
-      }
-    }
-
-    // 복구(휴지통 -> 일반 목록)
-    async function restoreFromTrash(docId) {
-      try {
-        await db.collection("applications").doc(docId).update({ isDeleted: false });
-        alert("복구 완료");
-      } catch (error) {
-        console.error("복구 에러:", error);
-      }
-    }
-
-    // 실시간 렌더링
+    // 신청 내역 렌더링 함수
     function renderApplications(snapshot) {
-      const container = document.getElementById("application-list");
+      const container = document.getElementById("applicationsSection");
       container.innerHTML = "";
-
       snapshot.forEach(docSnap => {
         const data = docSnap.data();
         const docId = docSnap.id;
-
         let timestamp = data.timestamp;
         if (timestamp && timestamp.toDate) {
           timestamp = timestamp.toDate();
         }
-
-        // items
         const itemsText = Array.isArray(data.items) ? data.items.join(", ") : (data.items || "없음");
-
-        // 메인 카드
-        const item = document.createElement("div");
-        item.classList.add("bg-white", "p-4", "rounded", "shadow", "mb-4");
-        item.innerHTML = `
+        const card = document.createElement("div");
+        card.classList.add("bg-white", "p-4", "rounded", "shadow", "mb-4");
+        card.innerHTML = `
           <div class="flex justify-between items-start">
-            <h2 class="text-lg font-bold">
-              ${data.studentName || '이름없음'} 
-              <span class="text-sm text-gray-500">(${data.studentID || '-'})</span>
-            </h2>
-            <span class="px-2 py-1 rounded text-sm font-medium
-              ${getStatusClass(data.status).bg}
-              ${getStatusClass(data.status).text}">
-              ${data.status || '대기중'}
-            </span>
+            <h2 class="text-lg font-bold">${data.studentName || '이름없음'} <span class="text-sm text-gray-500">(${data.studentID || '-'})</span></h2>
+            <span class="px-2 py-1 rounded text-sm font-medium">${data.status || '대기중'}</span>
           </div>
           <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
             <div>
               <p class="text-sm text-gray-600">신청일시</p>
-              <p class="font-medium">
-                ${timestamp instanceof Date ? timestamp.toLocaleString() : '-'}
-              </p>
+              <p class="font-medium">${timestamp instanceof Date ? timestamp.toLocaleString() : '-'}</p>
             </div>
             <div>
               <p class="text-sm text-gray-600">대여일자</p>
@@ -146,83 +85,105 @@
           </div>
           <div class="mt-2">
             <p class="text-sm text-gray-600">증명사진</p>
-            <p>
-              ${
-                data.proofPhoto
-                  ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>`
-                  : '없음'
-              }
-            </p>
+            <p>${ data.proofPhoto ? `<a href="${data.proofPhoto}" target="_blank" class="text-blue-600 underline">보기</a>` : '없음' }</p>
           </div>
           <div class="mt-4 flex space-x-2">
             <button class="approve-btn px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded">승인</button>
             <button class="reject-btn px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded">반려</button>
-            ${
-              isTrashMode
-                ? `<button class="restore-btn px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded">복구</button>`
-                : `<button class="delete-btn px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded">삭제</button>`
-            }
+            <button class="delete-btn px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded">삭제</button>
           </div>
         `;
-        container.appendChild(item);
+        container.appendChild(card);
 
-        // 승인/반려
-        item.querySelector('.approve-btn').addEventListener('click', () => {
+        // 버튼 이벤트 등록
+        card.querySelector('.approve-btn').addEventListener('click', () => {
           updateApplicationStatus(docId, '승인됨');
         });
-        item.querySelector('.reject-btn').addEventListener('click', () => {
+        card.querySelector('.reject-btn').addEventListener('click', () => {
           updateApplicationStatus(docId, '반려됨');
         });
-
-        // 삭제 or 복구
-        if (isTrashMode) {
-          // 휴지통 모드 → 복구 버튼
-          item.querySelector('.restore-btn').addEventListener('click', () => {
-            restoreFromTrash(docId);
-          });
-        } else {
-          // 일반 모드 → 삭제 버튼
-          item.querySelector('.delete-btn').addEventListener('click', () => {
-            moveToTrash(docId);
-          });
-        }
+        card.querySelector('.delete-btn').addEventListener('click', () => {
+          moveToTrash(docId);
+        });
       });
     }
 
-    // 일반 목록 구독
-    function subscribeActive() {
-      if (unsubscribe) unsubscribe();
-      unsubscribe = db.collection("applications")
+    // 로그인 기록 렌더링 함수
+    function renderLogins(snapshot) {
+      const container = document.getElementById("loginsSection");
+      container.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        const timestamp = data.timestamp && data.timestamp.toDate ? data.timestamp.toDate().toLocaleString() : "-";
+        const card = document.createElement("div");
+        card.classList.add("bg-white", "p-4", "rounded", "shadow", "mb-4");
+        card.innerHTML = `
+          <div>
+            <h2 class="text-lg font-bold">${data.name || '이름없음'}</h2>
+            <p class="text-sm text-gray-600">학번: ${data.studentId || '-'}</p>
+            <p class="text-sm text-gray-600">로그인 시각: ${timestamp}</p>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Firestore 상태 업데이트 함수들
+    async function updateApplicationStatus(docId, newStatus) {
+      try {
+        await db.collection("applications").doc(docId).update({ status: newStatus });
+        alert('상태 업데이트 완료');
+      } catch (error) {
+        console.error("상태 업데이트 에러:", error);
+      }
+    }
+
+    async function moveToTrash(docId) {
+      try {
+        await db.collection("applications").doc(docId).update({ isDeleted: true });
+        alert("삭제(휴지통 이동) 완료");
+      } catch (error) {
+        console.error("삭제 에러:", error);
+      }
+    }
+
+    // 일반 신청 내역 구독 (isDeleted == false)
+    function subscribeApplications() {
+      db.collection("applications")
         .where("isDeleted", "==", false)
         .onSnapshot((snapshot) => {
           renderApplications(snapshot);
         });
     }
 
-    // 휴지통 목록 구독
-    function subscribeTrash() {
-      if (unsubscribe) unsubscribe();
-      unsubscribe = db.collection("applications")
-        .where("isDeleted", "==", true)
+    // 로그인 기록 구독
+    function subscribeLogins() {
+      db.collection("studentLogins")
+        .orderBy("timestamp", "desc")
         .onSnapshot((snapshot) => {
-          renderApplications(snapshot);
+          renderLogins(snapshot);
         });
     }
 
-    // 초기화
+    // 탭 전환 초기화
     function init() {
-      document.getElementById("showActiveBtn").addEventListener("click", () => {
-        isTrashMode = false;
-        subscribeActive();
+      document.getElementById("showApplicationsBtn").addEventListener("click", () => {
+        document.getElementById("showApplicationsBtn").classList.replace("bg-gray-500", "bg-blue-500");
+        document.getElementById("showLoginsBtn").classList.replace("bg-blue-500", "bg-gray-500");
+        document.getElementById("applicationsSection").classList.remove("hidden");
+        document.getElementById("loginsSection").classList.add("hidden");
+        subscribeApplications();
       });
-      document.getElementById("showTrashBtn").addEventListener("click", () => {
-        isTrashMode = true;
-        subscribeTrash();
+      document.getElementById("showLoginsBtn").addEventListener("click", () => {
+        document.getElementById("showLoginsBtn").classList.replace("bg-gray-500", "bg-blue-500");
+        document.getElementById("showApplicationsBtn").classList.replace("bg-blue-500", "bg-gray-500");
+        document.getElementById("loginsSection").classList.remove("hidden");
+        document.getElementById("applicationsSection").classList.add("hidden");
+        subscribeLogins();
       });
 
-      // 기본은 일반 목록
-      isTrashMode = false;
-      subscribeActive();
+      // 기본은 신청 내역
+      subscribeApplications();
     }
 
     window.onload = init;
