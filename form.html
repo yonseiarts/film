@@ -4,13 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 신청</title>
-  <!-- Tailwind CSS (버전 2.2.19) -->
+  <!-- Tailwind CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
   <style>
     .step-active { background-color: #1D4ED8; color: white; }
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
     .tab-button.active { background-color: #dbeafe; font-weight: 600; }
     .equipment.selected { border-color: #facc15; background-color: #fefce8; }
+
     /* 편집실 시간체크 표 */
     .time-grid {
       display: grid;
@@ -40,29 +41,30 @@
       font-weight: bold;
     }
   </style>
-  
-  <!-- Firebase 모듈형 SDK 초기화: 전역 변수 할당 -->
+
+  <!-- Firebase 모듈형 SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getFirestore, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
     import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
-    
+
+    // 실제로 GCP 콘솔에 "yonseiarts-custom-bucket"이 존재해야 합니다.
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
-      // 아래 버킷 이름이 실제 GCP 콘솔에 존재해야 합니다.
       storageBucket: "yonseiarts-custom-bucket",
       messagingSenderId: "1072524969376",
       appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
       measurementId: "G-8G1D43NXMW"
     };
-    
+
+    // Firebase 초기화
     const app = initializeApp(firebaseConfig);
     const dbModule = getFirestore(app);
     const storageModule = getStorage(app);
-    
-    // 전역 변수로 할당 (window.XXX로 기존 코드에서 사용)
+
+    // 전역 변수로 할당
     window.db = dbModule;
     window.storage = storageModule;
     window.serverTimestamp = serverTimestamp;
@@ -73,12 +75,11 @@
   </script>
 </head>
 <body class="bg-gray-50">
-  <!-- 헤더 -->
   <div class="bg-blue-700 text-white py-6 text-center">
     <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
     <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
   </div>
-  
+
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
     <!-- 단계별 진행 표시 -->
     <div class="flex justify-between mb-8">
@@ -87,7 +88,7 @@
       <div id="step3Btn" class="flex-1 text-center p-2 rounded step-inactive">3. 규정 동의</div>
       <div class="flex-1 text-center p-2 rounded bg-gray-200 text-gray-500">4. 완료</div>
     </div>
-  
+
     <!-- Step 1: 장비 선택 -->
     <div id="step1">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
@@ -114,7 +115,7 @@
         </button>
       </div>
     </div>
-  
+
     <!-- Step 2: 대여 정보 -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
@@ -132,7 +133,7 @@
           <div id="uploadProgress" class="w-full bg-gray-200 rounded mt-2 hidden">
             <div id="uploadProgressBar" class="bg-blue-600 text-xs leading-none py-1 text-center text-white" style="width: 0%"></div>
           </div>
-          <!-- 이미지 미리보기 -->
+          <!-- 미리보기 -->
           <div id="proofPreview" class="mt-2"></div>
         </div>
       </div>
@@ -155,32 +156,14 @@
         </button>
       </div>
     </div>
-  
+
     <!-- Step 3: 규정 동의 -->
     <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4">
         <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
-        <strong>제1장 총칙</strong><br/>
-        <em>제1조 (목적)</em><br/>
-        본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>
-        <em>제2조 (적용범위)</em><br/>
-        본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
-        <strong>제2장 관리체계</strong><br/>
-        <em>제1조 (주임교수의 권한)</em><br/>
-        •기자재 운영 정책 수립 및 변경<br/>
-        •기자재 담당 인력 임명<br/>
-        •장비 대여 승인<br/>
-        •외부 촬영 허가<br/>
-        •분쟁 조정 및 제재 조치 결정<br/><br/>
-        <em>제2조 (행정실 업무)</em><br/>
-        •기자재 대장 관리<br/>
-        •예산 집행 및 회계 관리<br/><br/>
-        <strong>부칙</strong><br/>
-        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
-        제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
-        2025년 3월 23일<br/>
-        연세예술원 영화학 주임교수 유영식
+        <!-- 규정 내용 -->
+        ...
       </div>
       <label class="flex items-center mb-4">
         <input type="checkbox" id="agreeCheck" class="mr-2"> 위 사용 규정에 동의합니다.
@@ -201,7 +184,7 @@
         </button>
       </div>
     </div>
-  
+
     <!-- Step 4: 완료 -->
     <div id="step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
@@ -223,21 +206,21 @@
       </div>
     </div>
   </div>
-  
-  <!-- 나머지 스크립트 (DOMContentLoaded 내부) -->
+
+  <!-- 나머지 스크립트 -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       var submitted = false;
       function goHome() { window.location.href = "index.html"; }
-  
-      // 로그인 정보 확인 (studentInfo JSON 객체)
+
+      // 로그인 정보 확인
       var storedStudent = localStorage.getItem("studentInfo");
       if (!storedStudent) {
         alert("로그인이 필요합니다.");
         window.location.href = "student_login.html";
       }
       var studentInfo = JSON.parse(storedStudent);
-  
+
       var step = 1;
       var selected = [];
       var activeTab = "camera";
@@ -245,7 +228,7 @@
       var editingDate;
       var selectedTimes = [];
       var editingLocation = "";
-  
+
       var equipment = {
         camera: [
           { id: "1", name: "Sony FX3", image: "https://placehold.co/80x80?text=Sony+FX3" },
@@ -262,7 +245,7 @@
           { id: "6", name: "편집실 2", image: "https://placehold.co/80x80?text=%ED%8E%B8%EC%A7%91%EC%8B%A4+2" }
         ]
       };
-  
+
       // 파일 미리보기
       document.getElementById("proofImage").addEventListener("change", function(e) {
         var file = e.target.files[0];
@@ -279,10 +262,11 @@
           reader.readAsDataURL(file);
         }
       });
-  
+
       renderEquipment("camera");
       updateSelectedUI();
-  
+
+      // 탭 버튼
       document.querySelectorAll('.tab-button').forEach(function(button) {
         button.addEventListener('click', function() {
           document.querySelectorAll('.tab-button').forEach(function(btn) {
@@ -292,13 +276,14 @@
           renderEquipment(this.getAttribute('data-tab'));
         });
       });
-  
+
+      // 규정 동의 체크박스
       document.getElementById("agreeCheck").addEventListener("change", function(e) {
         var btn = document.getElementById("toStep4");
         btn.disabled = !e.target.checked;
         btn.classList.toggle("opacity-50", !e.target.checked);
       });
-  
+
       window.goToStep = function(n) {
         if (n === 3) {
           if (activeTab === "editing") {
@@ -334,7 +319,7 @@
         document.getElementById("step" + step + "Btn")?.classList.replace("step-active", "step-inactive");
         document.getElementById("step" + n + "Btn")?.classList.replace("step-inactive", "step-active");
         step = n;
-  
+
         if (n === 3 && activeTab === "editing") {
           document.getElementById("editingSummary").classList.remove("hidden");
           document.getElementById("summaryPlace").textContent = editingLocation;
@@ -344,7 +329,7 @@
           document.getElementById("editingSummary").classList.add("hidden");
         }
       };
-  
+
       window.validateStep2 = function() {
         if (activeTab === "editing") {
           goToStep(3);
@@ -359,7 +344,7 @@
           goToStep(3);
         }
       };
-  
+
       function displayFinalInfo() {
         document.getElementById("final-selected-items").innerHTML =
           selected.map(function(s) { return "<li>" + s.name + "</li>"; }).join("");
@@ -375,7 +360,7 @@
           document.getElementById("final-proof-image").innerText = proofImage ? proofImage.name : "없음";
         }
       }
-  
+
       async function submitToFirestore() {
         try {
           var studentName = studentInfo.name;
@@ -388,7 +373,7 @@
             status: "대기중",
             isDeleted: false
           };
-  
+
           if (activeTab === "editing") {
             docData.date = editingDate;
             docData.time = formatTimes(selectedTimes);
@@ -400,16 +385,15 @@
             docData.endDate = endDate;
             docData.date = startDate + " ~ " + endDate;
             docData.time = "-";
-  
+
             if (proofImage) {
-              // 원본 파일 확장자 추출
+              // 파일 이름을 "file_{timestamp}.{ext}"로 변경
               const originalExt = proofImage.name.split('.').pop().toLowerCase();
-              // 파일 이름: file_타임스탬프.확장자
               const generatedFileName = `file_${Date.now()}.${originalExt}`;
-  
+
               var storageRef = window.ref(storage, "proofPhotos/" + generatedFileName);
               var uploadTask = window.uploadBytesResumable(storageRef, proofImage);
-  
+
               uploadTask.on('state_changed', function(snapshot) {
                 var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 document.getElementById('uploadProgress').classList.remove("hidden");
@@ -435,7 +419,7 @@
           alert("신청 저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
         }
       }
-  
+
       function renderEquipment(tab) {
         if (tab === "editing") {
           selected = [];
@@ -447,6 +431,7 @@
         }
         activeTab = tab;
         updateSelectedUI();
+
         var list = document.getElementById("equipment-list");
         list.innerHTML = "";
         equipment[tab].forEach(function(item) {
@@ -464,6 +449,7 @@
           }
           list.appendChild(div);
         });
+
         if (tab === "editing") {
           document.getElementById("commonSection").classList.add("hidden");
           document.getElementById("editingSection").classList.remove("hidden");
@@ -473,10 +459,9 @@
           document.getElementById("editingSection").classList.add("hidden");
         }
       }
-  
+
       function toggleItem(item, el) {
         if (activeTab === "editing") {
-          // 편집실은 단일 선택
           selected = [item];
           editingLocation = item.name;
           document.querySelectorAll("#equipment-list .equipment").forEach(function(e) {
@@ -496,7 +481,7 @@
         }
         updateSelectedUI();
       }
-  
+
       function updateSelectedUI() {
         var sec = document.getElementById("selected-section");
         var btn = document.getElementById("toStep2");
@@ -512,7 +497,7 @@
             return "<li>" + s.name + "</li>";
           }).join("");
       }
-  
+
       function createTimeSlots() {
         var container = document.getElementById("timeGrid");
         container.innerHTML = "";
@@ -539,7 +524,7 @@
           container.appendChild(label);
         }
       }
-  
+
       function formatTimes(arr) {
         if (!arr.length) return "없음";
         var sorted = arr.slice().sort(function(a, b) {
