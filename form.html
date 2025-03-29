@@ -51,7 +51,8 @@
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
-      storageBucket: "yonseiarts-custom-bucket", // 실제 생성한 버킷 이름
+      // 아래 버킷 이름이 실제 GCP 콘솔에 존재해야 합니다.
+      storageBucket: "yonseiarts-custom-bucket",
       messagingSenderId: "1072524969376",
       appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
       measurementId: "G-8G1D43NXMW"
@@ -117,7 +118,7 @@
     <!-- Step 2: 대여 정보 -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-      <!-- 카/조/사 전용 -->
+      <!-- 카메라/조명/사운드 전용 영역 -->
       <div id="commonSection">
         <label class="block mb-2 font-medium">대여 시작일</label>
         <input type="date" id="startDate" class="border p-2 rounded w-full mb-4"/>
@@ -131,11 +132,11 @@
           <div id="uploadProgress" class="w-full bg-gray-200 rounded mt-2 hidden">
             <div id="uploadProgressBar" class="bg-blue-600 text-xs leading-none py-1 text-center text-white" style="width: 0%"></div>
           </div>
-          <!-- 미리보기 -->
+          <!-- 이미지 미리보기 -->
           <div id="proofPreview" class="mt-2"></div>
         </div>
       </div>
-      <!-- 편집실 전용 -->
+      <!-- 편집실 전용 영역 -->
       <div id="editingSection" class="hidden">
         <label class="block mb-2 font-medium">대여일자</label>
         <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4"/>
@@ -403,7 +404,7 @@
             if (proofImage) {
               // 원본 파일 확장자 추출
               const originalExt = proofImage.name.split('.').pop().toLowerCase();
-              // "file_타임스탬프.확장자" 형태로 생성
+              // 파일 이름: file_타임스탬프.확장자
               const generatedFileName = `file_${Date.now()}.${originalExt}`;
   
               var storageRef = window.ref(storage, "proofPhotos/" + generatedFileName);
@@ -439,7 +440,10 @@
         if (tab === "editing") {
           selected = [];
         } else {
-          selected = selected.filter(function(item) { return Number(item.id) < 5; });
+          // 편집실 외 장비만 유지
+          selected = selected.filter(function(item) {
+            return Number(item.id) < 5;
+          });
         }
         activeTab = tab;
         updateSelectedUI();
@@ -472,6 +476,7 @@
   
       function toggleItem(item, el) {
         if (activeTab === "editing") {
+          // 편집실은 단일 선택
           selected = [item];
           editingLocation = item.name;
           document.querySelectorAll("#equipment-list .equipment").forEach(function(e) {
