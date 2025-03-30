@@ -272,26 +272,6 @@
       window.location.href = "index.html"; // 홈 페이지로 이동
     }
 
-    // Firebase에 데이터 저장
-    function saveDataToFirebase() {
-      const equipmentList = selectedItems.join(", ");
-      const startDate = document.getElementById("startDate").value;
-      const endDate = document.getElementById("endDate").value;
-
-      db.collection("reservations").add({
-        equipment: equipmentList,
-        startDate: startDate,
-        endDate: endDate,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      })
-      .then(() => {
-        console.log("예약 정보가 저장되었습니다.");
-      })
-      .catch((error) => {
-        console.error("에러가 발생했습니다: ", error);
-      });
-    }
-
     // 페이지 로드 시 장비 목록 렌더링
     document.addEventListener("DOMContentLoaded", () => {
       renderEquipmentList(); // 장비 목록 초기 렌더링
@@ -300,4 +280,3 @@
   </script>
 </body>
 </html>
-
