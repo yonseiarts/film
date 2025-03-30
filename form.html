@@ -402,7 +402,7 @@
         data.startDate = document.getElementById("startDate").value;
         data.endDate = document.getElementById("endDate").value;
       }
-      db.collection("rentals").add(data)
+      db.collection("applications").add(data)
         .then(() => {
           goToStep(4);
         })
