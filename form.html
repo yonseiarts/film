@@ -183,8 +183,10 @@
   </div>
 
   <!-- Firebase SDK & Initialization -->
-  <script>
-    const firebaseConfig = {
+ import { initializeApp } from "firebase/app";
+import { getFirestore, collection, addDoc } from "firebase/firestore"
+   
+  const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
@@ -402,7 +404,7 @@
         data.startDate = document.getElementById("startDate").value;
         data.endDate = document.getElementById("endDate").value;
       }
-      db.collection("rentals").add(data)
+      db.collection("applications").add(data)
         .then(() => {
           goToStep(4);
         })
@@ -425,4 +427,3 @@
   </script>
 </body>
 </html>
-
