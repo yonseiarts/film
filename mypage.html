@@ -44,28 +44,43 @@
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         const div = document.createElement("div");
-        div.className = "border rounded p-4 mb-4 bg-white shadow";
+        div.className = "border rounded-lg p-5 mb-6 bg-white shadow-md";
         div.innerHTML = `
-          <h3 class="font-semibold text-blue-700 mb-2">신청 장비: ${data.items?.join(", ") ?? "-"}</h3>
-          <p><strong>대여일자:</strong> ${data.date ?? "-"}</p>
-          <p><strong>상태:</strong> <span class="${data.status === '승인' ? 'text-green-600' : data.status === '반려' ? 'text-red-600' : 'text-yellow-600'}">${data.status}</span></p>
+          <h3 class="text-lg font-semibold text-blue-700 mb-2">신청 장비</h3>
+          <ul class="list-disc ml-5 text-sm text-gray-800 mb-2">
+            ${data.items?.map(item => `<li>${item}</li>`).join("") ?? "<li>-</li>"}
+          </ul>
+          <p class="text-sm text-gray-700 mb-1"><strong>대여일자:</strong> ${data.date ?? "-"}</p>
+          <p class="text-sm text-gray-700 mb-1"><strong>시작일:</strong> ${data.startDate ?? "-"}</p>
+          <p class="text-sm text-gray-700 mb-1"><strong>반납일:</strong> ${data.endDate ?? "-"}</p>
+          <p class="text-sm text-gray-700"><strong>상태:</strong> <span class="${data.status === '승인' ? 'text-green-600' : data.status === '반려' ? 'text-red-600' : 'text-yellow-600'} font-semibold">${data.status}</span></p>
         `;
         list.appendChild(div);
       });
     });
   </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <div class="max-w-3xl mx-auto px-6 py-10">
-    <h1 class="text-3xl font-bold text-blue-700 mb-6">마이페이지</h1>
-    <div class="mb-6 bg-white p-4 rounded shadow">
-      <p><strong>이름:</strong> <span id="studentName">-</span></p>
-      <p><strong>학번:</strong> <span id="studentId">-</span></p>
+<body class="bg-gray-100 min-h-screen">
+  <header class="bg-white shadow py-4 mb-6">
+    <div class="max-w-5xl mx-auto px-4">
+      <h1 class="text-2xl font-bold text-blue-700">🎬 연세예술원 마이페이지</h1>
     </div>
-    <h2 class="text-xl font-semibold mb-4">나의 신청 내역</h2>
-    <div id="applicationList">
-      <p class="text-gray-600">신청 내역을 불러오는 중...</p>
-    </div>
-  </div>
+  </header>
+  <main class="max-w-5xl mx-auto px-4">
+    <section class="mb-6 bg-white p-6 rounded shadow">
+      <h2 class="text-lg font-semibold text-gray-800 mb-2">👤 내 정보</h2>
+      <p class="text-sm text-gray-700"><strong>이름:</strong> <span id="studentName">-</span></p>
+      <p class="text-sm text-gray-700"><strong>학번:</strong> <span id="studentId">-</span></p>
+    </section>
+    <section class="bg-white p-6 rounded shadow">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">📦 나의 신청 내역</h2>
+      <div id="applicationList">
+        <p class="text-sm text-gray-500">신청 내역을 불러오는 중...</p>
+      </div>
+    </section>
+  </main>
+  <footer class="text-center text-sm text-gray-500 py-6 mt-10">
+    ⓒ 2025 연세예술원 영화학과 | 문의: 02-1234-5678
+  </footer>
 </body>
 </html>
