@@ -8,7 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs, updateDoc, doc, orderBy } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
@@ -36,7 +36,8 @@
       const q = query(
         collection(db, "applications"),
         where("studentID", "==", student.studentId),
-        where("isDeleted", "==", showTrash)
+        where("isDeleted", "==", showTrash),
+        orderBy("createdAt", "desc")
       );
 
       const querySnapshot = await getDocs(q);
