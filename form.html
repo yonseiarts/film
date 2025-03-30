@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <title>기자재 대여 신청</title>
 
-  <!-- TailwindCSS (개발 환경에서 사용 가능, 프로덕션 환경에서는 PostCSS 또는 CLI 사용 권장) -->
+  <!-- TailwindCSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Firebase CDN (ES 모듈 사용) -->
+  <!-- Firebase SDK (modular) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js";
     import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore.js"; // Firestore
@@ -47,8 +47,8 @@
     };
 
     let selectedItems = []; // 선택된 장비 목록
-    let currentTab = "camera"; // 현재 선택된 탭
-    let currentSub = "body"; // 현재 선택된 중분류
+    let currentTab = "camera"; // 현재 선택된 대분류 탭
+    let currentSub = "body"; // 현재 선택된 중분류 탭
 
     // 장비 목록 렌더링 함수
     function renderEquipmentList() {
@@ -103,6 +103,18 @@
       renderEquipmentList(); // 장비 목록 갱신
     }
 
+    // 단계 전환
+    function goToStep(n) {
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById("step" + i)?.classList.add("hidden");
+        document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
+        document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
+      }
+      document.getElementById("step" + n)?.classList.remove("hidden");
+      document.getElementById("step" + n + "Btn")?.classList.add("step-active");
+      document.getElementById("step" + n + "Btn")?.classList.remove("step-inactive");
+    }
+
     // Firebase에 데이터 저장
     function submitApplication() {
       const data = {
@@ -123,17 +135,25 @@
         });
     }
 
-    // 각 단계 전환
-    function goToStep(n) {
-      for (let i = 1; i <= 4; i++) {
-        document.getElementById("step" + i)?.classList.add("hidden");
-        document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
-        document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
-      }
-      document.getElementById("step" + n)?.classList.remove("hidden");
-      document.getElementById("step" + n + "Btn")?.classList.add("step-active");
-      document.getElementById("step" + n + "Btn")?.classList.remove("step-inactive");
-    }
+    // 탭 클릭 시 장비 목록 갱신
+    document.querySelectorAll(".tab-button").forEach(button => {
+      button.addEventListener("click", (e) => {
+        document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
+        e.target.classList.add("active");
+        currentTab = e.target.dataset.tab; // 클릭된 대분류 탭
+        renderEquipmentList(); // 장비 목록 갱신
+      });
+    });
+
+    // 서브탭 클릭 시 장비 목록 갱신
+    document.querySelectorAll(".subtab-button").forEach(button => {
+      button.addEventListener("click", (e) => {
+        document.querySelectorAll(".subtab-button").forEach(btn => btn.classList.remove("active"));
+        e.target.classList.add("active");
+        currentSub = e.target.dataset.subtab; // 클릭된 중분류 탭
+        renderEquipmentList(); // 장비 목록 갱신
+      });
+    });
 
     // 페이지 로드 시 장비 목록 렌더링
     document.addEventListener("DOMContentLoaded", () => {
