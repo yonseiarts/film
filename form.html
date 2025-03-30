@@ -158,13 +158,13 @@
         • 기자재 대장 관리<br/>
         • 예산 집행 및 회계 관리<br/><br/>
         <strong>부칙</strong><br/>
-        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
+               제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
         제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
         2025년 3월 23일<br/>
         연세예술원 영화학 주임교수 유영식
       </div>
       <label class="flex items-center mb-4">
-        <input type="checkbox" id="agreeCheck" class="mr-2"> 위 규정에 동의합니다.
+        <input type="checkbox" id="agreeCheck" class="mr-2" onclick="toggleSubmitButton()"> 위 규정에 동의합니다.
       </label>
       <div class="flex justify-between">
         <button onclick="goToStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
@@ -224,7 +224,7 @@
         const div = document.createElement("div");
         div.className = "equipment-card";
         const isEditing = item.name.includes("편집실");
-               const shouldDisable = (isEditing && isOtherSelected) || (!isEditing && isEditingSelected);
+        const shouldDisable = (isEditing && isOtherSelected) || (!isEditing && isEditingSelected);
         if (shouldDisable) div.classList.add("disabled");
 
         const isSelected = selectedItems.includes(item.name);
@@ -320,6 +320,19 @@
       goToStep(3); // 규정 동의 단계로 넘어가기
     }
 
+    // 규정 동의 체크박스가 선택되었는지 확인하는 함수
+    function toggleSubmitButton() {
+      const agreeCheck = document.getElementById("agreeCheck");
+      const submitButton = document.getElementById("toStep4");
+      if (agreeCheck.checked) {
+        submitButton.disabled = false;
+        submitButton.classList.remove("opacity-50");
+      } else {
+        submitButton.disabled = true;
+        submitButton.classList.add("opacity-50");
+      }
+    }
+
     // 완료된 항목 확인
     function completeReservation() {
       const selectedEquipment = selectedItems.join(", ");
@@ -327,11 +340,6 @@
       document.getElementById("final-selected-items").innerHTML = selectedEquipment;
       document.getElementById("final-dates").innerText = rentalDates;
       goToStep(4); // 완료 화면으로 넘어가기
-    }
-
-    // Home 버튼 클릭 시 페이지 이동
-    function goHome() {
-      window.location.href = "index.html"; // index.html로 이동
     }
   </script>
 </body>
