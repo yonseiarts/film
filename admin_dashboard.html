@@ -49,7 +49,7 @@
     .sidebar ul li:hover, .sidebar ul li.active {
       background-color: rgba(255,255,255,0.2);
     }
-    /* 메인 영역 */
+    /* 우측 메인 영역 */
     .main {
       flex: 1;
       padding: 20px;
@@ -70,6 +70,18 @@
     .card p {
       margin: 5px 0;
     }
+    .actions button {
+      margin-right: 5px;
+      background-color: #4e73df;
+      color: #fff;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .actions button:hover {
+      background-color: #375a9c;
+    }
     .loading {
       text-align: center;
       padding: 30px 0;
@@ -88,21 +100,20 @@
       <h2>메뉴</h2>
       <ul>
         <li id="menuPending" class="active" onclick="activateMenu(this); loadData('pending')">대기 내역</li>
-        <li id="menuApproved" onclick="activateMenu(this); loadData('approved')">승인 내역</li>
-        <li id="menuRejected" onclick="activateMenu(this); loadData('rejected')">반려 내역</li>
+        <li id="menuApprovedRejected" onclick="activateMenu(this); loadData('approvedRejected')">승인/반려 내역</li>
         <li id="menuTrash" onclick="activateMenu(this); loadData('trash')">휴지통</li>
         <li id="menuLogin" onclick="activateMenu(this); loadData('login')">로그인 내역</li>
       </ul>
     </div>
     
-    <!-- 우측 메인 컨텐츠 -->
+    <!-- 우측 메인 영역 -->
     <div class="main" id="contentArea">
       <div class="loading">데이터 로딩 중...</div>
     </div>
   </div>
   
   <script>
-    // 1. Firebase 설정 (Firebase 콘솔에서 복사한 구성 정보를 사용하세요)
+    // 1. Firebase 설정 (Firebase 콘솔에서 복사한 구성 정보를 사용)
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
@@ -112,7 +123,7 @@
       appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
       measurementId: "G-8G1D43NXMW"
     };
-
+    
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
@@ -135,18 +146,20 @@
       
       let query;
       if (category === 'login') {
-        // 로그인 내역: 예시로 'studentLogins' 컬렉션 사용 (필요 시 수정)
+        // 로그인 내역 (예: 'studentLogins' 컬렉션 사용)
         query = db.collection('studentLogins').orderBy('timestamp', 'desc');
-      } else {
-        // 나머지 경우: applications 컬렉션에서 상태 필터 및 신청 시간(createdAt) 기준 정렬
-        let statusValue;
-        if (category === 'pending') statusValue = '대기';
-        else if (category === 'approved') statusValue = '승인';
-        else if (category === 'rejected') statusValue = '반려';
-        else if (category === 'trash') statusValue = '휴지통';
-        
+      } else if (category === 'approvedRejected') {
+        // 승인/반려 내역: status가 "승인" 또는 "반려"인 문서를 in 쿼리로 가져옴
         query = db.collection('applications')
-                  .where('status', '==', statusValue)
+                  .where('status', 'in', ['승인', '반려'])
+                  .orderBy('createdAt', 'desc');
+      } else if (category === 'trash') {
+        query = db.collection('applications')
+                  .where('status', '==', '휴지통')
+                  .orderBy('createdAt', 'desc');
+      } else { // pending
+        query = db.collection('applications')
+                  .where('status', '==', '대기')
                   .orderBy('createdAt', 'desc');
       }
       
@@ -158,7 +171,7 @@
         let html = '';
         snapshot.forEach(doc => {
           const data = doc.data();
-          // "rentDate" 필드가 없으면 startDate와 endDate를 결합하여 표시
+          // 대여 날짜: rentDate 필드가 없으면 startDate와 endDate 결합
           let rentalDate = data.rentDate ? data.rentDate : (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
           html += `
             <div class="card">
@@ -169,8 +182,17 @@
               <p><strong>대여 날짜:</strong> ${rentalDate}</p>
               <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
               <p><strong>상태:</strong> ${data.status || ""}</p>
-            </div>
           `;
+          // 만약 상태가 "대기"인 경우, 승인/반려 버튼 표시 (승인/반려 내역 페이지에서는 버튼이 필요없을 수도 있습니다)
+          if (data.status === "대기") {
+            html += `
+              <div class="actions">
+                <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
+                <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
+              </div>
+            `;
+          }
+          html += `</div>`;
         });
         contentArea.innerHTML = html;
       }, err => {
@@ -179,7 +201,20 @@
       });
     }
 
-    // 4. 페이지 로드 시 기본 카테고리('대기 내역') 로드
+    // 4. 상태 업데이트 함수 (승인, 반려, 휴지통, 복원 등)
+    function updateStatus(docId, newStatus) {
+      if (!confirm(`상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
+      db.collection('applications').doc(docId).update({ status: newStatus })
+        .then(() => {
+          alert('상태가 변경되었습니다.');
+        })
+        .catch(err => {
+          console.error('상태 변경 실패:', err);
+          alert('오류가 발생했습니다.');
+        });
+    }
+
+    // 페이지 로드 시 기본으로 "대기 내역" 탭 로드
     loadData('pending');
   </script>
 </body>
