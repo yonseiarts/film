@@ -216,7 +216,7 @@
         console.log("예약 정보가 저장되었습니다.");
       })
       .catch((error) => {
-        console.error("에러가 발생했습니다: ", error);
+               console.error("에러가 발생했습니다: ", error);
       });
     }
 
@@ -254,7 +254,11 @@
       const isEditingSelected = selectedItems.some(name => name.includes("편집실"));
       const isOtherSelected = selectedItems.some(name => !name.includes("편집실"));
 
-      items.forEach(item => {
+      // 편집실 항목 2개, 나머지 항목 8개씩만 표시
+      const maxItems = currentTab === "editing" ? 2 : 8;
+      const limitedItems = items.slice(0, maxItems);
+
+      limitedItems.forEach(item => {
         const div = document.createElement("div");
         div.className = "equipment-card";
         const isEditing = item.name.includes("편집실");
@@ -291,8 +295,7 @@
         btn.classList.remove("hidden");
       }
       document.getElementById("selected-items").innerHTML = selectedItems.map(i => `
-        <li>${i} <span class="remove-item" onclick="removeItem('${i}')">X</span
-        </li>`).join("");
+        <li>${i} <span class="remove-item" onclick="removeItem('${i}')">X</span></li>`).join("");
     }
 
     // 장비 삭제 함수
@@ -403,3 +406,4 @@
   </script>
 </body>
 </html>
+
