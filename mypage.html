@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>마이 페이지 - 내 신청 내역</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Tailwind CSS CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <style>
+    /* 배경, 폰트 설정 */
+    body { background-color: #f8f9fc; }
+  </style>
+  <!-- Firebase (compat 버전) -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
+</head>
+<body class="min-h-screen">
+  <!-- 상단 헤더 -->
+  <header class="bg-blue-700 text-white p-4 flex items-center justify-between">
+    <h1 class="text-xl font-bold">마이 페이지</h1>
+    <button onclick="window.location.href='index.html'" class="bg-white text-blue-700 px-3 py-1 rounded">홈으로</button>
+  </header>
+  
+  <main class="max-w-4xl mx-auto p-4">
+    <h2 class="text-lg font-semibold mb-4">내 신청 내역</h2>
+    <div id="applicationsList" class="space-y-4">
+      <div class="loading text-center text-gray-600">데이터 로딩 중...</div>
+    </div>
+  </main>
+  
+  <script>
+    // Firebase 구성 (Firebase 콘솔에서 복사한 값으로 업데이트하세요)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      authDomain: "yonseirent-setup.firebaseapp.com",
+      projectId: "yonseirent-setup",
+      storageBucket: "yonseirent-setup.firebasestorage.app",
+      messagingSenderId: "1072524969376",
+      appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
+      measurementId: "G-8G1D43NXMW"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    
+    // 로그인 정보 확인 (student_login.html에서 저장된 학생 정보)
+    const studentInfoStr = localStorage.getItem("studentInfo");
+    if (!studentInfoStr) {
+      alert("로그인이 필요합니다.");
+      window.location.href = "student_login.html";
+    }
+    const studentInfo = JSON.parse(studentInfoStr);
+    
+    const applicationsListEl = document.getElementById("applicationsList");
+    
+    // Firestore에서 현재 학생의 신청 내역을 실시간으로 조회
+    const query = db.collection("applications")
+                    .where("studentID", "==", studentInfo.studentId)
+                    .orderBy("createdAt", "desc");
+    
+    query.onSnapshot(snapshot => {
+      if (snapshot.empty) {
+        applicationsListEl.innerHTML = '<div class="loading text-center text-gray-600">신청 내역이 없습니다.</div>';
+        return;
+      }
+      let html = "";
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        // 만약 rentDate 필드가 없다면 startDate와 endDate를 결합하여 표시
+        let rentalDate = data.rentDate 
+                         ? data.rentDate 
+                         : (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
+        html += `
+          <div class="border rounded p-4 shadow-sm bg-white">
+            <h3 class="font-bold text-blue-700 text-base mb-2">신청 내역</h3>
+            <p><strong>이름:</strong> ${data.userName || ""}</p>
+            <p><strong>학번:</strong> ${data.studentID || ""}</p>
+            <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
+            <p><strong>대여 날짜:</strong> ${rentalDate}</p>
+            <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
+            <p><strong>상태:</strong> ${data.status || ""}</p>
+          </div>
+        `;
+      });
+      applicationsListEl.innerHTML = html;
+    }, err => {
+      console.error("에러:", err);
+      applicationsListEl.innerHTML = `<div class="loading text-center text-red-500">오류 발생: ${err.message}</div>`;
+    });
+  </script>
+</body>
+</html>
