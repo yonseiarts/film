@@ -176,7 +176,7 @@
     <div id="step4" class="step hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
       <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
-    <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
+      <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
       <p id="final-dates" class="text-sm text-gray-700 mt-4"></p>
       <div id="final-time" class="text-sm text-gray-700 mt-1"></div>
       <div class="mt-8">
@@ -224,14 +224,13 @@
         const div = document.createElement("div");
         div.className = "equipment-card";
         const isEditing = item.name.includes("편집실");
-        const shouldDisable = (isEditing && isOtherSelected) || (!isEditing && isEditingSelected);
+               const shouldDisable = (isEditing && isOtherSelected) || (!isEditing && isEditingSelected);
         if (shouldDisable) div.classList.add("disabled");
 
         const isSelected = selectedItems.includes(item.name);
         if (isSelected) div.classList.add("selected");
 
-        div.innerHTML = `<img src="${item.image}" alt="${item.name}"><span class="text-sm">${item.name}</span>
-                        <span class="remove-item" onclick="removeItem('${item.name}')">X</span>`; // X 버튼 추가
+        div.innerHTML = `<img src="${item.image}" alt="${item.name}"><span class="text-sm">${item.name}</span>`;
         div.onclick = () => {
           if (shouldDisable) return;
           if (isSelected) {
@@ -257,7 +256,8 @@
         sec.classList.remove("hidden");
         btn.classList.remove("hidden");
       }
-      document.getElementById("selected-items").innerHTML = selectedItems.map(i => `<li>${i} <span class="remove-item" onclick="removeItem('${i}')">X</span></li>`).join("");
+      document.getElementById("selected-items").innerHTML = selectedItems.map(i => `
+        <li>${i} <span class="remove-item" onclick="removeItem('${i}')">X</span></li>`).join("");
     }
 
     // 장비 삭제 함수
@@ -310,6 +310,30 @@
       document.getElementById("step" + n + "Btn")?.classList.add("step-active");
       document.getElementById("step" + n + "Btn")?.classList.remove("step-inactive");
     }
+
+    // Step 2 (대여일 선택) 검증
+    function validateStep2() {
+      if (selectedItems.length === 0) {
+        alert("장비를 선택해주세요.");
+        return;
+      }
+      goToStep(3); // 규정 동의 단계로 넘어가기
+    }
+
+    // 완료된 항목 확인
+    function completeReservation() {
+      const selectedEquipment = selectedItems.join(", ");
+      const rentalDates = `${document.getElementById("startDate").value} ~ ${document.getElementById("endDate").value}`;
+      document.getElementById("final-selected-items").innerHTML = selectedEquipment;
+      document.getElementById("final-dates").innerText = rentalDates;
+      goToStep(4); // 완료 화면으로 넘어가기
+    }
+
+    // Home 버튼 클릭 시 페이지 이동
+    function goHome() {
+      window.location.href = "index.html"; // index.html로 이동
+    }
   </script>
 </body>
 </html>
+
