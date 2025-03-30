@@ -4,31 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>관리자 로그인</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100 h-screen flex items-center justify-center">
-  <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
-    <h2 class="text-2xl font-bold mb-6 text-center">관리자 로그인</h2>
-    
-    <!-- 이메일 입력 필드 -->
-    <input type="email" id="email" placeholder="이메일" class="border p-2 w-full mb-4 rounded" />
-    
-    <!-- 비밀번호 입력 필드 -->
-    <input type="password" id="password" placeholder="비밀번호" class="border p-2 w-full mb-4 rounded" />
-    
-    <!-- 로그인 버튼 -->
-    <button id="loginBtn" class="bg-blue-600 text-white py-2 px-4 rounded w-full hover:bg-blue-700">로그인</button>
-    
-    <!-- 오류 메시지 -->
-    <p id="error" class="text-red-500 text-sm mt-4 text-center hidden">이메일 또는 비밀번호가 잘못되었습니다.</p>
-  </div>
-
-  <script type="module">
-    // Firebase SDK 가져오기
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    
-    // Firebase 설정
+  <script src="https://www.gstatic.com/firebasejs/9.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.12.0/firebase-auth.js"></script>
+  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
@@ -38,25 +16,42 @@
       appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
       measurementId: "G-8G1D43NXMW"
     };
+    
+    // Firebase 초기화
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-    // Firebase 앱 초기화
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    // 로그인 함수
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
-    // 로그인 버튼 클릭 시 이벤트 처리
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-
-      // 관리자 이메일과 비밀번호 확인
-      if (email === "admin@yonseiarts.kr" && password === "secureadmin123") {
-        // 로그인 성공 시 대시보드로 이동
-        window.location.href = "admin_dashboard.html"; // 관리자가 로그인 후 이동할 대시보드 페이지
-      } else {
-        // 로그인 실패 시 오류 메시지 표시
-        document.getElementById("error").classList.remove("hidden");
-      }
-    });
+      auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          // 로그인 성공
+          const user = userCredential.user;
+          console.log("로그인 성공: ", user);
+          if (user.email === "admin@yonseiarts.kr") {
+            window.location.href = "admin-dashboard.html";  // 관리자 대시보드로 이동
+          } else {
+            alert("관리자만 접근할 수 있습니다.");
+          }
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.error("로그인 실패: ", errorMessage);
+          alert("로그인 실패: " + errorMessage);
+        });
+    }
   </script>
+</head>
+<body>
+  <div>
+    <h2>관리자 로그인</h2>
+    <input type="email" id="email" placeholder="이메일" required>
+    <input type="password" id="password" placeholder="비밀번호" required>
+    <button onclick="login()">로그인</button>
+  </div>
 </body>
 </html>
