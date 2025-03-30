@@ -8,7 +8,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.12.0/firebase-firestore.js"></script>
 
   <style>
-    /* 스타일 복원 */
     .step-active { background-color: #1D4ED8; color: white; }
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
     .tab-button.active { background-color: #dbeafe; font-weight: 600; }
@@ -67,46 +66,42 @@
       ]
     };
 
-    let selectedItems = [];
-    let selectedHours = [];
-    let currentTab = "camera";
-    let currentSub = "body";
+    let selectedItems = []; // 선택된 장비 목록
+    let currentTab = "camera"; // 현재 선택된 탭
+    let currentSub = "body"; // 현재 선택된 중분류
 
     // 장비 목록 렌더링
     function renderEquipmentList() {
       const container = document.getElementById("equipment-list");
-      container.innerHTML = "";
+      container.innerHTML = ""; // 기존 장비 목록 초기화
       const items = currentTab === "camera" ? equipmentData.camera[currentSub] : equipmentData[currentTab];
-
-      const isEditingSelected = selectedItems.some(name => name.includes("편집실"));
-      const isOtherSelected = selectedItems.some(name => !name.includes("편집실"));
 
       items.forEach(item => {
         const div = document.createElement("div");
         div.className = "equipment-card";
-        const isEditing = item.name.includes("편집실");
-        const shouldDisable = (isEditing && isOtherSelected) || (!isEditing && isEditingSelected);
-        if (shouldDisable) div.classList.add("disabled");
-
         const isSelected = selectedItems.includes(item.name);
         if (isSelected) div.classList.add("selected");
 
         div.innerHTML = `<img src="${item.image}" alt="${item.name}"><span class="text-sm">${item.name}</span>`;
         div.onclick = () => {
-          if (shouldDisable) return;
-          if (isSelected) {
-            selectedItems = selectedItems.filter(i => i !== item.name);
-          } else {
-            selectedItems.push(item.name);
-          }
-          updateSelectedUI();
-          renderEquipmentList();
+          toggleSelection(item.name); // 장비 클릭 시 선택/해제
+          renderEquipmentList(); // 장비 목록 갱신
         };
         container.appendChild(div);
       });
     }
 
-    // 선택된 장비 UI 업데이트
+    // 장비 선택 또는 해제 처리
+    function toggleSelection(itemName) {
+      if (selectedItems.includes(itemName)) {
+        selectedItems = selectedItems.filter(item => item !== itemName); // 선택 해제
+      } else {
+        selectedItems.push(itemName); // 선택 추가
+      }
+      updateSelectedUI(); // 선택된 장비 UI 업데이트
+    }
+
+    // 선택된 장비 목록 UI 업데이트
     function updateSelectedUI() {
       const sec = document.getElementById("selected-section");
       const btn = document.getElementById("toStep2");
@@ -123,9 +118,9 @@
 
     // 장비 삭제
     function removeItem(itemName) {
-      selectedItems = selectedItems.filter(item => item !== itemName);
-      updateSelectedUI();
-      renderEquipmentList();
+      selectedItems = selectedItems.filter(item => item !== itemName); // 삭제된 장비 항목
+      updateSelectedUI(); // UI 갱신
+      renderEquipmentList(); // 장비 목록 갱신
     }
 
     // 탭 클릭 시 장비 목록 갱신
@@ -133,13 +128,7 @@
       button.addEventListener("click", (e) => {
         document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
         e.target.classList.add("active");
-        currentTab = e.target.dataset.tab;
-
-        if (currentTab === "camera") {
-          document.getElementById("cameraSubTabs").classList.remove("hidden");
-        } else {
-          document.getElementById("cameraSubTabs").classList.add("hidden");
-        }
+        currentTab = e.target.dataset.tab; // 클릭된 탭에 맞게 장비 목록 갱신
         renderEquipmentList();
       });
     });
@@ -149,22 +138,10 @@
       button.addEventListener("click", (e) => {
         document.querySelectorAll(".subtab-button").forEach(btn => btn.classList.remove("active"));
         e.target.classList.add("active");
-        currentSub = e.target.dataset.subtab;
+        currentSub = e.target.dataset.subtab; // 클릭된 서브탭에 맞게 중분류 변경
         renderEquipmentList();
       });
     });
-
-    // 각 단계 전환
-    function goToStep(n) {
-      for (let i = 1; i <= 4; i++) {
-        document.getElementById("step" + i)?.classList.add("hidden");
-        document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
-        document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
-      }
-      document.getElementById("step" + n)?.classList.remove("hidden");
-      document.getElementById("step" + n + "Btn")?.classList.add("step-active");
-      document.getElementById("step" + n + "Btn")?.classList.remove("step-inactive");
-    }
 
     // Firebase Firestore 데이터 저장
     function submitApplication() {
@@ -186,12 +163,23 @@
         });
     }
 
+    // 각 단계 전환
+    function goToStep(n) {
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById("step" + i)?.classList.add("hidden");
+        document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
+        document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
+      }
+      document.getElementById("step" + n)?.classList.remove("hidden");
+      document.getElementById("step" + n + "Btn")?.classList.add("step-active");
+      document.getElementById("step" + n + "Btn")?.classList.remove("step-inactive");
+    }
+
+    // 초기화 및 UI 업데이트
     document.addEventListener("DOMContentLoaded", () => {
       renderEquipmentList();
       goToStep(1);
     });
-
   </script>
-
 </body>
 </html>
