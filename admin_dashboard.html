@@ -30,7 +30,7 @@
       padding: 10px 14px; margin-bottom: 10px;
       border-radius: 4px; cursor: pointer;
     }
-      .sidebar ul li:hover, .sidebar ul li.active {
+    .sidebar ul li:hover, .sidebar ul li.active {
       background-color: rgba(255,255,255,0.2);
     }
     .main { flex: 1; padding: 24px; background-color: #fff; }
@@ -87,12 +87,11 @@
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
-      storageBucket: "yonseirent-setup.firebasestorage.app",
+      storageBucket: "yonseirent-setup.appspot.com",
       messagingSenderId: "1072524969376",
-      appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
+      appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
       measurementId: "G-8G1D43NXMW"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
@@ -199,7 +198,7 @@
           html += `
             <div class="card">
               <div class="status-indicator ${indicator}"></div>
-              <h3>대여 신청 내역</h3>
+                           <h3>대여 신청 내역</h3>
               <p><strong>이름:</strong> ${data.userName || ""}</p>
               <p><strong>학번:</strong> ${data.studentID || ""}</p>
               <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
@@ -207,8 +206,7 @@
               <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
               <p><strong>상태:</strong> ${data.status || ""}</p>
               <div class="actions">
-                <button onclick="updateStatus
-                ('${doc.id}', '${data.status === '승인' ? '반려' : '승인'}')">${data.status === '승인' ? '반려' : '승인'}</button>
+                <button onclick="updateStatus('${doc.id}', '${data.status === '승인' ? '반려' : '승인'}')">${data.status === '승인' ? '반려' : '승인'}</button>
                 <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
               </div>
             </div>`;
