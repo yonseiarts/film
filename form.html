@@ -5,9 +5,39 @@
   <title>기자재 대여 신청</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.12.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.12.0/firebase-firestore.js"></script>
+
+  <style>
+    /* 스타일 복원 */
+    .step-active { background-color: #1D4ED8; color: white; }
+    .step-inactive { background-color: #e5e7eb; color: #6b7280; }
+    .tab-button.active { background-color: #dbeafe; font-weight: 600; }
+    .equipment.selected { border-color: #facc15; background-color: #fefce8; }
+    .equipment-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+    }
+    .equipment-card img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .equipment-card.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+      background-color: #f3f4f6;
+    }
+  </style>
+
   <script>
+    // Firebase 초기화
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
@@ -17,234 +47,9 @@
       appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
       measurementId: "G-8G1D43NXMW"
     };
-
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let selectedItems = [];
-    let selectedHours = [];
-    let currentTab = "camera";
-    let currentSub = "body";
-
-    function renderEquipmentList() {
-      const container = document.getElementById("equipment-list");
-      container.innerHTML = "";
-      const items = currentTab === "camera" ? equipmentData.camera[currentSub] : equipmentData[currentTab];
-
-      items.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "equipment-card";
-        const isSelected = selectedItems.includes(item.name);
-        if (isSelected) div.classList.add("selected");
-
-        div.innerHTML = `<img src="${item.image}" alt="${item.name}"><span class="text-sm">${item.name}</span>`;
-        div.onclick = () => {
-          if (isSelected) {
-            selectedItems = selectedItems.filter(i => i !== item.name);
-          } else {
-            selectedItems.push(item.name);
-          }
-          updateSelectedUI();
-          renderEquipmentList();
-        };
-        container.appendChild(div);
-      });
-    }
-
-    function updateSelectedUI() {
-      const sec = document.getElementById("selected-section");
-      const btn = document.getElementById("toStep2");
-      if (selectedItems.length === 0) {
-        sec.classList.add("hidden");
-        btn.classList.add("hidden");
-      } else {
-        sec.classList.remove("hidden");
-        btn.classList.remove("hidden");
-      }
-      document.getElementById("selected-items").innerHTML = selectedItems.map(i => `
-        <li>${i} <span class="remove-item" onclick="removeItem('${i}')">X</span></li>`).join("");
-    }
-
-    function removeItem(itemName) {
-      selectedItems = selectedItems.filter(item => item !== itemName);
-      updateSelectedUI();
-      renderEquipmentList();
-    }
-
-    document.querySelectorAll(".tab-button").forEach(button => {
-      button.addEventListener("click", (e) => {
-        document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
-        e.target.classList.add("active");
-        currentTab = e.target.dataset.tab;
-        renderEquipmentList();
-      });
-    });
-
-    document.querySelectorAll(".subtab-button").forEach(button => {
-      button.addEventListener("click", (e) => {
-        document.querySelectorAll(".subtab-button").forEach(btn => btn.classList.remove("active"));
-        e.target.classList.add("active");
-        currentSub = e.target.dataset.subtab;
-        renderEquipmentList();
-      });
-    });
-
-    function submitApplication() {
-      const editingOnly = selectedItems.every(i => i.includes("편집실"));
-      const data = {
-        items: [...selectedItems],
-        startDate: document.getElementById("startDate").value,
-        endDate: document.getElementById("endDate").value,
-        editingDate: editingOnly ? document.getElementById("editingDate").value : null,
-        hours: editingOnly ? selectedHours : [],
-        status: '대기',  // 대기 상태로 저장
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        proofImage: document.getElementById("proofImage").files[0] ? document.getElementById("proofImage").files[0].name : ""
-      };
-
-      // Firestore에 데이터 저장
-      db.collection("applications").add(data)
-        .then(() => {
-          alert("신청이 완료되었습니다.");
-          window.location.href = "index.html";  // 신청 완료 후 홈으로 이동
-        })
-        .catch(error => {
-          console.error("Error adding document: ", error);
-          alert("신청 정보를 저장하는데 실패했습니다. 다시 시도해주세요.");
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      renderEquipmentList();
-      goToStep(1);
-    });
-
-  </script>
-</head>
-<body class="bg-gray-50">
-  <div class="bg-blue-700 text-white py-6 text-center">
-    <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
-    <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
-  </div>
-
-  <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-    <!-- 단계 표시 -->
-    <div class="flex justify-between mb-8">
-      <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
-      <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
-      <div id="step3Btn" class="flex-1 text-center p-2 rounded step-inactive">3. 규정 동의</div>
-      <div id="step4Btn" class="flex-1 text-center p-2 rounded step-inactive">4. 완료</div>
-    </div>
-
-    <!-- Step 1: 장비 선택 -->
-    <div id="step1">
-      <h2 class="text-xl font-bold mb-2">장비 선택</h2>
-      <div class="flex space-x-2 mb-4">
-        <button class="tab-button active px-4 py-1 border rounded" data-tab="camera">카메라</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="lighting">조명</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="sound">사운드</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="monitor">모니터</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="editing">편집실</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="line">라인</button>
-      </div>
-
-      <div id="cameraSubTabs" class="flex gap-2 mb-4 hidden">
-        <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
-        <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
-        <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대</button>
-      </div>
-
-      <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-
-      <div id="selected-section" class="mt-6 hidden">
-        <h3 class="font-medium mb-2">선택된 장비</h3>
-        <ul id="selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
-      </div>
-
-      <div class="flex justify-between mt-6">
-        <button onclick="window.location.href='index.html'" class="text-blue-600 text-sm">홈으로</button>
-        <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">다음 단계 →</button>
-      </div>
-    </div>
-
-    <!-- Step 2: 대여일 선택 -->
-    <div id="step2" class="hidden">
-      <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-      <label class="block mb-2 font-medium">대여 시작일</label>
-      <input type="date" id="startDate" class="border p-2 rounded w-full mb-4" />
-      <label class="block mb-2 font-medium">반납일</label>
-      <input type="date" id="endDate" class="border p-2 rounded w-full mb-4" />
-      <label class="block mb-2 font-medium">증명사진 첨부</label>
-      <input type="file" id="proofImage" accept="image/*" class="border p-2 rounded w-full mb-4" />
-    </div>
-
-    <!-- Step 3: 규정 동의 -->
-    <div id="step3" class="hidden">
-      <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
-      <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed">
-        <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
-        <strong>제1장 총칙</strong><br/>
-        <em>제1조 (목적)</em><br/>
-        본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>
-        <em>제2조 (적용범위)</em><br/>
-        본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
-        <strong>제2장 관리체계</strong><br/>
-        <em>제1조 (주임교수의 권한)</em><br/>
-        • 기자재 운영 정책 수립 및 변경<br/>
-        • 기자재 담당 인력 임명<br/>
-        • 장비 대여 승인<br/>
-        • 외부 촬영 허가<br/>
-        • 분쟁 조정 및 제재 조치 결정<br/><br/>
-        <em>제2조 (행정실 업무)</em><br/>
-        • 기자재 대장 관리<br/>
-        • 예산 집행 및 회계 관리<br/><br/>
-        <strong>부칙</strong><br/>
-        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
-        제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
-        2025년 3월 23일<br/>
-        연세예술원 영화학 주임교수 유영식
-      </div>
-            <label class="flex items-center mb-4">
-        <input type="checkbox" id="agreeCheck" class="mr-2"> 위 규정에 동의합니다.
-      </label>
-      <div class="flex justify-between">
-        <button onclick="goToStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
-        <button id="toStep4" onclick="submitApplication()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">신청 완료</button>
-      </div>
-    </div>
-
-    <!-- Step 4: 완료 화면 -->
-    <div id="step4" class="step hidden text-center py-20">
-      <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
-      <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
-      <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
-      <p id="final-dates" class="text-sm text-gray-700 mt-4"></p>
-      <div id="final-time" class="text-sm text-gray-700 mt-1"></div>
-      <div class="mt-8">
-        <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Firebase SDK & Initialization -->
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-      authDomain: "yonseirent-setup.firebaseapp.com",
-      projectId: "yonseirent-setup",
-      storageBucket: "yonseirent-setup.appspot.com",
-      messagingSenderId: "1072524969376",
-      appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
-      measurementId: "G-8G1D43NXMW"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-  </script>
-
-  <!-- 메인 스크립트 -->
-  <script>
     const equipmentData = {
       camera: {
         body: Array.from({ length: 8 }, (_, i) => ({ name: `카메라 바디 ${i + 1}`, image: "https://placehold.co/80x80?text=Body" })),
@@ -319,29 +124,61 @@
       renderEquipmentList();
     }
 
+    // 탭 클릭 시 장비 목록 갱신
+    document.querySelectorAll(".tab-button").forEach(button => {
+      button.addEventListener("click", (e) => {
+        document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
+        e.target.classList.add("active");
+        currentTab = e.target.dataset.tab;
+
+        if (currentTab === "camera") {
+          document.getElementById("cameraSubTabs").classList.remove("hidden");
+        } else {
+          document.getElementById("cameraSubTabs").classList.add("hidden");
+        }
+        renderEquipmentList();
+      });
+    });
+
+    // 서브탭 클릭 시 장비 목록 갱신
+    document.querySelectorAll(".subtab-button").forEach(button => {
+      button.addEventListener("click", (e) => {
+        document.querySelectorAll(".subtab-button").forEach(btn => btn.classList.remove("active"));
+        e.target.classList.add("active");
+        currentSub = e.target.dataset.subtab;
+        renderEquipmentList();
+      });
+    });
+
     function submitApplication() {
-      const editingOnly = selectedItems.every(i => i.includes("편집실"));
       const data = {
         items: [...selectedItems],
         startDate: document.getElementById("startDate").value,
         endDate: document.getElementById("endDate").value,
-        editingDate: editingOnly ? document.getElementById("editingDate").value : null,
-        hours: editingOnly ? selectedHours : [],
-        status: '대기',  // 대기 상태로 저장
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         proofImage: document.getElementById("proofImage").files[0] ? document.getElementById("proofImage").files[0].name : ""
       };
 
-      // Firestore에 데이터 저장
       db.collection("applications").add(data)
         .then(() => {
           alert("신청이 완료되었습니다.");
-          window.location.href = "index.html";  // 신청 완료 후 홈으로 이동
+          goToStep(4); // 완료 화면으로 넘어가기
         })
         .catch(error => {
           console.error("Error adding document: ", error);
           alert("신청 정보를 저장하는데 실패했습니다. 다시 시도해주세요.");
         });
+    }
+
+    // 각 단계 전환
+    function goToStep(n) {
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById("step" + i)?.classList.add("hidden");
+        document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
+        document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
+      }
+      document.getElementById("step" + n)?.classList.remove("hidden");
+      document.getElementById("step" + n + "Btn")?.classList.add("step-active");
+      document.getElementById("step" + n + "Btn")?.classList.remove("step-inactive");
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -350,6 +187,6 @@
     });
 
   </script>
+
 </body>
 </html>
-
