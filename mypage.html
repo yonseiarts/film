@@ -57,15 +57,19 @@
           ? `<button onclick="restoreApplication('${docSnap.id}')" class="absolute top-2 right-2 text-blue-500 hover:text-blue-700 text-sm">복원</button>`
           : `<button onclick="deleteApplication('${docSnap.id}')" class="absolute top-2 right-2 text-red-500 hover:text-red-700 text-sm">✕</button>`;
 
+        const itemsHtml = data.items?.map?.(item => `<li>${item}</li>`).join("") ||
+          data.equipment?.split(',').map(item => `<li>${item.trim()}</li>`).join("") ||
+          "<li>-</li>";
+
         div.innerHTML = `
           ${actions}
           <h3 class="text-lg font-semibold text-blue-700 mb-2">신청 장비</h3>
           <ul class="list-disc ml-5 text-sm text-gray-800 mb-2">
-            ${data.items?.map(item => `<li>${item}</li>`).join("") ?? "<li>-</li>"}
+            ${itemsHtml}
           </ul>
-          <p class="text-sm text-gray-700 mb-1"><strong>대여일자:</strong> ${data.date ?? "-"}</p>
-          <p class="text-sm text-gray-700 mb-1"><strong>시작일:</strong> ${data.startDate ?? "-"}</p>
-          <p class="text-sm text-gray-700 mb-1"><strong>반납일:</strong> ${data.endDate ?? "-"}</p>
+          <p class="text-sm text-gray-700 mb-1"><strong>대여일자:</strong> ${data.rentDate || data.date || "-"}</p>
+          <p class="text-sm text-gray-700 mb-1"><strong>시작일:</strong> ${data.startDate || "-"}</p>
+          <p class="text-sm text-gray-700 mb-1"><strong>반납일:</strong> ${data.endDate || "-"}</p>
           <p class="text-sm text-gray-700"><strong>상태:</strong> <span class="${data.status === '승인' ? 'text-green-600' : data.status === '반려' ? 'text-red-600' : 'text-yellow-600'} font-semibold">${data.status}</span></p>
         `;
         list.appendChild(div);
