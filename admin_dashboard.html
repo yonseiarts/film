@@ -6,44 +6,38 @@
   <title>관리자 대시보드</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .step-active { background-color: #1D4ED8; color: white; }
-    .step-inactive { background-color: #e5e7eb; color: #6b7280; }
-    .tab-button.active { background-color: #dbeafe; font-weight: 600; }
-    .equipment-card {
-      border: 1px solid #e5e7eb;
-      border-radius: 0.5rem;
-      padding: 1rem;
-      background-color: white;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      cursor: pointer;
-    }
-    .equipment-card img {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
+    .active { background-color: #1D4ED8; color: white; }
+    .inactive { background-color: #e5e7eb; color: #6b7280; }
   </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-100">
   <!-- 헤더 -->
   <div class="bg-blue-700 text-white py-6 text-center relative">
     <a href="index.html" class="absolute left-4 top-1/2 -translate-y-1/2 transform text-white underline text-sm">홈으로</a>
-    <h1 class="text-2xl font-bold">관리자 대시보드</h1>
-    <p class="text-sm mt-1">기자재 대여 신청 내역을 관리합니다.</p>
+    <h1 class="text-2xl font-bold">기자재 대여 관리자 대시보드</h1>
+    <p class="text-sm mt-1">기자재 대여 신청 내역을 관리하세요.</p>
   </div>
 
-  <!-- 대시보드 컨테이너 -->
+  <!-- 관리자 대시보드 컨테이너 -->
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-    <!-- 신청 내역 -->
-    <div class="mb-8">
-      <h2 class="text-xl font-bold mb-4">대여 신청 목록</h2>
-      <div id="application-list" class="space-y-4">
-        <p class="text-sm text-gray-500">대여 신청 내역을 불러오는 중...</p>
-      </div>
-    </div>
+    <h2 class="text-xl font-bold mb-4">기자재 대여 신청 관리</h2>
+    
+    <!-- 신청 내역 테이블 -->
+    <table class="min-w-full bg-white">
+      <thead>
+        <tr>
+          <th class="py-3 px-4 border-b">신청자</th>
+          <th class="py-3 px-4 border-b">신청한 장비</th>
+          <th class="py-3 px-4 border-b">대여 시작일</th>
+          <th class="py-3 px-4 border-b">대여 종료일</th>
+          <th class="py-3 px-4 border-b">상태</th>
+          <th class="py-3 px-4 border-b">관리</th>
+        </tr>
+      </thead>
+      <tbody id="applicationList">
+        <!-- Firebase에서 데이터 불러와서 이곳에 추가됩니다. -->
+      </tbody>
+    </table>
   </div>
 
   <!-- Firebase SDK & Initialization -->
@@ -54,58 +48,62 @@
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
-      storageBucket: "yonseirent-setup.firebasestorage.app",
+      storageBucket: "yonseirent-setup.appspot.com",
       messagingSenderId: "1072524969376",
       appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
       measurementId: "G-CQZEKPE02D"
     };
+    
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    async function loadApplications() {
-      // Firestore에서 대여 신청 내역을 가져옵니다.
-      const querySnapshot = await db.collection("rentals").orderBy("createdAt", "desc").get();
-      const listContainer = document.getElementById("application-list");
-      listContainer.innerHTML = ""; // 기존 내용을 비웁니다.
+    // 신청 내역 로드 함수
+    function loadApplications() {
+      const applicationList = document.getElementById("applicationList");
 
-      if (querySnapshot.empty) {
-        listContainer.innerHTML = `<p class="text-sm text-gray-500">신청 내역이 없습니다.</p>`;
-        return;
-      }
-
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-        const div = document.createElement("div");
-        div.className = "border p-4 rounded-lg shadow-sm";
-
-        // 신청 내역의 상태에 따라 색상을 변경
-        const statusClass = data.status === "승인" ? "text-green-600" : data.status === "반려" ? "text-red-600" : "text-yellow-600";
-
-        div.innerHTML = `
-          <h3 class="text-lg font-semibold text-blue-700">${data.items.join(', ')}</h3>
-          <p class="text-sm text-gray-700"><strong>대여일자:</strong> ${data.startDate} ~ ${data.endDate}</p>
-          <p class="text-sm text-gray-700"><strong>상태:</strong> <span class="${statusClass}">${data.status}</span></p>
-          <div class="mt-4">
-            <button onclick="updateStatus('${doc.id}', '승인')" class="bg-green-600 text-white px-4 py-2 rounded mr-2">승인</button>
-            <button onclick="updateStatus('${doc.id}', '반려')" class="bg-red-600 text-white px-4 py-2 rounded">반려</button>
-          </div>
-        `;
+      db.collection("rentals").get().then((querySnapshot) => {
+        if (querySnapshot.empty) {
+          applicationList.innerHTML = '<tr><td colspan="6" class="py-3 text-center">신청 내역이 없습니다.</td></tr>';
+          return;
+        }
         
-        listContainer.appendChild(div);
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const row = document.createElement("tr");
+          
+          row.innerHTML = `
+            <td class="py-3 px-4 border-b">${data.studentName || '-'}</td>
+            <td class="py-3 px-4 border-b">${data.items.join(', ') || '-'}</td>
+            <td class="py-3 px-4 border-b">${data.startDate || '-'}</td>
+            <td class="py-3 px-4 border-b">${data.endDate || '-'}</td>
+            <td class="py-3 px-4 border-b">
+              <span class="font-semibold ${data.status === '승인' ? 'text-green-600' : data.status === '반려' ? 'text-red-600' : 'text-yellow-600'}">${data.status || '-'}</span>
+            </td>
+            <td class="py-3 px-4 border-b">
+              <button onclick="changeStatus('${doc.id}', '승인')" class="text-green-600">승인</button>
+              <button onclick="changeStatus('${doc.id}', '반려')" class="text-red-600">반려</button>
+            </td>
+          `;
+          
+          applicationList.appendChild(row);
+        });
       });
     }
 
-    // 대여 신청의 상태를 업데이트하는 함수
-    async function updateStatus(docId, status) {
-      const docRef = db.collection("rentals").doc(docId);
-      await docRef.update({
+    // 상태 변경 함수
+    function changeStatus(docId, status) {
+      db.collection("rentals").doc(docId).update({
         status: status
+      }).then(() => {
+        alert(`신청 상태가 ${status}로 변경되었습니다.`);
+        loadApplications();  // 신청 내역 새로고침
+      }).catch((error) => {
+        console.error("Error updating status: ", error);
+        alert("상태 변경에 실패했습니다. 다시 시도해주세요.");
       });
-      alert(`상태가 "${status}"로 업데이트되었습니다.`);
-      loadApplications(); // 상태 업데이트 후 신청 내역을 새로고침
     }
 
-    // 페이지 로드 시 대여 신청 내역을 불러옵니다.
+    // 페이지 로드 시 신청 내역 불러오기
     document.addEventListener("DOMContentLoaded", loadApplications);
   </script>
 </body>
