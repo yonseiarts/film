@@ -6,38 +6,61 @@
   <title>관리자 대시보드</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .active { background-color: #1D4ED8; color: white; }
-    .inactive { background-color: #e5e7eb; color: #6b7280; }
+    .step-active { background-color: #1D4ED8; color: white; }
+    .step-inactive { background-color: #e5e7eb; color: #6b7280; }
+    .equipment-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+    }
+    .equipment-card img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .equipment-card.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+      background-color: #f3f4f6;
+    }
   </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50">
+
   <!-- 헤더 -->
-  <div class="bg-blue-700 text-white py-6 text-center relative">
-    <a href="index.html" class="absolute left-4 top-1/2 -translate-y-1/2 transform text-white underline text-sm">홈으로</a>
-    <h1 class="text-2xl font-bold">기자재 대여 관리자 대시보드</h1>
-    <p class="text-sm mt-1">기자재 대여 신청 내역을 관리하세요.</p>
+  <div class="bg-blue-700 text-white py-6 text-center">
+    <h1 class="text-2xl font-bold">관리자 대시보드</h1>
+    <p class="text-sm mt-1">기자재 대여 신청 목록을 확인하고 관리하세요.</p>
   </div>
 
-  <!-- 관리자 대시보드 컨테이너 -->
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-    <h2 class="text-xl font-bold mb-4">기자재 대여 신청 관리</h2>
-    
-    <!-- 신청 내역 테이블 -->
-    <table class="min-w-full bg-white">
-      <thead>
-        <tr>
-          <th class="py-3 px-4 border-b">신청자</th>
-          <th class="py-3 px-4 border-b">신청한 장비</th>
-          <th class="py-3 px-4 border-b">대여 시작일</th>
-          <th class="py-3 px-4 border-b">대여 종료일</th>
-          <th class="py-3 px-4 border-b">상태</th>
-          <th class="py-3 px-4 border-b">관리</th>
-        </tr>
-      </thead>
-      <tbody id="applicationList">
-        <!-- Firebase에서 데이터 불러와서 이곳에 추가됩니다. -->
-      </tbody>
-    </table>
+    <div class="flex justify-between mb-8">
+      <button id="approvedTab" class="text-center flex-1 p-2 rounded step-active">승인 대기</button>
+      <button id="rejectedTab" class="text-center flex-1 p-2 rounded step-inactive">반려된 신청</button>
+    </div>
+
+    <!-- 승인 대기 목록 -->
+    <div id="approvedSection">
+      <h2 class="text-xl font-bold mb-4">승인 대기 신청 목록</h2>
+      <div id="approvedList" class="space-y-4">
+        <!-- 대여 신청 목록이 여기에 동적으로 추가됩니다 -->
+      </div>
+    </div>
+
+    <!-- 반려된 신청 목록 -->
+    <div id="rejectedSection" class="hidden">
+      <h2 class="text-xl font-bold mb-4">반려된 신청 목록</h2>
+      <div id="rejectedList" class="space-y-4">
+        <!-- 반려된 대여 신청 목록이 여기에 동적으로 추가됩니다 -->
+      </div>
+    </div>
+
   </div>
 
   <!-- Firebase SDK & Initialization -->
@@ -53,58 +76,84 @@
       appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
       measurementId: "G-CQZEKPE02D"
     };
-    
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 신청 내역 로드 함수
-    function loadApplications() {
-      const applicationList = document.getElementById("applicationList");
+    async function loadApplications(status = '대기') {
+      const q = db.collection("rentals").where("status", "==", status).orderBy("createdAt", "desc");
+      const querySnapshot = await q.get();
+      const list = status === '대기' ? document.getElementById("approvedList") : document.getElementById("rejectedList");
 
-      db.collection("rentals").get().then((querySnapshot) => {
-        if (querySnapshot.empty) {
-          applicationList.innerHTML = '<tr><td colspan="6" class="py-3 text-center">신청 내역이 없습니다.</td></tr>';
-          return;
-        }
-        
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          const row = document.createElement("tr");
-          
-          row.innerHTML = `
-            <td class="py-3 px-4 border-b">${data.studentName || '-'}</td>
-            <td class="py-3 px-4 border-b">${data.items.join(', ') || '-'}</td>
-            <td class="py-3 px-4 border-b">${data.startDate || '-'}</td>
-            <td class="py-3 px-4 border-b">${data.endDate || '-'}</td>
-            <td class="py-3 px-4 border-b">
-              <span class="font-semibold ${data.status === '승인' ? 'text-green-600' : data.status === '반려' ? 'text-red-600' : 'text-yellow-600'}">${data.status || '-'}</span>
-            </td>
-            <td class="py-3 px-4 border-b">
-              <button onclick="changeStatus('${doc.id}', '승인')" class="text-green-600">승인</button>
-              <button onclick="changeStatus('${doc.id}', '반려')" class="text-red-600">반려</button>
-            </td>
-          `;
-          
-          applicationList.appendChild(row);
+      list.innerHTML = "";
+
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const div = document.createElement("div");
+        div.className = "relative border rounded-lg p-5 mb-6 bg-white shadow-md";
+
+        const actions = status === '대기' ?
+          `<button onclick="approveApplication('${docSnap.id}')" class="absolute top-2 right-2 text-green-500 hover:text-green-700 text-sm">승인</button>
+           <button onclick="rejectApplication('${docSnap.id}')" class="absolute top-2 right-14 text-red-500 hover:text-red-700 text-sm">반려</button>` :
+          "";
+
+        div.innerHTML = `
+          ${actions}
+          <h3 class="text-lg font-semibold text-blue-700 mb-2">신청 장비</h3>
+          <ul class="list-disc ml-5 text-sm text-gray-800 mb-2">
+            ${data.items?.map(item => `<li>${item}</li>`).join("") || "<li>-</li>"}
+          </ul>
+          <p class="text-sm text-gray-700 mb-1"><strong>대여일자:</strong> ${data.rentDate || "-"}</p>
+          <p class="text-sm text-gray-700 mb-1"><strong>시작일:</strong> ${data.startDate || "-"}</p>
+          <p class="text-sm text-gray-700 mb-1"><strong>반납일:</strong> ${data.endDate || "-"}</p>
+          <p class="text-sm text-gray-700"><strong>상태:</strong> <span class="${data.status === '승인' ? 'text-green-600' : data.status === '반려' ? 'text-red-600' : 'text-yellow-600'} font-semibold">${data.status}</span></p>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function approveApplication(docId) {
+      db.collection("rentals").doc(docId).update({ status: "승인" })
+        .then(() => {
+          loadApplications('대기');
+          loadApplications('반려');
+        })
+        .catch(error => {
+          alert("승인 처리 중 오류가 발생했습니다.");
+          console.error("Error approving document: ", error);
         });
-      });
     }
 
-    // 상태 변경 함수
-    function changeStatus(docId, status) {
-      db.collection("rentals").doc(docId).update({
-        status: status
-      }).then(() => {
-        alert(`신청 상태가 ${status}로 변경되었습니다.`);
-        loadApplications();  // 신청 내역 새로고침
-      }).catch((error) => {
-        console.error("Error updating status: ", error);
-        alert("상태 변경에 실패했습니다. 다시 시도해주세요.");
-      });
+    function rejectApplication(docId) {
+      db.collection("rentals").doc(docId).update({ status: "반려" })
+        .then(() => {
+          loadApplications('대기');
+          loadApplications('반려');
+        })
+        .catch(error => {
+          alert("반려 처리 중 오류가 발생했습니다.");
+          console.error("Error rejecting document: ", error);
+        });
     }
 
-    // 페이지 로드 시 신청 내역 불러오기
-    document.addEventListener("DOMContentLoaded", loadApplications);
+    document.getElementById("approvedTab").addEventListener("click", () => {
+      document.getElementById("approvedSection").classList.remove("hidden");
+      document.getElementById("rejectedSection").classList.add("hidden");
+      loadApplications('대기');
+      document.getElementById("approvedTab").classList.add("step-active");
+      document.getElementById("rejectedTab").classList.remove("step-active");
+    });
+
+    document.getElementById("rejectedTab").addEventListener("click", () => {
+      document.getElementById("rejectedSection").classList.remove("hidden");
+      document.getElementById("approvedSection").classList.add("hidden");
+      loadApplications('반려');
+      document.getElementById("rejectedTab").classList.add("step-active");
+      document.getElementById("approvedTab").classList.remove("step-active");
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadApplications('대기');
+    });
   </script>
 </body>
 </html>
