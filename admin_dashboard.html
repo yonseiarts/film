@@ -3,43 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>기자재 대여 신청 - 관리자 대시보드</title>
+  <title>관리자 대시보드</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 관리자 대시보드 스타일 */
-    .card {
+    .step-active { background-color: #1D4ED8; color: white; }
+    .step-inactive { background-color: #e5e7eb; color: #6b7280; }
+    .tab-button.active { background-color: #dbeafe; font-weight: 600; }
+    .equipment-card {
       border: 1px solid #e5e7eb;
       border-radius: 0.5rem;
       padding: 1rem;
       background-color: white;
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 1rem;
-    }
-    .card button {
-      padding: 0.5rem 1rem;
-      border-radius: 0.375rem;
+      align-items: center;
+      gap: 1rem;
       cursor: pointer;
     }
-    .card.approved {
-      background-color: #d4f5d4;
-    }
-    .card.rejected {
-      background-color: #fddede;
-    }
-    .card.pending {
-      background-color: #fff3cd;
+    .equipment-card img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      flex-shrink: 0;
     }
   </style>
 </head>
 <body class="bg-gray-50">
+  <!-- 헤더 -->
+  <div class="bg-blue-700 text-white py-6 text-center relative">
+    <a href="index.html" class="absolute left-4 top-1/2 -translate-y-1/2 transform text-white underline text-sm">홈으로</a>
+    <h1 class="text-2xl font-bold">관리자 대시보드</h1>
+    <p class="text-sm mt-1">기자재 대여 신청 내역을 관리합니다.</p>
+  </div>
 
-  <div class="max-w-5xl mx-auto p-6 mt-6 bg-white rounded-lg shadow-md">
-    <h1 class="text-2xl font-bold text-center mb-6">기자재 대여 신청 - 관리자 대시보드</h1>
-
-    <!-- 신청 내역 목록 -->
-    <div id="applicationList">
-      <p class="text-sm text-gray-500">신청 내역을 불러오는 중...</p>
+  <!-- 대시보드 컨테이너 -->
+  <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
+    <!-- 신청 내역 -->
+    <div class="mb-8">
+      <h2 class="text-xl font-bold mb-4">대여 신청 목록</h2>
+      <div id="application-list" class="space-y-4">
+        <p class="text-sm text-gray-500">대여 신청 내역을 불러오는 중...</p>
+      </div>
     </div>
   </div>
 
@@ -59,51 +62,50 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 관리자가 신청 내역을 불러오는 함수
     async function loadApplications() {
-      const q = db.collection("rentals").orderBy("createdAt", "desc");
-
-      const querySnapshot = await q.get();
-      const list = document.getElementById("applicationList");
-      list.innerHTML = "";
+      // Firestore에서 대여 신청 내역을 가져옵니다.
+      const querySnapshot = await db.collection("rentals").orderBy("createdAt", "desc").get();
+      const listContainer = document.getElementById("application-list");
+      listContainer.innerHTML = ""; // 기존 내용을 비웁니다.
 
       if (querySnapshot.empty) {
-        list.innerHTML = `<p class="text-sm text-gray-500">신청 내역이 없습니다.</p>`;
+        listContainer.innerHTML = `<p class="text-sm text-gray-500">신청 내역이 없습니다.</p>`;
         return;
       }
 
-      querySnapshot.forEach((docSnap) => {
-        const data = docSnap.data();
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
         const div = document.createElement("div");
-        div.className = "card " + (data.status === '승인' ? 'approved' : data.status === '반려' ? 'rejected' : 'pending');
+        div.className = "border p-4 rounded-lg shadow-sm";
+
+        // 신청 내역의 상태에 따라 색상을 변경
+        const statusClass = data.status === "승인" ? "text-green-600" : data.status === "반려" ? "text-red-600" : "text-yellow-600";
 
         div.innerHTML = `
-          <div>
-            <h3 class="font-semibold text-blue-700">${data.studentName}</h3>
-            <p class="text-sm text-gray-600">대여일: ${data.startDate} ~ ${data.endDate}</p>
-            <p class="text-sm text-gray-600">상태: <span class="font-semibold ${data.status === '승인' ? 'text-green-600' : data.status === '반려' ? 'text-red-600' : 'text-yellow-600'}">${data.status}</span></p>
-          </div>
-          <div>
-            <button class="bg-green-500 text-white" onclick="updateStatus('${docSnap.id}', '승인')">승인</button>
-            <button class="bg-red-500 text-white" onclick="updateStatus('${docSnap.id}', '반려')">반려</button>
+          <h3 class="text-lg font-semibold text-blue-700">${data.items.join(', ')}</h3>
+          <p class="text-sm text-gray-700"><strong>대여일자:</strong> ${data.startDate} ~ ${data.endDate}</p>
+          <p class="text-sm text-gray-700"><strong>상태:</strong> <span class="${statusClass}">${data.status}</span></p>
+          <div class="mt-4">
+            <button onclick="updateStatus('${doc.id}', '승인')" class="bg-green-600 text-white px-4 py-2 rounded mr-2">승인</button>
+            <button onclick="updateStatus('${doc.id}', '반려')" class="bg-red-600 text-white px-4 py-2 rounded">반려</button>
           </div>
         `;
-        list.appendChild(div);
+        
+        listContainer.appendChild(div);
       });
     }
 
-    // 신청 상태를 업데이트하는 함수
+    // 대여 신청의 상태를 업데이트하는 함수
     async function updateStatus(docId, status) {
-      try {
-        await db.collection("rentals").doc(docId).update({ status: status });
-        alert(`신청 상태가 "${status}"로 변경되었습니다.`);
-        loadApplications(); // 신청 내역 새로 고침
-      } catch (error) {
-        console.error("Error updating document: ", error);
-        alert("상태 업데이트 실패, 다시 시도해주세요.");
-      }
+      const docRef = db.collection("rentals").doc(docId);
+      await docRef.update({
+        status: status
+      });
+      alert(`상태가 "${status}"로 업데이트되었습니다.`);
+      loadApplications(); // 상태 업데이트 후 신청 내역을 새로고침
     }
 
+    // 페이지 로드 시 대여 신청 내역을 불러옵니다.
     document.addEventListener("DOMContentLoaded", loadApplications);
   </script>
 </body>
