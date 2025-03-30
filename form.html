@@ -5,77 +5,139 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 신청</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-      authDomain: "yonseirent-setup.firebaseapp.com",
-      projectId: "yonseirent-setup",
-      storageBucket: "yonseirent-setup.appspot.com",
-      messagingSenderId: "1072524969376",
-      appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-    const auth = getAuth(app);
-
-    let currentUserName = "";
-    let currentStudentID = "";
-
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        // Assume user profile includes displayName = 이름_학번
-        const [name, studentID] = user.displayName?.split("_") || ["", ""];
-        currentUserName = name;
-        currentStudentID = studentID;
-      } else {
-        alert("로그인이 필요합니다.");
-        location.href = "student_login.html";
-      }
-    });
-
-    window.submitApplication = async function() {
-      const proofImage = document.getElementById("proofImage").files[0];
-      const editingOnly = selectedItems.every(i => i.includes("편집실"));
-      const rentDate = editingOnly
-        ? document.getElementById("editingDate").value
-        : `${document.getElementById("startDate").value} ~ ${document.getElementById("endDate").value}`;
-      const equipment = selectedItems.join(", ");
-      let timeSlots = selectedHours.length ? selectedHours.sort((a, b) => a - b).join(', ') : "";
-
-      let imageUrl = "";
-      if (proofImage) {
-        const imageRef = ref(storage, `proofImages/${Date.now()}_${proofImage.name}`);
-        await uploadBytes(imageRef, proofImage);
-        imageUrl = await getDownloadURL(imageRef);
-      }
-
-      try {
-        await addDoc(collection(db, "applications"), {
-          userName: currentUserName,
-          studentID: currentStudentID,
-          equipment,
-          rentDate,
-          timeSlots,
-          proofImage: imageUrl,
-          status: "대기",
-          createdAt: serverTimestamp(),
-          isDeleted: false
-        });
-        goToStep(4);
-      } catch (err) {
-        alert("신청 중 오류가 발생했습니다: " + err.message);
-      }
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"></script>
+  <style>
+    .step-active { background-color: #1D4ED8; color: white; }
+    .step-inactive { background-color: #e5e7eb; color: #6b7280; }
+    .tab-button.active { background-color: #dbeafe; font-weight: 600; }
+    .subtab-button.active { background-color: #dbeafe; font-weight: 600; }
+    .equipment.selected { border-color: #facc15; background-color: #fefce8; }
+    .equipment-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
     }
-
-    document.getElementById("toStep4").addEventListener("click", submitApplication);
-  </script>
+    .equipment-card img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .equipment-card.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+      background-color: #f3f4f6;
+    }
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.5rem;
+    }
+    .time-grid label {
+      display: block;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      text-align: center;
+      background-color: #f3f4f6;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .time-grid input[type="checkbox"] {
+      display: none;
+    }
+    .time-grid input[type="checkbox"]:checked + label {
+      background-color: #60a5fa;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body class="bg-gray-50">
-<!-- 나머지 기존 HTML 코드는 그대로 유지됩니다. -->
+<!-- 기존 HTML은 동일하게 유지 -->
+<script>
+  // Firebase 설정
+  const firebaseConfig = {
+    apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+    authDomain: "yonseirent-setup.firebaseapp.com",
+    projectId: "yonseirent-setup",
+    storageBucket: "yonseirent-setup.appspot.com",
+    messagingSenderId: "1072524969376",
+    appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const storage = firebase.storage();
+
+  // 로그인된 사용자 정보 반영 (예시)
+  let userName = "";
+  let studentID = "";
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      userName = user.displayName || "";
+      studentID = user.email?.split('@')[0] || "";
+    }
+  });
+
+  // 신청 정보 저장 함수 (Step 4에서 호출)
+  async function saveApplication() {
+    const editingOnly = selectedItems.every(i => i.includes("편집실"));
+    const rentDate = editingOnly ? document.getElementById("editingDate").value : `${document.getElementById("startDate").value} ~ ${document.getElementById("endDate").value}`;
+
+    let proofImageUrl = "";
+    if (!editingOnly) {
+      const file = document.getElementById("proofImage").files[0];
+      const storageRef = storage.ref(`proofImages/${studentID}_${Date.now()}`);
+      await storageRef.put(file);
+      proofImageUrl = await storageRef.getDownloadURL();
+    }
+
+    await db.collection("applications").add({
+      userName,
+      studentID,
+      equipment: selectedItems.join(", "),
+      rentDate,
+      timeSlots: editingOnly ? selectedHours : [],
+      proofImageUrl,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      status: "대기",
+      isDeleted: false
+    });
+  }
+
+  // Step 4 진입 시 저장
+  function goToStep(n) {
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById("step" + i)?.classList.add("hidden");
+      document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
+      document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
+    }
+    document.getElementById("step" + n)?.classList.remove("hidden");
+    document.getElementById("step" + n + "Btn")?.classList.add("step-active");
+    document.getElementById("step" + n + "Btn")?.classList.remove("step-inactive");
+
+    if (n === 4) {
+      document.getElementById("final-selected-items").innerHTML = selectedItems.map(i => `<li>${i}</li>`).join("");
+      const editingOnly = selectedItems.every(i => i.includes("편집실"));
+      const start = document.getElementById("startDate")?.value || "-";
+      const end = document.getElementById("endDate")?.value || "-";
+      const dateText = editingOnly ? document.getElementById("editingDate").value : `${start} ~ ${end}`;
+      document.getElementById("final-dates").innerText = `대여일자: ${dateText}`;
+      document.getElementById("final-time").innerText = editingOnly && selectedHours.length
+        ? `선택한 시간: ${selectedHours.sort((a, b) => a - b).join(', ')}시`
+        : '';
+
+      saveApplication();
+    }
+  }
+</script>
+</body>
+</html>
