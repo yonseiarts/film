@@ -7,11 +7,11 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
   <style>
-    /* 기본 스타일 */
+    /* 기본 리셋 및 폰트 */
     body, html {
       margin: 0;
       padding: 0;
-      font-family: 'Noto Sans KR', sans-serif;
+      font-family: "Noto Sans KR", sans-serif;
       background-color: #f8f9fc;
     }
     header {
@@ -62,6 +62,7 @@
       padding: 16px;
       margin-bottom: 16px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      position: relative;
     }
     .card h3 {
       margin-top: 0;
@@ -94,23 +95,18 @@
       padding: 40px 0;
       font-size: 16px;
     }
-    /* 하위 탭 (신청 내역 내의 신청/반려 탭) */
-    .sub-tabs {
-      margin-bottom: 16px;
+    /* 처리 완료 탭 카드 상태 표시 */
+    .status-indicator {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      border-top-left-radius: 6px;
+      border-bottom-left-radius: 6px;
     }
-    .sub-tabs button {
-      background-color: #e2e6ea;
-      border: none;
-      padding: 8px 16px;
-      margin-right: 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .sub-tabs button.active {
-      background-color: #4e73df;
-      color: #fff;
-    }
+    .status-신청 { background-color: #4e73df; }
+    .status-반려 { background-color: #e74a3b; }
   </style>
 </head>
 <body>
@@ -124,7 +120,8 @@
     <div class="sidebar">
       <h2>메뉴</h2>
       <ul>
-        <li id="menuApplications" class="active" onclick="activateMenu(this); loadData('applications')">신청 내역</li>
+        <li id="menuPending" class="active" onclick="activateMenu(this); loadData('pending')">대기 내역</li>
+        <li id="menuProcessed" onclick="activateMenu(this); loadData('processed')">처리 완료</li>
         <li id="menuTrash" onclick="activateMenu(this); loadData('trash')">휴지통</li>
         <li id="menuLogins" onclick="activateMenu(this); loadData('logins')">로그인 내역</li>
       </ul>
@@ -137,7 +134,7 @@
   </div>
   
   <script>
-    // 1. Firebase 설정 (Firebase 콘솔에서 복사한 구성 정보를 사용하세요)
+    // 1. Firebase 설정 (Firebase 콘솔에서 복사한 구성 정보를 사용)
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
@@ -147,7 +144,7 @@
       appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
       measurementId: "G-8G1D43NXMW"
     };
-    
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
@@ -157,19 +154,17 @@
       el.classList.add('active');
     }
 
-    // 3. 현재 하위 탭(신청 내역 내의 신청/반려)을 관리할 변수 (기본값 "신청")
-    let subCategory = "신청"; // "신청"과 "반려" 중 선택
-
-    // 4. 데이터 로드 함수
+    // 3. 데이터 로드 함수
     let currentUnsubscribe = null;
     function loadData(category) {
       if (currentUnsubscribe) {
         currentUnsubscribe();
         currentUnsubscribe = null;
       }
+      
       const contentArea = document.getElementById('contentArea');
       contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
-
+      
       let query;
       if (category === 'logins') {
         // 로그인 내역: 'studentLogins' 컬렉션 사용
@@ -178,20 +173,17 @@
         query = db.collection('applications')
                   .where('status', '==', '휴지통')
                   .orderBy('createdAt', 'desc');
-      } else if (category === 'applications') {
-        // 신청 내역: 하위 탭에 따라 "신청" 또는 "반려" 상태를 쿼리
-        // 먼저 하위 탭 바를 표시합니다.
-        contentArea.innerHTML = `
-          <div class="sub-tabs" id="subTabs">
-            <button id="tabPending" class="active" onclick="setSubCategory('신청')">신청</button>
-            <button id="tabRejected" onclick="setSubCategory('반려')">반려</button>
-          </div>
-          <div id="appContent"><div class="loading">데이터 로딩 중...</div></div>
-        `;
-        loadApplications();
-        return;
+      } else if (category === 'pending') {
+        query = db.collection('applications')
+                  .where('status', '==', '대기')
+                  .orderBy('createdAt', 'desc');
+      } else if (category === 'processed') {
+        // 처리 완료 탭: status가 "신청" 또는 "반려"인 문서를 조회
+        query = db.collection('applications')
+                  .where('status', 'in', ['신청', '반려'])
+                  .orderBy('createdAt', 'desc');
       }
-
+      
       currentUnsubscribe = query.onSnapshot(snapshot => {
         if (snapshot.empty) {
           contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
@@ -200,9 +192,20 @@
         let html = '';
         snapshot.forEach(doc => {
           const data = doc.data();
-          let rentalDate = data.rentDate ? data.rentDate : (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
+          let rentalDate = data.rentDate 
+                           ? data.rentDate 
+                           : (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
+          // 카드 상단에 상태에 따른 인디케이터 (처리 완료 탭일 경우)
+          let indicatorHTML = "";
+          if (data.status === "신청") {
+            indicatorHTML = '<div class="status-indicator status-신청"></div>';
+          } else if (data.status === "반려") {
+            indicatorHTML = '<div class="status-indicator status-반려"></div>';
+          }
+          
           html += `
             <div class="card">
+              ${indicatorHTML}
               <h3>대여 신청 내역</h3>
               <p><strong>이름:</strong> ${data.userName || ""}</p>
               <p><strong>학번:</strong> ${data.studentID || ""}</p>
@@ -211,21 +214,33 @@
               <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
               <p><strong>상태:</strong> ${data.status || ""}</p>
           `;
-          // 만약 상태가 "신청"인 경우, 승인과 반려 버튼을 보여줍니다.
-          if (data.status === "신청") {
+          // 상태 업데이트 버튼 (대기, 처리 완료 탭에서만 표시)
+          if (category === 'pending') {
+            // 대기 상태일 경우, 승인(상태 변경 → "신청")과 반려 버튼 표시
             html += `
               <div class="actions">
+                <button onclick="updateStatus('${doc.id}', '신청')">승인</button>
                 <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
                 <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
               </div>
             `;
-          } else if (data.status === "반려") {
-            html += `
-              <div class="actions">
-                <button onclick="updateStatus('${doc.id}', '신청')">신청 복원</button>
-                <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-              </div>
-            `;
+          } else if (category === 'processed') {
+            // 처리 완료 탭에서, 상태가 "신청"이면 반려 버튼, "반려"이면 신청 복원 버튼, 추가로 휴지통 버튼
+            if (data.status === "신청") {
+              html += `
+                <div class="actions">
+                  <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
+                  <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
+                </div>
+              `;
+            } else if (data.status === "반려") {
+              html += `
+                <div class="actions">
+                  <button onclick="updateStatus('${doc.id}', '신청')">신청 복원</button>
+                  <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
+                </div>
+              `;
+            }
           }
           html += `</div>`;
         });
@@ -236,65 +251,7 @@
       });
     }
 
-    // 5. 신청 내역 하위 탭 전용 데이터 로드 함수
-    function loadApplications() {
-      const appContent = document.getElementById("appContent");
-      appContent.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
-      const query = db.collection('applications')
-                      .where('status', '==', subCategory)
-                      .orderBy('createdAt', 'desc');
-      currentUnsubscribe = query.onSnapshot(snapshot => {
-        if (snapshot.empty) {
-          appContent.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-          return;
-        }
-        let html = '';
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          let rentalDate = data.rentDate ? data.rentDate : (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
-          html += `
-            <div class="card">
-              <h3>대여 신청 내역</h3>
-              <p><strong>이름:</strong> ${data.userName || ""}</p>
-              <p><strong>학번:</strong> ${data.studentID || ""}</p>
-              <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
-              <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-              <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
-              <p><strong>상태:</strong> ${data.status || ""}</p>
-          `;
-          if (subCategory === "신청") {
-            html += `
-              <div class="actions">
-                <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
-                <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-              </div>
-            `;
-          } else if (subCategory === "반려") {
-            html += `
-              <div class="actions">
-                <button onclick="updateStatus('${doc.id}', '신청')">신청 복원</button>
-                <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-              </div>
-            `;
-          }
-          html += `</div>`;
-        });
-        appContent.innerHTML = html;
-      }, err => {
-        console.error('Firestore 에러:', err);
-        appContent.innerHTML = `<div class="loading">데이터를 불러오는 중 오류가 발생했습니다: ${err.message}</div>`;
-      });
-    }
-
-    // 6. 하위 탭 버튼 클릭 함수
-    function setSubCategory(cat) {
-      subCategory = cat;
-      document.getElementById("tabPending").classList.toggle("active", cat === "신청");
-      document.getElementById("tabRejected").classList.toggle("active", cat === "반려");
-      loadApplications();
-    }
-
-    // 7. 상태 업데이트 함수
+    // 4. 상태 업데이트 함수
     function updateStatus(docId, newStatus) {
       if (!confirm(`상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
       db.collection('applications').doc(docId).update({ status: newStatus })
@@ -307,95 +264,8 @@
         });
     }
 
-    // 8. 로그인 내역 데이터 로드 함수
-    function loadLogins() {
-      const contentArea = document.getElementById('contentArea');
-      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
-      const query = db.collection('studentLogins').orderBy('timestamp', 'desc');
-      currentUnsubscribe = query.onSnapshot(snapshot => {
-        if (snapshot.empty) {
-          contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-          return;
-        }
-        let html = '';
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          html += `
-            <div class="card">
-              <h3>로그인 내역</h3>
-              <p><strong>이름:</strong> ${data.name || ""}</p>
-              <p><strong>학번:</strong> ${data.studentId || ""}</p>
-              <p><strong>로그인 시간:</strong> ${data.timestamp ? data.timestamp.toDate().toLocaleString() : ""}</p>
-            </div>
-          `;
-        });
-        contentArea.innerHTML = html;
-      }, err => {
-        console.error('Firestore 에러:', err);
-        contentArea.innerHTML = `<div class="loading">데이터를 불러오는 중 오류가 발생했습니다: ${err.message}</div>`;
-      });
-    }
-
-    // 9. 메인 데이터 로드 라우팅
-    function loadData(category) {
-      if (currentUnsubscribe) {
-        currentUnsubscribe();
-        currentUnsubscribe = null;
-      }
-      
-      if (category === 'applications') {
-        // 신청 내역 페이지: 하위 탭(신청/반려) 포함
-        document.getElementById('contentArea').innerHTML = `
-          <div class="sub-tabs" id="subTabs">
-            <button id="tabPending" class="active" onclick="setSubCategory('신청')">신청</button>
-            <button id="tabRejected" onclick="setSubCategory('반려')">반려</button>
-          </div>
-          <div id="appContent"><div class="loading">데이터 로딩 중...</div></div>
-        `;
-        subCategory = "신청"; // 기본값
-        loadApplications();
-      } else if (category === 'trash') {
-        const contentArea = document.getElementById('contentArea');
-        contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
-        const query = db.collection('applications')
-                        .where('status', '==', '휴지통')
-                        .orderBy('createdAt', 'desc');
-        currentUnsubscribe = query.onSnapshot(snapshot => {
-          if (snapshot.empty) {
-            contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-            return;
-          }
-          let html = '';
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            let rentalDate = data.rentDate ? data.rentDate : (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
-            html += `
-              <div class="card">
-                <h3>대여 신청 내역 (휴지통)</h3>
-                <p><strong>이름:</strong> ${data.userName || ""}</p>
-                <p><strong>학번:</strong> ${data.studentID || ""}</p>
-                <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
-                <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-                <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
-                <p><strong>상태:</strong> ${data.status || ""}</p>
-                <div class="actions">
-                  <button onclick="updateStatus('${doc.id}', '대기')">복원</button>
-                </div>
-              </div>
-            `;
-          });
-          contentArea.innerHTML = html;
-        }, err => {
-          console.error('Firestore 에러:', err);
-          contentArea.innerHTML = `<div class="loading">데이터 로딩 중 오류가 발생했습니다: ${err.message}</div>`;
-        });
-      } else if (category === 'logins') {
-        loadLogins();
-      }
-    }
-
-    // 페이지 로드 시 기본으로 "신청 내역" (신청 하위 탭: 기본 "신청")를 로드
-    loadData('applications');
+    // 5. 페이지 로드 시 기본으로 "대기 내역" 탭 로드
+    loadData('pending');
   </script>
 </body>
 </html>
