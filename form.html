@@ -183,8 +183,10 @@
   </div>
 
   <!-- Firebase SDK & Initialization -->
-  <script>
-    const firebaseConfig = {
+ import { initializeApp } from "firebase/app";
+import { getFirestore, collection, addDoc } from "firebase/firestore"
+   
+  const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
