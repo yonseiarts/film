@@ -57,16 +57,13 @@
   </style>
 </head>
 <body class="bg-gray-50">
-  <!-- 헤더 -->
   <div class="bg-blue-700 text-white py-6 text-center relative">
     <a href="index.html" class="absolute left-4 top-1/2 -translate-y-1/2 transform text-white underline text-sm">홈으로</a>
     <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
     <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
   </div>
 
-  <!-- 폼 컨테이너 -->
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-    <!-- 단계 표시 -->
     <div class="flex justify-between mb-8">
       <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
       <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
@@ -74,7 +71,6 @@
       <div id="step4Btn" class="flex-1 text-center p-2 rounded step-inactive">4. 완료</div>
     </div>
 
-    <!-- Step 1: 장비 선택 -->
     <div id="step1">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
       <div class="flex space-x-2 mb-4">
@@ -85,16 +81,13 @@
         <button class="tab-button px-4 py-1 border rounded" data-tab="editing">편집실</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="line">라인</button>
       </div>
-      <!-- 중분류 (카메라용) -->
       <div id="cameraSubTabs" class="flex gap-2 mb-4">
         <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대</button>
       </div>
-      <!-- 장비 카드 -->
       <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
 
-      <!-- 선택 장비 표시 -->
       <div id="selected-section" class="mt-6 hidden">
         <h3 class="font-medium mb-2">선택된 장비</h3>
         <ul id="selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
@@ -105,10 +98,8 @@
       </div>
     </div>
 
-    <!-- Step 2: 대여일 선택 -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-      <!-- 일반 장비 선택 -->
       <div id="commonDateSection">
         <label class="block mb-2 font-medium">대여 시작일</label>
         <input type="date" id="startDate" class="border p-2 rounded w-full mb-4" />
@@ -118,7 +109,6 @@
         <input type="file" id="proofImage" accept="image/*" class="border p-2 rounded w-full mb-4" />
       </div>
 
-      <!-- 편집실 선택 시 -->
       <div id="editingDateSection" class="hidden">
         <label class="block mb-2 font-medium">편집실 대여일자</label>
         <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4" />
@@ -132,7 +122,6 @@
       </div>
     </div>
 
-    <!-- Step 3: 규정 동의 -->
     <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed">
@@ -166,7 +155,7 @@
         <button id="toStep4" onclick="submitApplication()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">신청 완료</button>
       </div>
     </div>
-    <!-- Step 4: 완료 화면 -->
+
     <div id="step4" class="step hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
       <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
@@ -179,7 +168,6 @@
     </div>
   </div>
 
-  <!-- Firebase SDK & Initialization -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <script>
@@ -192,220 +180,20 @@
       appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
       measurementId: "G-8G1D43NXMW"
     };
-    // Firebase 초기화
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-  </script>
 
-  <!-- 메인 스크립트 -->
-  <script>
-    const equipmentData = {
-      camera: {
-        body: Array.from({ length: 8 }, (_, i) => ({ name: `카메라 바디 ${i + 1}`, image: "https://placehold.co/80x80?text=Body" })),
-        lens: Array.from({ length: 8 }, (_, i) => ({ name: `렌즈 ${i + 1}`, image: "https://placehold.co/80x80?text=Lens" })),
-        tripod: Array.from({ length: 8 }, (_, i) => ({ name: `삼각대 ${i + 1}`, image: "https://placehold.co/80x80?text=Tripod" }))
-      },
-      lighting: Array.from({ length: 8 }, (_, i) => ({ name: `조명 ${i + 1}`, image: "https://placehold.co/80x80?text=Light" })),
-      sound: Array.from({ length: 8 }, (_, i) => ({ name: `마이크 ${i + 1}`, image: "https://placehold.co/80x80?text=Mic" })),
-      monitor: Array.from({ length: 8 }, (_, i) => ({ name: `모니터 ${i + 1}`, image: "https://placehold.co/80x80?text=Monitor" })),
-      line: Array.from({ length: 8 }, (_, i) => ({ name: `라인 ${i + 1}`, image: "https://placehold.co/80x80?text=Line" })),
-      editing: [
-        { name: "편집실 1", image: "https://placehold.co/80x80?text=Edit1" },
-        { name: "편집실 2", image: "https://placehold.co/80x80?text=Edit2" }
-      ]
-    };
-
-    let selectedItems = [];
-    let currentTab = "camera";
-    let currentSub = "body";
-    let selectedHours = [];
-
-    function renderEquipmentList() {
-      const container = document.getElementById("equipment-list");
-      container.innerHTML = "";
-      const items = currentTab === "camera" ? equipmentData.camera[currentSub] : equipmentData[currentTab];
-
-      const isEditingSelected = selectedItems.some(name => name.includes("편집실"));
-      const isOtherSelected = selectedItems.some(name => !name.includes("편집실"));
-
-      items.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "equipment-card";
-        const isEditing = item.name.includes("편집실");
-        const shouldDisable = (isEditing && isOtherSelected) || (!isEditing && isEditingSelected);
-        if (shouldDisable) div.classList.add("disabled");
-
-        const isSelected = selectedItems.includes(item.name);
-        if (isSelected) div.classList.add("selected");
-
-        div.innerHTML = `<img src="${item.image}" alt="${item.name}"><span class="text-sm">${item.name}</span>`;
-        div.onclick = () => {
-          if (shouldDisable) return;
-          if (isSelected) {
-            selectedItems = selectedItems.filter(i => i !== item.name);
-          } else {
-            selectedItems.push(item.name);
-          }
-          updateSelectedUI();
-          renderEquipmentList();
-        };
-        container.appendChild(div);
-      });
-    }
-
-    function updateSelectedUI() {
-      const sec = document.getElementById("selected-section");
-      const btn = document.getElementById("toStep2");
-      if (selectedItems.length === 0) {
-        sec.classList.add("hidden");
-        btn.classList.add("hidden");
-      } else {
-        sec.classList.remove("hidden");
-        btn.classList.remove("hidden");
-      }
-      document.getElementById("selected-items").innerHTML = selectedItems.map(item => {
-        const safeItem = item.replace(/'/g, "\\'");
-        return '<li>' + item + ' <button type="button" class="ml-2 text-red-500" onclick="removeSelectedItem(\'' + safeItem + '\')">&times;</button></li>';
-      }).join("");
-    }
-
-    function removeSelectedItem(itemName) {
-      selectedItems = selectedItems.filter(i => i !== itemName);
-      updateSelectedUI();
-      renderEquipmentList();
-    }
-
-    document.querySelectorAll(".tab-button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentTab = btn.dataset.tab;
-        document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
-        currentSub = "body";
-        renderEquipmentList();
-      });
-    });
-
-    document.querySelectorAll(".subtab-button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".subtab-button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentSub = btn.dataset.subtab;
-        renderEquipmentList();
-      });
-    });
-
-    function goToStep(n) {
-      for (let i = 1; i <= 4; i++) {
-        document.getElementById("step" + i)?.classList.add("hidden");
-        document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
-        document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
-      }
-      document.getElementById("step" + n)?.classList.remove("hidden");
-      document.getElementById("step" + n + "Btn")?.classList.add("step-active");
-      document.getElementById("step" + n + "Btn")?.classList.remove("step-inactive");
-
-      if (n === 2) {
-        const editingOnly = selectedItems.every(i => i.includes("편집실"));
-        document.getElementById("commonDateSection").classList.toggle("hidden", editingOnly);
-        document.getElementById("editingDateSection").classList.toggle("hidden", !editingOnly);
-        if (editingOnly) generateTimeGrid();
-      }
-
-      if (n === 4) {
-        document.getElementById("final-selected-items").innerHTML = selectedItems.map(i => `<li>${i}</li>`).join("");
-        const editingOnly = selectedItems.every(i => i.includes("편집실"));
-        const start = document.getElementById("startDate")?.value || "-";
-        const end = document.getElementById("endDate")?.value || "-";
-        const dateText = editingOnly ? document.getElementById
-               const dateText = editingOnly ? document.getElementById("editingDate").value : `${start} ~ ${end}`;
-        document.getElementById("final-dates").innerText = `대여일자: ${dateText}`;
-        document.getElementById("final-time").innerText = editingOnly && selectedHours.length
-          ? `선택한 시간: ${selectedHours.sort((a, b) => a - b).join(', ')}시`
-          : '';
-      }
-    }
-
-    function goHome() {
-      location.href = "index.html";
-    }
-
-    function generateTimeGrid() {
-      const grid = document.getElementById("timeGrid");
-      grid.innerHTML = "";
-      selectedHours = [];
-      for (let h = 0; h < 24; h++) {
-        const id = `hour-${h}`;
-        const input = document.createElement("input");
-        input.type = "checkbox";
-        input.id = id;
-        input.value = h;
-        input.addEventListener("change", () => {
-          if (input.checked) {
-            selectedHours.push(h);
-          } else {
-            selectedHours = selectedHours.filter(val => val !== h);
-          }
-        });
-
-        const label = document.createElement("label");
-        label.setAttribute("for", id);
-        label.className = "inline-block w-12 py-1 text-center text-sm bg-gray-200 rounded";
-        label.innerText = `${h}:00`;
-
-        const wrapper = document.createElement("div");
-        wrapper.className = "inline-block";
-        wrapper.appendChild(input);
-        wrapper.appendChild(label);
-        grid.appendChild(wrapper);
-      }
-    }
-
-    function validateStep2() {
-      const editingOnly = selectedItems.every(i => i.includes("편집실"));
-      if (editingOnly) {
-        if (!document.getElementById("editingDate").value || selectedHours.length === 0) {
-          alert("편집실 대여일자와 시간을 선택해주세요.");
-          return;
-        }
-      } else {
-        const start = document.getElementById("startDate").value;
-        const end = document.getElementById("endDate").value;
-        const proof = document.getElementById("proofImage").files[0];
-        if (!start || !end || !proof) {
-          alert("대여 시작일, 반납일, 증명사진을 모두 입력해주세요.");
-          return;
-        }
-        const startDate = new Date(start);
-        const endDate = new Date(end);
-        const diff = (endDate - startDate) / (1000 * 60 * 60 * 24);
-        if (diff < 0 || diff > 3) {
-          alert("대여 기간은 최대 3일 이내여야 하며, 반납일은 시작일보다 이후여야 합니다.");
-          return;
-        }
-      }
-      goToStep(3);
-    }
-
+    // 대여 신청 데이터 저장
     function submitApplication() {
-      const editingOnly = selectedItems.every(i => i.includes("편집실"));
       const data = {
         items: [...selectedItems],
-        startDate: "",
-        endDate: "",
-        editingDate: "",
-        hours: []
+        startDate: document.getElementById("startDate").value,
+        endDate: document.getElementById("endDate").value,
+        editingDate: document.getElementById("editingDate") ? document.getElementById("editingDate").value : "",
+        hours: selectedHours
       };
-      if (editingOnly) {
-        data.editingDate = document.getElementById("editingDate").value;
-        data.hours = [...selectedHours].sort((a, b) => a - b);
-      } else {
-        data.startDate = document.getElementById("startDate").value;
-        data.endDate = document.getElementById("endDate").value;
-      }
 
-      // Firebase Firestore에 데이터 저장
-      db.collection("rentals").add(data)
+      db.collection("applications").add(data)
         .then(() => {
           goToStep(4);
         })
@@ -414,18 +202,6 @@
           alert("신청 정보를 저장하는데 실패했습니다. 다시 시도해주세요.");
         });
     }
-
-    document.getElementById("agreeCheck").addEventListener("change", e => {
-      const btn = document.getElementById("toStep4");
-      btn.disabled = !e.target.checked;
-      btn.classList.toggle("opacity-50", !e.target.checked);
-    });
-
-    document.addEventListener("DOMContentLoaded", () => {
-      renderEquipmentList();
-      goToStep(1);
-    });
   </script>
 </body>
 </html>
-
