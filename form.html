@@ -154,7 +154,7 @@
       </label>
       <div class="flex justify-between">
         <button onclick="goToStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
-        <button id="toStep4" onclick="submitApplication()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">신청 완료</button>
+        <button id="toStep4" onclick="submitrentals()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">신청 완료</button>
       </div>
     </div>
 
@@ -376,7 +376,7 @@
       goToStep(3);
     }
 
-    function submitApplication() {
+    function submitrentals() {
       const editingOnly = selectedItems.every(i => i.includes("편집실"));
       const data = {
         items: [...selectedItems],
