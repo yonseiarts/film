@@ -13,12 +13,29 @@
       padding: 0;
       font-family: 'Noto Sans KR', sans-serif;
       background-color: #f8f9fc;
+      font-size: 14px; /* 기본 폰트 크기 14px */
+      color: #333;
     }
     header {
       background-color: #4e73df;
       color: #fff;
       padding: 16px;
-      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+    header .home-btn {
+      background-color: #fff;
+      color: #4e73df;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
     }
     .container {
       display: flex;
@@ -33,15 +50,16 @@
     }
     .sidebar h2 {
       margin: 0 0 20px;
-      font-size: 20px;
+      font-size: 18px;
     }
     .sidebar ul {
       list-style: none;
       padding: 0;
       margin: 0;
+      font-size: 14px;
     }
     .sidebar ul li {
-      padding: 12px 16px;
+      padding: 10px 14px;
       margin-bottom: 10px;
       border-radius: 4px;
       cursor: pointer;
@@ -63,16 +81,16 @@
       margin-bottom: 16px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.08);
       position: relative;
+      font-size: 13px; /* 카드 내 텍스트 크기 */
     }
     .card h3 {
       margin-top: 0;
       color: #4e73df;
-      font-size: 18px;
+      font-size: 16px;
       margin-bottom: 8px;
     }
     .card p {
       margin: 4px 0;
-      font-size: 14px;
     }
     .actions {
       margin-top: 12px;
@@ -93,7 +111,7 @@
     .loading {
       text-align: center;
       padding: 40px 0;
-      font-size: 16px;
+      font-size: 15px;
     }
     /* 하위 탭 스타일 (처리 완료 탭 내부) */
     .sub-tabs {
@@ -102,11 +120,11 @@
     .sub-tabs button {
       background-color: #e2e6ea;
       border: none;
-      padding: 8px 16px;
+      padding: 6px 12px;
       margin-right: 8px;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
     }
     .sub-tabs button.active {
       background-color: #4e73df;
@@ -130,6 +148,7 @@
   <!-- 상단 헤더 -->
   <header>
     <h1>관리자 대시보드</h1>
+    <button class="home-btn" onclick="window.location.href='index.html'">홈으로</button>
   </header>
   
   <div class="container">
@@ -171,7 +190,7 @@
     }
 
     // 3. 처리 완료 탭 하위 탭 변수 (default: "승인")
-    let processedSubTab = "승인"; // 또는 "반려"
+    let processedSubTab = "승인"; // "승인" 또는 "반려"
     
     // 4. 데이터 로드 함수
     let currentUnsubscribe = null;
@@ -221,7 +240,8 @@
           let html = '';
           snapshot.forEach(doc => {
             const data = doc.data();
-            let rentalDate = data.rentDate ? data.rentDate : (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
+            let rentalDate = data.rentDate ? data.rentDate 
+                              : (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
             html += `
               <div class="card">
                 <h3>대여 신청 내역</h3>
@@ -245,7 +265,7 @@
           contentArea.innerHTML = `<div class="loading">오류 발생: ${err.message}</div>`;
         });
       } else if (category === 'processed') {
-        // 처리 완료 탭: 하위 탭 (승인, 반려) 추가
+        // 처리 완료 탭: 하위 탭 ("승인" 탭, "반려" 탭)
         contentArea.innerHTML = `
           <div class="sub-tabs" id="subTabs">
             <button id="tabApproved" class="${processedSubTab === '승인' ? 'active' : ''}" onclick="setProcessedSubTab('승인')">승인</button>
@@ -275,8 +295,9 @@
         let html = '';
         snapshot.forEach(doc => {
           const data = doc.data();
-          let rentalDate = data.rentDate ? data.rentDate : (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
-          // 카드 상단 상태 인디케이터: 승인은 파란색, 반려는 빨간색
+          let rentalDate = data.rentDate ? data.rentDate 
+                            : (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
+          // 카드 상태 인디케이터: 승인(파란색), 반려(빨간색)
           let indicatorHTML = '';
           if (data.status === "승인") {
             indicatorHTML = '<div class="status-indicator status-승인"></div>';
@@ -294,7 +315,6 @@
               <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
               <p><strong>상태:</strong> ${data.status || ""}</p>
           `;
-          // 처리 완료 탭에서는 상태 업데이트 버튼 (승인 탭: 버튼을 눌러 "반려"로 변경, 반려 탭: 버튼을 눌러 "승인"으로 변경)
           if (processedSubTab === "승인") {
             html += `
               <div class="actions">
@@ -340,7 +360,7 @@
         });
     }
 
-    // 8. 페이지 로드 시 기본으로 "대기 내역" 탭 로드
+    // 8. 페이지 로드 시 기본 탭 "대기 내역" 로드
     loadData('pending');
   </script>
 </body>
