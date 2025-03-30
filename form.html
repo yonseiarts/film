@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 신청</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
   <style>
     .step-active { background-color: #1D4ED8; color: white; }
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
@@ -104,6 +106,7 @@
         <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">다음 단계 →</button>
       </div>
     </div>
+
     <!-- Step 2: 대여일 선택 -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
@@ -165,6 +168,7 @@
         <button id="toStep4" onclick="submitApplication()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">신청 완료</button>
       </div>
     </div>
+
     <!-- Step 4: 완료 화면 -->
     <div id="step4" class="step hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
@@ -179,8 +183,6 @@
   </div>
 
   <!-- Firebase SDK & Initialization -->
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
@@ -307,7 +309,7 @@
         const editingOnly = selectedItems.every(i => i.includes("편집실"));
         document.getElementById("commonDateSection").classList.toggle("hidden", editingOnly);
         document.getElementById("editingDateSection").classList.toggle("hidden", !editingOnly);
-        if (editingOnly) generateTimeGrid();
+               if (editingOnly) generateTimeGrid();
       }
 
       if (n === 4) {
@@ -400,7 +402,7 @@
         data.startDate = document.getElementById("startDate").value;
         data.endDate = document.getElementById("endDate").value;
       }
-      db.collection("applications").add(data)
+      db.collection("rentals").add(data)
         .then(() => {
           goToStep(4);
         })
@@ -423,3 +425,4 @@
   </script>
 </body>
 </html>
+
