@@ -159,7 +159,7 @@
                     <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
                     <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
                     <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-                                   </div>
+                  </div>
                 </div>`;
             });
             contentArea.innerHTML = html;
@@ -171,7 +171,7 @@
         );
       } else if (category === 'processed') {
         contentArea.innerHTML = `
-          <div class="sub-tabs" id="subTabs">
+                 <div class="sub-tabs" id="subTabs">
             <button id="tabApproved" class="${processedSubTab === '승인' ? 'active' : ''}" onclick="setProcessedSubTab('승인')">승인</button>
             <button id="tabRejected" class="${processedSubTab === '반려' ? 'active' : ''}" onclick="setProcessedSubTab('반려')">반려</button>
           </div>
