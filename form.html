@@ -177,7 +177,7 @@
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
       <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
       <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
-      <p id="final-dates" class="text-sm text-gray-700 mt-4"></p>
+          <p id="final-dates" class="text-sm text-gray-700 mt-4"></p>
       <div id="final-time" class="text-sm text-gray-700 mt-1"></div>
       <div class="mt-8">
         <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
@@ -216,7 +216,7 @@
         console.log("예약 정보가 저장되었습니다.");
       })
       .catch((error) => {
-               console.error("에러가 발생했습니다: ", error);
+        console.error("에러가 발생했습니다: ", error);
       });
     }
 
@@ -382,26 +382,6 @@
       saveDataToFirebase();
 
       goToStep(4); // 완료 화면으로 넘어가기
-    }
-
-    // Firebase에 데이터 저장 함수
-    function saveDataToFirebase() {
-      const equipmentList = selectedItems.join(", ");
-      const startDate = document.getElementById("startDate").value;
-      const endDate = document.getElementById("endDate").value;
-
-      db.collection("reservations").add({
-        equipment: equipmentList,
-        startDate: startDate,
-        endDate: endDate,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      })
-      .then(() => {
-        console.log("예약 정보가 저장되었습니다.");
-      })
-      .catch((error) => {
-        console.error("에러가 발생했습니다: ", error);
-      });
     }
   </script>
 </body>
