@@ -105,60 +105,71 @@
     let currentUnsubscribe = null;
 
     function loadData(category) {
-      if (currentUnsubscribe) currentUnsubscribe();
+      if (currentUnsubscribe) currentUnsubscribe(); // 기존의 구독을 취소합니다.
       const contentArea = document.getElementById('contentArea');
+      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>'; // 로딩 상태 표시
 
       if (category === 'logins') {
-        contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
         const query = db.collection('studentLogins').orderBy('timestamp', 'desc');
-        currentUnsubscribe = query.onSnapshot(snapshot => {
-          if (snapshot.empty) {
-            contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-            return;
+        currentUnsubscribe = query.onSnapshot(
+          snapshot => {
+            if (snapshot.empty) {
+              contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
+              return;
+            }
+            let html = '';
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              html += `
+                <div class="card">
+                  <h3>로그인 내역</h3>
+                  <p><strong>이름:</strong> ${data.name || ""}</p>
+                  <p><strong>학번:</strong> ${data.studentId || ""}</p>
+                  <p><strong>로그인 시간:</strong> ${data.timestamp ? data.timestamp.toDate().toLocaleString() : ""}</p>
+                </div>`;
+            });
+            contentArea.innerHTML = html;
+          },
+          error => {
+            console.error("데이터 가져오기 오류:", error); // 오류 출력
+            contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>'; // 오류 메시지 표시
           }
-          let html = '';
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            html += `
-              <div class="card">
-                <h3>로그인 내역</h3>
-                <p><strong>이름:</strong> ${data.name || ""}</p>
-                <p><strong>학번:</strong> ${data.studentId || ""}</p>
-                <p><strong>로그인 시간:</strong> ${data.timestamp ? data.timestamp.toDate().toLocaleString() : ""}</p>
-              </div>`;
-          });
-          contentArea.innerHTML = html;
-        });
+        );
       } else if (category === 'pending') {
-        contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
         const query = db.collection('applications').where('status', '==', '대기').orderBy('createdAt', 'desc');
-        currentUnsubscribe = query.onSnapshot(snapshot => {
-          if (snapshot.empty) {
-            contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-            return;
+        currentUnsubscribe = query.onSnapshot(
+          snapshot => {
+            if (snapshot.empty) {
+              contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
+              return;
+            }
+            let html = '';
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              let rentalDate = data.rentDate || (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
+              html += `
+                <div class="card">
+                  <h3>대여 신청 내역</h3>
+                  <p><strong>이름:</strong> ${data.userName || ""}</p>
+                  <p><strong>학번:</strong> ${data.studentID || ""}</p>
+                  <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
+                  <p><strong>대여 날짜:</strong> ${rentalDate}</p>
+                  <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
+                  <p><strong>상태:</strong> ${data.status || ""}</p>
+                  <div class="actions">
+                    <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
+                    <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
+                    <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
+                  </div>
+                </div>`;
+            });
+            contentArea.innerHTML = html;
+          },
+          error => {
+            console.error("데이터 가져오기 오류:", error); // 오류 출력
+            contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>'; // 오류 메시지 표시
           }
-          let html = '';
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            let rentalDate = data.rentDate || (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
-            html += `
-              <div class="card">
-                <h3>대여 신청 내역</h3>
-                <p><strong>이름:</strong> ${data.userName || ""}</p>
-                <p><strong>학번:</strong> ${data.studentID || ""}</p>
-                <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
-                <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-                <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
-                <p><strong>상태:</strong> ${data.status || ""}</p>
-                <div class="actions">
-                  <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
-                  <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
-                  <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-                </div>
-              </div>`;
-          });
-          contentArea.innerHTML = html;
-        });
+        );
       } else if (category === 'processed') {
         contentArea.innerHTML = `
           <div class="sub-tabs" id="subTabs">
@@ -196,7 +207,8 @@
               <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
               <p><strong>상태:</strong> ${data.status || ""}</p>
               <div class="actions">
-                <button onclick="updateStatus('${doc.id}', '${data.status === '승인' ? '반려' : '승인'}')">${data.status === '승인' ? '반려' : '승인'}</button>
+                <button onclick="updateStatus
+                ('${doc.id}', '${data.status === '승인' ? '반려' : '승인'}')">${data.status === '승인' ? '반려' : '승인'}</button>
                 <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
               </div>
             </div>`;
@@ -227,7 +239,7 @@
       });
     }
 
-    loadData('pending');
+    loadData('pending'); // 대기 내역 로드
   </script>
 </body>
 </html>
