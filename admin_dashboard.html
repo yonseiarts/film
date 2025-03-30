@@ -3,156 +3,72 @@
 <head>
   <meta charset="UTF-8" />
   <title>관리자 대시보드</title>
-  <!-- Firebase (compat 버전) -->
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
   <style>
-    /* 기본 스타일 */
     body, html {
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       font-family: 'Noto Sans KR', sans-serif;
-      background-color: #f8f9fc;
-      font-size: 14px; /* 기본 폰트 크기 14px */
-      color: #333;
+      background-color: #f8f9fc; font-size: 14px; color: #333;
     }
     header {
-      background-color: #4e73df;
-      color: #fff;
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      background-color: #4e73df; color: #fff; padding: 16px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    header h1 {
-      margin: 0;
-      font-size: 20px;
-    }
+    header h1 { margin: 0; font-size: 20px; }
     header .home-btn {
-      background-color: #fff;
-      color: #4e73df;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
+      background-color: #fff; color: #4e73df; border: none;
+      padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 14px;
     }
-    .container {
-      display: flex;
-      min-height: calc(100vh - 64px);
-    }
-    /* 좌측 사이드바 */
+    .container { display: flex; min-height: calc(100vh - 64px); }
     .sidebar {
-      width: 260px;
-      background-color: #2e59d9;
-      padding: 20px;
-      color: #fff;
+      width: 260px; background-color: #2e59d9; padding: 20px; color: #fff;
     }
-    .sidebar h2 {
-      margin: 0 0 20px;
-      font-size: 18px;
-    }
-    .sidebar ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      font-size: 14px;
-    }
+    .sidebar h2 { margin: 0 0 20px; font-size: 18px; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; font-size: 14px; }
     .sidebar ul li {
-      padding: 10px 14px;
-      margin-bottom: 10px;
-      border-radius: 4px;
-      cursor: pointer;
+      padding: 10px 14px; margin-bottom: 10px;
+      border-radius: 4px; cursor: pointer;
     }
     .sidebar ul li:hover, .sidebar ul li.active {
       background-color: rgba(255,255,255,0.2);
     }
-    /* 우측 메인 컨텐츠 */
-    .main {
-      flex: 1;
-      padding: 24px;
-      background-color: #fff;
-    }
+    .main { flex: 1; padding: 24px; background-color: #fff; }
     .card {
-      background-color: #fff;
-      border: 1px solid #e3e6f0;
-      border-radius: 6px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-      position: relative;
-      font-size: 13px; /* 카드 내 텍스트 크기 */
+      background-color: #fff; border: 1px solid #e3e6f0;
+      border-radius: 6px; padding: 16px; margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); position: relative; font-size: 13px;
     }
-    .card h3 {
-      margin-top: 0;
-      color: #4e73df;
-      font-size: 16px;
-      margin-bottom: 8px;
-    }
-    .card p {
-      margin: 4px 0;
-    }
-    .actions {
-      margin-top: 12px;
-    }
+    .card h3 { margin-top: 0; color: #4e73df; font-size: 16px; margin-bottom: 8px; }
+    .card p { margin: 4px 0; }
+    .actions { margin-top: 12px; }
     .actions button {
-      margin-right: 8px;
-      background-color: #4e73df;
-      color: #fff;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 13px;
+      margin-right: 8px; background-color: #4e73df; color: #fff;
+      border: none; padding: 6px 12px; border-radius: 4px;
+      cursor: pointer; font-size: 13px;
     }
-    .actions button:hover {
-      background-color: #375a9c;
-    }
-    .loading {
-      text-align: center;
-      padding: 40px 0;
-      font-size: 15px;
-    }
-    /* 하위 탭 스타일 (처리 완료 탭 내부) */
-    .sub-tabs {
-      margin-bottom: 16px;
-    }
+    .actions button:hover { background-color: #375a9c; }
+    .loading { text-align: center; padding: 40px 0; font-size: 15px; }
+    .sub-tabs { margin-bottom: 16px; }
     .sub-tabs button {
-      background-color: #e2e6ea;
-      border: none;
-      padding: 6px 12px;
-      margin-right: 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 13px;
+      background-color: #e2e6ea; border: none; padding: 6px 12px;
+      margin-right: 8px; border-radius: 4px; cursor: pointer; font-size: 13px;
     }
-    .sub-tabs button.active {
-      background-color: #4e73df;
-      color: #fff;
-    }
-    /* 카드 상태 인디케이터 */
+    .sub-tabs button.active { background-color: #4e73df; color: #fff; }
     .status-indicator {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 6px;
-      border-top-left-radius: 6px;
-      border-bottom-left-radius: 6px;
+      position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+      border-top-left-radius: 6px; border-bottom-left-radius: 6px;
     }
     .status-승인 { background-color: #4e73df; }
     .status-반려 { background-color: #e74a3b; }
   </style>
 </head>
 <body>
-  <!-- 상단 헤더 -->
   <header>
     <h1>관리자 대시보드</h1>
     <button class="home-btn" onclick="window.location.href='index.html'">홈으로</button>
   </header>
-  
   <div class="container">
-    <!-- 좌측 사이드바 -->
     <div class="sidebar">
       <h2>메뉴</h2>
       <ul>
@@ -161,15 +77,11 @@
         <li id="menuLogins" onclick="activateMenu(this); loadData('logins')">로그인 내역</li>
       </ul>
     </div>
-    
-    <!-- 우측 메인 컨텐츠 -->
     <div class="main" id="contentArea">
       <div class="loading">데이터 로딩 중...</div>
     </div>
   </div>
-  
   <script>
-    // 1. Firebase 설정 (Firebase 콘솔에서 복사한 구성 정보를 사용)
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
@@ -183,25 +95,18 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 2. 사이드바 활성화 함수
     function activateMenu(el) {
       document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
       el.classList.add('active');
     }
 
-    // 3. 처리 완료 탭 하위 탭 변수 (default: "승인")
-    let processedSubTab = "승인"; // "승인" 또는 "반려"
-    
-    // 4. 데이터 로드 함수
+    let processedSubTab = "승인";
     let currentUnsubscribe = null;
+
     function loadData(category) {
-      if (currentUnsubscribe) {
-        currentUnsubscribe();
-        currentUnsubscribe = null;
-      }
-      
+      if (currentUnsubscribe) currentUnsubscribe();
       const contentArea = document.getElementById('contentArea');
-      
+
       if (category === 'logins') {
         contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
         const query = db.collection('studentLogins').orderBy('timestamp', 'desc');
@@ -219,19 +124,13 @@
                 <p><strong>이름:</strong> ${data.name || ""}</p>
                 <p><strong>학번:</strong> ${data.studentId || ""}</p>
                 <p><strong>로그인 시간:</strong> ${data.timestamp ? data.timestamp.toDate().toLocaleString() : ""}</p>
-              </div>
-            `;
+              </div>`;
           });
           contentArea.innerHTML = html;
-        }, err => {
-          console.error('Firestore 에러:', err);
-          contentArea.innerHTML = `<div class="loading">오류 발생: ${err.message}</div>`;
         });
       } else if (category === 'pending') {
         contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
-        const query = db.collection('applications')
-                        .where('status', '==', '대기')
-                        .orderBy('createdAt', 'desc');
+        const query = db.collection('applications').where('status', '==', '대기').orderBy('createdAt', 'desc');
         currentUnsubscribe = query.onSnapshot(snapshot => {
           if (snapshot.empty) {
             contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
@@ -240,8 +139,7 @@
           let html = '';
           snapshot.forEach(doc => {
             const data = doc.data();
-            let rentalDate = data.rentDate ? data.rentDate 
-                              : (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
+            let rentalDate = data.rentDate || (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
             html += `
               <div class="card">
                 <h3>대여 신청 내역</h3>
@@ -252,41 +150,30 @@
                 <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
                 <p><strong>상태:</strong> ${data.status || ""}</p>
                 <div class="actions">
-                  <button onclick="updateStatus('${doc.id}', '신청')">승인</button>
+                  <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
                   <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
                   <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
                 </div>
-              </div>
-            `;
+              </div>`;
           });
           contentArea.innerHTML = html;
-        }, err => {
-          console.error('Firestore 에러:', err);
-          contentArea.innerHTML = `<div class="loading">오류 발생: ${err.message}</div>`;
         });
       } else if (category === 'processed') {
-        // 처리 완료 탭: 하위 탭 ("승인" 탭, "반려" 탭)
         contentArea.innerHTML = `
           <div class="sub-tabs" id="subTabs">
             <button id="tabApproved" class="${processedSubTab === '승인' ? 'active' : ''}" onclick="setProcessedSubTab('승인')">승인</button>
             <button id="tabRejected" class="${processedSubTab === '반려' ? 'active' : ''}" onclick="setProcessedSubTab('반려')">반려</button>
           </div>
-          <div id="processedContent"><div class="loading">데이터 로딩 중...</div></div>
-        `;
+          <div id="processedContent"><div class="loading">데이터 로딩 중...</div></div>`;
         loadProcessed();
       }
     }
 
-    // 5. 처리 완료 탭 하위 탭 데이터 로드 함수
     function loadProcessed() {
       const processedContent = document.getElementById('processedContent');
       processedContent.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
-      let query = db.collection('applications')
-                    .where('status', '==', processedSubTab)
-                    .orderBy('createdAt', 'desc');
-      if (currentUnsubscribe) {
-        currentUnsubscribe();
-      }
+      let query = db.collection('applications').where('status', '==', processedSubTab).orderBy('createdAt', 'desc');
+      if (currentUnsubscribe) currentUnsubscribe();
       currentUnsubscribe = query.onSnapshot(snapshot => {
         if (snapshot.empty) {
           processedContent.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
@@ -295,18 +182,11 @@
         let html = '';
         snapshot.forEach(doc => {
           const data = doc.data();
-          let rentalDate = data.rentDate ? data.rentDate 
-                            : (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
-          // 카드 상태 인디케이터: 승인(파란색), 반려(빨간색)
-          let indicatorHTML = '';
-          if (data.status === "승인") {
-            indicatorHTML = '<div class="status-indicator status-승인"></div>';
-          } else if (data.status === "반려") {
-            indicatorHTML = '<div class="status-indicator status-반려"></div>';
-          }
+          let rentalDate = data.rentDate || (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
+          let indicator = data.status === "승인" ? "status-승인" : "status-반려";
           html += `
             <div class="card">
-              ${indicatorHTML}
+              <div class="status-indicator ${indicator}"></div>
               <h3>대여 신청 내역</h3>
               <p><strong>이름:</strong> ${data.userName || ""}</p>
               <p><strong>학번:</strong> ${data.studentID || ""}</p>
@@ -314,32 +194,16 @@
               <p><strong>대여 날짜:</strong> ${rentalDate}</p>
               <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
               <p><strong>상태:</strong> ${data.status || ""}</p>
-          `;
-          if (processedSubTab === "승인") {
-            html += `
               <div class="actions">
-                <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
+                <button onclick="updateStatus('${doc.id}', '${data.status === '승인' ? '반려' : '승인'}')">${data.status === '승인' ? '반려' : '승인'}</button>
                 <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
               </div>
-            `;
-          } else if (processedSubTab === "반려") {
-            html += `
-              <div class="actions">
-                <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
-                <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-              </div>
-            `;
-          }
-          html += `</div>`;
+            </div>`;
         });
         processedContent.innerHTML = html;
-      }, err => {
-        console.error('Firestore 에러:', err);
-        processedContent.innerHTML = `<div class="loading">오류 발생: ${err.message}</div>`;
       });
     }
 
-    // 6. 처리 완료 하위 탭 변경 함수
     function setProcessedSubTab(tab) {
       processedSubTab = tab;
       document.getElementById("tabApproved").classList.toggle("active", tab === "승인");
@@ -347,20 +211,21 @@
       loadProcessed();
     }
 
-    // 7. 상태 업데이트 함수
     function updateStatus(docId, newStatus) {
       if (!confirm(`상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
-      db.collection('applications').doc(docId).update({ status: newStatus })
-        .then(() => {
-          alert('상태가 변경되었습니다.');
-        })
-        .catch(err => {
-          console.error('상태 변경 실패:', err);
-          alert('오류가 발생했습니다.');
-        });
+      db.collection('applications').doc(docId).update({
+        status: newStatus,
+        isDeleted: false
+      })
+      .then(() => {
+        alert('상태가 변경되었습니다.');
+      })
+      .catch(err => {
+        console.error('상태 변경 실패:', err);
+        alert('오류가 발생했습니다.');
+      });
     }
 
-    // 8. 페이지 로드 시 기본 탭 "대기 내역" 로드
     loadData('pending');
   </script>
 </body>
