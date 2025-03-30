@@ -58,11 +58,6 @@
         <button class="tab-button px-4 py-1 border rounded" data-tab="editing">편집실</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="line">라인</button>
       </div>
-      <div id="cameraSubTabs" class="flex gap-2 mb-4">
-        <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
-        <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
-        <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대</button>
-      </div>
       <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
       <div id="selected-section" class="mt-6 hidden">
         <h3 class="font-medium mb-2">선택된 장비</h3>
@@ -119,6 +114,62 @@
   </div>
 
   <script>
+    const equipmentData = {
+      camera: Array.from({ length: 8 }, (_, i) => ({ name: `카메라 ${i+1}`, image: "https://placehold.co/60x60?text=Camera" })),
+      lighting: Array.from({ length: 8 }, (_, i) => ({ name: `조명 ${i+1}`, image: "https://placehold.co/60x60?text=Light" })),
+      sound: Array.from({ length: 8 }, (_, i) => ({ name: `사운드 ${i+1}`, image: "https://placehold.co/60x60?text=Sound" })),
+      monitor: Array.from({ length: 8 }, (_, i) => ({ name: `모니터 ${i+1}`, image: "https://placehold.co/60x60?text=Monitor" })),
+      line: Array.from({ length: 8 }, (_, i) => ({ name: `라인 ${i+1}`, image: "https://placehold.co/60x60?text=Line" })),
+      editing: [
+        { name: "편집실 1", image: "https://placehold.co/60x60?text=편집실1" },
+        { name: "편집실 2", image: "https://placehold.co/60x60?text=편집실2" }
+      ]
+    };
+
+    let selectedItems = [];
+    let currentTab = "camera";
+
+    function renderEquipmentList() {
+      const container = document.getElementById("equipment-list");
+      container.innerHTML = "";
+      const items = equipmentData[currentTab];
+      items.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "equipment-card";
+        div.innerHTML = `<img src="${item.image}" alt="장비"><span class="text-sm">${item.name}</span>`;
+        div.onclick = () => {
+          const index = selectedItems.indexOf(item.name);
+          if (index > -1) selectedItems.splice(index, 1);
+          else selectedItems.push(item.name);
+          updateSelectedUI();
+        };
+        container.appendChild(div);
+      });
+    }
+
+    document.querySelectorAll(".tab-button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentTab = btn.dataset.tab;
+        renderEquipmentList();
+      });
+    });
+
+    function updateSelectedUI() {
+      const list = document.getElementById("selected-items");
+      const sec = document.getElementById("selected-section");
+      const nextBtn = document.getElementById("toStep2");
+      if (selectedItems.length === 0) {
+        sec.classList.add("hidden");
+        nextBtn.classList.add("hidden");
+      } else {
+        sec.classList.remove("hidden");
+        nextBtn.classList.remove("hidden");
+      }
+      list.innerHTML = selectedItems.map(i => `<li>${i}</li>`).join("");
+    }
+
     function goToStep(n) {
       for (let i = 1; i <= 4; i++) {
         document.getElementById("step" + i)?.classList.add("hidden");
@@ -137,9 +188,18 @@
       }
     }
 
+    function goHome() {
+      window.location.href = "index.html";
+    }
+
     document.getElementById("agreeCheck").addEventListener("change", e => {
       document.getElementById("toStep4").disabled = !e.target.checked;
       document.getElementById("toStep4").classList.toggle("opacity-50", !e.target.checked);
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderEquipmentList();
+      goToStep(1);
     });
   </script>
 </body>
