@@ -131,7 +131,7 @@
         });
       } else if (category === 'pending') {
         contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
-        const query = db.collection('rentals').where('status', '==', '대기').orderBy('createdAt', 'desc');
+        const query = db.collection('applications').where('status', '==', '대기').orderBy('createdAt', 'desc');
         currentUnsubscribe = query.onSnapshot(snapshot => {
           if (snapshot.empty) {
             contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
@@ -173,7 +173,7 @@
     function loadProcessed() {
       const processedContent = document.getElementById('processedContent');
       processedContent.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
-      let query = db.collection('rentals').where('status', '==', processedSubTab).orderBy('createdAt', 'desc');
+      let query = db.collection('applications').where('status', '==', processedSubTab).orderBy('createdAt', 'desc');
       if (currentUnsubscribe) currentUnsubscribe();
       currentUnsubscribe = query.onSnapshot(snapshot => {
         if (snapshot.empty) {
@@ -214,7 +214,7 @@
 
     function updateStatus(docId, newStatus) {
       if (!confirm(`상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
-      db.collection('rentals').doc(docId).update({
+      db.collection('applications').doc(docId).update({
         status: newStatus,
         isDeleted: false
       })
@@ -231,5 +231,3 @@
   </script>
 </body>
 </html>
-
-
