@@ -2,14 +2,14 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 신청</title>
+  <!-- Firebase JS SDK -->
   <script type="module">
-    // Import Firebase SDK functions
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore.js"; // Firestore
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-analytics.js"; // Analytics
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-analytics.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore.js"; 
 
-    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
@@ -20,146 +20,42 @@
       measurementId: "G-CQZEKPE02D"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);  // Firestore 초기화
-    const analytics = getAnalytics(app); // Analytics (선택 사항)
-
-    // 장비 데이터 예시
-    const equipmentData = {
-      camera: {
-        body: Array.from({ length: 8 }, (_, i) => ({ name: `카메라 바디 ${i + 1}`, image: "https://placehold.co/80x80?text=Body" })),
-        lens: Array.from({ length: 8 }, (_, i) => ({ name: `렌즈 ${i + 1}`, image: "https://placehold.co/80x80?text=Lens" })),
-        tripod: Array.from({ length: 8 }, (_, i) => ({ name: `삼각대 ${i + 1}`, image: "https://placehold.co/80x80?text=Tripod" }))
-      },
-      lighting: Array.from({ length: 8 }, (_, i) => ({ name: `조명 ${i + 1}`, image: "https://placehold.co/80x80?text=Light" })),
-      sound: Array.from({ length: 8 }, (_, i) => ({ name: `마이크 ${i + 1}`, image: "https://placehold.co/80x80?text=Mic" })),
-      monitor: Array.from({ length: 8 }, (_, i) => ({ name: `모니터 ${i + 1}`, image: "https://placehold.co/80x80?text=Monitor" })),
-      line: Array.from({ length: 8 }, (_, i) => ({ name: `라인 ${i + 1}`, image: "https://placehold.co/80x80?text=Line" })),
-      editing: [
-        { name: "편집실 1", image: "https://placehold.co/80x80?text=Edit1" },
-        { name: "편집실 2", image: "https://placehold.co/80x80?text=Edit2" }
-      ]
-    };
-
-    let selectedItems = []; // 선택된 장비 목록
-    let currentTab = "camera"; // 현재 선택된 대분류 탭
-    let currentSub = "body"; // 현재 선택된 중분류 탭
-
-    // 장비 목록 렌더링 함수
-    function renderEquipmentList() {
-      const container = document.getElementById("equipment-list");
-      container.innerHTML = ""; // 기존 장비 목록 초기화
-      const items = currentTab === "camera" ? equipmentData.camera[currentSub] : equipmentData[currentTab];
-
-      items.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "equipment-card";
-        const isSelected = selectedItems.includes(item.name);
-        if (isSelected) div.classList.add("selected");
-
-        div.innerHTML = `<img src="${item.image}" alt="${item.name}"><span class="text-sm">${item.name}</span>`;
-        div.onclick = () => {
-          toggleSelection(item.name); // 장비 클릭 시 선택/해제
-          renderEquipmentList(); // 장비 목록 갱신
-        };
-
-        container.appendChild(div);
-      });
-    }
-
-    // 장비 선택 또는 해제 처리
-    function toggleSelection(itemName) {
-      if (selectedItems.includes(itemName)) {
-        selectedItems = selectedItems.filter(item => item !== itemName); // 선택 해제
-      } else {
-        selectedItems.push(itemName); // 선택 추가
-      }
-      updateSelectedUI(); // 선택된 장비 UI 업데이트
-    }
-
-    // 선택된 장비 목록 UI 업데이트
-    function updateSelectedUI() {
-      const sec = document.getElementById("selected-section");
-      const btn = document.getElementById("toStep2");
-      if (selectedItems.length === 0) {
-        sec.classList.add("hidden");
-        btn.classList.add("hidden");
-      } else {
-        sec.classList.remove("hidden");
-        btn.classList.remove("hidden");
-      }
-      document.getElementById("selected-items").innerHTML = selectedItems.map(i => `
-        <li>${i} <span class="remove-item" onclick="removeItem('${i}')">X</span></li>`).join("");
-    }
-
-    // 장비 삭제
-    function removeItem(itemName) {
-      selectedItems = selectedItems.filter(item => item !== itemName); // 삭제된 장비 항목
-      updateSelectedUI(); // UI 갱신
-      renderEquipmentList(); // 장비 목록 갱신
-    }
-
-    // 단계 전환
-    function goToStep(n) {
-      for (let i = 1; i <= 4; i++) {
-        document.getElementById("step" + i)?.classList.add("hidden");
-        document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
-        document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
-      }
-      document.getElementById("step" + n)?.classList.remove("hidden");
-      document.getElementById("step" + n + "Btn")?.classList.add("step-active");
-      document.getElementById("step" + n + "Btn")?.classList.remove("step-inactive");
-    }
-
-    // Firebase에 데이터 저장
-    function submitApplication() {
-      const data = {
-        items: [...selectedItems],
-        startDate: document.getElementById("startDate").value,
-        endDate: document.getElementById("endDate").value,
-        proofImage: document.getElementById("proofImage").files[0] ? document.getElementById("proofImage").files[0].name : ""
-      };
-
-      db.collection("applications").add(data)
-        .then(() => {
-          alert("신청이 완료되었습니다.");
-          goToStep(4); // 완료 화면으로 넘어가기
-        })
-        .catch(error => {
-          console.error("Error adding document: ", error);
-          alert("신청 정보를 저장하는데 실패했습니다. 다시 시도해주세요.");
-        });
-    }
-
-    // 탭 클릭 시 장비 목록 갱신
-    document.querySelectorAll(".tab-button").forEach(button => {
-      button.addEventListener("click", (e) => {
-        document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
-        e.target.classList.add("active");
-        currentTab = e.target.dataset.tab; // 클릭된 대분류 탭
-        renderEquipmentList(); // 장비 목록 갱신
-      });
-    });
-
-    // 서브탭 클릭 시 장비 목록 갱신
-    document.querySelectorAll(".subtab-button").forEach(button => {
-      button.addEventListener("click", (e) => {
-        document.querySelectorAll(".subtab-button").forEach(btn => btn.classList.remove("active"));
-        e.target.classList.add("active");
-        currentSub = e.target.dataset.subtab; // 클릭된 중분류 탭
-        renderEquipmentList(); // 장비 목록 갱신
-      });
-    });
-
-    // 페이지 로드 시 장비 목록 렌더링
-    document.addEventListener("DOMContentLoaded", () => {
-      renderEquipmentList(); // 장비 목록 초기 렌더링
-      goToStep(1); // 첫 번째 단계로 이동
-    });
+    const db = getFirestore(app); // Firestore 초기화
+    const analytics = getAnalytics(app); // Firebase Analytics 초기화
   </script>
+
+  <style>
+    .step-active { background-color: #1D4ED8; color: white; }
+    .step-inactive { background-color: #e5e7eb; color: #6b7280; }
+    .tab-button.active { background-color: #dbeafe; font-weight: 600; }
+    .subtab-button.active { background-color: #dbeafe; font-weight: 600; }
+    .equipment.selected { border-color: #facc15; background-color: #fefce8; }
+    .equipment-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+    }
+    .equipment-card img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .remove-item {
+      cursor: pointer;
+      font-size: 16px;
+      color: red;
+      margin-left: 10px;
+    }
+  </style>
 </head>
-<body>
+<body class="bg-gray-50">
   <div class="bg-blue-700 text-white py-6 text-center">
     <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
     <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
@@ -243,7 +139,7 @@
         <strong>제2장 관리체계</strong><br/>
         <em>제1조 (주임교수의 권한)</em><br/>
         • 기자재 운영 정책 수립 및 변경<br/>
-        • 기자재 담당 인력 임명<br/>
+           • 기자재 담당 인력 임명<br/>
         • 장비 대여 승인<br/>
         • 외부 촬영 허가<br/>
         • 분쟁 조정 및 제재 조치 결정<br/><br/>
@@ -278,10 +174,8 @@
     </div>
   </div>
 
-  <script type="module">
-    // Firebase SDK 초기화 (이미 포함된 부분)
-    // Import Firebase SDK functions (위에서 설명한대로)
-
+  <script>
+    // Firebase 초기화
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
@@ -291,13 +185,85 @@
       appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
       measurementId: "G-CQZEKPE02D"
     };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    // Firebase 초기화
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);  // Firestore 초기화
-    const analytics = getAnalytics(app); // Firebase Analytics 초기화
+    // Firebase에 데이터 저장
+    function submitApplication() {
+      const data = {
+        items: selectedItems,
+        startDate: document.getElementById("startDate").value,
+        endDate: document.getElementById("endDate").value,
+        proofImage: document.getElementById("proofImage").files[0] ? document.getElementById("proofImage").files[0].name : ""
+      };
 
-    // 기타 자바스크립트 로직, 기능 구현...
+      db.collection("applications").add(data)
+        .then(() => {
+          alert("신청이 완료되었습니다.");
+          goToStep(4); // 완료 화면으로 넘어가기
+        })
+        .catch(error => {
+          console.error("Error adding document: ", error);
+          alert("신청 정보를 저장하는데 실패했습니다. 다시 시도해주세요.");
+        });
+    }
+
+    // 탭 클릭 시 장비 목록 갱신
+    document.querySelectorAll(".tab-button").forEach(button => {
+      button.addEventListener("click", (e) => {
+        document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
+        e.target.classList.add("active");
+        currentTab = e.target.dataset.tab; // 클릭된 대분류 탭
+        renderEquipmentList(); // 장비 목록 갱신
+      });
+    });
+
+    // 서브탭 클릭 시 장비 목록 갱신
+    document.querySelectorAll(".subtab-button").forEach(button => {
+      button.addEventListener("click", (e) => {
+        document.querySelectorAll(".subtab-button").forEach(btn => btn.classList.remove("active"));
+        e.target.classList.add("active");
+        currentSub = e.target.dataset.subtab; // 클릭된 중분류 탭
+        renderEquipmentList(); // 장비 목록 갱신
+      });
+    });
+
+    // 페이지 로드 시 장비 목록 렌더링
+    document.addEventListener("DOMContentLoaded", () => {
+      renderEquipmentList(); // 장비 목록 초기 렌더링
+      goToStep(1); // 첫 번째 단계로 이동
+    });
   </script>
+
+  <style>
+    .step-active { background-color: #1D4ED8; color: white; }
+    .step-inactive { background-color: #e5e7eb; color: #6b7280; }
+    .tab-button.active { background-color: #dbeafe; font-weight: 600; }
+    .subtab-button.active { background-color: #dbeafe; font-weight: 600; }
+    .equipment.selected { border-color: #facc15; background-color: #fefce8; }
+    .equipment-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+    }
+    .equipment-card img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .remove-item {
+      cursor: pointer;
+      font-size: 16px;
+      color: red;
+      margin-left: 10px;
+    }
+  </style>
 </body>
 </html>
+
