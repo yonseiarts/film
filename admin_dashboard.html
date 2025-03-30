@@ -3,64 +3,66 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>관리자 대시보드</title>
+  <title>기자재 대여 관리자 대시보드</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .step-active { background-color: #1D4ED8; color: white; }
-    .step-inactive { background-color: #e5e7eb; color: #6b7280; }
-    .equipment-card {
-      border: 1px solid #e5e7eb;
-      border-radius: 0.5rem;
-      padding: 1rem;
-      background-color: white;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      cursor: pointer;
-    }
-    .equipment-card img {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
-    .equipment-card.disabled {
-      opacity: 0.4;
-      pointer-events: none;
-      background-color: #f3f4f6;
-    }
+    .tab-button.active { background-color: #1D4ED8; color: white; }
+    .tab-button.inactive { background-color: #e5e7eb; color: #6b7280; }
+    .table-header { background-color: #f3f4f6; }
   </style>
 </head>
 <body class="bg-gray-50">
-
-  <!-- 헤더 -->
   <div class="bg-blue-700 text-white py-6 text-center">
-    <h1 class="text-2xl font-bold">관리자 대시보드</h1>
-    <p class="text-sm mt-1">기자재 대여 신청 목록을 확인하고 관리하세요.</p>
+    <h1 class="text-2xl font-bold">기자재 대여 관리자 대시보드</h1>
+    <p class="text-sm mt-1">기자재 대여 신청을 관리하고 승인/반려하세요.</p>
   </div>
 
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
+    <!-- 탭 -->
     <div class="flex justify-between mb-8">
-      <button id="approvedTab" class="text-center flex-1 p-2 rounded step-active">승인 대기</button>
-      <button id="rejectedTab" class="text-center flex-1 p-2 rounded step-inactive">반려된 신청</button>
+      <button class="tab-button active px-4 py-2 rounded" id="tab1Btn">신청 내역</button>
+      <button class="tab-button inactive px-4 py-2 rounded" id="tab2Btn">휴지통</button>
     </div>
 
-    <!-- 승인 대기 목록 -->
-    <div id="approvedSection">
-      <h2 class="text-xl font-bold mb-4">승인 대기 신청 목록</h2>
-      <div id="approvedList" class="space-y-4">
-        <!-- 대여 신청 목록이 여기에 동적으로 추가됩니다 -->
-      </div>
+    <!-- 신청 내역 탭 -->
+    <div id="tab1" class="tab-content">
+      <h2 class="text-xl font-semibold mb-4">신청 내역</h2>
+      <table class="min-w-full table-auto">
+        <thead class="table-header">
+          <tr>
+            <th class="px-4 py-2">번호</th>
+            <th class="px-4 py-2">이름</th>
+            <th class="px-4 py-2">장비</th>
+            <th class="px-4 py-2">대여일자</th>
+            <th class="px-4 py-2">상태</th>
+            <th class="px-4 py-2">조치</th>
+          </tr>
+        </thead>
+        <tbody id="applications-list">
+          <!-- 신청 내역 동적으로 삽입 -->
+        </tbody>
+      </table>
     </div>
 
-    <!-- 반려된 신청 목록 -->
-    <div id="rejectedSection" class="hidden">
-      <h2 class="text-xl font-bold mb-4">반려된 신청 목록</h2>
-      <div id="rejectedList" class="space-y-4">
-        <!-- 반려된 대여 신청 목록이 여기에 동적으로 추가됩니다 -->
-      </div>
+    <!-- 휴지통 탭 -->
+    <div id="tab2" class="tab-content hidden">
+      <h2 class="text-xl font-semibold mb-4">휴지통</h2>
+      <table class="min-w-full table-auto">
+        <thead class="table-header">
+          <tr>
+            <th class="px-4 py-2">번호</th>
+            <th class="px-4 py-2">이름</th>
+            <th class="px-4 py-2">장비</th>
+            <th class="px-4 py-2">대여일자</th>
+            <th class="px-4 py-2">상태</th>
+            <th class="px-4 py-2">복원</th>
+          </tr>
+        </thead>
+        <tbody id="trash-list">
+          <!-- 휴지통 신청 내역 동적으로 삽입 -->
+        </tbody>
+      </table>
     </div>
-
   </div>
 
   <!-- Firebase SDK & Initialization -->
@@ -73,87 +75,83 @@
       projectId: "yonseirent-setup",
       storageBucket: "yonseirent-setup.appspot.com",
       messagingSenderId: "1072524969376",
-      appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
-      measurementId: "G-CQZEKPE02D"
+      appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
+      measurementId: "G-8G1D43NXMW"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    async function loadApplications(status = '대기') {
-      const q = db.collection("rentals").where("status", "==", status).orderBy("createdAt", "desc");
-      const querySnapshot = await q.get();
-      const list = status === '대기' ? document.getElementById("approvedList") : document.getElementById("rejectedList");
+    // 신청 내역 불러오기
+    async function loadApplications(showTrash = false) {
+      const q = db.collection("rentals")
+        .where("isDeleted", "==", showTrash)
+        .orderBy("createdAt", "desc");
 
+      const querySnapshot = await q.get();
+      const list = showTrash ? document.getElementById("trash-list") : document.getElementById("applications-list");
       list.innerHTML = "";
 
-      querySnapshot.forEach((docSnap) => {
+      if (querySnapshot.empty) {
+        list.innerHTML = `<tr><td colspan="6" class="text-center text-sm text-gray-500">신청 내역이 없습니다.</td></tr>`;
+        return;
+      }
+
+      querySnapshot.forEach((docSnap, index) => {
         const data = docSnap.data();
-        const div = document.createElement("div");
-        div.className = "relative border rounded-lg p-5 mb-6 bg-white shadow-md";
-
-        const actions = status === '대기' ?
-          `<button onclick="approveApplication('${docSnap.id}')" class="absolute top-2 right-2 text-green-500 hover:text-green-700 text-sm">승인</button>
-           <button onclick="rejectApplication('${docSnap.id}')" class="absolute top-2 right-14 text-red-500 hover:text-red-700 text-sm">반려</button>` :
-          "";
-
-        div.innerHTML = `
-          ${actions}
-          <h3 class="text-lg font-semibold text-blue-700 mb-2">신청 장비</h3>
-          <ul class="list-disc ml-5 text-sm text-gray-800 mb-2">
-            ${data.items?.map(item => `<li>${item}</li>`).join("") || "<li>-</li>"}
-          </ul>
-          <p class="text-sm text-gray-700 mb-1"><strong>대여일자:</strong> ${data.rentDate || "-"}</p>
-          <p class="text-sm text-gray-700 mb-1"><strong>시작일:</strong> ${data.startDate || "-"}</p>
-          <p class="text-sm text-gray-700 mb-1"><strong>반납일:</strong> ${data.endDate || "-"}</p>
-          <p class="text-sm text-gray-700"><strong>상태:</strong> <span class="${data.status === '승인' ? 'text-green-600' : data.status === '반려' ? 'text-red-600' : 'text-yellow-600'} font-semibold">${data.status}</span></p>
+        const tr = document.createElement("tr");
+        tr.className = "border-t";
+        tr.innerHTML = `
+          <td class="px-4 py-2">${index + 1}</td>
+          <td class="px-4 py-2">${data.studentName}</td>
+          <td class="px-4 py-2">${data.items.join(", ")}</td>
+          <td class="px-4 py-2">${data.startDate} ~ ${data.endDate}</td>
+          <td class="px-4 py-2"><span class="${data.status === '승인' ? 'text-green-600' : data.status === '반려' ? 'text-red-600' : 'text-yellow-600'} font-semibold">${data.status}</span></td>
+          <td class="px-4 py-2">
+            ${showTrash ? `<button onclick="restoreApplication('${docSnap.id}')" class="text-blue-500 hover:text-blue-700">복원</button>` 
+                        : `<button onclick="deleteApplication('${docSnap.id}')" class="text-red-500 hover:text-red-700">삭제</button>`}
+          </td>
         `;
-        list.appendChild(div);
+        list.appendChild(tr);
       });
     }
 
-    function approveApplication(docId) {
-      db.collection("rentals").doc(docId).update({ status: "승인" })
-        .then(() => {
-          loadApplications('대기');
-          loadApplications('반려');
-        })
-        .catch(error => {
-          alert("승인 처리 중 오류가 발생했습니다.");
-          console.error("Error approving document: ", error);
-        });
+    // 삭제
+    window.deleteApplication = async function(docId) {
+      if (confirm("정말 삭제하시겠습니까?")) {
+        await db.collection("rentals").doc(docId).update({ isDeleted: true });
+        alert("신청 내역이 휴지통으로 이동되었습니다.");
+        loadApplications();
+      }
     }
 
-    function rejectApplication(docId) {
-      db.collection("rentals").doc(docId).update({ status: "반려" })
-        .then(() => {
-          loadApplications('대기');
-          loadApplications('반려');
-        })
-        .catch(error => {
-          alert("반려 처리 중 오류가 발생했습니다.");
-          console.error("Error rejecting document: ", error);
-        });
+    // 복원
+    window.restoreApplication = async function(docId) {
+      await db.collection("rentals").doc(docId).update({ isDeleted: false });
+      alert("신청 내역이 복원되었습니다.");
+      loadApplications(true);
     }
 
-    document.getElementById("approvedTab").addEventListener("click", () => {
-      document.getElementById("approvedSection").classList.remove("hidden");
-      document.getElementById("rejectedSection").classList.add("hidden");
-      loadApplications('대기');
-      document.getElementById("approvedTab").classList.add("step-active");
-      document.getElementById("rejectedTab").classList.remove("step-active");
+    // 탭 변경
+    document.getElementById("tab1Btn").addEventListener("click", () => {
+      document.getElementById("tab1").classList.remove("hidden");
+      document.getElementById("tab2").classList.add("hidden");
+      document.getElementById("tab1Btn").classList.add("active");
+      document.getElementById("tab2Btn").classList.remove("active");
+      loadApplications();
     });
 
-    document.getElementById("rejectedTab").addEventListener("click", () => {
-      document.getElementById("rejectedSection").classList.remove("hidden");
-      document.getElementById("approvedSection").classList.add("hidden");
-      loadApplications('반려');
-      document.getElementById("rejectedTab").classList.add("step-active");
-      document.getElementById("approvedTab").classList.remove("step-active");
+    document.getElementById("tab2Btn").addEventListener("click", () => {
+      document.getElementById("tab1").classList.add("hidden");
+      document.getElementById("tab2").classList.remove("hidden");
+      document.getElementById("tab2Btn").classList.add("active");
+      document.getElementById("tab1Btn").classList.remove("active");
+      loadApplications(true);
     });
 
-    document.addEventListener("DOMContentLoaded", () => {
-      loadApplications('대기');
-    });
+    // 페이지 로드 시 신청 내역 불러오기
+    window.onload = () => {
+      loadApplications();
+    };
   </script>
 </body>
 </html>
