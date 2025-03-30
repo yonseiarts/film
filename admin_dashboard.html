@@ -62,149 +62,51 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    function activateMenu(el) {
-      document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
-      el.classList.add('active');
-    }
+    async function loadApplications() {
+      // Firestore에서 대여 신청 내역을 가져옵니다.
+      const querySnapshot = await db.collection("rentals").orderBy("createdAt", "desc").get();
+      const listContainer = document.getElementById("application-list");
+      listContainer.innerHTML = ""; // 기존 내용을 비웁니다.
 
-    let processedSubTab = "승인";
-    let currentUnsubscribe = null;
-
-    function loadData(category) {
-      if (currentUnsubscribe) currentUnsubscribe(); // 기존의 구독을 취소합니다.
-      const contentArea = document.getElementById('contentArea');
-      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>'; // 로딩 상태 표시
-
-      if (category === 'logins') {
-        const query = db.collection('studentLogins').orderBy('timestamp', 'desc');
-        currentUnsubscribe = query.onSnapshot(
-          snapshot => {
-            if (snapshot.empty) {
-              contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-              return;
-            }
-            let html = '';
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              html += `
-                <div class="card">
-                  <h3>로그인 내역</h3>
-                  <p><strong>이름:</strong> ${data.name || ""}</p>
-                  <p><strong>학번:</strong> ${data.studentId || ""}</p>
-                  <p><strong>로그인 시간:</strong> ${data.timestamp ? data.timestamp.toDate().toLocaleString() : ""}</p>
-                </div>`;
-            });
-            contentArea.innerHTML = html;
-          },
-          error => {
-            console.error("데이터 가져오기 오류:", error);
-            contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
-          }
-        );
-      } else if (category === 'pending') {
-        const query = db.collection('rentals').where('status', '==', '대기').orderBy('createdAt', 'desc');
-        currentUnsubscribe = query.onSnapshot(
-          snapshot => {
-            if (snapshot.empty) {
-              contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-              return;
-            }
-            let html = '';
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              let rentalDate = data.rentDate || (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
-              html += `
-                <div class="card">
-                  <h3>대여 신청 내역</h3>
-                  <p><strong>이름:</strong> ${data.userName || ""}</p>
-                  <p><strong>학번:</strong> ${data.studentID || ""}</p>
-                  <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
-                  <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-                  <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
-                  <p><strong>상태:</strong> ${data.status || ""}</p>
-                  <div class="actions">
-                    <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
-                    <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
-                    <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-                  </div>
-                </div>`;
-            });
-            contentArea.innerHTML = html;
-          },
-          error => {
-            console.error("데이터 가져오기 오류:", error);
-            contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
-          }
-        );
-      } else if (category === 'processed') {
-        contentArea.innerHTML = `
-          <div class="sub-tabs" id="subTabs">
-            <button id="tabApproved" class="${processedSubTab === '승인' ? 'active' : ''}" onclick="setProcessedSubTab('승인')">승인</button>
-            <button id="tabRejected" class="${processedSubTab === '반려' ? 'active' : ''}" onclick="setProcessedSubTab('반려')">반려</button>
-          </div>
-          <div id="processedContent"><div class="loading">데이터 로딩 중...</div></div>`;
-        loadProcessed();
+      if (querySnapshot.empty) {
+        listContainer.innerHTML = `<p class="text-sm text-gray-500">신청 내역이 없습니다.</p>`;
+        return;
       }
-    }
 
-    function loadProcessed() {
-      const processedContent = document.getElementById('processedContent');
-      processedContent.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
-      let query = db.collection('rentals').where('status', '==', processedSubTab).orderBy('createdAt', 'desc');
-      if (currentUnsubscribe) currentUnsubscribe();
-      currentUnsubscribe = query.onSnapshot(snapshot => {
-        if (snapshot.empty) {
-          processedContent.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-          return;
-        }
-        let html = '';
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          let rentalDate = data.rentDate || (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
-          let indicator = data.status === "승인" ? "status-승인" : "status-반려";
-          html += `
-            <div class="card">
-              <div class="status-indicator ${indicator}"></div>
-              <h3>대여 신청 내역</h3>
-              <p><strong>이름:</strong> ${data.userName || ""}</p>
-              <p><strong>학번:</strong> ${data.studentID || ""}</p>
-              <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
-              <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-              <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
-              <p><strong>상태:</strong> ${data.status || ""}</p>
-              <div class="actions">
-                <button onclick="updateStatus('${doc.id}', '${data.status === '승인' ? '반려' : '승인'}')">${data.status === '승인' ? '반려' : '승인'}</button>
-                <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-              </div>
-            </div>`;
-        });
-        processedContent.innerHTML = html;
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const div = document.createElement("div");
+        div.className = "border p-4 rounded-lg shadow-sm";
+
+        // 신청 내역의 상태에 따라 색상을 변경
+        const statusClass = data.status === "승인" ? "text-green-600" : data.status === "반려" ? "text-red-600" : "text-yellow-600";
+
+        div.innerHTML = `
+          <h3 class="text-lg font-semibold text-blue-700">${data.items.join(', ')}</h3>
+          <p class="text-sm text-gray-700"><strong>대여일자:</strong> ${data.startDate} ~ ${data.endDate}</p>
+          <p class="text-sm text-gray-700"><strong>상태:</strong> <span class="${statusClass}">${data.status}</span></p>
+          <div class="mt-4">
+            <button onclick="updateStatus('${doc.id}', '승인')" class="bg-green-600 text-white px-4 py-2 rounded mr-2">승인</button>
+            <button onclick="updateStatus('${doc.id}', '반려')" class="bg-red-600 text-white px-4 py-2 rounded">반려</button>
+          </div>
+        `;
+        
+        listContainer.appendChild(div);
       });
     }
 
-    function setProcessedSubTab(tab) {
-      processedSubTab = tab;
-      document.getElementById("tabApproved").classList.toggle("active", tab === "승인");
-      document.getElementById("tabRejected").classList.toggle("active", tab === "반려");
-      loadProcessed();
-    }
-
-    function updateStatus(docId, newStatus) {
-      if (!confirm(`상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
-      db.collection('rentals').doc(docId).update({
-        status: newStatus,
-        isDeleted: false
-      })
-      .then(() => {
-        alert('상태가 변경되었습니다.');
-      })
-      .catch(err => {
-         console.error('상태 변경 실패:', err);
-        alert('오류가 발생했습니다.');
+    // 대여 신청의 상태를 업데이트하는 함수
+    async function updateStatus(docId, status) {
+      const docRef = db.collection("rentals").doc(docId);
+      await docRef.update({
+        status: status
       });
+      alert(`상태가 "${status}"로 업데이트되었습니다.`);
+      loadApplications(); // 상태 업데이트 후 신청 내역을 새로고침
     }
 
-    loadData('pending'); // 대기 내역 로드
+    // 페이지 로드 시 대여 신청 내역을 불러옵니다.
+    document.addEventListener("DOMContentLoaded", loadApplications);
   </script>
 </body>
 </html>
