@@ -93,118 +93,48 @@
         <button onclick="goToStep(3)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
       </div>
     </div>
+
+    <!-- Step 3: 규정 동의 -->
+    <div id="step3" class="hidden">
+      <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
+      <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4">
+        <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
+        <strong>제1장 총칙</strong><br/>
+        <em>제1조 (목적)</em><br/>
+        본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>
+        <em>제2조 (적용범위)</em><br/>
+        본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
+        <strong>제2장 관리체계</strong><br/>
+        <em>제1조 (주임교수의 권한)</em><br/>
+        • 기자재 운영 정책 수립 및 변경<br/>
+        • 기자재 담당 인력 임명<br/>
+        • 장비 대여 승인<br/>
+        • 외부 촬영 허가<br/>
+        • 분쟁 조정 및 제재 조치 결정<br/><br/>
+        <em>제2조 (행정실 업무)</em><br/>
+        • 기자재 대장 관리<br/>
+        • 예산 집행 및 회계 관리<br/><br/>
+        <strong>부칙</strong><br/>
+        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
+        제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
+        2025년 3월 23일<br/>
+        연세예술원 영화학 주임교수 유영식
+      </div>
+      <label class="flex items-center mb-4">
+        <input type="checkbox" id="agreeCheck" class="mr-2"> 위 사용 규정에 동의합니다.
+      </label>
+      <div class="flex justify-between mt-6">
+        <button onclick="goToStep(2)" class="text-blue-600 text-sm">← 이전</button>
+        <button id="toStep4" onclick="goToStep(4)" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">완료</button>
+      </div>
+    </div>
   </div>
 
   <script>
-    const equipmentData = {
-      camera: {
-        body: Array.from({ length: 8 }, (_, i) => ({ name: `카메라 바디 ${i + 1}`, image: "https://placehold.co/80x80?text=Body" })),
-        lens: Array.from({ length: 8 }, (_, i) => ({ name: `렌즈 ${i + 1}`, image: "https://placehold.co/80x80?text=Lens" })),
-        tripod: Array.from({ length: 8 }, (_, i) => ({ name: `삼각대 ${i + 1}`, image: "https://placehold.co/80x80?text=Tripod" }))
-      },
-      lighting: Array.from({ length: 8 }, (_, i) => ({ name: `조명 ${i + 1}`, image: "https://placehold.co/80x80?text=Light" })),
-      sound: Array.from({ length: 8 }, (_, i) => ({ name: `마이크 ${i + 1}`, image: "https://placehold.co/80x80?text=Mic" })),
-      monitor: Array.from({ length: 8 }, (_, i) => ({ name: `모니터 ${i + 1}`, image: "https://placehold.co/80x80?text=Monitor" })),
-      editing: [
-        { name: "편집실 1", image: "https://placehold.co/80x80?text=Edit1" },
-        { name: "편집실 2", image: "https://placehold.co/80x80?text=Edit2" }
-      ],
-      line: Array.from({ length: 8 }, (_, i) => ({ name: `케이블 ${i + 1}`, image: "https://placehold.co/80x80?text=Cable" }))
-    };
-
-    let selectedItems = [];
-    let currentTab = "camera";
-    let currentSub = "body";
-
-    function renderEquipmentList() {
-      const container = document.getElementById("equipment-list");
-      container.innerHTML = "";
-      const items = currentTab === "camera" ? equipmentData.camera[currentSub] : equipmentData[currentTab];
-      const isEditingSelected = selectedItems.some(name => name.includes("편집실"));
-      const isOtherSelected = selectedItems.some(name => !name.includes("편집실"));
-
-      items.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "equipment-card";
-        const isEditing = item.name.includes("편집실");
-        const shouldDisable = (isEditing && isOtherSelected) || (!isEditing && isEditingSelected);
-        if (shouldDisable) div.classList.add("disabled");
-
-        const isSelected = selectedItems.includes(item.name);
-        if (isSelected) div.classList.add("selected");
-
-        div.innerHTML = `<img src="${item.image}" alt="장비"><span class="text-sm">${item.name}</span>`;
-        div.onclick = () => {
-          if (shouldDisable) return;
-          if (isSelected) {
-            selectedItems = selectedItems.filter(i => i !== item.name);
-          } else {
-            selectedItems.push(item.name);
-          }
-          updateSelectedUI();
-          renderEquipmentList();
-        };
-        container.appendChild(div);
-      });
-    }
-
-    function updateSelectedUI() {
-      const sec = document.getElementById("selected-section");
-      const btn = document.getElementById("toStep2");
-      if (selectedItems.length === 0) {
-        sec.classList.add("hidden");
-        btn.classList.add("hidden");
-      } else {
-        sec.classList.remove("hidden");
-        btn.classList.remove("hidden");
-      }
-      document.getElementById("selected-items").innerHTML = selectedItems.map(i => `<li>${i}</li>`).join("");
-    }
-
-    document.querySelectorAll(".tab-button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentTab = btn.dataset.tab;
-        document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
-        currentSub = "body";
-        renderEquipmentList();
-      });
-    });
-
-    document.querySelectorAll(".subtab-button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".subtab-button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentSub = btn.dataset.subtab;
-        renderEquipmentList();
-      });
-    });
-
-    function goToStep(n) {
-      if (n === 2 && selectedItems.length === 0) {
-        alert("장비를 선택해주세요.");
-        return;
-      }
-      document.getElementById("step1").classList.add("hidden");
-      document.getElementById("step2").classList.add("hidden");
-      document.getElementById("step" + n).classList.remove("hidden");
-
-      document.getElementById("step1Btn").classList.remove("step-active");
-      document.getElementById("step2Btn").classList.remove("step-active");
-      document.getElementById("step3Btn").classList.remove("step-active");
-
-      if (n === 1) document.getElementById("step1Btn").classList.add("step-active");
-      if (n === 2) document.getElementById("step2Btn").classList.add("step-active");
-      if (n === 3) document.getElementById("step3Btn").classList.add("step-active");
-    }
-
-    function goHome() {
-      location.href = "index.html";
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      renderEquipmentList();
+    document.getElementById("agreeCheck").addEventListener("change", function(e) {
+      const btn = document.getElementById("toStep4");
+      btn.disabled = !e.target.checked;
+      btn.classList.toggle("opacity-50", !e.target.checked);
     });
   </script>
 </body>
