@@ -11,7 +11,7 @@
     body, html {
       margin: 0;
       padding: 0;
-      font-family: "Noto Sans KR", sans-serif;
+      font-family: 'Noto Sans KR', sans-serif;
       background-color: #f8f9fc;
     }
     header {
@@ -95,7 +95,7 @@
       padding: 40px 0;
       font-size: 16px;
     }
-    /* 처리 완료 탭 하위 탭 스타일 */
+    /* 하위 탭 스타일 (처리 완료 탭 내부) */
     .sub-tabs {
       margin-bottom: 16px;
     }
@@ -112,7 +112,7 @@
       background-color: #4e73df;
       color: #fff;
     }
-    /* 카드 상태 인디케이터 (처리 완료 탭) */
+    /* 카드 상태 인디케이터 */
     .status-indicator {
       position: absolute;
       left: 0;
@@ -122,7 +122,7 @@
       border-top-left-radius: 6px;
       border-bottom-left-radius: 6px;
     }
-    .status-신청 { background-color: #4e73df; }
+    .status-승인 { background-color: #4e73df; }
     .status-반려 { background-color: #e74a3b; }
   </style>
 </head>
@@ -170,9 +170,9 @@
       el.classList.add('active');
     }
 
-    // 3. 처리 완료 탭 하위 탭 변수 (default: "승인반려")
-    let processedSubTab = "승인반려"; // 다른 값: "휴지통"
-
+    // 3. 처리 완료 탭 하위 탭 변수 (default: "승인")
+    let processedSubTab = "승인"; // 또는 "반려"
+    
     // 4. 데이터 로드 함수
     let currentUnsubscribe = null;
     function loadData(category) {
@@ -221,8 +221,7 @@
           let html = '';
           snapshot.forEach(doc => {
             const data = doc.data();
-            let rentalDate = data.rentDate ? data.rentDate 
-                              : (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
+            let rentalDate = data.rentDate ? data.rentDate : (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
             html += `
               <div class="card">
                 <h3>대여 신청 내역</h3>
@@ -246,11 +245,11 @@
           contentArea.innerHTML = `<div class="loading">오류 발생: ${err.message}</div>`;
         });
       } else if (category === 'processed') {
-        // 처리 완료 탭: 하위 탭(승인반려 / 휴지통) 추가
+        // 처리 완료 탭: 하위 탭 (승인, 반려) 추가
         contentArea.innerHTML = `
           <div class="sub-tabs" id="subTabs">
-            <button id="tabApproval" class="${processedSubTab === '승인반려' ? 'active' : ''}" onclick="setProcessedSubTab('승인반려')">승인/반려</button>
-            <button id="tabTrash" class="${processedSubTab === '휴지통' ? 'active' : ''}" onclick="setProcessedSubTab('휴지통')">휴지통</button>
+            <button id="tabApproved" class="${processedSubTab === '승인' ? 'active' : ''}" onclick="setProcessedSubTab('승인')">승인</button>
+            <button id="tabRejected" class="${processedSubTab === '반려' ? 'active' : ''}" onclick="setProcessedSubTab('반려')">반려</button>
           </div>
           <div id="processedContent"><div class="loading">데이터 로딩 중...</div></div>
         `;
@@ -260,35 +259,27 @@
 
     // 5. 처리 완료 탭 하위 탭 데이터 로드 함수
     function loadProcessed() {
-      const contentArea = document.getElementById('processedContent');
-      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
-      let query;
-      if (processedSubTab === '승인반려') {
-        query = db.collection('applications')
-                  .where('status', 'in', ['신청', '반려'])
-                  .orderBy('createdAt', 'desc');
-      } else if (processedSubTab === '휴지통') {
-        query = db.collection('applications')
-                  .where('status', '==', '휴지통')
-                  .orderBy('createdAt', 'desc');
-      }
+      const processedContent = document.getElementById('processedContent');
+      processedContent.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
+      let query = db.collection('applications')
+                    .where('status', '==', processedSubTab)
+                    .orderBy('createdAt', 'desc');
       if (currentUnsubscribe) {
         currentUnsubscribe();
       }
       currentUnsubscribe = query.onSnapshot(snapshot => {
         if (snapshot.empty) {
-          contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
+          processedContent.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
           return;
         }
         let html = '';
         snapshot.forEach(doc => {
           const data = doc.data();
-          let rentalDate = data.rentDate ? data.rentDate 
-                            : (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
-          // 카드 상단에 상태에 따른 인디케이터 표시 (승인이면 파란색, 반려이면 빨간색)
-          let indicatorHTML = "";
-          if (data.status === "신청") {
-            indicatorHTML = '<div class="status-indicator status-신청"></div>';
+          let rentalDate = data.rentDate ? data.rentDate : (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
+          // 카드 상단 상태 인디케이터: 승인은 파란색, 반려는 빨간색
+          let indicatorHTML = '';
+          if (data.status === "승인") {
+            indicatorHTML = '<div class="status-indicator status-승인"></div>';
           } else if (data.status === "반려") {
             indicatorHTML = '<div class="status-indicator status-반려"></div>';
           }
@@ -303,44 +294,36 @@
               <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
               <p><strong>상태:</strong> ${data.status || ""}</p>
           `;
-          // 처리 완료 탭에서 상태 업데이트 버튼
-          if (processedSubTab === '승인반려') {
-            if (data.status === "신청") {
-              html += `
-                <div class="actions">
-                  <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
-                  <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-                </div>
-              `;
-            } else if (data.status === "반려") {
-              html += `
-                <div class="actions">
-                  <button onclick="updateStatus('${doc.id}', '신청')">신청 복원</button>
-                  <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-                </div>
-              `;
-            }
-          } else if (processedSubTab === '휴지통') {
+          // 처리 완료 탭에서는 상태 업데이트 버튼 (승인 탭: 버튼을 눌러 "반려"로 변경, 반려 탭: 버튼을 눌러 "승인"으로 변경)
+          if (processedSubTab === "승인") {
             html += `
               <div class="actions">
-                <button onclick="updateStatus('${doc.id}', '대기')">복원</button>
+                <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
+                <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
+              </div>
+            `;
+          } else if (processedSubTab === "반려") {
+            html += `
+              <div class="actions">
+                <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
+                <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
               </div>
             `;
           }
           html += `</div>`;
         });
-        contentArea.innerHTML = html;
+        processedContent.innerHTML = html;
       }, err => {
         console.error('Firestore 에러:', err);
-        contentArea.innerHTML = `<div class="loading">오류 발생: ${err.message}</div>`;
+        processedContent.innerHTML = `<div class="loading">오류 발생: ${err.message}</div>`;
       });
     }
 
     // 6. 처리 완료 하위 탭 변경 함수
     function setProcessedSubTab(tab) {
       processedSubTab = tab;
-      document.getElementById("tabApproval").classList.toggle("active", tab === "승인반려");
-      document.getElementById("tabTrash").classList.toggle("active", tab === "휴지통");
+      document.getElementById("tabApproved").classList.toggle("active", tab === "승인");
+      document.getElementById("tabRejected").classList.toggle("active", tab === "반려");
       loadProcessed();
     }
 
@@ -359,8 +342,6 @@
 
     // 8. 페이지 로드 시 기본으로 "대기 내역" 탭 로드
     loadData('pending');
-
-    // (추가) 왼쪽 메뉴에서 "로그인 내역" 선택 시 loadData('logins') 호출
   </script>
 </body>
 </html>
