@@ -48,7 +48,7 @@
       <div class="flex-1 text-center p-2 rounded bg-gray-200 text-gray-500">4. 완료</div>
     </div>
 
-    <div id="step1">
+    <div id="step1" class="step">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
       <div class="flex space-x-2 mb-4">
         <button class="tab-button active px-4 py-1 border rounded" data-tab="camera">카메라</button>
@@ -74,6 +74,18 @@
       <div class="flex justify-between mt-6">
         <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
         <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">다음 단계 →</button>
+      </div>
+    </div>
+
+    <div id="step2" class="step hidden">
+      <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
+      <label class="block mb-2">대여 시작일</label>
+      <input type="date" class="border p-2 rounded w-full mb-4" />
+      <label class="block mb-2">반납일</label>
+      <input type="date" class="border p-2 rounded w-full mb-4" />
+      <div class="flex justify-between">
+        <button onclick="goToStep(1)" class="text-sm text-blue-600">← 이전 단계</button>
+        <button onclick="goToStep(3)" class="bg-blue-600 text-white px-4 py-2 rounded">다음 단계 →</button>
       </div>
     </div>
   </div>
@@ -166,11 +178,20 @@
     });
 
     function goToStep(n) {
-      if (n === 2 && selectedItems.length === 0) {
-        alert("장비를 선택해주세요.");
-        return;
+      for (let i = 1; i <= 4; i++) {
+        const stepDiv = document.getElementById("step" + i);
+        const btnDiv = document.getElementById("step" + i + "Btn");
+        if (stepDiv) stepDiv.classList.add("hidden");
+        if (btnDiv) btnDiv.classList.remove("step-active");
+        if (btnDiv) btnDiv.classList.add("step-inactive");
       }
-      // 추후 step 이동 로직
+      const targetStep = document.getElementById("step" + n);
+      const targetBtn = document.getElementById("step" + n + "Btn");
+      if (targetStep) targetStep.classList.remove("hidden");
+      if (targetBtn) {
+        targetBtn.classList.remove("step-inactive");
+        targetBtn.classList.add("step-active");
+      }
     }
 
     function goHome() {
@@ -179,6 +200,7 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       renderEquipmentList();
+      goToStep(1);
     });
   </script>
 </body>
