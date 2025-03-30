@@ -152,7 +152,7 @@
         • 기자재 대장 관리<br/>
         • 예산 집행 및 회계 관리<br/><br/>
         <strong>부칙</strong><br/>
-                제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
+        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
         제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
         2025년 3월 23일<br/>
         연세예술원 영화학 주임교수 유영식
@@ -294,7 +294,7 @@
 
       if (n === 2) {
         const editingOnly = selectedItems.every(i => i.includes("편집실"));
-        document.getElementById("commonDateSection").classList.toggle("hidden", editingOnly);
+             document.getElementById("commonDateSection").classList.toggle("hidden", editingOnly);
         document.getElementById("editingDateSection").classList.toggle("hidden", !editingOnly);
         if (editingOnly) generateTimeGrid();
       }
@@ -311,6 +311,40 @@
           : '';
       }
     }
+
+    // 시간 선택 그리드 생성
+    function generateTimeGrid() {
+      const timeGrid = document.getElementById("timeGrid");
+      timeGrid.innerHTML = "";
+      // 24시간 그리드 생성 (시간 1~24)
+      for (let hour = 1; hour <= 24; hour++) {
+        const div = document.createElement("div");
+        div.className = "time-grid-item";
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.id = `time-${hour}`;
+        input.className = "hidden";
+        const label = document.createElement("label");
+        label.setAttribute("for", `time-${hour}`);
+        label.innerText = `${hour}시`;
+        label.className = "block p-2 text-center bg-gray-200 cursor-pointer rounded-md hover:bg-gray-300";
+
+        // 시간 선택을 체크한 항목을 selectedHours에 추가
+        input.addEventListener('change', function () {
+          if (this.checked) {
+            selectedHours.push(hour);
+          } else {
+            selectedHours = selectedHours.filter(h => h !== hour);
+          }
+        });
+
+        div.appendChild(input);
+        div.appendChild(label);
+        timeGrid.appendChild(div);
+      }
+    }
+
+    let selectedHours = []; // 선택된 시간 배열
 
     // Step 2 유효성 검사
     function validateStep2() {
