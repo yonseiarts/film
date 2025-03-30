@@ -9,6 +9,7 @@
     .step-active { background-color: #1D4ED8; color: white; }
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
     .tab-button.active { background-color: #dbeafe; font-weight: 600; }
+    .subtab-button.active { background-color: #dbeafe; font-weight: 600; }
     .equipment.selected { border-color: #facc15; background-color: #fefce8; }
     .equipment-card {
       border: 1px solid #e5e7eb;
@@ -31,7 +32,6 @@
       pointer-events: none;
       background-color: #f3f4f6;
     }
-    .subtab-button.active { background-color: #dbeafe; font-weight: 600; }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -48,7 +48,7 @@
       <div id="step4Btn" class="flex-1 text-center p-2 rounded step-inactive">4. 완료</div>
     </div>
 
-    <div id="step1" class="step">
+    <div id="step1">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
       <div class="flex space-x-2 mb-4">
         <button class="tab-button active px-4 py-1 border rounded" data-tab="camera">카메라</button>
@@ -74,37 +74,26 @@
       </div>
     </div>
 
-    <div id="step2" class="step hidden">
+    <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-      <div id="commonDateSection">
-        <label class="block mb-2">대여 시작일</label>
-        <input type="date" id="startDate" class="border p-2 rounded w-full mb-4" />
-        <label class="block mb-2">반납일</label>
-        <input type="date" id="endDate" class="border p-2 rounded w-full mb-4" />
-        <label class="block mb-2">증명사진 업로드</label>
-        <input type="file" id="proofImage" class="border p-2 rounded w-full mb-4" />
-      </div>
-      <div id="editingTimeSection" class="hidden">
-        <label class="block mb-2">편집실 대여 시간</label>
-        <div class="grid grid-cols-6 gap-2">
-          ${[...Array(24).keys()].map(hour => `<label><input type="checkbox" value="${hour}" class="mr-1">${hour}:00</label>`).join('')}
-        </div>
-      </div>
+      <label class="block mb-2">대여 시작일</label>
+      <input type="date" id="startDate" class="border p-2 rounded w-full mb-4" />
+      <label class="block mb-2">반납일</label>
+      <input type="date" id="endDate" class="border p-2 rounded w-full mb-4" />
+      <label class="block mb-2">증명사진 업로드</label>
+      <input type="file" id="proofImage" class="border p-2 rounded w-full mb-4" />
       <div class="flex justify-between">
         <button onclick="goToStep(1)" class="text-sm text-blue-600">← 이전 단계</button>
         <button onclick="goToStep(3)" class="bg-blue-600 text-white px-4 py-2 rounded">다음 단계 →</button>
       </div>
     </div>
 
-    <div id="step3" class="step hidden">
+    <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4">
         <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
-        <strong>제1장 총칙</strong><br/>
-        <em>제1조 (목적)</em><br/>
-        본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>
-        <em>제2조 (적용범위)</em><br/>
-        본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
+        <em>제1조 (목적)</em><br/>본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>
+        <em>제2조 (적용범위)</em><br/>본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
         <strong>제2장 관리체계</strong><br/>
         <em>제1조 (주임교수의 권한)</em><br/>
         • 기자재 운영 정책 수립 및 변경<br/>
@@ -140,5 +129,29 @@
       </div>
     </div>
   </div>
+  <script>
+    function goToStep(n) {
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById("step" + i)?.classList.add("hidden");
+        document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
+        document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
+      }
+      document.getElementById("step" + n)?.classList.remove("hidden");
+      document.getElementById("step" + n + "Btn")?.classList.add("step-active");
+      document.getElementById("step" + n + "Btn")?.classList.remove("step-inactive");
+
+      if (n === 4) {
+        document.getElementById("final-selected-items").innerHTML = selectedItems.map(i => `<li>${i}</li>`).join("");
+        const start = document.getElementById("startDate")?.value || "-";
+        const end = document.getElementById("endDate")?.value || "-";
+        document.getElementById("final-dates").innerText = `대여일자: ${start} ~ ${end}`;
+      }
+    }
+
+    document.getElementById("agreeCheck").addEventListener("change", e => {
+      document.getElementById("toStep4").disabled = !e.target.checked;
+      document.getElementById("toStep4").classList.toggle("opacity-50", !e.target.checked);
+    });
+  </script>
 </body>
 </html>
