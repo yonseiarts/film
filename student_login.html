@@ -1,94 +1,64 @@
+<!-- student_login.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>학생 로그인</title>
-  <!-- Tailwind CSS (버전 2.2.19) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-  <!-- Firebase SDK 버전 8 사용 -->
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>학생 로그인 - 연세예술원 영화학</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50">
   <div class="min-h-screen flex items-center justify-center">
-    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-sm">
-      <h1 class="text-center text-2xl font-bold mb-4 text-gray-700">학생 로그인</h1>
-      <form id="loginForm">
-        <!-- 이름 입력 -->
-        <div class="mb-4">
-          <label for="name" class="block text-sm font-bold text-gray-700 mb-2">이름</label>
-          <input id="name" type="text" placeholder="이름 입력" required
-                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-        </div>
-        <!-- 학번 입력 -->
-        <div class="mb-4">
-          <label for="studentId" class="block text-sm font-bold text-gray-700 mb-2">학번</label>
-          <input id="studentId" type="text" placeholder="학번 입력" required
-                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-        </div>
-        <!-- 비밀번호 입력 -->
-        <div class="mb-6">
-          <label for="password" class="block text-sm font-bold text-gray-700 mb-2">비밀번호</label>
-          <input id="password" type="password" placeholder="비밀번호 입력" required
-                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline">
-        </div>
-        <div class="flex items-center justify-center">
-          <button type="submit"
-                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-            로그인
-          </button>
-        </div>
+    <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+      <h2 class="text-2xl font-bold mb-6 text-center">학생 로그인</h2>
+      <form id="loginForm" class="space-y-4">
+        <input type="text" id="studentName" placeholder="이름" class="w-full border rounded px-3 py-2" required />
+        <input type="text" id="studentId" placeholder="학번" class="w-full border rounded px-3 py-2" required />
+        <input type="password" id="studentPassword" placeholder="비밀번호" class="w-full border rounded px-3 py-2" required />
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded">로그인</button>
+        <p id="errorMsg" class="text-red-500 text-center"></p>
       </form>
     </div>
   </div>
 
   <script>
-    // Firebase 설정 (실제 프로젝트 설정값으로 교체)
-    var firebaseConfig = {
-      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-      authDomain: "yonseirent-setup.firebaseapp.com",
-      projectId: "yonseirent-setup",
-      storageBucket: "yonseirent-setup.appspot.com",
-      messagingSenderId: "1072524969376",
-      appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
-      measurementId: "G-8G1D43NXMW"
-    };
-    firebase.initializeApp(firebaseConfig);
-    var db = firebase.firestore();
-
-    // 미리 정의된 허용된 학생 로그인 정보 (원래 디자인 및 기능 그대로)
-    var allowedUsers = [
-      { name: "이창민", studentId: "ar23000501", password: "1234" }
+    const allowedStudents = [
+      {
+        name: "이창민",
+        id: "ar23000501",
+        password: "1234"
+      },
+      {
+        name: "김지훈",
+        id: "ar23000502",
+        password: "yonsei2025!"
+      },
+      {
+        name: "박소연",
+        id: "ar23000503",
+        password: "securepw123"
+      }
     ];
 
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
+    document.getElementById("loginForm").addEventListener("submit", function (e) {
       e.preventDefault();
-      var name = document.getElementById('name').value.trim();
-      var studentId = document.getElementById('studentId').value.trim();
-      var password = document.getElementById('password').value.trim();
-      
-      var user = allowedUsers.find(function(u) {
-        return u.name === name && u.studentId === studentId && u.password === password;
-      });
-      
-      if (user) {
-        // 로그인 성공 시 Firestore에 기록 및 로컬 스토리지에 학생 정보 저장 후 form.html로 이동
-        db.collection('studentLogins').add({
-          name: name,
-          studentId: studentId,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(function() {
-          localStorage.setItem('studentInfo', JSON.stringify({ name: name, studentId: studentId }));
-          alert("로그인 성공! 기자재 대여 신청 페이지로 이동합니다.");
-          window.location.href = "form.html";
-        }).catch(function(error) {
-          console.error("로그인 기록 오류:", error);
-          alert("로그인 처리 중 오류가 발생했습니다: " + error.message);
-        });
+
+      const name = document.getElementById("studentName").value.trim();
+      const id = document.getElementById("studentId").value.trim();
+      const password = document.getElementById("studentPassword").value.trim();
+
+      const matchedStudent = allowedStudents.find(student =>
+        student.name === name &&
+        student.id === id &&
+        student.password === password
+      );
+
+      if (matchedStudent) {
+        localStorage.setItem("studentName", matchedStudent.name);
+        localStorage.setItem("studentId", matchedStudent.id);
+        window.location.href = "mypage.html";
       } else {
-        alert("입력한 로그인 정보가 정확하지 않습니다.");
+        document.getElementById("errorMsg").textContent = "이름, 학번 또는 비밀번호가 일치하지 않습니다.";
       }
     });
   </script>
