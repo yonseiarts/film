@@ -180,6 +180,11 @@
   </div>
 
   <script>
+    // 홈으로 가는 버튼 클릭 시 1단계로 돌아가기
+    function goHome() {
+      goToStep(1);
+    }
+
     const equipmentData = {
       camera: {
         body: Array.from({ length: 8 }, (_, i) => ({ name: `카메라 바디 ${i + 1}`, image: "https://placehold.co/80x80?text=Body" })),
@@ -295,7 +300,7 @@
       }
 
       if (n === 4) {
-        document.getElementById("final-selected-items").innerHTML = selectedItems.map(i => `<li>${i}</li>`).join("");
+            document.getElementById("final-selected-items").innerHTML = selectedItems.map(i => `<li>${i}</li>`).join("");
         const editingOnly = selectedItems.every(i => i.includes("편집실"));
         const start = document.getElementById("startDate")?.value || "-";
         const end = document.getElementById("endDate")?.value || "-";
@@ -307,7 +312,7 @@
       }
     }
 
-       // Step 2 유효성 검사
+    // Step 2 유효성 검사
     function validateStep2() {
       const editingOnly = selectedItems.every(i => i.includes("편집실"));
       if (editingOnly) {
