@@ -1,4 +1,4 @@
-<!-- student_login.html -->
+<!-- student_login.html (고정된 계정만 허용) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -16,12 +16,20 @@
       <input type="password" id="studentPassword" placeholder="비밀번호" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" required>
       <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">로그인</button>
       <p id="errorMsg" class="text-center text-sm text-red-500"></p>
+      <details class="mt-4 text-sm text-gray-600">
+        <summary class="cursor-pointer underline">허용된 학생 계정 보기</summary>
+        <ul class="mt-2 list-disc ml-5">
+          <li>이창민 / ar23000501 / 1234</li>
+          <li>김지훈 / ar23000502 / yonsei2025!</li>
+          <li>박소연 / ar23000503 / securepw123</li>
+        </ul>
+      </details>
     </form>
   </div>
 
   <script>
     const allowedStudents = [
-      { name: "이창민", id: "ar23000501", password: "1234!" },
+      { name: "이창민", id: "ar23000501", password: "1234" },
       { name: "김지훈", id: "ar23000502", password: "yonsei2025!" },
       { name: "박소연", id: "ar23000503", password: "securepw123" }
     ];
