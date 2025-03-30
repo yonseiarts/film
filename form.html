@@ -2,14 +2,13 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 신청</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .step-active { background-color: #1D4ED8; color: white; }
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
     .tab-button.active { background-color: #dbeafe; font-weight: 600; }
-    .subtab-button.active { background-color: #dbeafe; font-weight: 600; }
     .equipment.selected { border-color: #facc15; background-color: #fefce8; }
     .equipment-card {
       border: 1px solid #e5e7eb;
@@ -32,6 +31,7 @@
       pointer-events: none;
       background-color: #f3f4f6;
     }
+    .subtab-button.active { background-color: #dbeafe; font-weight: 600; }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -50,6 +50,7 @@
 
     <div id="step1">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
+      <p class="text-sm text-gray-500 mb-4">* 편집실을 선택하면 다른 장비를 선택할 수 없습니다.</p>
       <div class="flex space-x-2 mb-4">
         <button class="tab-button active px-4 py-1 border rounded" data-tab="camera">카메라</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="lighting">조명</button>
@@ -58,12 +59,9 @@
         <button class="tab-button px-4 py-1 border rounded" data-tab="editing">편집실</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="line">라인</button>
       </div>
-      <div id="cameraSubTabs" class="flex gap-2 mb-4">
-        <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
-        <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
-        <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대</button>
-      </div>
+
       <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+
       <div id="selected-section" class="mt-6 hidden">
         <h3 class="font-medium mb-2">선택된 장비</h3>
         <ul id="selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
@@ -92,23 +90,12 @@
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4">
         <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
-        <em>제1조 (목적)</em><br/>본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>
-        <em>제2조 (적용범위)</em><br/>본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
-        <strong>제2장 관리체계</strong><br/>
-        <em>제1조 (주임교수의 권한)</em><br/>
-        • 기자재 운영 정책 수립 및 변경<br/>
-        • 기자재 담당 인력 임명<br/>
-        • 장비 대여 승인<br/>
-        • 외부 촬영 허가<br/>
-        • 분쟁 조정 및 제재 조치 결정<br/><br/>
-        <em>제2조 (행정실 업무)</em><br/>
-        • 기자재 대장 관리<br/>
-        • 예산 집행 및 회계 관리<br/><br/>
-        <strong>부칙</strong><br/>
-        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
-        제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
-        2025년 3월 23일<br/>
-        연세예술원 영화학 주임교수 유영식
+        제1조 (목적) 이 규정은 연세예술원 영화학의 기자재를 효율적으로 관리하고<br/>
+        학생들의 창작 활동을 지원하기 위한 목적을 가진다.<br/><br/>
+        제2조 (적용범위) 본 규정은 영화학과가 소유한 모든 기자재에 적용된다.<br/><br/>
+        제3조 (대여 조건) 재학생만 대여 가능하며, 대여 시 학생증과 증명사진을 제시해야 한다.<br/><br/>
+        제4조 (반납) 기자재는 대여 기간 내 반납해야 하며, 연체 또는 파손 시 책임이 따른다.<br/><br/>
+        제5조 (제재) 규정을 위반할 경우 대여 제한 또는 이용 정지 처분이 내려질 수 있다.<br/>
       </div>
       <label class="flex items-center mb-4">
         <input type="checkbox" id="agreeCheck" class="mr-2"> 위 규정에 동의합니다.
@@ -119,7 +106,7 @@
       </div>
     </div>
 
-    <div id="step4" class="step hidden text-center py-20">
+    <div id="step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
       <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
       <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
@@ -129,7 +116,10 @@
       </div>
     </div>
   </div>
+
   <script>
+    const selectedItems = [];
+
     function goToStep(n) {
       for (let i = 1; i <= 4; i++) {
         document.getElementById("step" + i)?.classList.add("hidden");
@@ -152,6 +142,10 @@
       document.getElementById("toStep4").disabled = !e.target.checked;
       document.getElementById("toStep4").classList.toggle("opacity-50", !e.target.checked);
     });
+
+    function goHome() {
+      location.href = "index.html";
+    }
   </script>
 </body>
 </html>
