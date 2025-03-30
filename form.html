@@ -33,41 +33,31 @@
     <div class="step-indicator step3 text-gray-400">3. 규정 동의</div>
     <div class="step-indicator step4 text-gray-400">4. 완료</div>
   </div>
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>기자재 대여 신청</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .tab-button.active { background-color: #3b82f6; color: white; font-weight: 600; }
-    .subtab-button.active { background-color: #dbeafe; font-weight: 600; }
-    .equipment-card {
-      border: 1px solid #e5e7eb;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      background-color: white;
-      cursor: pointer;
-    }
-    .equipment-card.selected {
-      border-color: #facc15;
-      background-color: #fefce8;
-    }
-    .step { display: none; }
-    .step.active { display: block; }
-  </style>
-</head>
-<body class="bg-gray-50 text-gray-900 p-6">
-  <h1 class="text-2xl font-bold mb-4">🎬 기자재 대여 신청</h1>
 
-  <!-- STEP 표시 -->
-  <div class="flex justify-between mb-6">
-    <div class="step-indicator step1 text-blue-600 font-bold">1. 장비 선택</div>
-    <div class="step-indicator step2 text-gray-400">2. 대여일</div>
-    <div class="step-indicator step3 text-gray-400">3. 규정 동의</div>
-    <div class="step-indicator step4 text-gray-400">4. 완료</div>
+  <!-- Step 1: 장비 선택 -->
+  <div class="step active" id="step1">
+    <div class="flex flex-wrap gap-2 mb-4">
+      <button class="tab-button active px-4 py-2 rounded" data-tab="camera">카메라</button>
+      <button class="tab-button px-4 py-2 rounded" data-tab="lighting">조명</button>
+      <button class="tab-button px-4 py-2 rounded" data-tab="sound">사운드</button>
+      <button class="tab-button px-4 py-2 rounded" data-tab="monitor">모니터</button>
+      <button class="tab-button px-4 py-2 rounded" data-tab="editing">편집실</button>
+      <button class="tab-button px-4 py-2 rounded" data-tab="line">라인</button>
+    </div>
+
+    <div id="cameraSubTabs" class="flex gap-2 mb-4">
+      <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
+      <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
+      <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대</button>
+    </div>
+
+    <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+    <div class="mt-6 text-right">
+      <button onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded">다음 단계 →</button>
+    </div>
   </div>
+
   <!-- Step 2: 대여일 선택 -->
   <div class="step" id="step2">
     <label>시작일</label>
@@ -99,6 +89,7 @@
     <h2 class="text-xl font-bold text-green-600 mb-2">✅ 신청 완료!</h2>
     <div id="finalSummary" class="text-sm text-gray-700"></div>
   </div>
+
 <script>
   const equipmentData = {
     camera: {
