@@ -137,7 +137,7 @@
       </div>
     </div>
 
-    <!-- Step 3: 규정 동의 -->
+        <!-- Step 3: 규정 동의 -->
     <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed">
@@ -267,8 +267,50 @@
       renderEquipmentList();
     }
 
-    // 나머지 코드
-    // ...
+    // 탭 클릭 시 장비 목록 갱신
+    document.querySelectorAll(".tab-button").forEach(button => {
+      button.addEventListener("click", (e) => {
+        document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
+        e.target.classList.add("active");
+        currentTab = e.target.dataset.tab;
+
+        if (currentTab === "camera") {
+          document.getElementById("cameraSubTabs").classList.remove("hidden");
+        } else {
+          document.getElementById("cameraSubTabs").classList.add("hidden");
+        }
+        renderEquipmentList();
+      });
+    });
+
+    // 서브탭 클릭 시 장비 목록 갱신
+    document.querySelectorAll(".subtab-button").forEach(button => {
+      button.addEventListener("click", (e) => {
+        document.querySelectorAll(".subtab-button").forEach(btn => btn.classList.remove("active"));
+        e.target.classList.add("active");
+        currentSub = e.target.dataset.subtab;
+        renderEquipmentList();
+      });
+    });
+
+    // 초기화
+    document.addEventListener("DOMContentLoaded", () => {
+      renderEquipmentList();
+      goToStep(1);
+    });
+
+    // 각 단계 전환
+    function goToStep(n) {
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById("step" + i)?.classList.add("hidden");
+        document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
+        document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
+      }
+      document.getElementById("step" + n)?.classList.remove("hidden");
+      document.getElementById("step" + n + "Btn")?.classList.add("step-active");
+      document.getElementById("step" + n + "Btn")?.classList.remove("step-inactive");
+    }
   </script>
 </body>
 </html>
+
