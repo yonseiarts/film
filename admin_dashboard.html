@@ -28,10 +28,15 @@
       appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
       measurementId: "G-8G1D43NXMW"
     };
+
     // Firebase 초기화
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
+
+    // selectedItems와 selectedHours 정의 (폼에 맞춰 업데이트)
+    let selectedItems = [];  // 사용자가 선택한 장비 목록
+    let selectedHours = [];  // 선택된 시간
 
     // Firebase 인증 상태 체크 및 Firestore 데이터 저장
     auth.onAuthStateChanged(function(user) {
@@ -39,16 +44,20 @@
         // 인증된 사용자가 있으면 Firestore에 데이터 추가
         console.log("로그인된 사용자:", user.email);
 
-        // 예시로 저장할 데이터 객체
+        // 폼에서 입력된 값 가져오기
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+        const editingDate = document.getElementById("editingDate")?.value || "";
+
+        // Firestore에 데이터 추가
         const data = {
           items: selectedItems,
-          startDate: document.getElementById("startDate").value,
-          endDate: document.getElementById("endDate").value,
-          editingDate: document.getElementById("editingDate")?.value || "",
+          startDate: startDate,
+          endDate: endDate,
+          editingDate: editingDate,
           hours: selectedHours
         };
 
-        // Firestore에 데이터 추가
         db.collection("rentals").add(data)
           .then(() => {
             alert("신청이 완료되었습니다!");
@@ -83,6 +92,12 @@
     }
 
     // 나머지 코드 (다음 단계 진행 함수들, UI 업데이트 등)
+
+    // '다음 단계'로 넘어가는 함수 예시
+    function goToStep(step) {
+      // 단계 이동 로직 (UI 업데이트 등)
+      console.log("단계 이동:", step);
+    }
   </script>
 </body>
 </html>
