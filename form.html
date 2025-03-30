@@ -207,14 +207,14 @@
       ]
     };
 
-    let selectedItems = [];
+    let selectedItems = []; // 선택된 장비 리스트
     let currentTab = "camera";
     let currentSub = "body";
 
     // 장비 목록 렌더링
     function renderEquipmentList() {
       const container = document.getElementById("equipment-list");
-      container.innerHTML = "";
+      container.innerHTML = ""; // 리스트 초기화
       const items = currentTab === "camera" ? equipmentData.camera[currentSub] : equipmentData[currentTab];
 
       const isEditingSelected = selectedItems.some(name => name.includes("편집실"));
@@ -269,7 +269,6 @@
 
     // 나머지 코드
     // ...
-
   </script>
 </body>
 </html>
