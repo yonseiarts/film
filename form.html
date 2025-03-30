@@ -152,7 +152,7 @@
         • 기자재 대장 관리<br/>
         • 예산 집행 및 회계 관리<br/><br/>
         <strong>부칙</strong><br/>
-        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
+                제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
         제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
         2025년 3월 23일<br/>
         연세예술원 영화학 주임교수 유영식
@@ -182,7 +182,7 @@
   <script>
     // 홈으로 가는 버튼 클릭 시 1단계로 돌아가기
     function goHome() {
-      goToStep(1);
+      goToStep(1); // 1단계로 돌아가기
     }
 
     const equipmentData = {
@@ -300,7 +300,7 @@
       }
 
       if (n === 4) {
-            document.getElementById("final-selected-items").innerHTML = selectedItems.map(i => `<li>${i}</li>`).join("");
+        document.getElementById("final-selected-items").innerHTML = selectedItems.map(i => `<li>${i}</li>`).join("");
         const editingOnly = selectedItems.every(i => i.includes("편집실"));
         const start = document.getElementById("startDate")?.value || "-";
         const end = document.getElementById("endDate")?.value || "-";
@@ -338,7 +338,7 @@
       }
       goToStep(3);
     }
-    
+
     // 규정 동의 체크박스를 확인하고 신청 완료 버튼을 활성화/비활성화합니다.
     document.getElementById('agreeCheck').addEventListener('change', function() {
       const toStep4Button = document.getElementById('toStep4');
@@ -352,7 +352,6 @@
         toStep4Button.classList.add('opacity-50');
       }
     });
-
   </script>
 </body>
 </html>
