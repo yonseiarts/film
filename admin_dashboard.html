@@ -25,24 +25,61 @@
       object-fit: cover;
       flex-shrink: 0;
     }
+    /* 기본 디자인 유지 */
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #f8f9fc;
+    }
+    .header {
+      background-color: #4e73df;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    .content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .section-header {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .status-indicator {
+      padding: 5px 10px;
+      border-radius: 3px;
+      font-weight: bold;
+    }
+    .status-승인 { background-color: #4e73df; color: white; }
+    .status-반려 { background-color: #e74a3b; color: white; }
+    .status-대기 { background-color: #f0ad4e; color: white; }
+    .actions button {
+      background-color: #1d4ed8;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    .actions button:hover {
+      background-color: #375a9c;
+    }
   </style>
 </head>
-<body class="bg-gray-50">
+<body>
   <!-- 헤더 -->
-  <div class="bg-blue-700 text-white py-6 text-center relative">
-    <a href="index.html" class="absolute left-4 top-1/2 -translate-y-1/2 transform text-white underline text-sm">홈으로</a>
-    <h1 class="text-2xl font-bold">관리자 대시보드</h1>
-    <p class="text-sm mt-1">기자재 대여 신청 내역을 관리합니다.</p>
+  <div class="header">
+    <h1>관리자 대시보드</h1>
+    <p>기자재 대여 신청 내역을 관리합니다.</p>
   </div>
 
   <!-- 대시보드 컨테이너 -->
-  <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-    <!-- 신청 내역 -->
-    <div class="mb-8">
-      <h2 class="text-xl font-bold mb-4">대여 신청 목록</h2>
-      <div id="application-list" class="space-y-4">
-        <p class="text-sm text-gray-500">대여 신청 내역을 불러오는 중...</p>
-      </div>
+  <div class="content">
+    <div class="section-header">대여 신청 목록</div>
+    <div id="application-list">
+      <p class="text-sm text-gray-500">대여 신청 내역을 불러오는 중...</p>
     </div>
   </div>
 
@@ -59,54 +96,54 @@
       appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
       measurementId: "G-CQZEKPE02D"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // 대여 신청 내역 불러오기
     async function loadApplications() {
-      // Firestore에서 대여 신청 내역을 가져옵니다.
       const querySnapshot = await db.collection("rentals").orderBy("createdAt", "desc").get();
       const listContainer = document.getElementById("application-list");
-      listContainer.innerHTML = ""; // 기존 내용을 비웁니다.
+      listContainer.innerHTML = "";  // 기존 내용 비우기
 
       if (querySnapshot.empty) {
-        listContainer.innerHTML = `<p class="text-sm text-gray-500">신청 내역이 없습니다.</p>`;
+        listContainer.innerHTML = "<p class='text-sm text-gray-500'>신청 내역이 없습니다.</p>";
         return;
       }
 
       querySnapshot.forEach(doc => {
         const data = doc.data();
         const div = document.createElement("div");
-        div.className = "border p-4 rounded-lg shadow-sm";
+        div.className = "border p-4 rounded-lg shadow-sm mb-4";
 
-        // 신청 내역의 상태에 따라 색상을 변경
-        const statusClass = data.status === "승인" ? "text-green-600" : data.status === "반려" ? "text-red-600" : "text-yellow-600";
+        // 상태에 따라 색상 변경
+        const statusClass = data.status === "승인" ? "status-승인" : data.status === "반려" ? "status-반려" : "status-대기";
 
         div.innerHTML = `
-          <h3 class="text-lg font-semibold text-blue-700">${data.items.join(', ')}</h3>
+          <h3 class="font-semibold text-xl text-blue-700">${data.items.join(', ')}</h3>
           <p class="text-sm text-gray-700"><strong>대여일자:</strong> ${data.startDate} ~ ${data.endDate}</p>
-          <p class="text-sm text-gray-700"><strong>상태:</strong> <span class="${statusClass}">${data.status}</span></p>
-          <div class="mt-4">
-            <button onclick="updateStatus('${doc.id}', '승인')" class="bg-green-600 text-white px-4 py-2 rounded mr-2">승인</button>
+          <p class="text-sm text-gray-700"><strong>상태:</strong> <span class="status-indicator ${statusClass}">${data.status}</span></p>
+          <div class="actions">
+            <button onclick="updateStatus('${doc.id}', '승인')" class="bg-green-600 text-white px-4 py-2 rounded">승인</button>
             <button onclick="updateStatus('${doc.id}', '반려')" class="bg-red-600 text-white px-4 py-2 rounded">반려</button>
+            <button onclick="updateStatus('${doc.id}', '휴지통')" class="bg-yellow-600 text-white px-4 py-2 rounded">휴지통</button>
           </div>
         `;
-        
         listContainer.appendChild(div);
       });
     }
 
-    // 대여 신청의 상태를 업데이트하는 함수
+    // 상태 업데이트 함수
     async function updateStatus(docId, status) {
       const docRef = db.collection("rentals").doc(docId);
       await docRef.update({
         status: status
       });
       alert(`상태가 "${status}"로 업데이트되었습니다.`);
-      loadApplications(); // 상태 업데이트 후 신청 내역을 새로고침
+      loadApplications();  // 상태 업데이트 후 새로고침
     }
 
-    // 페이지 로드 시 대여 신청 내역을 불러옵니다.
-    document.addEventListener("DOMContentLoaded", loadApplications);
+    document.addEventListener("DOMContentLoaded", loadApplications);  // 페이지 로드 시 신청 내역 불러오기
   </script>
 </body>
 </html>
