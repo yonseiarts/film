@@ -3,17 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <title>기자재 대여 신청</title>
-
-  <!-- TailwindCSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Firebase SDK (modular) -->
   <script type="module">
+    // Import Firebase SDK functions
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js";
     import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore.js"; // Firestore
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-analytics.js"; // Analytics (선택 사항)
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-analytics.js"; // Analytics
 
-    // Firebase 설정
+    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
@@ -21,15 +17,15 @@
       storageBucket: "yonseirent-setup.appspot.com",
       messagingSenderId: "1072524969376",
       appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
-      measurementId: "G-8G1D43NXMW"
+      measurementId: "G-CQZEKPE02D"
     };
 
-    // Firebase 초기화
+    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);  // Firestore 초기화
     const analytics = getAnalytics(app); // Analytics (선택 사항)
 
-    // 장비 데이터 예시 (Firebase Firestore에서 가져오기)
+    // 장비 데이터 예시
     const equipmentData = {
       camera: {
         body: Array.from({ length: 8 }, (_, i) => ({ name: `카메라 바디 ${i + 1}`, image: "https://placehold.co/80x80?text=Body" })),
@@ -209,8 +205,99 @@
       </div>
     </div>
 
-    <!-- 나머지 단계 및 폼 구조는 동일 -->
+    <!-- Step 2: 대여일 선택 -->
+    <div id="step2" class="hidden">
+      <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
+      <div id="commonDateSection">
+        <label class="block mb-2 font-medium">대여 시작일</label>
+        <input type="date" id="startDate" class="border p-2 rounded w-full mb-4" />
+        <label class="block mb-2 font-medium">반납일</label>
+        <input type="date" id="endDate" class="border p-2 rounded w-full mb-4" />
+        <label class="block mb-2 font-medium">증명사진 첨부</label>
+        <input type="file" id="proofImage" accept="image/*" class="border p-2 rounded w-full mb-4" />
+      </div>
+
+      <div id="editingDateSection" class="hidden">
+        <label class="block mb-2 font-medium">편집실 대여일자</label>
+        <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4" />
+        <label class="block mb-2 font-medium">시간 선택</label>
+        <div class="time-grid mb-4" id="timeGrid"></div>
+      </div>
+
+      <div class="flex justify-between mt-6">
+        <button onclick="goToStep(1)" class="text-sm text-blue-600">← 이전 단계</button>
+        <button onclick="submitApplication()" class="bg-blue-600 text-white px-4 py-2 rounded">다음 단계 →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: 규정 동의 -->
+    <div id="step3" class="hidden">
+      <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
+      <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed">
+        <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
+        <strong>제1장 총칙</strong><br/>
+        <em>제1조 (목적)</em><br/>
+        본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>
+        <em>제2조 (적용범위)</em><br/>
+        본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
+        <strong>제2장 관리체계</strong><br/>
+        <em>제1조 (주임교수의 권한)</em><br/>
+        • 기자재 운영 정책 수립 및 변경<br/>
+        • 기자재 담당 인력 임명<br/>
+        • 장비 대여 승인<br/>
+        • 외부 촬영 허가<br/>
+        • 분쟁 조정 및 제재 조치 결정<br/><br/>
+        <em>제2조 (행정실 업무)</em><br/>
+        • 기자재 대장 관리<br/>
+        • 예산 집행 및 회계 관리<br/><br/>
+        <strong>부칙</strong><br/>
+        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
+        제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
+        2025년 3월 23일<br/>
+        연세예술원 영화학 주임교수 유영식
+      </div>
+      <label class="flex items-center mb-4">
+        <input type="checkbox" id="agreeCheck" class="mr-2"> 위 규정에 동의합니다.
+      </label>
+      <div class="flex justify-between">
+        <button onclick="goToStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
+        <button id="toStep4" onclick="submitApplication()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">신청 완료</button>
+      </div>
+    </div>
+
+    <!-- Step 4: 완료 화면 -->
+    <div id="step4" class="step hidden text-center py-20">
+      <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
+      <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
+      <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
+      <p id="final-dates" class="text-sm text-gray-700 mt-4"></p>
+      <div id="final-time" class="text-sm text-gray-700 mt-1"></div>
+      <div class="mt-8">
+        <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
+      </div>
+    </div>
   </div>
 
+  <script type="module">
+    // Firebase SDK 초기화 (이미 포함된 부분)
+    // Import Firebase SDK functions (위에서 설명한대로)
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      authDomain: "yonseirent-setup.firebaseapp.com",
+      projectId: "yonseirent-setup",
+      storageBucket: "yonseirent-setup.appspot.com",
+      messagingSenderId: "1072524969376",
+      appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
+      measurementId: "G-CQZEKPE02D"
+    };
+
+    // Firebase 초기화
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);  // Firestore 초기화
+    const analytics = getAnalytics(app); // Firebase Analytics 초기화
+
+    // 기타 자바스크립트 로직, 기능 구현...
+  </script>
 </body>
 </html>
