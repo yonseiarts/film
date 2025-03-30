@@ -48,7 +48,6 @@
       <div class="flex-1 text-center p-2 rounded bg-gray-200 text-gray-500">4. 완료</div>
     </div>
 
-    <!-- STEP 1 -->
     <div id="step1" class="step">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
       <div class="flex space-x-2 mb-4">
@@ -78,55 +77,23 @@
       </div>
     </div>
 
-    <!-- STEP 2 -->
     <div id="step2" class="step hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
       <label class="block mb-2">대여 시작일</label>
-      <input type="date" id="startDate" class="border p-2 rounded w-full mb-4" />
+      <input type="date" class="border p-2 rounded w-full mb-4" />
       <label class="block mb-2">반납일</label>
-      <input type="date" id="endDate" class="border p-2 rounded w-full mb-4" />
+      <input type="date" class="border p-2 rounded w-full mb-4" />
       <label class="block mb-2">증명사진 첨부</label>
-      <input type="file" id="proofImage" class="border p-2 rounded w-full mb-4" />
+      <input type="file" class="border p-2 rounded w-full mb-4" accept="image/*" />
       <div class="flex justify-between">
         <button onclick="goToStep(1)" class="text-sm text-blue-600">← 이전 단계</button>
         <button onclick="goToStep(3)" class="bg-blue-600 text-white px-4 py-2 rounded">다음 단계 →</button>
       </div>
     </div>
-
-    <!-- STEP 3 -->
-    <div id="step3" class="step hidden">
-      <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
-      <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4">
-        <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
-        <strong>제1장 총칙</strong><br/>
-        <em>제1조 (목적)</em><br/>
-        본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>
-        <em>제2조 (적용범위)</em><br/>
-        본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
-        <strong>제2장 관리체계</strong><br/>
-        <em>제1조 (주임교수의 권한)</em><br/>
-        • 기자재 운영 정책 수립 및 변경<br/>
-        • 기자재 담당 인력 임명<br/>
-        • 장비 대여 승인<br/>
-        • 외부 촬영 허가<br/>
-        • 분쟁 조정 및 제재 조치 결정<br/><br/>
-        <em>제2조 (행정실 업무)</em><br/>
-        • 기자재 대장 관리<br/>
-        • 예산 집행 및 회계 관리<br/><br/>
-        <strong>부칙</strong><br/>
-        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
-        제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
-        2025년 3월 23일<br/>
-        연세예술원 영화학 주임교수 유영식
-      </div>
-      <label class="flex items-center mb-4">
-        <input type="checkbox" id="agreeCheck" class="mr-2"> 위 사용 규정에 동의합니다.
-      </label>
-      <div class="flex justify-between mt-6">
-        <button onclick="goToStep(2)" class="text-blue-600 text-sm">← 이전 단계</button>
-        <button id="toStep4" onclick="goToStep(4)" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">완료</button>
-      </div>
-    </div>
   </div>
+
+  <script>
+    // 데이터 및 렌더링 함수는 이후 이어서 삽입됩니다.
+  </script>
 </body>
 </html>
