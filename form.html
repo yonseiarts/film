@@ -48,6 +48,7 @@
       <div class="flex-1 text-center p-2 rounded bg-gray-200 text-gray-500">4. 완료</div>
     </div>
 
+    <!-- Step 1 -->
     <div id="step1">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
       <div class="flex space-x-2 mb-4">
@@ -74,6 +75,22 @@
       <div class="flex justify-between mt-6">
         <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
         <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">다음 단계 →</button>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="step2" class="hidden">
+      <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
+      <label class="block mb-2 font-medium">시작일</label>
+      <input type="date" id="startDate" class="border p-2 rounded w-full mb-4">
+      <label class="block mb-2 font-medium">반납일</label>
+      <input type="date" id="endDate" class="border p-2 rounded w-full mb-4">
+      <label class="block mb-2 font-medium">증명사진 업로드</label>
+      <input type="file" id="proofImage" class="mb-4">
+
+      <div class="flex justify-between mt-6">
+        <button onclick="goToStep(1)" class="text-blue-600 text-sm">← 이전</button>
+        <button onclick="goToStep(3)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
       </div>
     </div>
   </div>
@@ -169,7 +186,17 @@
         alert("장비를 선택해주세요.");
         return;
       }
-      // 실제 step 이동 로직 필요시 추가
+      document.getElementById("step1").classList.add("hidden");
+      document.getElementById("step2").classList.add("hidden");
+      document.getElementById("step" + n).classList.remove("hidden");
+
+      document.getElementById("step1Btn").classList.remove("step-active");
+      document.getElementById("step2Btn").classList.remove("step-active");
+      document.getElementById("step3Btn").classList.remove("step-active");
+
+      if (n === 1) document.getElementById("step1Btn").classList.add("step-active");
+      if (n === 2) document.getElementById("step2Btn").classList.add("step-active");
+      if (n === 3) document.getElementById("step3Btn").classList.add("step-active");
     }
 
     function goHome() {
