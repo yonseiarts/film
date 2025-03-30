@@ -2,71 +2,40 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>마이페이지 - 내 신청 현황</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>학생 로그인</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
-  <!-- 헤더 -->
-  <header class="bg-blue-700 text-white p-4 flex items-center justify-between">
-    <h1 class="text-xl font-bold">마이페이지</h1>
-    <button onclick="window.location.href='index.html'" class="bg-white text-blue-700 px-3 py-1 rounded">홈으로</button>
-  </header>
-
-  <!-- 본문 -->
-  <main class="max-w-4xl mx-auto p-4">
-    <h2 class="text-lg font-semibold mb-4">내 신청 내역</h2>
-    <div id="applicationsList" class="space-y-4">
-      <div class="text-center text-gray-500">로딩 중...</div>
+  <div class="max-w-md mx-auto mt-20 p-6 bg-white shadow-md rounded">
+    <h1 class="text-2xl font-bold text-center text-blue-700 mb-6">학생 로그인</h1>
+    <div class="mb-4">
+      <label for="studentName" class="block font-medium mb-1">이름</label>
+      <input type="text" id="studentName" class="w-full border border-gray-300 rounded p-2" placeholder="홍길동">
     </div>
-  </main>
+    <div class="mb-6">
+      <label for="studentId" class="block font-medium mb-1">학번</label>
+      <input type="text" id="studentId" class="w-full border border-gray-300 rounded p-2" placeholder="20251234">
+    </div>
+    <button onclick="loginStudent()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">로그인</button>
+  </div>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-      authDomain: "yonseirent-setup.firebaseapp.com",
-      projectId: "yonseirent-setup",
-      storageBucket: "yonseirent-setup.firebasestorage.app",
-      messagingSenderId: "1072524969376",
-      appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
-      measurementId: "G-8G1D43NXMW"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    function loginStudent() {
+      const name = document.getElementById("studentName").value;
+      const studentId = document.getElementById("studentId").value;
 
-    const studentInfo = JSON.parse(localStorage.getItem("studentInfo"));
-    if (!studentInfo) {
-      alert("로그인이 필요합니다.");
-      window.location.href = "student_login.html";
+      if (!name || !studentId) {
+        alert("이름과 학번을 모두 입력해주세요.");
+        return;
+      }
+
+      const studentInfo = { name, studentId };
+      localStorage.setItem("studentInfo", JSON.stringify(studentInfo));
+
+      // ✅ 로그인 후 마이페이지로 이동
+      window.location.href = "mypage.html";
     }
-
-    const applicationsList = document.getElementById("applicationsList");
-    db.collection("applications")
-      .where("studentID", "==", studentInfo.studentId)
-      .orderBy("createdAt", "desc")
-      .onSnapshot(snapshot => {
-        if (snapshot.empty) {
-          applicationsList.innerHTML = '<div class="text-center text-gray-500">신청 내역이 없습니다.</div>';
-          return;
-        }
-        let html = "";
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          html += `
-            <div class="bg-white p-4 rounded shadow">
-              <p><strong>이름:</strong> ${data.studentName || "-"}</p>
-              <p><strong>학번:</strong> ${data.studentID || "-"}</p>
-              <p><strong>신청 장비:</strong> ${Array.isArray(data.items) ? data.items.join(", ") : "-"}</p>
-              <p><strong>대여 기간:</strong> ${data.startDate || ""} ~ ${data.endDate || ""}</p>
-              <p><strong>상태:</strong> <span class="font-bold ${data.status === '승인' ? 'text-blue-600' : data.status === '반려' ? 'text-red-500' : 'text-gray-700'}">${data.status || "대기중"}</span></p>
-              <p><strong>신청일:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : "-"}</p>
-            </div>
-          `;
-        });
-        applicationsList.innerHTML = html;
-      });
   </script>
 </body>
 </html>
