@@ -51,13 +51,19 @@
       <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대</button>
     </div>
 
-    <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6"></div>
+
+    <div id="selected-section" class="mt-6 hidden">
+      <h3 class="font-medium mb-2">선택된 장비</h3>
+      <ul id="selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
+    </div>
 
     <div class="mt-6 text-right">
-      <button onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded">다음 단계 →</button>
+      <button onclick="goToStep(2)" id="toStep2Btn" class="bg-blue-600 text-white px-4 py-2 rounded hidden">다음 단계 →</button>
     </div>
   </div>
 
+  <!-- 나머지 step2~step4는 그대로 유지 -->
   <!-- Step 2: 대여일 선택 -->
   <div class="step" id="step2">
     <label>시작일</label>
@@ -120,10 +126,25 @@
         if (!selectedItems.includes(item.name)) {
           selectedItems.push(item.name);
           div.classList.add("selected");
+          updateSelectedList();
         }
       };
       container.appendChild(div);
     });
+  }
+
+  function updateSelectedList() {
+    const section = document.getElementById("selected-section");
+    const list = document.getElementById("selected-items");
+    const nextBtn = document.getElementById("toStep2Btn");
+    if (selectedItems.length > 0) {
+      section.classList.remove("hidden");
+      list.innerHTML = selectedItems.map(name => `<li>${name}</li>`).join("");
+      nextBtn.classList.remove("hidden");
+    } else {
+      section.classList.add("hidden");
+      nextBtn.classList.add("hidden");
+    }
   }
 
   document.querySelectorAll(".tab-button").forEach(btn => {
@@ -167,6 +188,7 @@
 
   document.addEventListener("DOMContentLoaded", () => {
     renderEquipmentList();
+    updateSelectedList();
   });
 </script>
 </body>
