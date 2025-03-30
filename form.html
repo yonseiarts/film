@@ -26,6 +26,10 @@
       object-fit: cover;
       flex-shrink: 0;
     }
+    .equipment-card.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
     .subtab-button.active { background-color: #dbeafe; font-weight: 600; }
   </style>
 </head>
@@ -60,7 +64,7 @@
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대</button>
       </div>
 
-      <div id="equipment-list" class="grid grid-cols-1 gap-4"></div>
+      <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
 
       <div id="selected-section" class="mt-6 hidden">
         <h3 class="font-medium mb-2">선택된 장비</h3>
@@ -98,16 +102,27 @@
       const container = document.getElementById("equipment-list");
       container.innerHTML = "";
       const items = currentTab === "camera" ? equipmentData.camera[currentSub] : equipmentData[currentTab];
+      const isEditingSelected = selectedItems.some(name => name.includes("편집실"));
+      const isOtherSelected = selectedItems.some(name => !name.includes("편집실"));
+
       items.forEach(item => {
         const div = document.createElement("div");
         div.className = "equipment-card";
+        if (
+          (item.name.includes("편집실") && isOtherSelected) ||
+          (!item.name.includes("편집실") && isEditingSelected)
+        ) {
+          div.classList.add("disabled");
+        }
         div.innerHTML = `<img src="${item.image}" alt="장비"><span class="text-sm">${item.name}</span>`;
         div.onclick = () => {
+          if (div.classList.contains("disabled")) return;
           if (!selectedItems.includes(item.name)) {
             selectedItems.push(item.name);
             div.classList.add("selected");
           }
           updateSelectedUI();
+          renderEquipmentList();
         };
         container.appendChild(div);
       });
