@@ -10,8 +10,22 @@
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
     .tab-button.active { background-color: #dbeafe; font-weight: 600; }
     .equipment.selected { border-color: #facc15; background-color: #fefce8; }
-    .equipment-card { border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1rem; text-align: center; cursor: pointer; background-color: white; }
-    .equipment-card img { width: 60px; height: 60px; object-fit: cover; margin: 0 auto 0.5rem; }
+    .equipment-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+    }
+    .equipment-card img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
     .subtab-button.active { background-color: #dbeafe; font-weight: 600; }
   </style>
 </head>
@@ -46,7 +60,7 @@
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대</button>
       </div>
 
-      <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      <div id="equipment-list" class="grid grid-cols-1 gap-4"></div>
 
       <div id="selected-section" class="mt-6 hidden">
         <h3 class="font-medium mb-2">선택된 장비</h3>
@@ -57,8 +71,6 @@
         <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">다음 단계 →</button>
       </div>
     </div>
-
-    <!-- 이하 기존 step2 ~ step4 내용 동일, 생략 -->
   </div>
 
   <script>
@@ -71,7 +83,10 @@
       lighting: Array.from({ length: 8 }, (_, i) => ({ name: `조명 ${i + 1}`, image: "https://placehold.co/80x80?text=Light" })),
       sound: Array.from({ length: 8 }, (_, i) => ({ name: `마이크 ${i + 1}`, image: "https://placehold.co/80x80?text=Mic" })),
       monitor: Array.from({ length: 8 }, (_, i) => ({ name: `모니터 ${i + 1}`, image: "https://placehold.co/80x80?text=Monitor" })),
-      editing: Array.from({ length: 8 }, (_, i) => ({ name: `편집실 ${i + 1}`, image: "https://placehold.co/80x80?text=Editing" })),
+      editing: [
+        { name: "편집실 1", image: "https://placehold.co/80x80?text=Edit1" },
+        { name: "편집실 2", image: "https://placehold.co/80x80?text=Edit2" }
+      ],
       line: Array.from({ length: 8 }, (_, i) => ({ name: `케이블 ${i + 1}`, image: "https://placehold.co/80x80?text=Cable" }))
     };
 
@@ -86,7 +101,7 @@
       items.forEach(item => {
         const div = document.createElement("div");
         div.className = "equipment-card";
-        div.innerHTML = `<img src="${item.image}" alt="장비"><p>${item.name}</p>`;
+        div.innerHTML = `<img src="${item.image}" alt="장비"><span class="text-sm">${item.name}</span>`;
         div.onclick = () => {
           if (!selectedItems.includes(item.name)) {
             selectedItems.push(item.name);
