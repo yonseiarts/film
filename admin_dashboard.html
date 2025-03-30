@@ -7,8 +7,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
   <style>
     body, html {
-      margin: 0; padding: 0;
-      font-family: 'Noto Sans KR', sans-serif;
+      margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif;
       background-color: #f8f9fc; font-size: 14px; color: #333;
     }
     header {
@@ -30,7 +29,7 @@
       padding: 10px 14px; margin-bottom: 10px;
       border-radius: 4px; cursor: pointer;
     }
-      .sidebar ul li:hover, .sidebar ul li.active {
+    .sidebar ul li:hover, .sidebar ul li.active {
       background-color: rgba(255,255,255,0.2);
     }
     .main { flex: 1; padding: 24px; background-color: #fff; }
@@ -84,7 +83,7 @@
 
   <script>
     const firebaseConfig = {
-         apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
       storageBucket: "yonseirent-setup.firebasestorage.app",
@@ -131,8 +130,8 @@
             contentArea.innerHTML = html;
           },
           error => {
-            console.error("데이터 가져오기 오류:", error); // 오류 출력
-            contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>'; // 오류 메시지 표시
+            console.error("데이터 가져오기 오류:", error);
+            contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
           }
         );
       } else if (category === 'pending') {
@@ -166,8 +165,8 @@
             contentArea.innerHTML = html;
           },
           error => {
-            console.error("데이터 가져오기 오류:", error); // 오류 출력
-            contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>'; // 오류 메시지 표시
+            console.error("데이터 가져오기 오류:", error);
+            contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
           }
         );
       } else if (category === 'processed') {
@@ -207,8 +206,7 @@
               <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
               <p><strong>상태:</strong> ${data.status || ""}</p>
               <div class="actions">
-                <button onclick="updateStatus
-                ('${doc.id}', '${data.status === '승인' ? '반려' : '승인'}')">${data.status === '승인' ? '반려' : '승인'}</button>
+                <button onclick="updateStatus('${doc.id}', '${data.status === '승인' ? '반려' : '승인'}')">${data.status === '승인' ? '반려' : '승인'}</button>
                 <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
               </div>
             </div>`;
