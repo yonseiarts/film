@@ -2,31 +2,28 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>마이 페이지 - 내 신청 내역</title>
+  <title>마이페이지 - 내 신청 현황</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Tailwind CSS CDN -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-  <!-- Firebase (compat 버전) -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
-  <!-- 상단 헤더 -->
+  <!-- 헤더 -->
   <header class="bg-blue-700 text-white p-4 flex items-center justify-between">
-    <h1 class="text-xl font-bold">마이 페이지</h1>
+    <h1 class="text-xl font-bold">마이페이지</h1>
     <button onclick="window.location.href='index.html'" class="bg-white text-blue-700 px-3 py-1 rounded">홈으로</button>
   </header>
 
-  <!-- 콘텐츠 영역 -->
+  <!-- 본문 -->
   <main class="max-w-4xl mx-auto p-4">
     <h2 class="text-lg font-semibold mb-4">내 신청 내역</h2>
     <div id="applicationsList" class="space-y-4">
-      <div class="loading text-center text-gray-600">데이터 로딩 중...</div>
+      <div class="text-center text-gray-500">로딩 중...</div>
     </div>
   </main>
 
   <script>
-    // Firebase 구성 (본인 프로젝트 정보로 수정)
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
@@ -36,49 +33,39 @@
       appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
       measurementId: "G-8G1D43NXMW"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 로그인 정보 확인
-    const studentInfoStr = localStorage.getItem("studentInfo");
-    if (!studentInfoStr) {
+    const studentInfo = JSON.parse(localStorage.getItem("studentInfo"));
+    if (!studentInfo) {
       alert("로그인이 필요합니다.");
       window.location.href = "student_login.html";
     }
-    const studentInfo = JSON.parse(studentInfoStr);
-    const applicationsListEl = document.getElementById("applicationsList");
 
-    // Firestore 쿼리
+    const applicationsList = document.getElementById("applicationsList");
     db.collection("applications")
       .where("studentID", "==", studentInfo.studentId)
       .orderBy("createdAt", "desc")
       .onSnapshot(snapshot => {
         if (snapshot.empty) {
-          applicationsListEl.innerHTML = '<div class="text-center text-gray-600">신청 내역이 없습니다.</div>';
+          applicationsList.innerHTML = '<div class="text-center text-gray-500">신청 내역이 없습니다.</div>';
           return;
         }
         let html = "";
         snapshot.forEach(doc => {
           const data = doc.data();
-          let rentalDate = data.rentDate 
-            || (data.startDate && data.endDate ? `${data.startDate} ~ ${data.endDate}` : "");
           html += `
-            <div class="bg-white border rounded p-4 shadow">
-              <h3 class="text-base font-semibold text-blue-700 mb-2">신청 내역</h3>
-              <p><strong>이름:</strong> ${data.userName || ""}</p>
-              <p><strong>학번:</strong> ${data.studentID || ""}</p>
-              <p><strong>기자재:</strong> ${Array.isArray(data.items) ? data.items.join(", ") : data.items || ""}</p>
-              <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-              <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
-              <p><strong>상태:</strong> ${data.status || "대기중"}</p>
+            <div class="bg-white p-4 rounded shadow">
+              <p><strong>이름:</strong> ${data.studentName || "-"}</p>
+              <p><strong>학번:</strong> ${data.studentID || "-"}</p>
+              <p><strong>신청 장비:</strong> ${Array.isArray(data.items) ? data.items.join(", ") : "-"}</p>
+              <p><strong>대여 기간:</strong> ${data.startDate || ""} ~ ${data.endDate || ""}</p>
+              <p><strong>상태:</strong> <span class="font-bold ${data.status === '승인' ? 'text-blue-600' : data.status === '반려' ? 'text-red-500' : 'text-gray-700'}">${data.status || "대기중"}</span></p>
+              <p><strong>신청일:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : "-"}</p>
             </div>
           `;
         });
-        applicationsListEl.innerHTML = html;
-      }, error => {
-        console.error("에러 발생:", error);
-        applicationsListEl.innerHTML = `<div class="text-red-500 text-center">오류: ${error.message}</div>`;
+        applicationsList.innerHTML = html;
       });
   </script>
 </body>
