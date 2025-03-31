@@ -30,13 +30,13 @@
     
     // Firebase 설정
     const firebaseConfig = {
-  apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-  authDomain: "yonseirent-setup.firebaseapp.com",
-  projectId: "yonseirent-setup",
-  storageBucket: "yonseirent-setup.firebasestorage.app",
-  messagingSenderId: "1072524969376",
-  appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
-  measurementId: "G-8G1D43NXMW"
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      authDomain: "yonseirent-setup.firebaseapp.com",
+      projectId: "yonseirent-setup",
+      storageBucket: "yonseirent-setup.firebasestorage.app",
+      messagingSenderId: "1072524969376",
+      appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
+      measurementId: "G-8G1D43NXMW"
     };
 
     // Firebase 앱 초기화
@@ -48,14 +48,26 @@
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
-      // 관리자 이메일과 비밀번호 확인
-      if (email === "admin@yonseiarts.kr" && password === "secureadmin123") {
-        // 로그인 성공 시 대시보드로 이동
-        window.location.href = "admin_dashboard.html"; // 관리자가 로그인 후 이동할 대시보드 페이지
-      } else {
-        // 로그인 실패 시 오류 메시지 표시
-        document.getElementById("error").classList.remove("hidden");
-      }
+      // Firebase Authentication을 사용하여 로그인
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // 로그인 성공 시, 관리자인지 확인
+          const user = userCredential.user;
+
+          // 예를 들어, admin 계정일 경우에만 관리자로 로그인할 수 있도록 처리
+          if (user.email === "admin@yonseiarts.kr") {
+            // 로그인 성공 시 대시보드로 이동
+            window.location.href = "admin_dashboard.html"; // 관리자가 로그인 후 이동할 대시보드 페이지
+          } else {
+            // 관리자가 아닌 경우 오류 메시지 표시
+            document.getElementById("error").classList.remove("hidden");
+          }
+        })
+        .catch((error) => {
+          // 로그인 실패 시 오류 메시지 표시
+          document.getElementById("error").classList.remove("hidden");
+          console.error("로그인 오류: ", error.message);
+        });
     });
   </script>
 </body>
