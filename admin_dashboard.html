@@ -137,57 +137,77 @@
           }
         );
       } else if (category === 'pending') {
-        const query = db.collection('rentals').where('status', '==', '대기').orderBy('createdAt', 'desc');
-        currentUnsubscribe = query.onSnapshot(
-          snapshot => {
-            if (snapshot.empty) {
-              contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-              return;
-            }
-            let html = '';
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              let rentalDate = data.rentDate || (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
-              let isEditingRoom = data.equipment.includes('편집실');
-              html += `
-                <div class="card">
-                  <h3>대여 신청 내역</h3>
-                  <p><strong>이름:</strong> ${data.userName || ""}</p>
-                  <p><strong>학번:</strong> ${data.studentID || ""}</p>
-                  <p><strong>기자재:</strong> ${data.items || data.equipment || ""}</p>
-                  <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-                  <p><strong>상태:</strong> ${data.status || ""}</p>
-                  <p><strong>편집실 대여 시간:</strong> ${isEditingRoom ? data.editingTime || "시간 미선택" : "해당 사항 없음"}</p>
-                  <div class="actions">
-                    <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
-                    <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
-                    <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-                  </div>
-                </div>`;
-            });
-            contentArea.innerHTML = html;
-          },
-          error => {
-            console.error("데이터 가져오기 오류:", error);
-            contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
-          }
-        );
+        contentArea.innerHTML = `
+          <div class="sub-tabs" id="subTabs">
+            <button id="tabEquipment" class="active" onclick="setTab('equipment')">장비</button>
+            <button id="tabEditing" onclick="setTab('editing')">편집실</button>
+          </div>
+          <div id="pendingContent"><div class="loading">데이터 로딩 중...</div></div>
+        `;
+        loadPending('equipment');
       } else if (category === 'processed') {
         contentArea.innerHTML = `
           <div class="sub-tabs" id="subTabs">
-            <button id="tabApproved" class="${processedSubTab === '승인' ? 'active' : ''}" onclick="setProcessedSubTab('승인')">승인</button>
-            <button id="tabRejected" class="${processedSubTab === '반려' ? 'active' : ''}" onclick="setProcessedSubTab('반려')">반려</button>
+            <button id="tabApproved" class="active" onclick="setProcessedTab('승인')">승인</button>
+            <button id="tabRejected" onclick="setProcessedTab('반려')">반려</button>
           </div>
-          <div id="processedContent"><div class="loading">데이터 로딩 중...</div></div>`;
+          <div id="processedContent"><div class="loading">데이터 로딩 중...</div></div>
+        `;
         loadProcessed();
       }
     }
 
-    function loadProcessed() {
+    function setTab(tab) {
+      loadPending(tab);
+      document.getElementById('tabEquipment').classList.toggle('active', tab === 'equipment');
+      document.getElementById('tabEditing').classList.toggle('active', tab === 'editing');
+    }
+
+    function loadPending(tab) {
+      const pendingContent = document.getElementById('pendingContent');
+      pendingContent.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
+      let query;
+      if (tab === 'equipment') {
+        query = db.collection('rentals').where('equipment', '!=', '편집실').where('status', '==', '대기').orderBy('createdAt', 'desc');
+      } else {
+        query = db.collection('rentals').where('equipment', '==', '편집실').where('status', '==', '대기').orderBy('createdAt', 'desc');
+      }
+      currentUnsubscribe = query.onSnapshot(snapshot => {
+        if (snapshot.empty) {
+          pendingContent.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
+          return;
+        }
+        let html = '';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          html += `
+            <div class="card">
+              <h3>${data.equipment}</h3>
+              <p><strong>이름:</strong> ${data.userName}</p>
+              <p><strong>학번:</strong> ${data.studentID}</p>
+              <p><strong>대여 날짜:</strong> ${data.startDate} ~ ${data.endDate}</p>
+              <p><strong>상태:</strong> ${data.status === '승인' ? '<span class="text-green-500">승인</span>' : data.status === '반려' ? '<span class="text-red-500">반려</span>' : ''}</p>
+              <div class="actions">
+                <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
+                <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
+                <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
+              </div>
+            </div>`;
+        });
+        pendingContent.innerHTML = html;
+      });
+    }
+
+    function setProcessedTab(status) {
+      loadProcessed(status);
+      document.getElementById('tabApproved').classList.toggle('active', status === '승인');
+      document.getElementById('tabRejected').classList.toggle('active', status === '반려');
+    }
+
+    function loadProcessed(status) {
       const processedContent = document.getElementById('processedContent');
       processedContent.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
-      let query = db.collection('rentals').where('status', '==', processedSubTab).orderBy('createdAt', 'desc');
-      if (currentUnsubscribe) currentUnsubscribe();
+      let query = db.collection('rentals').where('status', '==', status).orderBy('createdAt', 'desc');
       currentUnsubscribe = query.onSnapshot(snapshot => {
         if (snapshot.empty) {
           processedContent.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
@@ -196,60 +216,27 @@
         let html = '';
         snapshot.forEach(doc => {
           const data = doc.data();
-          let rentalDate = data.rentDate || (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
-          let indicator = data.status === "승인" ? "status-승인" : "status-반려";
           html += `
             <div class="card">
-              <div class="status-indicator ${indicator}"></div>
-              <h3>대여 신청 내역</h3>
-              <p><strong>이름:</strong> ${data.userName || ""}</p>
-              <p><strong>학번:</strong> ${data.studentID || ""}</p>
-              <p><strong>기자재:</strong> ${data.items || data.equipment || ""}</p>
-              <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-              <p><strong>상태:</strong> ${data.status || ""}</p>
-              <div class="actions">
-                <button onclick="updateStatus('${doc.id}', '${data.status === '승인' ? '반려' : '승인'}')">${data.status === '승인' ? '반려' : '승인'}</button>
-                <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-              </div>
+              <h3>${data.equipment}</h3>
+              <p><strong>이름:</strong> ${data.userName}</p>
+              <p><strong>학번:</strong> ${data.studentID}</p>
+              <p><strong>대여 날짜:</strong> ${data.startDate} ~ ${data.endDate}</p>
+              <p><strong>상태:</strong> ${data.status === '승인' ? '<span class="text-green-500">승인</span>' : data.status === '반려' ? '<span class="text-red-500">반려</span>' : ''}</p>
             </div>`;
         });
         processedContent.innerHTML = html;
       });
     }
 
-    function setProcessedSubTab(tab) {
-      processedSubTab = tab;
-      document.getElementById("tabApproved").classList.toggle("active", tab === "승인");
-      document.getElementById("tabRejected").classList.toggle("active", tab === "반려");
-      loadProcessed();
-    }
-
-    function updateStatus(docId, newStatus) {
-      if (!confirm(`상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
+    function updateStatus(docId, status) {
       db.collection('rentals').doc(docId).update({
-        status: newStatus,
-        isDeleted: false
-      })
-      .then(() => {
-        alert('상태가 변경되었습니다.');
-      })
-      .catch(err => {
-         console.error('상태 변경 실패:', err);
-        alert('오류가 발생했습니다.');
-      });
-    }
-
-    // 휴지통 복원 기능
-    function restoreItem(docId) {
-      db.collection('rentals').doc(docId).update({
-        isDeleted: false
-      })
-      .then(() => {
-        alert('항목이 복원되었습니다.');
-      })
-      .catch(err => {
-         console.error('복원 실패:', err);
-        alert('오류가 발생했습니다.');
+        status: status
+      }).then(() => {
+        alert(`상태가 '${status}'으로 업데이트 되었습니다.`);
+      }).catch(err => {
+        console.error("상태 업데이트 실패:", err);
+        alert("상태 업데이트 실패");
       });
     }
 
