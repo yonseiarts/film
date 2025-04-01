@@ -112,14 +112,16 @@
       contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
 
       let query = db.collection('rentals').orderBy('createdAt', 'desc');
-
+      
       if (category === 'logins') {
         query = db.collection('studentLogins').orderBy('timestamp', 'desc');
       } else if (category === 'pending') {
+        // status가 '대기'인 데이터를 가져오도록 쿼리 수정
         query = db.collection('rentals').where('status', '==', '대기').orderBy('createdAt', 'desc');
       } else if (category === 'processed') {
         query = db.collection('rentals').where('status', 'in', ['승인', '반려']).orderBy('createdAt', 'desc');
       } else if (category === 'trash') {
+        // status가 '휴지통'인 데이터를 가져오도록 쿼리 수정
         query = db.collection('rentals').where('status', '==', '휴지통').orderBy('createdAt', 'desc');
       }
 
