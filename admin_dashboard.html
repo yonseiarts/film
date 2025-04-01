@@ -3,82 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>기자재 대여 신청</title>
+  <title>관리자 대시보드</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .step-active { background-color: #1D4ED8; color: white; }
-    .step-inactive { background-color: #e5e7eb; color: #6b7280; }
-    .tab-button.active { background-color: #dbeafe; font-weight: 600; }
-    .equipment-card {
-      border: 1px solid #e5e7eb;
-      border-radius: 0.5rem;
-      padding: 1rem;
-      background-color: white;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      cursor: pointer;
+    body, html {
+      margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif;
+      background-color: #f8f9fc; font-size: 14px; color: #333;
     }
-    .equipment-card img {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      flex-shrink: 0;
+    header {
+      background-color: #4e73df; color: #fff; padding: 16px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    .equipment-card.disabled {
-      opacity: 0.4;
-      pointer-events: none;
-      background-color: #f3f4f6;
+    header h1 { margin: 0; font-size: 20px; }
+    header .home-btn {
+      background-color: #fff; color: #4e73df; border: none;
+      padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 14px;
     }
+    .container { display: flex; min-height: calc(100vh - 64px); }
+    .sidebar {
+      width: 260px; background-color: #2e59d9; padding: 20px; color: #fff;
+    }
+    .sidebar h2 { margin: 0 0 20px; font-size: 18px; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; font-size: 14px; }
+    .sidebar ul li {
+      padding: 10px 14px; margin-bottom: 10px;
+      border-radius: 4px; cursor: pointer;
+    }
+    .sidebar ul li:hover, .sidebar ul li.active {
+      background-color: rgba(255,255,255,0.2);
+    }
+    .main { flex: 1; padding: 24px; background-color: #fff; }
+    .card {
+      background-color: #fff; border: 1px solid #e3e6f0;
+      border-radius: 6px; padding: 16px; margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); position: relative; font-size: 13px;
+    }
+    .card h3 { margin-top: 0; color: #4e73df; font-size: 16px; margin-bottom: 8px; }
+    .card p { margin: 4px 0; }
+    .actions { margin-top: 12px; }
+    .actions button {
+      margin-right: 8px; background-color: #4e73df; color: #fff;
+      border: none; padding: 6px 12px; border-radius: 4px;
+      cursor: pointer; font-size: 13px;
+    }
+    .actions button:hover { background-color: #375a9c; }
+    .loading { text-align: center; padding: 40px 0; font-size: 15px; }
+    .sub-tabs { margin-bottom: 16px; }
+    .sub-tabs button {
+      background-color: #e2e6ea; border: none; padding: 6px 12px;
+      margin-right: 8px; border-radius: 4px; cursor: pointer; font-size: 13px;
+    }
+    .sub-tabs button.active { background-color: #4e73df; color: #fff; }
+    .status-indicator {
+      position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+      border-top-left-radius: 6px; border-bottom-left-radius: 6px;
+    }
+    .status-승인 { background-color: #4e73df; }
+    .status-반려 { background-color: #e74a3b; }
+    .status-휴지통 { background-color: #e2e2e2; }
   </style>
 </head>
-<body class="bg-gray-50">
-  <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-    <!-- 탭 -->
-    <div class="flex space-x-4 mb-4">
-      <button id="equipmentTab" class="tab-button active" onclick="switchTab('equipment')">장비 대여</button>
-      <button id="editingRoomTab" class="tab-button" onclick="switchTab('editingRoom')">편집실 대여</button>
+<body>
+  <header>
+    <h1>관리자 대시보드</h1>
+    <button class="home-btn" onclick="window.location.href='index.html'">홈으로</button>
+  </header>
+  <div class="container">
+    <div class="sidebar">
+      <h2>메뉴</h2>
+      <ul>
+        <li id="menuPending" class="active" onclick="activateMenu(this); loadData('pending')">대기 내역</li>
+        <li id="menuProcessed" onclick="activateMenu(this); loadData('processed')">처리 완료</li>
+        <li id="menuLogins" onclick="activateMenu(this); loadData('logins')">로그인 내역</li>
+        <li id="menuTrash" onclick="activateMenu(this); loadData('trash')">휴지통</li>
+      </ul>
     </div>
-
-    <!-- 장비 선택 -->
-    <div id="equipmentForm">
-      <h3 class="text-xl font-bold mb-4">장비 선택</h3>
-      <select id="equipmentSelect" class="mb-4 p-2 border rounded">
-        <option value="camera">카메라</option>
-        <option value="lighting">조명</option>
-        <option value="sound">사운드</option>
-        <option value="monitor">모니터</option>
-      </select>
-
-      <label for="startDate" class="block">대여 시작일</label>
-      <input type="date" id="startDate" class="p-2 border rounded mb-4">
-
-      <label for="endDate" class="block">반납일</label>
-      <input type="date" id="endDate" class="p-2 border rounded mb-4">
+    <div class="main" id="contentArea">
+      <div class="loading">데이터 로딩 중...</div>
     </div>
-
-    <!-- 편집실 선택 -->
-    <div id="editingRoomForm" class="hidden">
-      <h3 class="text-xl font-bold mb-4">편집실 대여</h3>
-      <label for="editingRoomDate" class="block">대여일</label>
-      <input type="date" id="editingRoomDate" class="p-2 border rounded mb-4">
-
-      <label for="editingRoomTime" class="block">대여 시간</label>
-      <input type="time" id="editingRoomTime" class="p-2 border rounded mb-4">
-    </div>
-
-    <!-- 제출 버튼 -->
-    <button id="submitBtn" class="bg-blue-600 text-white px-4 py-2 rounded mt-6">신청</button>
   </div>
 
-  <!-- 대여 신청 내역 표시 영역 -->
-  <div id="rentalList" class="mt-6">
-    <h3 class="text-xl font-bold mb-4">신청 내역</h3>
-    <div id="rentalItems" class="space-y-4"></div>
-  </div>
-
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
   <script>
-    // Firebase 초기화
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
@@ -92,96 +99,86 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 탭 전환 함수
-    function switchTab(tab) {
-      if (tab === 'equipment') {
-        document.getElementById('equipmentForm').classList.remove('hidden');
-        document.getElementById('editingRoomForm').classList.add('hidden');
-        document.getElementById('equipmentTab').classList.add('active');
-        document.getElementById('editingRoomTab').classList.remove('active');
-      } else {
-        document.getElementById('equipmentForm').classList.add('hidden');
-        document.getElementById('editingRoomForm').classList.remove('hidden');
-        document.getElementById('equipmentTab').classList.remove('active');
-        document.getElementById('editingRoomTab').classList.add('active');
-      }
+    let currentUnsubscribe = null;
+
+    function activateMenu(el) {
+      document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
+      el.classList.add('active');
     }
 
-    // Firebase에서 대여 신청 내역을 불러오는 함수
-    function loadRentalItems() {
-      const rentalItemsDiv = document.getElementById('rentalItems');
-      rentalItemsDiv.innerHTML = '<p>대여 내역을 불러오는 중...</p>';
+    function loadData(category) {
+      if (currentUnsubscribe) currentUnsubscribe();
+      const contentArea = document.getElementById('contentArea');
+      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
+
+      let query = db.collection('rentals').orderBy('createdAt', 'desc');
       
-      db.collection('rentals').orderBy('createdAt', 'desc').get().then(snapshot => {
-        rentalItemsDiv.innerHTML = ''; // 초기 로딩 메시지 제거
-        
-        if (snapshot.empty) {
-          rentalItemsDiv.innerHTML = '<p>등록된 대여 신청 내역이 없습니다.</p>';
-          return;
+      if (category === 'logins') {
+        query = db.collection('studentLogins').orderBy('timestamp', 'desc');
+      } else if (category === 'pending') {
+        query = db.collection('rentals').where('status', '==', '대기').orderBy('createdAt', 'desc');
+      } else if (category === 'processed') {
+        query = db.collection('rentals').where('status', 'in', ['승인', '반려']).orderBy('createdAt', 'desc');
+      } else if (category === 'trash') {
+        query = db.collection('rentals').where('status', '==', '휴지통').orderBy('createdAt', 'desc');
+      }
+
+      currentUnsubscribe = query.onSnapshot(
+        snapshot => {
+          if (snapshot.empty) {
+            contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
+            return;
+          }
+          let html = '';
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
+            let rentalDate = data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : data.editingRoomDate;
+            let rentalTime = data.editingRoomTime ? `시간: ${data.editingRoomTime}` : '';
+
+            html += `
+              <div class="card">
+                <div class="status-indicator ${statusClass}"></div>
+                <h3>대여 신청 내역</h3>
+                <p><strong>이름:</strong> ${data.userName || ""}</p>
+                <p><strong>학번:</strong> ${data.studentID || ""}</p>
+                <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
+                <p><strong>대여 날짜:</strong> ${rentalDate}</p>
+                <p><strong>대여 시간:</strong> ${rentalTime}</p>
+                <p><strong>상태:</strong> ${data.status || ""}</p>
+                <div class="actions">
+                  <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
+                  <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
+                  <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
+                </div>
+              </div>
+            `;
+          });
+          contentArea.innerHTML = html;
+        },
+        error => {
+          console.error("데이터 가져오기 오류:", error);
+          contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
         }
+      );
+    }
 
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const rentalItem = document.createElement('div');
-          rentalItem.className = 'card p-4';
-
-          rentalItem.innerHTML = `
-            <h4 class="font-semibold text-lg">${data.equipment || data.category}</h4>
-            <p><strong>대여 시작일:</strong> ${data.startDate || data.editingRoomDate}</p>
-            <p><strong>반납일:</strong> ${data.endDate || data.editingRoomTime}</p>
-            <p><strong>상태:</strong> <span class="${data.status === '승인' ? 'text-green-600' : 'text-red-600'}">${data.status}</span></p>
-          `;
-
-          rentalItemsDiv.appendChild(rentalItem);
-        });
-      }).catch(error => {
-        console.error('데이터 불러오기 오류:', error);
-        rentalItemsDiv.innerHTML = '<p>대여 내역을 불러오는 중 오류가 발생했습니다.</p>';
+    function updateStatus(docId, newStatus) {
+      if (!confirm(`상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
+      db.collection('rentals').doc(docId).update({
+        status: newStatus,
+        isDeleted: false
+      })
+      .then(() => {
+        alert('상태가 변경되었습니다.');
+      })
+      .catch(err => {
+         console.error('상태 변경 실패:', err);
+        alert('오류가 발생했습니다.');
       });
     }
 
-    // 제출 버튼 클릭 시 처리
-    document.getElementById('submitBtn').onclick = function() {
-      const selectedCategory = document.getElementById('equipmentTab').classList.contains('active') ? 'equipment' : 'editingRoom';
-      const data = selectedCategory === 'equipment' ? getEquipmentData() : getEditingRoomData();
-
-      // Firebase에 데이터 추가
-      firebase.firestore().collection('rentals').add(data)
-        .then(() => {
-          alert('신청이 완료되었습니다!');
-          loadRentalItems(); // 신청 완료 후 대여 내역을 새로 고침
-        })
-        .catch(error => {
-          console.error('신청 오류:', error);
-          alert('신청 실패');
-        });
-    }
-
-    // 장비 대여 데이터 처리
-    function getEquipmentData() {
-      return {
-        category: 'equipment',
-        equipment: document.getElementById('equipmentSelect').value,
-        startDate: document.getElementById('startDate').value,
-        endDate: document.getElementById('endDate').value,
-        status: '대기',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()  // 서버에서 타임스탬프 생성
-      };
-    }
-
-    // 편집실 대여 데이터 처리
-    function getEditingRoomData() {
-      return {
-        category: 'editingRoom',
-        editingRoomDate: document.getElementById('editingRoomDate').value,
-        editingRoomTime: document.getElementById('editingRoomTime').value,
-        status: '대기',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()  // 서버에서 타임스탬프 생성
-      };
-    }
-
-    // 페이지 로드 시 대여 내역을 불러옵니다.
-    loadRentalItems(); // 대여 내역 불러오기
+    loadData('pending');  // 페이지 로드 시 대기 내역 불러오기
   </script>
 </body>
 </html>
