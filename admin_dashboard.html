@@ -81,9 +81,6 @@
     </div>
   </div>
 
-  <!-- Firebase SDK & Initialization -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
@@ -98,12 +95,13 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let currentUnsubscribe = null; // currentUnsubscribe 변수를 null로 초기화
-
     function activateMenu(el) {
       document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
       el.classList.add('active');
     }
+
+    let processedSubTab = "승인";
+    let currentUnsubscribe = null;
 
     function loadData(category) {
       if (currentUnsubscribe) currentUnsubscribe(); // 기존의 구독을 취소합니다.
@@ -137,7 +135,7 @@
           }
         );
       } else if (category === 'pending') {
-        const query = db.collection('rentals').where('status', '==', '대기').orderBy('createdAt', 'desc');
+        const query = db.collection('rentals').where('status', '==', '대기').orderBy('createdAt', 'asc'); // 신청 순서대로 정렬
         currentUnsubscribe = query.onSnapshot(
           snapshot => {
             if (snapshot.empty) {
@@ -185,7 +183,7 @@
     function loadProcessed() {
       const processedContent = document.getElementById('processedContent');
       processedContent.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
-      let query = db.collection('rentals').where('status', '==', processedSubTab).orderBy('createdAt', 'desc');
+      let query = db.collection('rentals').where('status', 'in', ['승인', '반려']).orderBy('createdAt', 'asc'); // 처리 완료된 항목을 신청 순서대로 정렬
       if (currentUnsubscribe) currentUnsubscribe();
       currentUnsubscribe = query.onSnapshot(snapshot => {
         if (snapshot.empty) {
