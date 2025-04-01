@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>관리자 대시보드</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body, html {
@@ -84,6 +82,8 @@
   </div>
 
   <!-- Firebase SDK & Initialization -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
@@ -98,7 +98,8 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let currentUnsubscribe = null;
+    let processedSubTab = "승인"; // 여기서 초기값을 "승인"으로 설정합니다.
+    let currentUnsubscribe = null; // currentUnsubscribe 변수를 null로 초기화
 
     function activateMenu(el) {
       document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
@@ -106,9 +107,9 @@
     }
 
     function loadData(category) {
-      if (currentUnsubscribe) currentUnsubscribe(); 
+      if (currentUnsubscribe) currentUnsubscribe(); // 기존의 구독을 취소합니다.
       const contentArea = document.getElementById('contentArea');
-      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
+      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>'; // 로딩 상태 표시
 
       if (category === 'logins') {
         const query = db.collection('studentLogins').orderBy('timestamp', 'desc');
@@ -217,7 +218,7 @@
       });
     }
 
-       function setProcessedSubTab(tab) {
+    function setProcessedSubTab(tab) {
       processedSubTab = tab;
       document.getElementById("tabApproved").classList.toggle("active", tab === "승인");
       document.getElementById("tabRejected").classList.toggle("active", tab === "반려");
@@ -239,9 +240,7 @@
       });
     }
 
-    // 페이지 로드 시 대기 내역을 불러옵니다.
     loadData('pending'); // 대기 내역 로드
   </script>
 </body>
 </html>
-
