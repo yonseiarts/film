@@ -6,7 +6,7 @@
   <title>기자재 대여 신청</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 기존 스타일은 그대로 유지 */
+    /* 기존 스타일 유지 */
     .step-active { background-color: #1D4ED8; color: white; }
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
     .tab-button.active { background-color: #dbeafe; font-weight: 600; }
@@ -196,9 +196,8 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-  </script>
 
-  <script>
+    // Firebase 데이터 처리와 장비 선택 로직
     const equipmentData = {
       camera: {
         body: Array.from({ length: 8 }, (_, i) => ({ name: `카메라 바디 ${i + 1}`, image: "https://placehold.co/80x80?text=Body" })),
@@ -298,7 +297,7 @@
     function goToStep(n) {
       for (let i = 1; i <= 4; i++) {
         document.getElementById("step" + i)?.classList.add("hidden");
-                document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
+        document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
         document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
       }
       document.getElementById("step" + n)?.classList.remove("hidden");
@@ -427,4 +426,3 @@
   </script>
 </body>
 </html>
-
