@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>관리자 대시보드</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body, html {
@@ -95,13 +97,13 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    let processedSubTab = "승인";
+    let currentUnsubscribe = null;
+
     function activateMenu(el) {
       document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
       el.classList.add('active');
     }
-
-    let processedSubTab = "승인";
-    let currentUnsubscribe = null;
 
     function loadData(category) {
       if (currentUnsubscribe) currentUnsubscribe(); // 기존의 구독을 취소합니다.
