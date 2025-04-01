@@ -58,9 +58,8 @@
       position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
       border-top-left-radius: 6px; border-bottom-left-radius: 6px;
     }
-    .status-승인 { background-color: #4e73df; color: white; }
-    .status-반려 { background-color: #e74a3b; color: white; }
-    .status-휴지통 { background-color: #d1d3e2; color: white; }
+    .status-승인 { background-color: #4e73df; }
+    .status-반려 { background-color: #e74a3b; }
   </style>
 </head>
 <body>
@@ -72,8 +71,8 @@
     <div class="sidebar">
       <h2>메뉴</h2>
       <ul>
-        <li id="menuPending" class="active" onclick="activateMenu(this); loadData('pending', 'equipment')">장비 대여 내역</li>
-        <li id="menuEditing" onclick="activateMenu(this); loadData('pending', 'editing')">편집실 대여 내역</li>
+        <li id="menuPending" class="active" onclick="activateMenu(this); loadData('pending')">대기 내역</li>
+        <li id="menuProcessed" onclick="activateMenu(this); loadData('processed')">처리 완료</li>
         <li id="menuLogins" onclick="activateMenu(this); loadData('logins')">로그인 내역</li>
       </ul>
     </div>
@@ -106,10 +105,10 @@
       el.classList.add('active');
     }
 
-    function loadData(category, type = 'all') {
-      if (currentUnsubscribe) currentUnsubscribe();
+    function loadData(category) {
+      if (currentUnsubscribe) currentUnsubscribe(); // 기존의 구독을 취소합니다.
       const contentArea = document.getElementById('contentArea');
-      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
+      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>'; // 로딩 상태 표시
 
       if (category === 'logins') {
         const query = db.collection('studentLogins').orderBy('timestamp', 'desc');
@@ -138,13 +137,7 @@
           }
         );
       } else if (category === 'pending') {
-        let query;
-        if (type === 'equipment') {
-          query = db.collection('rentals').where('status', '==', '대기').where('category', '==', '장비').orderBy('createdAt', 'desc');
-        } else if (type === 'editing') {
-          query = db.collection('rentals').where('status', '==', '대기').where('category', '==', '편집실').orderBy('createdAt', 'desc');
-        }
-
+        const query = db.collection('rentals').where('status', '==', '대기').orderBy('createdAt', 'desc');
         currentUnsubscribe = query.onSnapshot(
           snapshot => {
             if (snapshot.empty) {
@@ -155,26 +148,21 @@
             snapshot.forEach(doc => {
               const data = doc.data();
               let rentalDate = data.rentDate || (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
-              let rentalTime = data.rentalTime || '';
-              let statusClass = '';
-              if (data.status === '승인') statusClass = 'status-승인';
-              if (data.status === '반려') statusClass = 'status-반려';
-              if (data.isDeleted) statusClass = 'status-휴지통';
+              const indicator = data.status === "승인" ? "status-승인" : "status-반려";
               html += `
                 <div class="card">
+                  <div class="status-indicator ${indicator}"></div>
                   <h3>대여 신청 내역</h3>
                   <p><strong>이름:</strong> ${data.userName || ""}</p>
                   <p><strong>학번:</strong> ${data.studentID || ""}</p>
                   <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
                   <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-                  ${type === 'editing' ? `<p><strong>대여 시간:</strong> ${rentalTime}</p>` : ''}
                   <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
-                  <p><strong>상태:</strong> <span class="${statusClass}">${data.status || ""}</span></p>
+                  <p><strong>상태:</strong> ${data.status || ""}</p>
                   <div class="actions">
                     <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
                     <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
-                    <button onclick="moveToTrash('${doc.id}')">휴지통</button>
-                    ${data.isDeleted ? `<button onclick="restoreItem('${doc.id}')">복원</button>` : ''}
+                    <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
                   </div>
                 </div>`;
             });
@@ -185,7 +173,58 @@
             contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
           }
         );
+      } else if (category === 'processed') {
+        contentArea.innerHTML = `
+          <div class="sub-tabs" id="subTabs">
+            <button id="tabApproved" class="${processedSubTab === '승인' ? 'active' : ''}" onclick="setProcessedSubTab('승인')">승인</button>
+            <button id="tabRejected" class="${processedSubTab === '반려' ? 'active' : ''}" onclick="setProcessedSubTab('반려')">반려</button>
+          </div>
+          <div id="processedContent"><div class="loading">데이터 로딩 중...</div></div>`;
+        loadProcessed();
       }
+    }
+
+    function loadProcessed() {
+      const processedContent = document.getElementById('processedContent');
+      processedContent.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
+      let query = db.collection('rentals').where('status', '==', processedSubTab).orderBy('createdAt', 'desc');
+      if (currentUnsubscribe) currentUnsubscribe();
+      currentUnsubscribe = query.onSnapshot(snapshot => {
+        if (snapshot.empty) {
+          processedContent.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
+          return;
+        }
+        let html = '';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          let rentalDate = data.rentDate || (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
+          let indicator = data.status === "승인" ? "status-승인" : "status-반려";
+          html += `
+            <div class="card">
+              <div class="status-indicator ${indicator}"></div>
+              <h3>대여 신청 내역</h3>
+              <p><strong>이름:</strong> ${data.userName || ""}</p>
+              <p><strong>학번:</strong> ${data.studentID || ""}</p>
+              <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
+              <p><strong>대여 날짜:</strong> ${rentalDate}</p>
+              <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
+              <p><strong>상태:</strong> ${data.status || ""}</p>
+                          <div class="actions">
+                <button onclick="updateStatus('${doc.id}', '${data.status === '승인' ? '반려' : '승인'}')">${data.status === '승인' ? '반려' : '승인'}</button>
+                <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
+                <button onclick="restoreItem('${doc.id}')">복원</button>
+              </div>
+            </div>`;
+        });
+        processedContent.innerHTML = html;
+      });
+    }
+
+    function setProcessedSubTab(tab) {
+      processedSubTab = tab;
+      document.getElementById("tabApproved").classList.toggle("active", tab === "승인");
+      document.getElementById("tabRejected").classList.toggle("active", tab === "반려");
+      loadProcessed();
     }
 
     function updateStatus(docId, newStatus) {
@@ -203,20 +242,6 @@
       });
     }
 
-    function moveToTrash(docId) {
-      if (!confirm("이 항목을 휴지통으로 이동하시겠습니까?")) return;
-      db.collection('rentals').doc(docId).update({
-        isDeleted: true
-      })
-      .then(() => {
-        alert('항목이 휴지통으로 이동되었습니다.');
-      })
-      .catch(err => {
-        console.error('휴지통 이동 실패:', err);
-        alert('오류가 발생했습니다.');
-      });
-    }
-
     function restoreItem(docId) {
       if (!confirm("이 항목을 복원하시겠습니까?")) return;
       db.collection('rentals').doc(docId).update({
@@ -224,15 +249,17 @@
       })
       .then(() => {
         alert('항목이 복원되었습니다.');
+        loadData('processed');  // 복원 후 처리 완료 내역을 새로고침
       })
       .catch(err => {
         console.error('복원 실패:', err);
-        alert('오류가 발생했습니다.');
+        alert('복원에 실패했습니다.');
       });
     }
 
     // 페이지 로드 시 대기 내역을 불러옵니다.
-    loadData('pending', 'equipment'); // 장비 대기 내역 로드
+    loadData('pending'); // 대기 내역 로드
   </script>
 </body>
 </html>
+
