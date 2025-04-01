@@ -57,7 +57,16 @@
   </style>
 </head>
 <body class="bg-gray-50">
+  <!-- 헤더 -->
+  <div class="bg-blue-700 text-white py-6 text-center relative">
+    <a href="index.html" class="absolute left-4 top-1/2 -translate-y-1/2 transform text-white underline text-sm">홈으로</a>
+    <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
+    <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
+  </div>
+
+  <!-- 폼 컨테이너 -->
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
+    <!-- 단계 표시 -->
     <div class="flex justify-between mb-8">
       <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
       <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
@@ -65,6 +74,7 @@
       <div id="step4Btn" class="flex-1 text-center p-2 rounded step-inactive">4. 완료</div>
     </div>
 
+    <!-- Step 1: 장비 선택 -->
     <div id="step1">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
       <div class="flex space-x-2 mb-4">
@@ -75,13 +85,16 @@
         <button class="tab-button px-4 py-1 border rounded" data-tab="editing">편집실</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="line">라인</button>
       </div>
+      <!-- 중분류 (카메라용) -->
       <div id="cameraSubTabs" class="flex gap-2 mb-4">
         <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대</button>
       </div>
+      <!-- 장비 카드 -->
       <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
 
+      <!-- 선택 장비 표시 -->
       <div id="selected-section" class="mt-6 hidden">
         <h3 class="font-medium mb-2">선택된 장비</h3>
         <ul id="selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
@@ -92,8 +105,10 @@
       </div>
     </div>
 
+    <!-- Step 2: 대여일 선택 -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
+      <!-- 일반 장비 선택 -->
       <div id="commonDateSection">
         <label class="block mb-2 font-medium">대여 시작일</label>
         <input type="date" id="startDate" class="border p-2 rounded w-full mb-4" />
@@ -103,6 +118,7 @@
         <input type="file" id="proofImage" accept="image/*" class="border p-2 rounded w-full mb-4" />
       </div>
 
+      <!-- 편집실 선택 시 -->
       <div id="editingDateSection" class="hidden">
         <label class="block mb-2 font-medium">편집실 대여일자</label>
         <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4" />
@@ -116,6 +132,7 @@
       </div>
     </div>
 
+    <!-- Step 3: 규정 동의 -->
     <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed">
@@ -150,6 +167,7 @@
       </div>
     </div>
 
+    <!-- Step 4: 완료 화면 -->
     <div id="step4" class="step hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
       <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
@@ -162,6 +180,7 @@
     </div>
   </div>
 
+  <!-- Firebase SDK & Initialization -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <script>
@@ -178,6 +197,7 @@
     const db = firebase.firestore();
   </script>
 
+  <!-- 메인 스크립트 -->
   <script>
     const equipmentData = {
       camera: {
@@ -289,7 +309,7 @@
         const editingOnly = selectedItems.every(i => i.includes("편집실"));
         document.getElementById("commonDateSection").classList.toggle("hidden", editingOnly);
         document.getElementById("editingDateSection").classList.toggle("hidden", !editingOnly);
-        if (editingOnly) generateTimeGrid();
+               if (editingOnly) generateTimeGrid();
       }
 
       if (n === 4) {
@@ -303,7 +323,9 @@
           ? `선택한 시간: ${selectedHours.sort((a, b) => a - b).join(', ')}시`
           : '';
       }
-       function goHome() {
+    }
+
+    function goHome() {
       location.href = "index.html";
     }
 
@@ -380,7 +402,6 @@
         data.startDate = document.getElementById("startDate").value;
         data.endDate = document.getElementById("endDate").value;
       }
-
       db.collection("rentals").add(data)
         .then(() => {
           goToStep(4);
