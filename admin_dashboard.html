@@ -112,7 +112,7 @@
       contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
 
       let query = db.collection('rentals').orderBy('createdAt', 'desc');
-      
+
       if (category === 'logins') {
         query = db.collection('studentLogins').orderBy('timestamp', 'desc');
       } else if (category === 'pending') {
