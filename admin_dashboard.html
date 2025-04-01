@@ -148,23 +148,22 @@
             snapshot.forEach(doc => {
               const data = doc.data();
               let rentalDate = data.rentDate || (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
-              const indicator = data.status === "승인" ? "status-승인" : "status-반려";
+              let isEditingRoom = data.equipment.includes('편집실');
               html += `
                 <div class="card">
-                  <div class="status-indicator ${indicator}"></div>
                   <h3>대여 신청 내역</h3>
                   <p><strong>이름:</strong> ${data.userName || ""}</p>
                   <p><strong>학번:</strong> ${data.studentID || ""}</p>
-                  <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
+                  <p><strong>기자재:</strong> ${data.items || data.equipment || ""}</p>
                   <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-                  <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
                   <p><strong>상태:</strong> ${data.status || ""}</p>
+                  <p><strong>편집실 대여 시간:</strong> ${isEditingRoom ? data.editingTime || "시간 미선택" : "해당 사항 없음"}</p>
                   <div class="actions">
                     <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
                     <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
                     <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
                   </div>
-                </div>`;
+                               </div>`;
             });
             contentArea.innerHTML = html;
           },
@@ -207,12 +206,10 @@
               <p><strong>학번:</strong> ${data.studentID || ""}</p>
               <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
               <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-              <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
               <p><strong>상태:</strong> ${data.status || ""}</p>
-                          <div class="actions">
+              <div class="actions">
                 <button onclick="updateStatus('${doc.id}', '${data.status === '승인' ? '반려' : '승인'}')">${data.status === '승인' ? '반려' : '승인'}</button>
                 <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-                <button onclick="restoreItem('${doc.id}')">복원</button>
               </div>
             </div>`;
         });
@@ -237,23 +234,8 @@
         alert('상태가 변경되었습니다.');
       })
       .catch(err => {
-        console.error('상태 변경 실패:', err);
+         console.error('상태 변경 실패:', err);
         alert('오류가 발생했습니다.');
-      });
-    }
-
-    function restoreItem(docId) {
-      if (!confirm("이 항목을 복원하시겠습니까?")) return;
-      db.collection('rentals').doc(docId).update({
-        isDeleted: false
-      })
-      .then(() => {
-        alert('항목이 복원되었습니다.');
-        loadData('processed');  // 복원 후 처리 완료 내역을 새로고침
-      })
-      .catch(err => {
-        console.error('복원 실패:', err);
-        alert('복원에 실패했습니다.');
       });
     }
 
@@ -262,4 +244,3 @@
   </script>
 </body>
 </html>
-
