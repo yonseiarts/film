@@ -58,8 +58,9 @@
       position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
       border-top-left-radius: 6px; border-bottom-left-radius: 6px;
     }
-    .status-승인 { background-color: #4e73df; }
-    .status-반려 { background-color: #e74a3b; }
+    .status-승인 { background-color: #4e73df; color: white; }
+    .status-반려 { background-color: #e74a3b; color: white; }
+    .status-휴지통 { background-color: #d1d3e2; color: white; }
   </style>
 </head>
 <body>
@@ -108,7 +109,7 @@
     function loadData(category, type = 'all') {
       if (currentUnsubscribe) currentUnsubscribe();
       const contentArea = document.getElementById('contentArea');
-      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>'; 
+      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
 
       if (category === 'logins') {
         const query = db.collection('studentLogins').orderBy('timestamp', 'desc');
@@ -155,6 +156,10 @@
               const data = doc.data();
               let rentalDate = data.rentDate || (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
               let rentalTime = data.rentalTime || '';
+              let statusClass = '';
+              if (data.status === '승인') statusClass = 'status-승인';
+              if (data.status === '반려') statusClass = 'status-반려';
+              if (data.isDeleted) statusClass = 'status-휴지통';
               html += `
                 <div class="card">
                   <h3>대여 신청 내역</h3>
@@ -164,11 +169,12 @@
                   <p><strong>대여 날짜:</strong> ${rentalDate}</p>
                   ${type === 'editing' ? `<p><strong>대여 시간:</strong> ${rentalTime}</p>` : ''}
                   <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
-                  <p><strong>상태:</strong> ${data.status || ""}</p>
+                  <p><strong>상태:</strong> <span class="${statusClass}">${data.status || ""}</span></p>
                   <div class="actions">
                     <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
                     <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
-                    <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
+                    <button onclick="moveToTrash('${doc.id}')">휴지통</button>
+                    ${data.isDeleted ? `<button onclick="restoreItem('${doc.id}')">복원</button>` : ''}
                   </div>
                 </div>`;
             });
@@ -193,6 +199,34 @@
       })
       .catch(err => {
         console.error('상태 변경 실패:', err);
+        alert('오류가 발생했습니다.');
+      });
+    }
+
+    function moveToTrash(docId) {
+      if (!confirm("이 항목을 휴지통으로 이동하시겠습니까?")) return;
+      db.collection('rentals').doc(docId).update({
+        isDeleted: true
+      })
+      .then(() => {
+        alert('항목이 휴지통으로 이동되었습니다.');
+      })
+      .catch(err => {
+        console.error('휴지통 이동 실패:', err);
+        alert('오류가 발생했습니다.');
+      });
+    }
+
+    function restoreItem(docId) {
+      if (!confirm("이 항목을 복원하시겠습니까?")) return;
+      db.collection('rentals').doc(docId).update({
+        isDeleted: false
+      })
+      .then(() => {
+        alert('항목이 복원되었습니다.');
+      })
+      .catch(err => {
+        console.error('복원 실패:', err);
         alert('오류가 발생했습니다.');
       });
     }
