@@ -138,7 +138,7 @@
         const query = db.collection('rentals')
           .where('status', '==', '대기')
           .orderBy('equipment') // equipment 필드를 먼저 정렬
-          .orderBy('createdAt', 'desc'); // 이후 createdAt 정렬
+          .orderBy('createdAt', 'desc'); // 그 다음으로 createdAt 정렬
 
         currentUnsubscribe = query.onSnapshot(snapshot => {
           if (snapshot.empty) {
