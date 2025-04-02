@@ -60,6 +60,7 @@
     }
     .status-승인 { background-color: #4e73df; }
     .status-반려 { background-color: #e74a3b; }
+    .status-휴지통 { background-color: #e2e2e2; }
   </style>
 </head>
 <body>
@@ -74,6 +75,7 @@
         <li id="menuPending" class="active" onclick="activateMenu(this); loadData('pending')">대기 내역</li>
         <li id="menuProcessed" onclick="activateMenu(this); loadData('processed')">처리 완료</li>
         <li id="menuLogins" onclick="activateMenu(this); loadData('logins')">로그인 내역</li>
+        <li id="menuTrash" onclick="activateMenu(this); loadData('trash')">휴지통</li>
       </ul>
     </div>
     <div class="main" id="contentArea">
@@ -81,7 +83,6 @@
     </div>
   </div>
 
-  <!-- Firebase SDK & Initialization -->
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
   <script>
@@ -98,7 +99,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let currentUnsubscribe = null; // currentUnsubscribe 변수를 null로 초기화
+    let currentUnsubscribe = null;
 
     function activateMenu(el) {
       document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
@@ -106,122 +107,60 @@
     }
 
     function loadData(category) {
-      if (currentUnsubscribe) currentUnsubscribe(); // 기존의 구독을 취소합니다.
+      if (currentUnsubscribe) currentUnsubscribe();
       const contentArea = document.getElementById('contentArea');
-      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>'; // 로딩 상태 표시
+      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
+
+      let query;
 
       if (category === 'logins') {
-        const query = db.collection('studentLogins').orderBy('timestamp', 'desc');
-        currentUnsubscribe = query.onSnapshot(
-          snapshot => {
-            if (snapshot.empty) {
-              contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-              return;
-            }
-            let html = '';
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              html += `
-                <div class="card">
-                  <h3>로그인 내역</h3>
-                  <p><strong>이름:</strong> ${data.name || ""}</p>
-                  <p><strong>학번:</strong> ${data.studentId || ""}</p>
-                  <p><strong>로그인 시간:</strong> ${data.timestamp ? data.timestamp.toDate().toLocaleString() : ""}</p>
-                </div>`;
-            });
-            contentArea.innerHTML = html;
-          },
-          error => {
-            console.error("데이터 가져오기 오류:", error);
-            contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
-          }
-        );
+        query = db.collection('studentLogins').orderBy('timestamp', 'desc');
       } else if (category === 'pending') {
-        const query = db.collection('rentals').where('status', '==', '대기').orderBy('createdAt', 'desc');
-        currentUnsubscribe = query.onSnapshot(
-          snapshot => {
-            if (snapshot.empty) {
-              contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-              return;
-            }
-            let html = '';
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              let rentalDate = data.rentDate || (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
-              html += `
-                <div class="card">
-                  <h3>대여 신청 내역</h3>
-                  <p><strong>이름:</strong> ${data.userName || ""}</p>
-                  <p><strong>학번:</strong> ${data.studentID || ""}</p>
-                  <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
-                  <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-                  <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
-                  <p><strong>상태:</strong> ${data.status || ""}</p>
-                  <div class="actions">
-                    <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
-                    <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
-                    <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-                  </div>
-                </div>`;
-            });
-            contentArea.innerHTML = html;
-          },
-          error => {
-            console.error("데이터 가져오기 오류:", error);
-            contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
-          }
-        );
+        query = db.collection('rentals').where('status', '==', '대기').orderBy('createdAt', 'desc');
       } else if (category === 'processed') {
-        contentArea.innerHTML = `
-          <div class="sub-tabs" id="subTabs">
-            <button id="tabApproved" class="${processedSubTab === '승인' ? 'active' : ''}" onclick="setProcessedSubTab('승인')">승인</button>
-            <button id="tabRejected" class="${processedSubTab === '반려' ? 'active' : ''}" onclick="setProcessedSubTab('반려')">반려</button>
-          </div>
-          <div id="processedContent"><div class="loading">데이터 로딩 중...</div></div>`;
-        loadProcessed();
+        query = db.collection('rentals').where('status', 'in', ['승인', '반려']).orderBy('createdAt', 'desc');
+      } else if (category === 'trash') {
+        query = db.collection('rentals').where('status', '==', '휴지통').orderBy('createdAt', 'desc');
       }
-    }
 
-    function loadProcessed() {
-      const processedContent = document.getElementById('processedContent');
-      processedContent.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
-      let query = db.collection('rentals').where('status', '==', processedSubTab).orderBy('createdAt', 'desc');
-      if (currentUnsubscribe) currentUnsubscribe();
-      currentUnsubscribe = query.onSnapshot(snapshot => {
-        if (snapshot.empty) {
-          processedContent.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-          return;
-        }
-        let html = '';
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          let rentalDate = data.rentDate || (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
-          let indicator = data.status === "승인" ? "status-승인" : "status-반려";
-          html += `
-            <div class="card">
-              <div class="status-indicator ${indicator}"></div>
-              <h3>대여 신청 내역</h3>
-              <p><strong>이름:</strong> ${data.userName || ""}</p>
-              <p><strong>학번:</strong> ${data.studentID || ""}</p>
-              <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
-              <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-              <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
-              <p><strong>상태:</strong> ${data.status || ""}</p>
-              <div class="actions">
-                <button onclick="updateStatus('${doc.id}', '${data.status === '승인' ? '반려' : '승인'}')">${data.status === '승인' ? '반려' : '승인'}</button>
-                <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
+      currentUnsubscribe = query.onSnapshot(
+        snapshot => {
+          if (snapshot.empty) {
+            contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
+            return;
+          }
+          let html = '';
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
+            let rentalDate = data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : data.editingRoomDate;
+            let rentalTime = data.editingRoomTime ? `시간: ${data.editingRoomTime}` : '';
+
+            html += `
+              <div class="card">
+                <div class="status-indicator ${statusClass}"></div>
+                <h3>대여 신청 내역</h3>
+                <p><strong>이름:</strong> ${data.userName || ""}</p>
+                <p><strong>학번:</strong> ${data.studentID || ""}</p>
+                <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
+                <p><strong>대여 날짜:</strong> ${rentalDate}</p>
+                <p><strong>대여 시간:</strong> ${rentalTime}</p>
+                <p><strong>상태:</strong> ${data.status || ""}</p>
+                <div class="actions">
+                  <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
+                  <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
+                  <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
+                </div>
               </div>
-            </div>`;
-        });
-        processedContent.innerHTML = html;
-      });
-    }
-
-    function setProcessedSubTab(tab) {
-      processedSubTab = tab;
-      document.getElementById("tabApproved").classList.toggle("active", tab === "승인");
-      document.getElementById("tabRejected").classList.toggle("active", tab === "반려");
-      loadProcessed();
+            `;
+          });
+          contentArea.innerHTML = html;
+        },
+        error => {
+          console.error("데이터 가져오기 오류:", error);
+          contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
+        }
+      );
     }
 
     function updateStatus(docId, newStatus) {
