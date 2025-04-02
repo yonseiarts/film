@@ -160,7 +160,7 @@
 
     function updateStatus(docId, newStatus) {
       if (!confirm(`상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
-      db.collection('rentals').doc(docId).update({
+      db.collection('rentals').doc(docId      ).update({
         status: newStatus
       })
       .then(() => {
@@ -176,3 +176,4 @@
   </script>
 </body>
 </html>
+
