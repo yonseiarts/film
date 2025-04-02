@@ -47,10 +47,31 @@
     }
     .btn-approve { background-color: #10B981; color: #fff; }
     .btn-reject { background-color: #EF4444; color: #fff; }
+    .btn-trash { background-color: #4e73df; color: #fff; }
     .loading { text-align: center; padding: 40px 0; font-size: 15px; }
     .status-indicator {
       position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
       border-top-left-radius: 6px; border-bottom-left-radius: 6px;
+    }
+    /* X 버튼 (휴지통 이동) */
+    .delete-icon {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      font-size: 18px;
+      color: #999;
+      cursor: pointer;
+    }
+    .delete-icon:hover { color: #EF4444; }
+    /* 전체 삭제 버튼 in trash */
+    .delete-all-btn {
+      background-color: #EF4444;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
     }
   </style>
 </head>
@@ -78,7 +99,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
-    import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
@@ -102,6 +123,22 @@
     }
     window.activateMenu = activateMenu;
 
+    // deleteAllTrash: 휴지통 탭에서 전체 삭제 기능
+    async function deleteAllTrash() {
+      if (!confirm("정말 전체 삭제하시겠습니까? 이 작업은 복구가 불가능합니다.")) return;
+      const qTrash = query(collection(db, "rentals"), where("status", "==", "휴지통"));
+      const snapshot = await getDocs(qTrash);
+      snapshot.forEach(async (docSnap) => {
+        try {
+          await deleteDoc(doc(db, "rentals", docSnap.id));
+        } catch (err) {
+          console.error("삭제 실패:", err);
+        }
+      });
+      alert("전체 삭제가 완료되었습니다.");
+    }
+    window.deleteAllTrash = deleteAllTrash;
+
     // loadData: pending, logins, trash
     function loadData(category) {
       if (currentUnsubscribe) currentUnsubscribe();
@@ -122,11 +159,17 @@
           return;
         }
         let html = "";
+        if (category === "trash") {
+          // 휴지통 탭 상단에 전체 삭제 버튼 추가
+          html += `<div class="mb-4 flex justify-end">
+                     <button class="delete-all-btn" onclick="deleteAllTrash()">전체 삭제</button>
+                   </div>`;
+        }
         snapshot.forEach((docSnap) => {
           const data = docSnap.data();
           console.log("문서 데이터:", data);
           if (category === "pending") {
-            // Determine the left indicator color based on status
+            // pending 내역 카드
             let indicatorColor = "#ccc"; // 기본 (대기)
             if (data.status === "승인") indicatorColor = "#10B981";
             else if (data.status === "반려") indicatorColor = "#EF4444";
@@ -135,8 +178,9 @@
             let endDate = data.endDate || "미입력";
             let rentalTime = (data.hours && Array.isArray(data.hours)) ? data.hours.join(", ") + "시" : "미입력";
             html += `
-              <div class="card">
+              <div class="card relative">
                 <div class="status-indicator" style="background-color: ${indicatorColor};"></div>
+                <button class="delete-icon" onclick="updateStatus('${docSnap.id}', '휴지통')">&times;</button>
                 <h3>대기 신청 내역</h3>
                 <p><strong>이름:</strong> ${data.userName || "미입력"}</p>
                 <p><strong>학번:</strong> ${data.studentID || "미입력"}</p>
@@ -144,6 +188,7 @@
                 <p><strong>대여 시작일:</strong> ${startDate}</p>
                 <p><strong>반납일자:</strong> ${endDate}</p>
                 <p><strong>대여 시간:</strong> ${rentalTime}</p>
+                <p><strong>상태:</strong> ${data.status || "미입력"}</p>
                 <div class="actions">
                   <button class="btn-approve" onclick="updateStatus('${docSnap.id}', '승인')">승인</button>
                   <button class="btn-reject" onclick="updateStatus('${docSnap.id}', '반려')">반려</button>
@@ -151,6 +196,7 @@
               </div>
             `;
           } else if (category === "logins") {
+            // 로그인 내역: 이름, 학번만 표시
             html += `
               <div class="card">
                 <p><strong>이름:</strong> ${data.userName || "미입력"}</p>
@@ -158,19 +204,22 @@
               </div>
             `;
           } else if (category === "trash") {
+            // 휴지통: 기존 템플릿
             let indicatorColor = "#e2e2e2";
             let rentalDate = (data.startDate && data.endDate) ? data.startDate + " ~ " + data.endDate : (data.editingDate || "");
             let itemsText = (data.items && Array.isArray(data.items)) ? data.items.join(", ") : "미입력";
             let rentalTime = (data.hours && Array.isArray(data.hours)) ? "시간: " + data.hours.join(", ") + "시" : "미입력";
             html += `
-              <div class="card">
+              <div class="card relative">
                 <div class="status-indicator" style="background-color: ${indicatorColor};"></div>
+                <button class="delete-icon" onclick="updateStatus('${docSnap.id}', '휴지통')">&times;</button>
                 <h3>대여 신청 내역 (휴지통)</h3>
                 <p><strong>이름:</strong> ${data.userName || "미입력"}</p>
                 <p><strong>학번:</strong> ${data.studentID || "미입력"}</p>
                 <p><strong>대여 신청 장비:</strong> ${itemsText}</p>
                 <p><strong>대여 날짜:</strong> ${rentalDate}</p>
                 <p><strong>대여 시간:</strong> ${rentalTime}</p>
+                <p><strong>상태:</strong> ${data.status || "미입력"}</p>
                 <div class="actions">
                   <button class="btn-trash" onclick="updateStatus('${docSnap.id}', '휴지통')">휴지통</button>
                 </div>
