@@ -77,94 +77,90 @@
     </div>
   </div>
 
-  <!-- Firebase SDK & Initialization -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getFirestore, collection, query, where, orderBy, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
-
-    // Firebase Configuration
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
+  <script>
     const firebaseConfig = {
-   apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-    authDomain: "yonseirent-setup.firebaseapp.com",
-    projectId: "yonseirent-setup",
-    storageBucket: "yonseirent-setup.firebasestorage.app",
-    messagingSenderId: "1072524969376",
-    appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
-    measurementId: "G-CQZEKPE02D"
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      authDomain: "yonseirent-setup.firebaseapp.com",
+      projectId: "yonseirent-setup",
+      storageBucket: "yonseirent-setup.firebasestorage.app",
+      messagingSenderId: "1072524969376",
+      appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
+      measurementId: "G-8G1D43NXMW"
     };
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const analytics = getAnalytics(app);
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
     let currentUnsubscribe = null;
 
-    // Activate menu and load data
+    // 메뉴 클릭 시 스타일 활성화
     function activateMenu(el) {
       document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
       el.classList.add('active');
     }
 
-    // Load data based on category
     function loadData(category) {
-      if (currentUnsubscribe) currentUnsubscribe(); // Unsubscribe previous query
-
+      if (currentUnsubscribe) currentUnsubscribe(); // 기존의 구독을 취소합니다.
       const contentArea = document.getElementById('contentArea');
       contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
 
-      let queryInstance;
+      let query;
 
       if (category === 'logins') {
-        queryInstance = query(collection(db, 'studentLogins'), orderBy('timestamp', 'desc'));
+        query = db.collection('studentLogins').orderBy('timestamp', 'desc');
       } else if (category === 'pending') {
-        queryInstance = query(collection(db, 'rentals'), where('status', '==', '대기'), orderBy('createdAt', 'desc'));
+        query = db.collection('rentals').where('status', '==', '대기').orderBy('createdAt', 'desc');
       } else if (category === 'processed') {
-        queryInstance = query(collection(db, 'rentals'), where('status', 'in', ['승인', '반려']), orderBy('createdAt', 'desc'));
+        query = db.collection('rentals').where('status', 'in', ['승인', '반려']).orderBy('createdAt', 'desc');
       } else if (category === 'trash') {
-        queryInstance = query(collection(db, 'rentals'), where('status', '==', '휴지통'), orderBy('createdAt', 'desc'));
+        query = db.collection('rentals').where('status', '==', '휴지통').orderBy('createdAt', 'desc');
       }
 
-      currentUnsubscribe = onSnapshot(queryInstance, snapshot => {
-        if (snapshot.empty) {
-          contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-          return;
-        }
-        let html = '';
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
-          let rentalDate = data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : data.editingDate;
-          let rentalTime = data.hours ? `시간: ${data.hours.join(', ')}시` : '';
+      currentUnsubscribe = query.onSnapshot(
+        snapshot => {
+          if (snapshot.empty) {
+            contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
+            return;
+          }
+          let html = '';
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
+            let rentalDate = data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : data.editingDate;
+            let rentalTime = data.hours ? `시간: ${data.hours.join(', ')}시` : '';
 
-          html += `
-            <div class="card">
-              <div class="status-indicator ${statusClass}"></div>
-              <h3>대여 신청 내역</h3>
-              <p><strong>이름:</strong> ${data.userName || ""}</p>
-              <p><strong>학번:</strong> ${data.studentID || ""}</p>
-              <p><strong>기자재:</strong> ${data.items.join(', ') || ""}</p>
-              <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-              <p><strong>대여 시간:</strong> ${rentalTime}</p>
-              <p><strong>상태:</strong> ${data.status || ""}</p>
-              <div class="actions">
-                <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
-                <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
-                <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
+            html += `
+              <div class="card">
+                <div class="status-indicator ${statusClass}"></div>
+                <h3>대여 신청 내역</h3>
+                <p><strong>이름:</strong> ${data.userName || ""}</p>
+                <p><strong>학번:</strong> ${data.studentID || ""}</p>
+                <p><strong>기자재:</strong> ${data.items.join(', ') || ""}</p> <!-- items 배열 출력 -->
+                <p><strong>대여 날짜:</strong> ${rentalDate}</p>
+                <p><strong>대여 시간:</strong> ${rentalTime}</p>
+                <p><strong>상태:</strong> ${data.status || ""}</p>
+                <div class="actions">
+                  <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
+                  <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
+                  <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
+                </div>
               </div>
-            </div>
-          `;
-        });
-        contentArea.innerHTML = html;
-      });
+            `;
+          });
+          contentArea.innerHTML = html;
+        },
+        error => {
+          console.error("데이터 가져오기 오류:", error);
+          contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
+        }
+      );
     }
 
-    // Update rental status
     function updateStatus(docId, newStatus) {
       if (!confirm(`상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
-      const rentalDoc = doc(db, "rentals", docId);
-      updateDoc(rentalDoc, {
+      db.collection('rentals').doc(docId).update({
         status: newStatus
       })
       .then(() => {
@@ -176,7 +172,7 @@
       });
     }
 
-    loadData('pending'); // Default to load pending rentals
+    loadData('pending'); // 대기 내역 로드
   </script>
 </body>
 </html>
