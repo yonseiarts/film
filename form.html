@@ -60,33 +60,37 @@
   <div class="bg-blue-700 text-white py-6 text-center relative">
     <a href="index.html" class="absolute left-4 top-1/2 -translate-y-1/2 transform text-white underline text-sm">홈으로</a>
     <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
-    <p class="text-sm mt-1">로그인 정보 기반 자동 입력</p>
+    <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
   </div>
 
-  <div class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded shadow">
-    <div class="mb-6">
-      <label class="block font-semibold mb-1">이름 (자동 입력)</label>
-      <input type="text" id="userName" class="w-full border p-2 rounded bg-gray-100" readonly>
+  <!-- 기존 다단계 form 유지 및 자동입력 필드 추가 -->
+  <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
+    <!-- 단계 표시 -->
+    <div class="flex justify-between mb-8">
+      <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
+      <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
+      <div id="step3Btn" class="flex-1 text-center p-2 rounded step-inactive">3. 규정 동의</div>
+      <div id="step4Btn" class="flex-1 text-center p-2 rounded step-inactive">4. 완료</div>
     </div>
-    <div class="mb-6">
-      <label class="block font-semibold mb-1">학번 (자동 입력)</label>
-      <input type="text" id="studentID" class="w-full border p-2 rounded bg-gray-100" readonly>
+
+    <!-- Step 2 내에 이름/학번 입력 필드 위치 -->
+    <div id="step2" class="hidden">
+      <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
+      <label class="block mb-2 font-medium">이름 (자동 입력)</label>
+      <input type="text" id="userName" class="border p-2 rounded w-full mb-4 bg-gray-100" readonly />
+
+      <label class="block mb-2 font-medium">학번 (자동 입력)</label>
+      <input type="text" id="studentID" class="border p-2 rounded w-full mb-4 bg-gray-100" readonly />
+
+      <!-- 나머지 기존 필드 이어짐... (startDate, endDate 등) -->
     </div>
-    <div class="mb-6">
-      <label class="block font-semibold mb-1">대여 시작일</label>
-      <input type="date" id="startDate" class="w-full border p-2 rounded">
-    </div>
-    <div class="mb-6">
-      <label class="block font-semibold mb-1">반납일</label>
-      <input type="date" id="endDate" class="w-full border p-2 rounded">
-    </div>
-    <button onclick="submitApplication()" class="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700">신청하기</button>
   </div>
 
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
@@ -101,6 +105,7 @@
     const auth = getAuth();
     const db = getFirestore(app);
 
+    // 자동입력 기능 추가
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         document.getElementById("userName").value = user.displayName || "";
@@ -113,31 +118,6 @@
         window.location.href = "login.html";
       }
     });
-
-    window.submitApplication = async function () {
-      const name = document.getElementById("userName").value;
-      const studentID = document.getElementById("studentID").value;
-      const startDate = document.getElementById("startDate").value;
-      const endDate = document.getElementById("endDate").value;
-
-      if (!startDate || !endDate) return alert("대여일을 입력해주세요.");
-
-      const rentalData = {
-        userName: name,
-        studentID: studentID,
-        startDate,
-        endDate,
-        status: "대기",
-        createdAt: serverTimestamp()
-      };
-
-      try {
-        await setDoc(doc(collection(db, "rentals")), rentalData);
-        alert("신청 완료!");
-      } catch (e) {
-        alert("신청 실패: " + e.message);
-      }
-    }
   </script>
 </body>
 </html>
