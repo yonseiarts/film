@@ -100,7 +100,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let currentUnsubscribe = null; // currentUnsubscribe 변수를 null로 초기화
+    let currentUnsubscribe = null;
 
     function activateMenu(el) {
       document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
@@ -110,106 +110,58 @@
     function loadData(category) {
       if (currentUnsubscribe) currentUnsubscribe(); // 기존의 구독을 취소합니다.
       const contentArea = document.getElementById('contentArea');
-      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>'; // 로딩 상태 표시
+      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
+
+      let query;
 
       if (category === 'logins') {
-        const query = db.collection('studentLogins').orderBy('timestamp', 'desc');
-        currentUnsubscribe = query.onSnapshot(
-          snapshot => {
-            if (snapshot.empty) {
-              contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-              return;
-            }
-            let html = '';
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              html += `
-                <div class="card">
-                  <h3>로그인 내역</h3>
-                  <p><strong>이름:</strong> ${data.name || ""}</p>
-                  <p><strong>학번:</strong> ${data.studentId || ""}</p>
-                </div>`;
-            });
-            contentArea.innerHTML = html;
-          },
-          error => {
-            console.error("데이터 가져오기 오류:", error);
-            contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
-          }
-        );
+        query = db.collection('studentLogins').orderBy('timestamp', 'desc');
       } else if (category === 'pending') {
-        const query = db.collection('rentals').where('status', '==', '대기').orderBy('createdAt', 'desc');
-        currentUnsubscribe = query.onSnapshot(
-          snapshot => {
-            if (snapshot.empty) {
-              contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-              return;
-            }
-            let html = '';
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              let rentalDate = data.rentDate || (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
-              html += `
-                <div class="card">
-                  <h3>대여 신청 내역</h3>
-                  <p><strong>이름:</strong> ${data.userName || ""}</p>
-                  <p><strong>학번:</strong> ${data.studentID || ""}</p>
-                  <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
-                  <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-                  <p><strong>신청 시간:</strong> ${data.createdAt ? data.createdAt.toDate().toLocaleString() : ""}</p>
-                  <p><strong>상태:</strong> ${data.status || ""}</p>
-                  <div class="actions">
-                    <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
-                    <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
-                    <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-                  </div>
-                </div>`;
-            });
-            contentArea.innerHTML = html;
-          },
-          error => {
-            console.error("데이터 가져오기 오류:", error);
-            contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
-          }
-        );
+        query = db.collection('rentals').where('status', '==', '대기').orderBy('createdAt', 'desc');
       } else if (category === 'processed') {
-        contentArea.innerHTML = `
-          <div class="sub-tabs" id="subTabs">
-            <button id="tabApproved" class="${processedSubTab === '승인' ? 'active' : ''}" onclick="setProcessedSubTab('승인')">승인</button>
-            <button id="tabRejected" class="${processedSubTab === '반려' ? 'active' : ''}" onclick="setProcessedSubTab('반려')">반려</button>
-          </div>
-          <div id="processedContent"><div class="loading">데이터 로딩 중...</div></div>`;
-        loadProcessed();
+        query = db.collection('rentals').where('status', 'in', ['승인', '반려']).orderBy('createdAt', 'desc');
       } else if (category === 'trash') {
-        const query = db.collection('rentals').where('status', '==', '휴지통').orderBy('createdAt', 'desc');
-        currentUnsubscribe = query.onSnapshot(
-          snapshot => {
-            if (snapshot.empty) {
-              contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-              return;
-            }
-            let html = '';
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              html += `
-                <div class="card">
-                  <h3>휴지통</h3>
-                  <p><strong>이름:</strong> ${data.userName || ""}</p>
-                  <p><strong>학번:</strong> ${data.studentID || ""}</p>
-                  <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
-                  <div class="actions">
-                    <button onclick="restoreData('${doc.id}')">복원</button>
-                  </div>
-                </div>`;
-            });
-            contentArea.innerHTML = html;
-          },
-          error => {
-            console.error("데이터 가져오기 오류:", error);
-            contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
-          }
-        );
+        query = db.collection('rentals').where('status', '==', '휴지통').orderBy('createdAt', 'desc');
       }
+
+      currentUnsubscribe = query.onSnapshot(
+        snapshot => {
+          if (snapshot.empty) {
+            contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
+            return;
+          }
+          let html = '';
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
+            let rentalDate = data.rentDate || (data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : "");
+            let rentalTime = data.editingRoomTime ? `시간: ${data.editingRoomTime}` : '';
+
+            html += `
+              <div class="card">
+                <div class="status-indicator ${statusClass}"></div>
+                <h3>대여 신청 내역</h3>
+                <p><strong>이름:</strong> ${data.userName || ""}</p>
+                <p><strong>학번:</strong> ${data.studentID || ""}</p>
+                <p><strong>기자재:</strong> ${data.equipment || data.items || ""}</p>
+                <p><strong>대여 날짜:</strong> ${rentalDate}</p>
+                <p><strong>대여 시간:</strong> ${rentalTime}</p>
+                <p><strong>상태:</strong> ${data.status || ""}</p>
+                <div class="actions">
+                  <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
+                  <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
+                  <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
+                </div>
+              </div>
+            `;
+          });
+          contentArea.innerHTML = html;
+        },
+        error => {
+          console.error("데이터 가져오기 오류:", error);
+          contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
+        }
+      );
     }
 
     function updateStatus(docId, newStatus) {
@@ -224,20 +176,6 @@
       .catch(err => {
          console.error('상태 변경 실패:', err);
         alert('오류가 발생했습니다.');
-      });
-    }
-
-    function restoreData(docId) {
-      db.collection('rentals').doc(docId).update({
-        status: '대기', // 상태를 '대기'로 복원
-        isDeleted: false
-      })
-      .then(() => {
-        alert('데이터가 복원되었습니다.');
-      })
-      .catch(err => {
-         console.error('복원 실패:', err);
-        alert('복원에 실패했습니다.');
       });
     }
 
