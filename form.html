@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>기자재 대여 신청</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -91,9 +91,8 @@
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대</button>
       </div>
-      <!-- 장비 카드 -->
+      <!-- 장비 카드 목록 -->
       <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-
       <!-- 선택 장비 표시 -->
       <div id="selected-section" class="mt-6 hidden">
         <h3 class="font-medium mb-2">선택된 장비</h3>
@@ -108,7 +107,7 @@
     <!-- Step 2: 대여일 선택 -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-      <!-- 일반 장비 선택 -->
+      <!-- 일반 장비 선택 시 날짜 및 증명사진 -->
       <div id="commonDateSection">
         <label class="block mb-2 font-medium">대여 시작일</label>
         <input type="date" id="startDate" class="border p-2 rounded w-full mb-4" />
@@ -117,15 +116,18 @@
         <label class="block mb-2 font-medium">증명사진 첨부</label>
         <input type="file" id="proofImage" accept="image/*" class="border p-2 rounded w-full mb-4" />
       </div>
-
-      <!-- 편집실 선택 시 -->
+      <!-- 편집실 선택 시 날짜 및 시간 -->
       <div id="editingDateSection" class="hidden">
         <label class="block mb-2 font-medium">편집실 대여일자</label>
         <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4" />
         <label class="block mb-2 font-medium">시간 선택</label>
         <div class="time-grid mb-4" id="timeGrid"></div>
       </div>
-
+      <!-- 신청자 정보 입력 -->
+      <label class="block mb-2 font-medium">이름</label>
+      <input type="text" id="userName" class="border p-2 rounded w-full mb-4" />
+      <label class="block mb-2 font-medium">학번</label>
+      <input type="text" id="studentID" class="border p-2 rounded w-full mb-4" />
       <div class="flex justify-between mt-6">
         <button onclick="goToStep(1)" class="text-sm text-blue-600">← 이전 단계</button>
         <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded">다음 단계 →</button>
@@ -180,7 +182,7 @@
     </div>
   </div>
 
-  <!-- Firebase SDK & Firestore Compat (폼용) -->
+  <!-- Firebase SDK & Initialization -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <script>
@@ -197,7 +199,7 @@
     const db = firebase.firestore();
   </script>
 
-  <!-- 메인 스크립트 (폼) -->
+  <!-- 메인 스크립트 -->
   <script>
     const equipmentData = {
       camera: {
@@ -224,6 +226,7 @@
       const container = document.getElementById("equipment-list");
       container.innerHTML = "";
       const items = currentTab === "camera" ? equipmentData.camera[currentSub] : equipmentData[currentTab];
+
       const isEditingSelected = selectedItems.some(name => name.includes("편집실"));
       const isOtherSelected = selectedItems.some(name => !name.includes("편집실"));
 
@@ -233,8 +236,10 @@
         const isEditing = item.name.includes("편집실");
         const shouldDisable = (isEditing && isOtherSelected) || (!isEditing && isEditingSelected);
         if (shouldDisable) div.classList.add("disabled");
+
         const isSelected = selectedItems.includes(item.name);
         if (isSelected) div.classList.add("selected");
+
         div.innerHTML = `<img src="${item.image}" alt="${item.name}"><span class="text-sm">${item.name}</span>`;
         div.onclick = () => {
           if (shouldDisable) return;
@@ -262,7 +267,7 @@
       }
       document.getElementById("selected-items").innerHTML = selectedItems.map(item => {
         const safeItem = item.replace(/'/g, "\\'");
-        return '<li>' + item + ' <button type="button" class="ml-2 text-red-500" onclick="removeSelectedItem(\'' + safeItem + '\')">&times;</button></li>';
+        return `<li>${item} <button type="button" class="ml-2 text-red-500" onclick="removeSelectedItem('${safeItem}')">&times;</button></li>`;
       }).join("");
     }
 
@@ -316,7 +321,7 @@
         const end = document.getElementById("endDate")?.value || "-";
         const dateText = editingOnly ? document.getElementById("editingDate").value : `${start} ~ ${end}`;
         document.getElementById("final-dates").innerText = `대여일자: ${dateText}`;
-        document.getElementById("final-time").innerText = editingOnly && selectedHours.length
+        document.getElementById("final-time").innerText = (editingOnly && selectedHours.length)
           ? `선택한 시간: ${selectedHours.sort((a, b) => a - b).join(', ')}시`
           : '';
       }
@@ -380,13 +385,25 @@
           return;
         }
       }
+      // 이름과 학번 필수 입력 확인
+      if (!document.getElementById("userName").value.trim() || !document.getElementById("studentID").value.trim()) {
+        alert("이름과 학번을 모두 입력해주세요.");
+        return;
+      }
       goToStep(3);
     }
 
     function submitApplication() {
       const editingOnly = selectedItems.every(i => i.includes("편집실"));
-      // 문서 저장 시 status를 "대기"로, createdAt을 서버 타임스탬프로 추가
+      const userName = document.getElementById("userName").value.trim();
+      const studentID = document.getElementById("studentID").value.trim();
+      if (!userName || !studentID) {
+        alert("이름과 학번을 모두 입력해주세요.");
+        return;
+      }
       const data = {
+        userName: userName,
+        studentID: studentID,
         items: [...selectedItems],
         startDate: "",
         endDate: "",
