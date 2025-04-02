@@ -69,7 +69,7 @@
     <div class="sidebar">
       <h2>메뉴</h2>
       <ul>
-        <!-- "처리 완료" 메뉴 삭제 -->
+        <!-- "처리 완료" 메뉴 삭제 및 pending 하위 메뉴 추가는 아래 loadData에서 필터링 처리 -->
         <li id="menuPending" class="active" onclick="activateMenu(this); loadData('pending')">대기 내역</li>
         <li id="menuLogins" onclick="activateMenu(this); loadData('logins')">로그인 내역</li>
         <li id="menuTrash" onclick="activateMenu(this); loadData('trash')">휴지통</li>
@@ -108,7 +108,7 @@
     }
     window.activateMenu = activateMenu;
 
-    // loadData: pending, logins, trash
+    // loadData 함수: pending, logins, trash
     function loadData(category) {
       if (currentUnsubscribe) currentUnsubscribe();
       const contentArea = document.getElementById("contentArea");
@@ -129,7 +129,7 @@
           return;
         }
         let html = "";
-        // 휴지통 탭일 경우 전체삭제 버튼 추가
+        // 휴지통 탭인 경우, 상단에 "전체삭제" 버튼 추가
         if (category === "trash") {
           html += `<button class="delete-all-btn" onclick="deleteAllTrash()">전체삭제</button>`;
         }
@@ -137,6 +137,7 @@
           const data = docSnap.data();
           console.log("문서 데이터:", data);
           if (category === "pending") {
+            // pending 내역: 이름, 학번, 기자재, 대여 시작일, 반납일자, 대여 시간, 상태 텍스트, 승인/반려 버튼, 개별 휴지통 이동(x) 버튼
             let indicatorColor = "#ccc"; // 기본 (대기)
             if (data.status === "승인") indicatorColor = "#10B981";
             else if (data.status === "반려") indicatorColor = "#EF4444";
@@ -163,6 +164,7 @@
               </div>
             `;
           } else if (category === "logins") {
+            // 로그인 내역: 이름, 학번, 접속 시간 표시
             let connectionTime = "미입력";
             if(data.timestamp && data.timestamp.seconds) {
               connectionTime = new Date(data.timestamp.seconds * 1000).toLocaleString();
@@ -175,6 +177,7 @@
               </div>
             `;
           } else if (category === "trash") {
+            // 휴지통: 영구 삭제 버튼 포함
             let rentalDate = (data.startDate && data.endDate) ? data.startDate + " ~ " + data.endDate : (data.editingDate || "미입력");
             let itemsText = (data.items && Array.isArray(data.items)) ? data.items.join(", ") : "미입력";
             let rentalTime = (data.hours && Array.isArray(data.hours)) ? data.hours.join(", ") + "시" : "미입력";
@@ -197,6 +200,7 @@
     }
     window.loadData = loadData;
 
+    // updateStatus: 상태 업데이트 (승인, 반려, 휴지통 이동)
     async function updateStatus(docId, newStatus) {
       if (!confirm(`상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
       const docRef = doc(db, "rentals", docId);
@@ -210,6 +214,7 @@
     }
     window.updateStatus = updateStatus;
 
+    // deleteDocument: 휴지통에서 개별 영구 삭제
     async function deleteDocument(docId) {
       if (!confirm("해당 항목을 영구 삭제하시겠습니까?")) return;
       try {
@@ -222,6 +227,7 @@
     }
     window.deleteDocument = deleteDocument;
 
+    // deleteAllTrash: 휴지통 탭에서 전체 영구 삭제
     async function deleteAllTrash() {
       if (!confirm("휴지통의 모든 항목을 영구 삭제하시겠습니까?")) return;
       try {
