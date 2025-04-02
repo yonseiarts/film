@@ -2,9 +2,12 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>기자재 대여 신청</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <style>
     .step-active { background-color: #1D4ED8; color: white; }
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
@@ -63,63 +66,121 @@
     <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
   </div>
 
-  <!-- 자동입력용 필드 (숨김) -->
-  <input type="hidden" id="userName" />
-  <input type="hidden" id="studentID" />
+  <div id="form-app" class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
+    <!-- 자동 입력 필드 -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">이름</label>
+      <input type="text" id="userName" class="border rounded w-full px-3 py-2 mt-1" readonly>
+    </div>
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">학번</label>
+      <input type="text" id="studentID" class="border rounded w-full px-3 py-2 mt-1" readonly>
+    </div>
 
-  <!-- 폼 구조는 기존과 동일, Step1~4 그대로 유지 -->
-  <div id="formSteps"></div>
+    <!-- 단계 표시 -->
+    <div class="flex justify-between mb-8">
+      <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
+      <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
+      <div id="step3Btn" class="flex-1 text-center p-2 rounded step-inactive">3. 규정 동의</div>
+      <div id="step4Btn" class="flex-1 text-center p-2 rounded step-inactive">4. 완료</div>
+    </div>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
-    import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+    <!-- Step 1: 장비 선택 -->
+    <div id="step1">
+      <h2 class="text-xl font-bold mb-2">장비 선택</h2>
+      <p class="text-sm text-gray-600 mb-4">아래 장비 카테고리에서 원하는 장비를 선택하세요. 편집실은 단독 선택만 가능합니다.</p>
+      <!-- 카테고리 및 중분류 탭, 장비 카드 등 기존 코드 삽입 -->
+      <div class="text-sm text-gray-400">[장비 선택 UI 삽입]</div>
+      <div class="mt-6 flex justify-end">
+        <button onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
+      </div>
+    </div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-      authDomain: "yonseirent-setup.firebaseapp.com",
-      projectId: "yonseirent-setup",
-      storageBucket: "yonseirent-setup.appspot.com",
-      messagingSenderId: "1072524969376",
-      appId: "1:1072524969376:web:e23491a7196f97fd3e10c5"
-    };
+    <!-- Step 2: 대여일 선택 -->
+    <div id="step2" class="hidden">
+      <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
+      <!-- 일반 장비 or 편집실 대여일 선택 -->
+      <div class="text-sm text-gray-400">[날짜 및 시간 선택 UI 삽입]</div>
+      <div class="flex justify-between mt-6">
+        <button onclick="goToStep(1)" class="text-sm text-blue-600">← 이전 단계</button>
+        <button onclick="goToStep(3)" class="bg-blue-600 text-white px-4 py-2 rounded">다음 단계 →</button>
+      </div>
+    </div>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    <!-- Step 3: 규정 동의 -->
+    <div id="step3" class="hidden">
+      <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
+      <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed">
+        <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
+        <strong>제1장 총칙</strong><br/>
+        <em>제1조 (목적)</em><br/>
+        본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>
+        <em>제2조 (적용범위)</em><br/>
+        본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
+        <strong>제2장 관리체계</strong><br/>
+        <em>제1조 (주임교수의 권한)</em><br/>
+        • 기자재 운영 정책 수립 및 변경<br/>
+        • 기자재 담당 인력 임명<br/>
+        • 장비 대여 승인<br/>
+        • 외부 촬영 허가<br/>
+        • 분쟁 조정 및 제재 조치 결정<br/><br/>
+        <em>제2조 (행정실 업무)</em><br/>
+        • 기자재 대장 관리<br/>
+        • 예산 집행 및 회계 관리<br/><br/>
+        <strong>부칙</strong><br/>
+        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
+        제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
+        2025년 3월 23일<br/>
+        연세예술원 영화학 주임교수 유영식
+      </div>
+      <label class="flex items-center mb-4">
+        <input type="checkbox" id="agreeCheck" class="mr-2"> 위 규정에 동의합니다.
+      </label>
+      <div class="flex justify-between">
+        <button onclick="goToStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
+        <button id="toStep4" onclick="submitApplication()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">신청 완료</button>
+      </div>
+    </div>
 
-    let userName = "";
-    let studentID = "";
+    <!-- Step 4: 완료 화면 -->
+    <div id="step4" class="hidden text-center py-20">
+      <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
+      <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
+      <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
+      <p id="final-dates" class="text-sm text-gray-700 mt-4"></p>
+      <div id="final-time" class="text-sm text-gray-700 mt-1"></div>
+      <div class="mt-8">
+        <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
+      </div>
+    </div>
+  </div>
 
-    // 자동입력 처리 후 폼 렌더링
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        alert("로그인이 필요합니다.");
-        window.location.href = "login.html";
-        return;
+  <script>
+    function goToStep(n) {
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById(`step${i}`).classList.add("hidden");
+        document.getElementById(`step${i}Btn`).classList.remove("step-active");
+        document.getElementById(`step${i}Btn`).classList.add("step-inactive");
       }
+      document.getElementById(`step${n}`).classList.remove("hidden");
+      document.getElementById(`step${n}Btn`).classList.add("step-active");
+      document.getElementById(`step${n}Btn`).classList.remove("step-inactive");
+    }
 
-      userName = user.displayName || "";
-      const docSnap = await getDoc(doc(db, "users", user.uid));
-      if (docSnap.exists()) {
-        studentID = docSnap.data().studentID || "";
-      }
+    function goHome() {
+      window.location.href = "index.html";
+    }
 
-      document.getElementById("userName").value = userName;
-      document.getElementById("studentID").value = studentID;
-
-      // 기존 step 구조 삽입
-      const response = await fetch('form-steps.html');
-      const stepsHTML = await response.text();
-      document.getElementById("formSteps").innerHTML = stepsHTML;
-
-      // 자동입력 적용
-      const nameInput = document.querySelector('[data-autofill="name"]');
-      const idInput = document.querySelector('[data-autofill="studentID"]');
-      if (nameInput) nameInput.value = userName;
-      if (idInput) idInput.value = studentID;
+    document.getElementById("agreeCheck")?.addEventListener("change", (e) => {
+      const btn = document.getElementById("toStep4");
+      btn.disabled = !e.target.checked;
+      btn.classList.toggle("opacity-50", !e.target.checked);
     });
+
+    function submitApplication() {
+      alert("신청 완료되었습니다. 실제 Firestore 저장 로직은 여기에 추가하세요.");
+      goToStep(4);
+    }
   </script>
 </body>
 </html>
