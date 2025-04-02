@@ -136,6 +136,8 @@
           const data = docSnap.data();
           let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
           let rentalDate = data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : data.editingDate;
+          // items 필드가 배열일 경우에만 join 호출. 그렇지 않으면 빈 문자열 반환.
+          let itemsText = (data.items && Array.isArray(data.items)) ? data.items.join(', ') : "";
           let rentalTime = data.hours ? `시간: ${data.hours.join(', ')}시` : '';
 
           html += `
@@ -144,7 +146,7 @@
               <h3>대여 신청 내역</h3>
               <p><strong>이름:</strong> ${data.userName || ""}</p>
               <p><strong>학번:</strong> ${data.studentID || ""}</p>
-              <p><strong>기자재:</strong> ${data.items.join(', ') || ""}</p>
+              <p><strong>기자재:</strong> ${itemsText}</p>
               <p><strong>대여 날짜:</strong> ${rentalDate}</p>
               <p><strong>대여 시간:</strong> ${rentalTime}</p>
               <p><strong>상태:</strong> ${data.status || ""}</p>
