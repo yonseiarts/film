@@ -35,7 +35,7 @@
     .main { flex: 1; padding: 24px; background-color: #fff; }
     .card {
       background-color: #fff; border: 1px solid #e3e6f0;
-      border-radius: 6px; padding: 16px; margin-bottom: 16px;
+      border-radius: 6px; padding: 16px 16px 16px 26px; margin-bottom: 16px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.08); position: relative; font-size: 13px;
     }
     .card h3 { margin-top: 0; color: #4e73df; font-size: 16px; margin-bottom: 8px; }
@@ -45,16 +45,13 @@
       margin-right: 8px; border: none; padding: 6px 12px; border-radius: 4px;
       cursor: pointer; font-size: 13px;
     }
-    .btn-approve { background-color: #10B981; color: #fff; }  /* 초록색 */
-    .btn-reject { background-color: #EF4444; color: #fff; }   /* 빨간색 */
+    .btn-approve { background-color: #10B981; color: #fff; }
+    .btn-reject { background-color: #EF4444; color: #fff; }
     .loading { text-align: center; padding: 40px 0; font-size: 15px; }
     .status-indicator {
       position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
       border-top-left-radius: 6px; border-bottom-left-radius: 6px;
     }
-    .status-승인 { background-color: #10B981; }
-    .status-반려 { background-color: #EF4444; }
-    .status-휴지통 { background-color: #e2e2e2; }
   </style>
 </head>
 <body>
@@ -66,7 +63,7 @@
     <div class="sidebar">
       <h2>메뉴</h2>
       <ul>
-        <!-- 처리 완료 메뉴 삭제 -->
+        <!-- "처리 완료" 메뉴 삭제 -->
         <li id="menuPending" class="active" onclick="activateMenu(this); loadData('pending')">대기 내역</li>
         <li id="menuLogins" onclick="activateMenu(this); loadData('logins')">로그인 내역</li>
         <li id="menuTrash" onclick="activateMenu(this); loadData('trash')">휴지통</li>
@@ -100,44 +97,46 @@
     let currentUnsubscribe = null;
 
     function activateMenu(el) {
-      document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
-      el.classList.add('active');
+      document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove("active"));
+      el.classList.add("active");
     }
     window.activateMenu = activateMenu;
 
-    // loadData 함수: pending, logins, trash
+    // loadData: pending, logins, trash
     function loadData(category) {
       if (currentUnsubscribe) currentUnsubscribe();
-      const contentArea = document.getElementById('contentArea');
+      const contentArea = document.getElementById("contentArea");
       contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
       let q;
-      if (category === 'logins') {
-        // 로그인 내역: 이름, 학번만 표시
+      if (category === "logins") {
         q = query(collection(db, "studentLogins"), orderBy("timestamp", "desc"));
-      } else if (category === 'pending') {
-        // 대기 내역: status == "대기", createdAt 기준 정렬
-        q = query(collection(db, "rentals"), where("status", "==", "대기"), orderBy("createdAt", "desc"));
-      } else if (category === 'trash') {
+      } else if (category === "pending") {
+        // pending 내역: "대기", "승인", "반려" 항목 모두 포함
+        q = query(collection(db, "rentals"), where("status", "in", ["대기", "승인", "반려"]), orderBy("createdAt", "desc"));
+      } else if (category === "trash") {
         q = query(collection(db, "rentals"), where("status", "==", "휴지통"), orderBy("createdAt", "desc"));
       }
-
       currentUnsubscribe = onSnapshot(q, (snapshot) => {
         if (snapshot.empty) {
           contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
           return;
         }
-        let html = '';
+        let html = "";
         snapshot.forEach((docSnap) => {
           const data = docSnap.data();
           console.log("문서 데이터:", data);
-          if (category === 'pending') {
-            // pending 내역: 이름, 학번, 기자재, 대여 시작일, 반납일자, 대여 시간, 승인/반려 버튼
-            let itemsText = (data.items && Array.isArray(data.items)) ? data.items.join(', ') : "미입력";
+          if (category === "pending") {
+            // Determine the left indicator color based on status
+            let indicatorColor = "#ccc"; // 기본 (대기)
+            if (data.status === "승인") indicatorColor = "#10B981";
+            else if (data.status === "반려") indicatorColor = "#EF4444";
+            let itemsText = (data.items && Array.isArray(data.items)) ? data.items.join(", ") : "미입력";
             let startDate = data.startDate || "미입력";
             let endDate = data.endDate || "미입력";
-            let rentalTime = (data.hours && Array.isArray(data.hours)) ? data.hours.join(', ') + "시" : "미입력";
+            let rentalTime = (data.hours && Array.isArray(data.hours)) ? data.hours.join(", ") + "시" : "미입력";
             html += `
               <div class="card">
+                <div class="status-indicator" style="background-color: ${indicatorColor};"></div>
                 <h3>대기 신청 내역</h3>
                 <p><strong>이름:</strong> ${data.userName || "미입력"}</p>
                 <p><strong>학번:</strong> ${data.studentID || "미입력"}</p>
@@ -151,23 +150,21 @@
                 </div>
               </div>
             `;
-          } else if (category === 'logins') {
-            // 로그인 내역: 이름, 학번만 간단히 표시
+          } else if (category === "logins") {
             html += `
               <div class="card">
                 <p><strong>이름:</strong> ${data.userName || "미입력"}</p>
                 <p><strong>학번:</strong> ${data.studentID || "미입력"}</p>
               </div>
             `;
-          } else if (category === 'trash') {
-            // 휴지통: 기존 카드 템플릿 유지 (필요에 따라 수정 가능)
-            let statusClass = 'status-휴지통';
+          } else if (category === "trash") {
+            let indicatorColor = "#e2e2e2";
             let rentalDate = (data.startDate && data.endDate) ? data.startDate + " ~ " + data.endDate : (data.editingDate || "");
-            let itemsText = (data.items && Array.isArray(data.items)) ? data.items.join(', ') : "";
-            let rentalTime = (data.hours && Array.isArray(data.hours)) ? `시간: ${data.hours.join(', ')}시` : "";
+            let itemsText = (data.items && Array.isArray(data.items)) ? data.items.join(", ") : "미입력";
+            let rentalTime = (data.hours && Array.isArray(data.hours)) ? "시간: " + data.hours.join(", ") + "시" : "미입력";
             html += `
               <div class="card">
-                <div class="status-indicator ${statusClass}"></div>
+                <div class="status-indicator" style="background-color: ${indicatorColor};"></div>
                 <h3>대여 신청 내역 (휴지통)</h3>
                 <p><strong>이름:</strong> ${data.userName || "미입력"}</p>
                 <p><strong>학번:</strong> ${data.studentID || "미입력"}</p>
@@ -191,16 +188,16 @@
       const docRef = doc(db, "rentals", docId);
       try {
         await updateDoc(docRef, { status: newStatus });
-        alert('상태가 변경되었습니다.');
+        alert("상태가 변경되었습니다.");
       } catch (err) {
-        console.error('상태 변경 실패:', err);
-        alert('오류가 발생했습니다.');
+        console.error("상태 변경 실패:", err);
+        alert("오류가 발생했습니다.");
       }
     }
     window.updateStatus = updateStatus;
 
     // 최초 "대기 내역" 데이터 로드
-    loadData('pending');
+    loadData("pending");
   </script>
 </body>
 </html>
