@@ -6,6 +6,7 @@
   <title>기자재 대여 신청</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    /* 기존 스타일 유지 */
     .step-active { background-color: #1D4ED8; color: white; }
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
     .tab-button.active { background-color: #dbeafe; font-weight: 600; }
@@ -388,7 +389,7 @@
 
     function submitApplication() {
       const editingOnly = selectedItems.every(i => i.includes("편집실"));
-      // status 필드를 "대기"로 지정하여 대기 상태로 저장, createdAt도 Timestamp로 저장
+      // status "대기" 및 createdAt Timestamp 추가
       const data = {
         items: [...selectedItems],
         startDate: "",
