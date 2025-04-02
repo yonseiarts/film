@@ -5,6 +5,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 신청</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .step-active { background-color: #1D4ED8; color: white; }
+    .step-inactive { background-color: #e5e7eb; color: #6b7280; }
+    .tab-button.active { background-color: #dbeafe; font-weight: 600; }
+    .subtab-button.active { background-color: #dbeafe; font-weight: 600; }
+    .equipment.selected { border-color: #facc15; background-color: #fefce8; }
+    .equipment-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+    }
+    .equipment-card img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .equipment-card.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+      background-color: #f3f4f6;
+    }
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.5rem;
+    }
+    .time-grid label {
+      display: block;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      text-align: center;
+      background-color: #f3f4f6;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .time-grid input[type="checkbox"] {
+      display: none;
+    }
+    .time-grid input[type="checkbox"]:checked + label {
+      background-color: #60a5fa;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body class="bg-gray-50">
   <!-- 헤더 -->
@@ -18,10 +68,10 @@
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
     <!-- 단계 표시 -->
     <div class="flex justify-between mb-8">
-      <div class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
-      <div class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
-      <div class="flex-1 text-center p-2 rounded step-inactive">3. 규정 동의</div>
-      <div class="flex-1 text-center p-2 rounded step-inactive">4. 완료</div>
+      <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
+      <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
+      <div id="step3Btn" class="flex-1 text-center p-2 rounded step-inactive">3. 규정 동의</div>
+      <div id="step4Btn" class="flex-1 text-center p-2 rounded step-inactive">4. 완료</div>
     </div>
 
     <!-- Step 1: 장비 선택 -->
@@ -34,6 +84,12 @@
         <button class="tab-button px-4 py-1 border rounded" data-tab="monitor">모니터</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="editing">편집실</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="line">라인</button>
+      </div>
+      <!-- 중분류 (카메라용) -->
+      <div id="cameraSubTabs" class="flex gap-2 mb-4">
+        <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
+        <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
+        <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대</button>
       </div>
       <!-- 장비 카드 -->
       <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
@@ -52,10 +108,24 @@
     <!-- Step 2: 대여일 선택 -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-      <label class="block mb-2 font-medium">대여 시작일</label>
-      <input type="date" id="startDate" class="border p-2 rounded w-full mb-4" />
-      <label class="block mb-2 font-medium">반납일</label>
-      <input type="date" id="endDate" class="border p-2 rounded w-full mb-4" />
+      <!-- 일반 장비 선택 -->
+      <div id="commonDateSection">
+        <label class="block mb-2 font-medium">대여 시작일</label>
+        <input type="date" id="startDate" class="border p-2 rounded w-full mb-4" />
+        <label class="block mb-2 font-medium">반납일</label>
+        <input type="date" id="endDate" class="border p-2 rounded w-full mb-4" />
+        <label class="block mb-2 font-medium">증명사진 첨부</label>
+        <input type="file" id="proofImage" accept="image/*" class="border p-2 rounded w-full mb-4" />
+      </div>
+
+      <!-- 편집실 선택 시 -->
+      <div id="editingDateSection" class="hidden">
+        <label class="block mb-2 font-medium">편집실 대여일자</label>
+        <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4" />
+        <label class="block mb-2 font-medium">시간 선택</label>
+        <div class="time-grid mb-4" id="timeGrid"></div>
+      </div>
+
       <div class="flex justify-between mt-6">
         <button onclick="goToStep(1)" class="text-sm text-blue-600">← 이전 단계</button>
         <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded">다음 단계 →</button>
@@ -66,7 +136,27 @@
     <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed">
-        <strong>기자재 대여 규정 내용</strong>
+        <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
+        <strong>제1장 총칙</strong><br/>
+        <em>제1조 (목적)</em><br/>
+        본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>
+        <em>제2조 (적용범위)</em><br/>
+        본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>
+        <strong>제2장 관리체계</strong><br/>
+        <em>제1조 (주임교수의 권한)</em><br/>
+        • 기자재 운영 정책 수립 및 변경<br/>
+        • 기자재 담당 인력 임명<br/>
+        • 장비 대여 승인<br/>
+        • 외부 촬영 허가<br/>
+        • 분쟁 조정 및 제재 조치 결정<br/><br/>
+        <em>제2조 (행정실 업무)</em><br/>
+        • 기자재 대장 관리<br/>
+        • 예산 집행 및 회계 관리<br/><br/>
+        <strong>부칙</strong><br/>
+        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>
+        제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
+        2025년 3월 23일<br/>
+        연세예술원 영화학 주임교수 유영식
       </div>
       <label class="flex items-center mb-4">
         <input type="checkbox" id="agreeCheck" class="mr-2"> 위 규정에 동의합니다.
@@ -95,7 +185,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <script>
     const firebaseConfig = {
-   apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
       storageBucket: "yonseirent-setup.appspot.com",
@@ -105,18 +195,213 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    
+  </script>
+
+  <!-- 메인 스크립트 -->
+  <script>
+    const equipmentData = {
+      camera: {
+        body: Array.from({ length: 8 }, (_, i) => ({ name: `카메라 바디 ${i + 1}`, image: "https://placehold.co/80x80?text=Body" })),
+        lens: Array.from({ length: 8 }, (_, i) => ({ name: `렌즈 ${i + 1}`, image: "https://placehold.co/80x80?text=Lens" })),
+        tripod: Array.from({ length: 8 }, (_, i) => ({ name: `삼각대 ${i + 1}`, image: "https://placehold.co/80x80?text=Tripod" }))
+      },
+      lighting: Array.from({ length: 8 }, (_, i) => ({ name: `조명 ${i + 1}`, image: "https://placehold.co/80x80?text=Light" })),
+      sound: Array.from({ length: 8 }, (_, i) => ({ name: `마이크 ${i + 1}`, image: "https://placehold.co/80x80?text=Mic" })),
+      monitor: Array.from({ length: 8 }, (_, i) => ({ name: `모니터 ${i + 1}`, image: "https://placehold.co/80x80?text=Monitor" })),
+      line: Array.from({ length: 8 }, (_, i) => ({ name: `라인 ${i + 1}`, image: "https://placehold.co/80x80?text=Line" })),
+      editing: [
+        { name: "편집실 1", image: "https://placehold.co/80x80?text=Edit1" },
+        { name: "편집실 2", image: "https://placehold.co/80x80?text=Edit2" }
+      ]
+    };
+
     let selectedItems = [];
+    let currentTab = "camera";
+    let currentSub = "body";
+    let selectedHours = [];
+
+    function renderEquipmentList() {
+      const container = document.getElementById("equipment-list");
+      container.innerHTML = "";
+      const items = currentTab === "camera" ? equipmentData.camera[currentSub] : equipmentData[currentTab];
+
+      const isEditingSelected = selectedItems.some(name => name.includes("편집실"));
+      const isOtherSelected = selectedItems.some(name => !name.includes("편집실"));
+
+      items.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "equipment-card";
+        const isEditing = item.name.includes("편집실");
+        const shouldDisable = (isEditing && isOtherSelected) || (!isEditing && isEditingSelected);
+        if (shouldDisable) div.classList.add("disabled");
+
+        const isSelected = selectedItems.includes(item.name);
+        if (isSelected) div.classList.add("selected");
+
+        div.innerHTML = `<img src="${item.image}" alt="${item.name}"><span class="text-sm">${item.name}</span>`;
+        div.onclick = () => {
+          if (shouldDisable) return;
+          if (isSelected) {
+            selectedItems = selectedItems.filter(i => i !== item.name);
+          } else {
+            selectedItems.push(item.name);
+          }
+          updateSelectedUI();
+          renderEquipmentList();
+        };
+        container.appendChild(div);
+      });
+    }
+
+    function updateSelectedUI() {
+      const sec = document.getElementById("selected-section");
+      const btn = document.getElementById("toStep2");
+      if (selectedItems.length === 0) {
+        sec.classList.add("hidden");
+        btn.classList.add("hidden");
+      } else {
+        sec.classList.remove("hidden");
+        btn.classList.remove("hidden");
+      }
+      document.getElementById("selected-items").innerHTML = selectedItems.map(item => {
+        const safeItem = item.replace(/'/g, "\\'");
+        return '<li>' + item + ' <button type="button" class="ml-2 text-red-500" onclick="removeSelectedItem(\'' + safeItem + '\')">&times;</button></li>';
+      }).join("");
+    }
+
+    function removeSelectedItem(itemName) {
+      selectedItems = selectedItems.filter(i => i !== itemName);
+      updateSelectedUI();
+      renderEquipmentList();
+    }
+
+    document.querySelectorAll(".tab-button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentTab = btn.dataset.tab;
+        document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
+        currentSub = "body";
+        renderEquipmentList();
+      });
+    });
+
+    document.querySelectorAll(".subtab-button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".subtab-button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentSub = btn.dataset.subtab;
+        renderEquipmentList();
+      });
+    });
+
+    function goToStep(n) {
+      for (let i = 1; i <= 4; i++) {
+            document.getElementById("step" + i)?.classList.add("hidden");
+        document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
+        document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
+      }
+      document.getElementById("step" + n)?.classList.remove("hidden");
+      document.getElementById("step" + n + "Btn")?.classList.add("step-active");
+      document.getElementById("step" + n + "Btn")?.classList.remove("step-inactive");
+
+      if (n === 2) {
+        const editingOnly = selectedItems.every(i => i.includes("편집실"));
+        document.getElementById("commonDateSection").classList.toggle("hidden", editingOnly);
+        document.getElementById("editingDateSection").classList.toggle("hidden", !editingOnly);
+        if (editingOnly) generateTimeGrid();
+      }
+
+      if (n === 4) {
+        document.getElementById("final-selected-items").innerHTML = selectedItems.map(i => `<li>${i}</li>`).join("");
+        const editingOnly = selectedItems.every(i => i.includes("편집실"));
+        const start = document.getElementById("startDate")?.value || "-";
+        const end = document.getElementById("endDate")?.value || "-";
+        const dateText = editingOnly ? document.getElementById("editingDate").value : `${start} ~ ${end}`;
+        document.getElementById("final-dates").innerText = `대여일자: ${dateText}`;
+        document.getElementById("final-time").innerText = editingOnly && selectedHours.length
+          ? `선택한 시간: ${selectedHours.sort((a, b) => a - b).join(', ')}시`
+          : '';
+      }
+    }
+
+    function goHome() {
+      location.href = "index.html";
+    }
+
+    function generateTimeGrid() {
+      const grid = document.getElementById("timeGrid");
+      grid.innerHTML = "";
+      selectedHours = [];
+      for (let h = 0; h < 24; h++) {
+        const id = `hour-${h}`;
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.id = id;
+        input.value = h;
+        input.addEventListener("change", () => {
+          if (input.checked) {
+            selectedHours.push(h);
+          } else {
+            selectedHours = selectedHours.filter(val => val !== h);
+          }
+        });
+
+        const label = document.createElement("label");
+        label.setAttribute("for", id);
+        label.className = "inline-block w-12 py-1 text-center text-sm bg-gray-200 rounded";
+        label.innerText = `${h}:00`;
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "inline-block";
+        wrapper.appendChild(input);
+        wrapper.appendChild(label);
+        grid.appendChild(wrapper);
+      }
+    }
+
+    function validateStep2() {
+      const editingOnly = selectedItems.every(i => i.includes("편집실"));
+      if (editingOnly) {
+        if (!document.getElementById("editingDate").value || selectedHours.length === 0) {
+          alert("편집실 대여일자와 시간을 선택해주세요.");
+          return;
+        }
+      } else {
+        const start = document.getElementById("startDate").value;
+        const end = document.getElementById("endDate").value;
+        const proof = document.getElementById("proofImage").files[0];
+        if (!start || !end || !proof) {
+          alert("대여 시작일, 반납일, 증명사진을 모두 입력해주세요.");
+          return;
+        }
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        const diff = (endDate - startDate) / (1000 * 60 * 60 * 24);
+        if (diff < 0 || diff > 3) {
+          alert("대여 기간은 최대 3일 이내여야 하며, 반납일은 시작일보다 이후여야 합니다.");
+          return;
+        }
+      }
+      goToStep(3);
+    }
 
     function submitApplication() {
+      const editingOnly = selectedItems.every(i => i.includes("편집실"));
       const data = {
-        items: selectedItems, // 선택된 장비 배열
-        startDate: document.getElementById("startDate").value,
-        endDate: document.getElementById("endDate").value,
-        studentId: "ar23000501", // 예시 학번
-        userName: "이창민" // 예시 이름
+        items: [...selectedItems],
+        startDate: "",
+        endDate: "",
+        editingDate: "",
+        hours: []
       };
-     
+      if (editingOnly) {
+        data.editingDate = document.getElementById("editingDate").value;
+        data.hours = [...selectedHours].sort((a, b) => a - b);
+      } else {
+        data.startDate = document.getElementById("startDate").value;
+        data.endDate = document.getElementById("endDate").value;
+      }
       db.collection("rentals").add(data)
         .then(() => {
           goToStep(4);
@@ -127,20 +412,14 @@
         });
     }
 
-    function goToStep(n) {
-      for (let i = 1; i <= 4; i++) {
-        document.getElementById("step" + i).classList.add("hidden");
-      }
-      document.getElementById("step" + n).classList.remove("hidden");
-      if (n === 4) {
-        document.getElementById("final-selected-items").innerHTML = selectedItems.map(item => `<li>${item}</li>`).join("");
-        const start = document.getElementById("startDate").value || "-";
-        const end = document.getElementById("endDate").value || "-";
-        document.getElementById("final-dates").innerText = `대여일자: ${start} ~ ${end}`;
-      }
-    }
+    document.getElementById("agreeCheck").addEventListener("change", e => {
+      const btn = document.getElementById("toStep4");
+      btn.disabled = !e.target.checked;
+      btn.classList.toggle("opacity-50", !e.target.checked);
+    });
 
     document.addEventListener("DOMContentLoaded", () => {
+      renderEquipmentList();
       goToStep(1);
     });
   </script>
