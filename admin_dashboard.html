@@ -129,7 +129,7 @@
           return;
         }
         let html = "";
-        // 만약 휴지통 탭이면 상단에 "전체삭제" 버튼 추가
+        // 휴지통 탭일 경우 전체삭제 버튼 추가
         if (category === "trash") {
           html += `<button class="delete-all-btn" onclick="deleteAllTrash()">전체삭제</button>`;
         }
@@ -137,7 +137,6 @@
           const data = docSnap.data();
           console.log("문서 데이터:", data);
           if (category === "pending") {
-            // pending 내역: 모든 필드 표시 및 승인/반려 버튼, 현재 상태 텍스트, 오른쪽 상단 x 버튼(휴지통으로 이동)
             let indicatorColor = "#ccc"; // 기본 (대기)
             if (data.status === "승인") indicatorColor = "#10B981";
             else if (data.status === "반려") indicatorColor = "#EF4444";
@@ -164,7 +163,6 @@
               </div>
             `;
           } else if (category === "logins") {
-            // 로그인 내역: 이름, 학번, 접속 시간 표시
             let connectionTime = "미입력";
             if(data.timestamp && data.timestamp.seconds) {
               connectionTime = new Date(data.timestamp.seconds * 1000).toLocaleString();
@@ -177,7 +175,6 @@
               </div>
             `;
           } else if (category === "trash") {
-            // 휴지통: 휴지통 상태 문서, 오른쪽 상단 x 버튼은 영구 삭제
             let rentalDate = (data.startDate && data.endDate) ? data.startDate + " ~ " + data.endDate : (data.editingDate || "미입력");
             let itemsText = (data.items && Array.isArray(data.items)) ? data.items.join(", ") : "미입력";
             let rentalTime = (data.hours && Array.isArray(data.hours)) ? data.hours.join(", ") + "시" : "미입력";
@@ -200,7 +197,6 @@
     }
     window.loadData = loadData;
 
-    // updateStatus: pending 상태 변경 (승인, 반려, 휴지통 이동)
     async function updateStatus(docId, newStatus) {
       if (!confirm(`상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
       const docRef = doc(db, "rentals", docId);
@@ -214,7 +210,6 @@
     }
     window.updateStatus = updateStatus;
 
-    // deleteDocument: 휴지통에서 개별 항목 영구 삭제
     async function deleteDocument(docId) {
       if (!confirm("해당 항목을 영구 삭제하시겠습니까?")) return;
       try {
@@ -227,7 +222,6 @@
     }
     window.deleteDocument = deleteDocument;
 
-    // deleteAllTrash: 휴지통 내 전체 항목 영구 삭제
     async function deleteAllTrash() {
       if (!confirm("휴지통의 모든 항목을 영구 삭제하시겠습니까?")) return;
       try {
