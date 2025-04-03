@@ -48,12 +48,6 @@
     }
     .actions button:hover { background-color: #375a9c; }
     .loading { text-align: center; padding: 40px 0; font-size: 15px; }
-    .sub-tabs { margin-bottom: 16px; }
-    .sub-tabs button {
-      background-color: #e2e6ea; border: none; padding: 6px 12px;
-      margin-right: 8px; border-radius: 4px; cursor: pointer; font-size: 13px;
-    }
-    .sub-tabs button.active { background-color: #4e73df; color: #fff; }
     .status-indicator {
       position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
       border-top-left-radius: 6px; border-bottom-left-radius: 6px;
@@ -87,11 +81,11 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
   <script>
-    const firebaseConfig = {
+       const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
-      storageBucket: "yonseirent-setup.appspot.com",  // 수정된 부분
+      storageBucket: "yonseirent-setup.appspot.com",
       messagingSenderId: "1072524969376",
       appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
       measurementId: "G-CQZEKPE02D"
@@ -102,11 +96,13 @@
 
     let currentUnsubscribe = null;
 
+    // 메뉴 활성화 함수
     function activateMenu(el) {
       document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
       el.classList.add('active');
     }
 
+    // 데이터를 불러오는 함수
     function loadData(category) {
       if (currentUnsubscribe) currentUnsubscribe();
       const contentArea = document.getElementById('contentArea');
@@ -170,6 +166,7 @@
       );
     }
 
+    // 상태 변경 함수
     function updateStatus(docId, newStatus) {
       if (!confirm(`상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
       db.collection('rentals').doc(docId).update({
@@ -179,8 +176,8 @@
         alert('상태가 변경되었습니다.');
       })
       .catch(err => {
-         console.error('상태 변경 실패:', err);
-         alert('오류가 발생했습니다.');
+        console.error('상태 변경 실패:', err);
+        alert('오류가 발생했습니다.');
       });
     }
 
@@ -189,3 +186,5 @@
   </script>
 </body>
 </html>
+
+      apiKey: "AIzaSyDq 
