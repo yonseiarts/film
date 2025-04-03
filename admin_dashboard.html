@@ -48,6 +48,12 @@
     }
     .actions button:hover { background-color: #375a9c; }
     .loading { text-align: center; padding: 40px 0; font-size: 15px; }
+    .sub-tabs { margin-bottom: 16px; }
+    .sub-tabs button {
+      background-color: #e2e6ea; border: none; padding: 6px 12px;
+      margin-right: 8px; border-radius: 4px; cursor: pointer; font-size: 13px;
+    }
+    .sub-tabs button.active { background-color: #4e73df; color: #fff; }
     .status-indicator {
       position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
       border-top-left-radius: 6px; border-bottom-left-radius: 6px;
@@ -96,13 +102,15 @@
 
     let currentUnsubscribe = null;
 
+    // activateMenu 함수를 추가합니다.
     function activateMenu(el) {
       document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
       el.classList.add('active');
     }
 
+    // 데이터 불러오기 함수 (대기, 처리, 로그인, 휴지통)
     function loadData(category) {
-      if (currentUnsubscribe) currentUnsubscribe(); // 기존의 구독을 취소합니다.
+      if (currentUnsubscribe) currentUnsubscribe(); // 기존의 구독 취소
       const contentArea = document.getElementById('contentArea');
       contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
 
@@ -131,13 +139,16 @@
             let rentalDate = data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : data.editingDate;
             let rentalTime = data.hours ? `시간: ${data.hours.join(', ')}시` : '';
 
+            // items 배열은 data.items로 저장되어 있다고 가정합니다.
+            let itemsText = Array.isArray(data.items) ? data.items.join(', ') : '';
+
             html += `
               <div class="card">
                 <div class="status-indicator ${statusClass}"></div>
                 <h3>대여 신청 내역</h3>
                 <p><strong>이름:</strong> ${data.userName || ""}</p>
                 <p><strong>학번:</strong> ${data.studentID || ""}</p>
-                <p><strong>기자재:</strong> ${data.items.join(', ') || ""}</p> <!-- items 배열 출력 -->
+                <p><strong>기자재:</strong> ${itemsText}</p>
                 <p><strong>대여 날짜:</strong> ${rentalDate}</p>
                 <p><strong>대여 시간:</strong> ${rentalTime}</p>
                 <p><strong>상태:</strong> ${data.status || ""}</p>
@@ -167,12 +178,13 @@
         alert('상태가 변경되었습니다.');
       })
       .catch(err => {
-        console.error('상태 변경 실패:', err);
-        alert('오류가 발생했습니다.');
+         console.error('상태 변경 실패:', err);
+         alert('오류가 발생했습니다.');
       });
     }
 
-    loadData('pending'); // 대기 내역 로드
+    // 페이지 로드 시 대기 내역을 불러옵니다.
+    loadData('pending');
   </script>
 </body>
 </html>
