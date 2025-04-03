@@ -33,61 +33,31 @@
       background-color: rgba(255,255,255,0.2);
     }
     .main { flex: 1; padding: 24px; background-color: #fff; }
-    .tab-button-container {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 20px;
-      justify-content: center;
-    }
-    .tab-button {
-      padding: 10px 20px;
-      background-color: #f3f4f6;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background-color 0.3s ease;
-    }
-    .tab-button.active {
-      background-color: #4e73df;
-      color: white;
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
     .card {
       background-color: #fff; border: 1px solid #e3e6f0;
       border-radius: 6px; padding: 16px; margin-bottom: 16px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.08); position: relative; font-size: 13px;
     }
+    .card h3 { margin-top: 0; color: #4e73df; font-size: 16px; margin-bottom: 8px; }
+    .card p { margin: 4px 0; }
+    .actions { margin-top: 12px; }
     .actions button {
       margin-right: 8px; background-color: #4e73df; color: #fff;
       border: none; padding: 6px 12px; border-radius: 4px;
       cursor: pointer; font-size: 13px;
     }
     .actions button:hover { background-color: #375a9c; }
-    .remove-btn {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background-color: red;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      padding: 5px;
-      cursor: pointer;
+    .loading { text-align: center; padding: 40px 0; font-size: 15px; }
+    .status-indicator {
+      position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+      border-top-left-radius: 6px; border-bottom-left-radius: 6px;
     }
-    .remove-all-btn {
-      background-color: #e74a3b;
-      padding: 8px 16px;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-      margin-bottom: 20px;
+    .status-승인 { background-color: #4e73df; }
+    .status-반려 { background-color: #e74a3b; }
+    .status-휴지통 { background-color: #e2e2e2; }
+    .close-btn {
+      position: absolute; right: 10px; top: 10px; cursor: pointer; font-size: 16px;
     }
-    .remove-all-btn:hover { background-color: #c0392b; }
   </style>
 </head>
 <body>
@@ -110,14 +80,14 @@
   </div>
 
   <!-- Firebase SDK & Initialization -->
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
-      storageBucket: "yonseirent-setup.appspot.com",
+      storageBucket: "yonseirent-setup.appspot.com",  
       messagingSenderId: "1072524969376",
       appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
       measurementId: "G-CQZEKPE02D"
@@ -143,38 +113,13 @@
       if (category === 'logins') {
         query = db.collection('studentLogins').orderBy('timestamp', 'desc');
       } else if (category === 'pending') {
-        // 장비 및 편집실 탭으로 나누기
-        contentArea.innerHTML = `
-          <div class="tab-button-container">
-            <button class="tab-button active" onclick="showEquipment()">장비</button>
-            <button class="tab-button" onclick="showEditingRoom()">편집실</button>
-          </div>
-          <div id="equipmentTab" class="tab-content"></div>
-          <div id="editingRoomTab" class="tab-content hidden"></div>
-        `;
-        
-        const equipmentQuery = db.collection('rentals').where('status', '==', '대기').where('isEditingRoom', '==', false).orderBy('createdAt', 'desc');
-        const editingRoomQuery = db.collection('rentals').where('status', '==', '대기').where('isEditingRoom', '==', true).orderBy('createdAt', 'desc');
-
-        currentUnsubscribe = equipmentQuery.onSnapshot(snapshot => {
-          let html = '';
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            html += generateCard(data, doc.id);
-          });
-          document.getElementById('equipmentTab').innerHTML = html;
-        });
-
-        currentUnsubscribe = editingRoomQuery.onSnapshot(snapshot => {
-          let html = '';
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            html += generateCard(data, doc.id);
-          });
-          document.getElementById('editingRoomTab').innerHTML = html;
-        });
+        query = db.collection('rentals')
+                  .where('status', '==', '대기')
+                  .orderBy('createdAt', 'desc');
       } else if (category === 'trash') {
-        query = db.collection('rentals').where('status', '==', '휴지통').orderBy('createdAt', 'desc');
+        query = db.collection('rentals')
+                  .where('status', '==', '휴지통')
+                  .orderBy('createdAt', 'desc');
       }
 
       currentUnsubscribe = query.onSnapshot(
@@ -186,7 +131,28 @@
           let html = '';
           snapshot.forEach(doc => {
             const data = doc.data();
-            html += generateCard(data, doc.id);
+            let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
+            let rentalDate = data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : data.editingDate;
+            let rentalTime = data.hours ? `시간: ${data.hours.join(', ')}시` : '';
+
+            html += `
+              <div class="card">
+                <div class="status-indicator ${statusClass}"></div>
+                <h3>대여 신청 내역</h3>
+                <p><strong>이름:</strong> ${data.userName || ""}</p>
+                <p><strong>학번:</strong> ${data.studentID || ""}</p>
+                <p><strong>기자재:</strong> ${data.items.join(', ') || ""}</p>
+                <p><strong>대여 날짜:</strong> ${rentalDate}</p>
+                <p><strong>대여 시간:</strong> ${rentalTime}</p>
+                <p><strong>상태:</strong> ${data.status || ""}</p>
+                <div class="actions">
+                  <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
+                  <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
+                  <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
+                </div>
+                <span class="close-btn" onclick="moveToTrash('${doc.id}')">&times;</span>
+              </div>
+            `;
           });
           contentArea.innerHTML = html;
         },
@@ -197,30 +163,17 @@
       );
     }
 
-    function generateCard(data, docId) {
-      let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
-      let rentalDate = data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : data.editingDate;
-      let rentalTime = data.hours ? `시간: ${data.hours.join(', ')}시` : '';
-      let itemsText = Array.isArray(data.items) ? data.items.join(', ') : '';
-
-      return `
-        <div class="card">
-          <div class="status-indicator ${statusClass}"></div>
-          <h3>대여 신청 내역</h3>
-          <p><strong>이름:</strong> ${data.userName || ""}</p>
-          <p><strong>학번:</strong> ${data.studentID || ""}</p>
-          <p><strong>기자재:</strong> ${itemsText}</p>
-          <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-          <p><strong>대여 시간:</strong> ${rentalTime}</p>
-          <p><strong>상태:</strong> ${data.status || ""}</p>
-          <div class="actions">
-            <button onclick="updateStatus('${docId}', '승인')">승인</button>
-            <button onclick="updateStatus('${docId}', '반려')">반려</button>
-            <button onclick="updateStatus('${docId}', '휴지통')">휴지통</button>
-          </div>
-          <button class="remove-btn" onclick="moveToTrash('${docId}')">×</button>
-        </div>
-      `;
+    function moveToTrash(docId) {
+      db.collection('rentals').doc(docId).update({
+        status: '휴지통'
+      })
+      .then(() => {
+        alert('휴지통으로 이동되었습니다.');
+      })
+      .catch(err => {
+        console.error('휴지통 이동 실패:', err);
+        alert('오류가 발생했습니다.');
+      });
     }
 
     function updateStatus(docId, newStatus) {
@@ -236,41 +189,7 @@
       });
     }
 
-    function moveToTrash(docId) {
-      db.collection('rentals').doc(docId).update({
-        status: '휴지통'
-      })
-      .then(() => {
-        alert('해당 항목이 휴지통으로 이동되었습니다.');
-      })
-      .catch(err => {
-        console.error('휴지통 이동 실패:', err);
-        alert('휴지통으로 이동하는데 실패했습니다.');
-      });
-    }
-
-    function showEquipment() {
-      document.getElementById('equipmentTab').classList.remove('hidden');
-      document.getElementById('editingRoomTab').classList.add('hidden');
-      document.querySelector('.tab-button.active').classList.remove('active');
-      document.querySelector('button[data-tab="camera"]').classList.add('active');
-    }
-
-    function showEditingRoom() {
-      document.getElementById('equipmentTab').classList.add('hidden');
-      document.getElementById('editingRoomTab').classList.remove('hidden');
-      document.querySelector('.tab-button.active').classList.remove('active');
-      document.querySelector('button[data-tab="editing"]').classList.add('active');
-    }
-
-    function activateMenu(el) {
-      document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
-      el.classList.add('active');
-    }
-
-    // 페이지 로드 시 대기 내역을 불러옵니다.
-    loadData('pending');
+    loadData('pending'); // 대기 내역 로드
   </script>
 </body>
 </html>
-
