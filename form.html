@@ -213,11 +213,11 @@
       lighting: Array.from({ length: 8 }, (_, i) => ({ name: `조명 ${i + 1}`, image: "https://placehold.co/80x80?text=Light" })),
       sound: Array.from({ length: 8 }, (_, i) => ({ name: `마이크 ${i + 1}`, image: "https://placehold.co/80x80?text=Mic" })),
       monitor: Array.from({ length: 8 }, (_, i) => ({ name: `모니터 ${i + 1}`, image: "https://placehold.co/80x80?text=Monitor" })),
-          line: Array.from({ length: 8 }, (_, i) => ({ name: `라인 ${i + 1}`, image: "https://placehold.co/80x80?text=Line" })),
-        editing: [
-          { name: "편집실 1", image: "https://placehold.co/80x80?text=Edit1" },
-          { name: "편집실 2", image: "https://placehold.co/80x80?text=Edit2" }
-        ]
+      line: Array.from({ length: 8 }, (_, i) => ({ name: `라인 ${i + 1}`, image: "https://placehold.co/80x80?text=Line" })),
+      editing: [
+        { name: "편집실 1", image: "https://placehold.co/80x80?text=Edit1" },
+        { name: "편집실 2", image: "https://placehold.co/80x80?text=Edit2" }
+      ]
     };
 
     let selectedItems = [];
@@ -311,7 +311,7 @@
       document.getElementById("step" + n + "Btn")?.classList.remove("step-inactive");
 
       if (n === 2) {
-        const editingOnly = selectedItems.every(i => i.includes("편집실"));
+        const editingOnly        = selectedItems.every(i => i.includes("편집실"));
         document.getElementById("commonDateSection").classList.toggle("hidden", editingOnly);
         document.getElementById("editingDateSection").classList.toggle("hidden", !editingOnly);
         if (editingOnly) generateTimeGrid();
@@ -402,7 +402,8 @@
         startDate: "",
         endDate: "",
         editingDate: "",
-        hours: []
+        hours: [],
+        status: "대기" // status 필드 추가
       };
       data.name = document.getElementById("userName").value;
       data.studentId = document.getElementById("userId").value;
