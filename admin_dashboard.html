@@ -78,10 +78,10 @@
   </div>
 
   <!-- Firebase SDK & Initialization -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <script>
-       const firebaseConfig = {
+    const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
@@ -96,33 +96,26 @@
 
     let currentUnsubscribe = null;
 
-    // 메뉴 활성화 함수
     function activateMenu(el) {
       document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
       el.classList.add('active');
     }
 
-    // 데이터를 불러오는 함수
     function loadData(category) {
-      if (currentUnsubscribe) currentUnsubscribe();
+      if (currentUnsubscribe) currentUnsubscribe(); // 기존의 구독을 취소합니다.
       const contentArea = document.getElementById('contentArea');
       contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
 
       let query;
+
       if (category === 'logins') {
         query = db.collection('studentLogins').orderBy('timestamp', 'desc');
       } else if (category === 'pending') {
-        query = db.collection('rentals')
-                  .where('status', '==', '대기')
-                  .orderBy('createdAt', 'desc');
+        query = db.collection('rentals').where('status', '==', '대기').orderBy('createdAt', 'desc');
       } else if (category === 'processed') {
-        query = db.collection('rentals')
-                  .where('status', 'in', ['승인', '반려'])
-                  .orderBy('createdAt', 'desc');
+        query = db.collection('rentals').where('status', 'in', ['승인', '반려']).orderBy('createdAt', 'desc');
       } else if (category === 'trash') {
-        query = db.collection('rentals')
-                  .where('status', '==', '휴지통')
-                  .orderBy('createdAt', 'desc');
+        query = db.collection('rentals').where('status', '==', '휴지통').orderBy('createdAt', 'desc');
       }
 
       currentUnsubscribe = query.onSnapshot(
@@ -137,7 +130,6 @@
             let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
             let rentalDate = data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : data.editingDate;
             let rentalTime = data.hours ? `시간: ${data.hours.join(', ')}시` : '';
-            let itemsText = Array.isArray(data.items) ? data.items.join(', ') : '';
 
             html += `
               <div class="card">
@@ -145,7 +137,7 @@
                 <h3>대여 신청 내역</h3>
                 <p><strong>이름:</strong> ${data.userName || ""}</p>
                 <p><strong>학번:</strong> ${data.studentID || ""}</p>
-                <p><strong>기자재:</strong> ${itemsText}</p>
+                <p><strong>기자재:</strong> ${data.items || ""}</p>
                 <p><strong>대여 날짜:</strong> ${rentalDate}</p>
                 <p><strong>대여 시간:</strong> ${rentalTime}</p>
                 <p><strong>상태:</strong> ${data.status || ""}</p>
@@ -166,7 +158,6 @@
       );
     }
 
-    // 상태 변경 함수
     function updateStatus(docId, newStatus) {
       if (!confirm(`상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
       db.collection('rentals').doc(docId).update({
@@ -176,15 +167,12 @@
         alert('상태가 변경되었습니다.');
       })
       .catch(err => {
-        console.error('상태 변경 실패:', err);
-        alert('오류가 발생했습니다.');
+         console.error('상태 변경 실패:', err);
+         alert('오류가 발생했습니다.');
       });
     }
 
-    // 페이지 로드 시 대기 내역을 불러옵니다.
-    loadData('pending');
+    loadData('pending'); // 대기 내역 로드
   </script>
 </body>
 </html>
-
-      apiKey: "AIzaSyDq 
