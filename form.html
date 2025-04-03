@@ -4,21 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 신청</title>
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* 단계 버튼 스타일 */
     .step-active {
-      background-color: #1D4ED8;
-      color: white;
+      background-color: #1D4ED8; /* 파란색 배경 */
+      color: white;             /* 흰 글씨 */
     }
     .step-inactive {
-      background-color: #e5e7eb;
-      color: #6b7280;
+      background-color: #e5e7eb; /* 연회색 배경 */
+      color: #6b7280;           /* 회색 글씨 */
     }
-    /* 탭 및 서브탭 활성화 스타일 */
+    /* 탭, 서브탭 활성화 스타일 */
     .tab-button.active, .subtab-button.active {
-      background-color: #dbeafe;
+      background-color: #dbeafe; /* 연한 파란 배경 */
       font-weight: 600;
     }
     /* 장비 카드 스타일 */
@@ -39,15 +39,15 @@
       flex-shrink: 0;
     }
     .equipment-card.selected {
-      border-color: #facc15;
-      background-color: #fefce8;
+      border-color: #facc15;     /* 노랑 */
+      background-color: #fefce8; /* 연한 노랑 */
     }
     .equipment-card.disabled {
       opacity: 0.4;
       pointer-events: none;
-      background-color: #f3f4f6;
+      background-color: #f3f4f6; /* 연한 회색 */
     }
-    /* 편집실 시간 선택 그리드 */
+    /* 편집실 시간선택 그리드 */
     .time-grid {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
@@ -66,23 +66,23 @@
       display: none;
     }
     .time-grid input[type="checkbox"]:checked + label {
-      background-color: #60a5fa;
+      background-color: #60a5fa; /* 파랑 */
       color: white;
       font-weight: bold;
     }
   </style>
 </head>
 <body class="bg-gray-50">
-  <!-- 헤더 -->
-  <header class="bg-blue-700 text-white py-6 text-center relative">
+  <!-- 상단 헤더 -->
+  <div class="bg-blue-700 text-white py-6 text-center relative">
     <a href="index.html" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white underline text-sm">홈으로</a>
     <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
     <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
-  </header>
+  </div>
 
   <!-- 메인 컨테이너 -->
-  <main class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-    <!-- 상단 사용자 정보 (이름, 학번) -->
+  <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
+    <!-- 이름 / 학번 -->
     <div class="mb-6">
       <label class="block mb-2 font-medium">이름</label>
       <input type="text" id="userNameInput" class="border p-2 rounded w-full mb-4" placeholder="이름을 입력해주세요" />
@@ -91,17 +91,19 @@
     </div>
 
     <!-- 단계 표시 바 -->
-    <div class="flex justify-between mb-8">
+    <div class="flex justify-between mb-8 mt-6">
       <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
       <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
       <div id="step3Btn" class="flex-1 text-center p-2 rounded step-inactive">3. 규정 동의</div>
       <div id="step4Btn" class="flex-1 text-center p-2 rounded step-inactive">4. 완료</div>
     </div>
 
-    <!-- STEP 1: 장비 선택 -->
-    <section id="step1">
+    <!-- ======================
+         STEP 1: 장비 선택
+         ====================== -->
+    <div id="step1">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
-      <!-- 메인 탭 -->
+      <!-- 탭 -->
       <div class="flex space-x-2 mb-4">
         <button class="tab-button active px-4 py-1 border rounded" data-tab="camera">카메라</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="lighting">조명</button>
@@ -118,19 +120,23 @@
       </div>
       <!-- 장비 카드 목록 -->
       <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-      <!-- 선택된 장비 목록 -->
+
+      <!-- 선택된 장비 표시 -->
       <div id="selected-section" class="mt-6 hidden">
         <h3 class="font-medium mb-2">선택된 장비</h3>
         <ul id="selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
       </div>
+
       <!-- 다음 단계 버튼 -->
       <div class="flex justify-end mt-6">
-        <button id="toStep2" onclick="saveStep1()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">다음 단계 →</button>
+        <button id="toStep2" onclick="goToStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">다음 단계 →</button>
       </div>
-    </section>
+    </div>
 
-    <!-- STEP 2: 대여일 선택 -->
-    <section id="step2" class="hidden">
+    <!-- ======================
+         STEP 2: 대여일 선택
+         ====================== -->
+    <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
       <!-- 일반 장비 대여 UI -->
       <div id="commonDateSection">
@@ -148,15 +154,18 @@
         <label class="block mb-2 font-medium">시간 선택</label>
         <div class="time-grid mb-4" id="timeGrid"></div>
       </div>
+
       <!-- 이전/다음 버튼 -->
       <div class="flex justify-between mt-6">
         <button onclick="goToStep(1)" class="text-sm text-blue-600">← 이전 단계</button>
-        <button onclick="validateAndSaveStep2()" class="bg-blue-600 text-white px-4 py-2 rounded">다음 단계 →</button>
+        <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded">다음 단계 →</button>
       </div>
-    </section>
+    </div>
 
-    <!-- STEP 3: 규정 동의 -->
-    <section id="step3" class="hidden">
+    <!-- ======================
+         STEP 3: 규정 동의
+         ====================== -->
+    <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed">
         <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
@@ -188,12 +197,14 @@
       <!-- 이전/완료 버튼 -->
       <div class="flex justify-between">
         <button onclick="goToStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
-        <button id="toStep4" onclick="saveStep3()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">신청 완료</button>
+        <button id="toStep4" onclick="goToStep4()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">신청 완료</button>
       </div>
-    </section>
+    </div>
 
-    <!-- STEP 4: 완료 -->
-    <section id="step4" class="hidden text-center py-20">
+    <!-- ======================
+         STEP 4: 완료
+         ====================== -->
+    <div id="step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
       <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
       <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
@@ -202,10 +213,10 @@
       <div class="mt-8">
         <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
       </div>
-    </section>
-  </main>
+    </div>
+  </div>
 
-  <!-- Firebase SDK 및 Firestore 초기화 (필요 시 Firebase 설정 수정) -->
+  <!-- Firebase (필요 시 설정 수정) -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <script>
@@ -224,7 +235,7 @@
 
   <!-- 메인 스크립트 -->
   <script>
-    // 장비 데이터: 추후 항목 추가/수정이 용이하도록 구성
+    // 장비 데이터
     const equipmentData = {
       camera: {
         body: Array.from({ length: 8 }, (_, i) => ({ name: `카메라 바디 ${i+1}`, image: "https://placehold.co/80x80?text=Body" })),
@@ -232,28 +243,40 @@
         tripod: Array.from({ length: 8 }, (_, i) => ({ name: `삼각대 ${i+1}`, image: "https://placehold.co/80x80?text=Tripod" }))
       },
       lighting: Array.from({ length: 8 }, (_, i) => ({ name: `조명 ${i+1}`, image: "https://placehold.co/80x80?text=Light" })),
-      sound: Array.from({ length: 8 }, (_, i) => ({ name: `마이크 ${i+1}`, image: "https://placehold.co/80x80?text=Mic" })),
-      monitor: Array.from({ length: 8 }, (_, i) => ({ name: `모니터 ${i+1}`, image: "https://placehold.co/80x80?text=Monitor" })),
-      line: Array.from({ length: 8 }, (_, i) => ({ name: `라인 ${i+1}`, image: "https://placehold.co/80x80?text=Line" })),
+      sound: Array.from({ length: 8 }, (_, i) => ({ name: `마이크 ${i + 1}`, image: "https://placehold.co/80x80?text=Mic" })),
+      monitor: Array.from({ length: 8 }, (_, i) => ({ name: `모니터 ${i + 1}`, image: "https://placehold.co/80x80?text=Monitor" })),
+      line: Array.from({ length: 8 }, (_, i) => ({ name: `라인 ${i + 1}`, image: "https://placehold.co/80x80?text=Line" })),
       editing: [
         { name: "편집실 1", image: "https://placehold.co/80x80?text=Edit1" },
         { name: "편집실 2", image: "https://placehold.co/80x80?text=Edit2" }
       ]
     };
 
-    let selectedItems = [];
+    // 전역 변수
+    let selectedItems = [];  // 선택된 장비
     let currentTab = "camera";
     let currentSub = "body";
-    let selectedHours = [];
+    let selectedHours = [];  // 편집실 시간 선택
 
+    // 초기 렌더링
+    document.addEventListener("DOMContentLoaded", () => {
+      renderEquipmentList();
+      updateSelectedUI();
+      goToStep(1); // 1단계부터 시작
+    });
+
+    // ---------------------------
     // STEP 1: 장비 목록 렌더링
+    // ---------------------------
     function renderEquipmentList() {
       const container = document.getElementById("equipment-list");
       container.innerHTML = "";
+
       const items = (currentTab === "camera")
         ? equipmentData.camera[currentSub]
         : equipmentData[currentTab];
 
+      // 편집실 선택 시 다른 장비 비활성 (또는 그 반대)
       const isEditingSelected = selectedItems.some(name => name.includes("편집실"));
       const isOtherSelected = selectedItems.some(name => !name.includes("편집실"));
 
@@ -261,13 +284,14 @@
         const card = document.createElement("div");
         card.className = "equipment-card";
         const isEditingItem = item.name.includes("편집실");
+
         if ((isEditingItem && isOtherSelected) || (!isEditingItem && isEditingSelected)) {
           card.classList.add("disabled");
         }
         if (selectedItems.includes(item.name)) {
           card.classList.add("selected");
         }
-        card.innerHTML = `<img src="${item.image}" alt="${item.name}"><span class="text-sm">${item.name}</span>`;
+        card.innerHTML = `<img src="${item.image}" alt="${item.name}" /><span class="text-sm">${item.name}</span>`;
         card.onclick = () => {
           if (card.classList.contains("disabled")) return;
           if (selectedItems.includes(item.name)) {
@@ -282,7 +306,6 @@
       });
     }
 
-    // STEP 1: 선택된 장비 목록 UI 업데이트
     function updateSelectedUI() {
       const section = document.getElementById("selected-section");
       const nextBtn = document.getElementById("toStep2");
@@ -294,17 +317,17 @@
         nextBtn.classList.remove("hidden");
       }
       document.getElementById("selected-items").innerHTML = selectedItems
-        .map(item => `<li>${item} <button type="button" class="ml-2 text-red-500" onclick="removeSelectedItem('${item}')">&times;</button></li>`)
+        .map(item => `<li>${item} <button type="button" class="ml-2 text-red-500" onclick="removeItem('${item}')">&times;</button></li>`)
         .join("");
     }
 
-    function removeSelectedItem(itemName) {
+    function removeItem(itemName) {
       selectedItems = selectedItems.filter(i => i !== itemName);
       updateSelectedUI();
       renderEquipmentList();
     }
 
-    // 메인 탭 전환
+    // 탭(메인 카테고리) 전환
     document.querySelectorAll(".tab-button").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
@@ -316,7 +339,7 @@
       });
     });
 
-    // 서브탭 전환 (카메라)
+    // 서브탭(카메라 하위) 전환
     document.querySelectorAll(".subtab-button").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".subtab-button").forEach(b => b.classList.remove("active"));
@@ -326,7 +349,21 @@
       });
     });
 
-    // 단계 전환: 모든 단계는 한 페이지 내 섹션을 숨기고 보임 처리
+    // ---------------------------
+    // STEP 1 → 2 이동
+    // ---------------------------
+    function goToStep2() {
+      // 이름/학번 체크
+      const nameVal = document.getElementById("userNameInput").value.trim();
+      const idVal = document.getElementById("studentIDInput").value.trim();
+      if (!nameVal || !idVal) {
+        alert("이름과 학번을 입력해주세요.");
+        return;
+      }
+      goToStep(2);
+    }
+
+    // 단계 전환 함수 (1~4)
     function goToStep(n) {
       for (let i = 1; i <= 4; i++) {
         document.getElementById("step" + i)?.classList.add("hidden");
@@ -341,14 +378,19 @@
         const editingOnly = selectedItems.every(i => i.includes("편집실"));
         document.getElementById("commonDateSection").classList.toggle("hidden", editingOnly);
         document.getElementById("editingDateSection").classList.toggle("hidden", !editingOnly);
-        if (editingOnly) generateTimeGrid();
+        if (editingOnly) {
+          generateTimeGrid();
+        }
       }
       if (n === 3) {
+        // 3단계로 갈 때, 선택 항목 요약 표시
         document.getElementById("final-selected-items").innerHTML = selectedItems.map(i => `<li>${i}</li>`).join("");
         const editingOnly = selectedItems.every(i => i.includes("편집실"));
-        const start = document.getElementById("startDate")?.value || "-";
-        const end = document.getElementById("endDate")?.value || "-";
-        const dateText = editingOnly ? document.getElementById("editingDate").value : `${start} ~ ${end}`;
+        const startVal = document.getElementById("startDate").value || "-";
+        const endVal = document.getElementById("endDate").value || "-";
+        const dateText = editingOnly
+          ? document.getElementById("editingDate").value
+          : `${startVal} ~ ${endVal}`;
         document.getElementById("final-dates").innerText = `대여일자: ${dateText}`;
         document.getElementById("final-time").innerText = (editingOnly && selectedHours.length)
           ? `선택한 시간: ${selectedHours.sort((a, b) => a - b).join(', ')}시`
@@ -356,23 +398,37 @@
       }
     }
 
-    // 저장 후 Step1 데이터를 localStorage에 저장하고 Step2로 이동
-    function saveStep1() {
-      const userName = document.getElementById("userNameInput").value.trim();
-      const studentID = document.getElementById("studentIDInput").value.trim();
-      if (!userName || !studentID) {
-        alert("이름과 학번을 입력해주세요.");
-        return;
+    // ---------------------------
+    // STEP 2 검증
+    // ---------------------------
+    function validateStep2() {
+      const editingOnly = selectedItems.every(i => i.includes("편집실"));
+      if (editingOnly) {
+        const editingDate = document.getElementById("editingDate").value;
+        if (!editingDate || selectedHours.length === 0) {
+          alert("편집실 대여일자와 시간을 선택해주세요.");
+          return;
+        }
+      } else {
+        const start = document.getElementById("startDate").value;
+        const end = document.getElementById("endDate").value;
+        const proof = document.getElementById("proofImage").files[0];
+        if (!start || !end || !proof) {
+          alert("대여 시작일, 반납일, 증명사진을 모두 입력해주세요.");
+          return;
+        }
+        const sDate = new Date(start);
+        const eDate = new Date(end);
+        const diffDays = (eDate - sDate) / (1000 * 60 * 60 * 24);
+        if (diffDays < 0 || diffDays > 3) {
+          alert("대여 기간은 최대 3일 이내여야 하고, 반납일은 시작일 이후여야 합니다.");
+          return;
+        }
       }
-      localStorage.setItem("step1Data", JSON.stringify({
-        userName,
-        studentID,
-        selectedItems
-      }));
-      goToStep(2);
+      goToStep(3);
     }
 
-    // 편집실 시간 선택 그리드 생성
+    // 편집실 시간 그리드
     function generateTimeGrid() {
       const grid = document.getElementById("timeGrid");
       grid.innerHTML = "";
@@ -387,7 +443,7 @@
           if (input.checked) {
             selectedHours.push(h);
           } else {
-            selectedHours = selectedHours.filter(v => v !== h);
+            selectedHours = selectedHours.filter(x => x !== h);
           }
         });
         const label = document.createElement("label");
@@ -402,101 +458,61 @@
       }
     }
 
-    // Step2 검증 및 저장
-    function validateAndSaveStep2() {
-      const editingOnly = selectedItems.every(i => i.includes("편집실"));
-      if (editingOnly) {
-        const editingDate = document.getElementById("editingDate").value;
-        if (!editingDate || selectedHours.length === 0) {
-          alert("편집실 대여일자와 시간을 선택해주세요.");
-          return;
-        }
-        localStorage.setItem("step2Data", JSON.stringify({
-          editingDate,
-          selectedHours
-        }));
-      } else {
-        const startDate = document.getElementById("startDate").value;
-        const endDate = document.getElementById("endDate").value;
-        const proof = document.getElementById("proofImage").files[0];
-        if (!startDate || !endDate || !proof) {
-          alert("대여 시작일, 반납일, 증명사진을 모두 입력해주세요.");
-          return;
-        }
-        const sDate = new Date(startDate);
-        const eDate = new Date(endDate);
-        const diffDays = (eDate - sDate) / (1000 * 60 * 60 * 24);
-        if (diffDays < 0 || diffDays > 3) {
-          alert("대여 기간은 최대 3일 이내여야 하고, 반납일은 시작일 이후여야 합니다.");
-          return;
-        }
-        localStorage.setItem("step2Data", JSON.stringify({
-          startDate,
-          endDate
-        }));
-      }
-      goToStep(3);
-    }
-
-    // Step3: 규정 동의 저장 후 Step4로 이동
-    function saveStep3() {
+    // ---------------------------
+    // STEP 3: 규정 동의 → STEP 4
+    // ---------------------------
+    document.getElementById("agreeCheck").addEventListener("change", function() {
+      const btn = document.getElementById("toStep4");
+      btn.disabled = !this.checked;
+      btn.classList.toggle("opacity-50", !this.checked);
+    });
+    function goToStep4() {
       if (!document.getElementById("agreeCheck").checked) {
         alert("규정에 동의해주세요.");
         return;
       }
-      localStorage.setItem("step3Data", JSON.stringify({ agreed: true }));
       goToStep(4);
+      // (선택) 여기서 Firestore 저장
+      saveToFirestore();
     }
 
-    // Step4: 최종 제출 (여기서는 Firestore에 저장하는 예시)
-    function submitApplication() {
+    // ---------------------------
+    // STEP 4: 완료 후 Firestore 저장 (선택)
+    // ---------------------------
+    function saveToFirestore() {
       const editingOnly = selectedItems.every(i => i.includes("편집실"));
-      const step1Data = JSON.parse(localStorage.getItem("step1Data") || "{}");
-      const step2Data = JSON.parse(localStorage.getItem("step2Data") || "{}");
+      const userName = document.getElementById("userNameInput").value.trim();
+      const studentID = document.getElementById("studentIDInput").value.trim();
       const data = {
-        userName: step1Data.userName,
-        studentID: step1Data.studentID,
-        items: step1Data.selectedItems,
+        userName,
+        studentID,
+        items: [...selectedItems],
         startDate: "",
         endDate: "",
         editingDate: "",
         hours: []
       };
       if (editingOnly) {
-        data.editingDate = step2Data.editingDate;
-        data.hours = step2Data.selectedHours;
+        data.editingDate = document.getElementById("editingDate").value;
+        data.hours = [...selectedHours].sort((a, b) => a - b);
       } else {
-        data.startDate = step2Data.startDate;
-        data.endDate = step2Data.endDate;
+        data.startDate = document.getElementById("startDate").value;
+        data.endDate = document.getElementById("endDate").value;
       }
       db.collection("rentals").add(data)
         .then(() => {
-          alert("신청 정보가 저장되었습니다.");
+          console.log("신청 정보 저장 성공");
         })
-        .catch(err => {
-          console.error("저장 실패:", err);
+        .catch(error => {
+          console.error("신청 정보 저장 실패:", error);
           alert("신청 정보를 저장하는 데 실패했습니다.");
         });
     }
 
-    // '홈으로' 버튼
+    // 홈으로 이동
     function goHome() {
-      window.location.href = "index.html";
+      location.href = "index.html";
     }
-
-    // 규정 동의 체크박스에 따른 버튼 활성화
-    document.getElementById("agreeCheck").addEventListener("change", function() {
-      const btn = document.getElementById("toStep4");
-      btn.disabled = !this.checked;
-      btn.classList.toggle("opacity-50", !this.checked);
-    });
-
-    // 페이지 로드 시 초기화
-    document.addEventListener("DOMContentLoaded", () => {
-      renderEquipmentList();
-      updateSelectedUI();
-      goToStep(1);
-    });
   </script>
 </body>
 </html>
