@@ -88,13 +88,13 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
   <script>
     const firebaseConfig = {
-   apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-  authDomain: "yonseirent-setup.firebaseapp.com",
-  projectId: "yonseirent-setup",
-  storageBucket: "yonseirent-setup.firebasestorage.app",
-  messagingSenderId: "1072524969376",
-  appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
-  measurementId: "G-CQZEKPE02D"
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      authDomain: "yonseirent-setup.firebaseapp.com",
+      projectId: "yonseirent-setup",
+      storageBucket: "yonseirent-setup.firebasestorage.app",
+      messagingSenderId: "1072524969376",
+      appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
+      measurementId: "G-CQZEKPE02D"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -102,28 +102,31 @@
 
     let currentUnsubscribe = null;
 
-    // activateMenu 함수를 추가합니다.
     function activateMenu(el) {
       document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
       el.classList.add('active');
     }
 
-    // 데이터 불러오기 함수 (대기, 처리, 로그인, 휴지통)
     function loadData(category) {
-      if (currentUnsubscribe) currentUnsubscribe(); // 기존의 구독 취소
+      if (currentUnsubscribe) currentUnsubscribe();
       const contentArea = document.getElementById('contentArea');
       contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
 
       let query;
-
       if (category === 'logins') {
         query = db.collection('studentLogins').orderBy('timestamp', 'desc');
       } else if (category === 'pending') {
-        query = db.collection('rentals').where('status', '==', '대기').orderBy('createdAt', 'desc');
+        query = db.collection('rentals')
+                  .where('status', '==', '대기')
+                  .orderBy('createdAt', 'desc');
       } else if (category === 'processed') {
-        query = db.collection('rentals').where('status', 'in', ['승인', '반려']).orderBy('createdAt', 'desc');
+        query = db.collection('rentals')
+                  .where('status', 'in', ['승인', '반려'])
+                  .orderBy('createdAt', 'desc');
       } else if (category === 'trash') {
-        query = db.collection('rentals').where('status', '==', '휴지통').orderBy('createdAt', 'desc');
+        query = db.collection('rentals')
+                  .where('status', '==', '휴지통')
+                  .orderBy('createdAt', 'desc');
       }
 
       currentUnsubscribe = query.onSnapshot(
@@ -138,8 +141,6 @@
             let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
             let rentalDate = data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : data.editingDate;
             let rentalTime = data.hours ? `시간: ${data.hours.join(', ')}시` : '';
-
-            // items 배열은 data.items로 저장되어 있다고 가정합니다.
             let itemsText = Array.isArray(data.items) ? data.items.join(', ') : '';
 
             html += `
@@ -183,7 +184,7 @@
       });
     }
 
-    // 페이지 로드 시 대기 내역을 불러옵니다.
+    // 페이지 로드 시 대기 내역 불러오기
     loadData('pending');
   </script>
 </body>
