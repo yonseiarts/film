@@ -52,14 +52,12 @@
       position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
       border-top-left-radius: 6px; border-bottom-left-radius: 6px;
     }
-    .status-승인 { background-color: #4CAF50; color: white; }
-    .status-반려 { background-color: #e74a3b; color: white; }
-    .status-대기 { background-color: #e2e2e2; color: black; }
+    .status-승인 { background-color: #4e73df; }
+    .status-반려 { background-color: #e74a3b; }
+    .status-휴지통 { background-color: #e2e2e2; }
     .close-btn {
       position: absolute; right: 10px; top: 10px; cursor: pointer; font-size: 16px;
     }
-    .tab-button.active { background-color: #dbeafe; font-weight: 600; }
-    .subtab-button.active { background-color: #dbeafe; font-weight: 600; }
   </style>
 </head>
 <body>
@@ -133,13 +131,7 @@
           let html = '';
           snapshot.forEach(doc => {
             const data = doc.data();
-            let statusClass = 'status-대기';
-            if (data.status === '승인') {
-              statusClass = 'status-승인';
-            } else if (data.status === '반려') {
-              statusClass = 'status-반려';
-            }
-            
+            let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
             let rentalDate = data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : data.editingDate;
             let rentalTime = data.hours ? `시간: ${data.hours.join(', ')}시` : '';
 
@@ -152,12 +144,13 @@
                 <p><strong>기자재:</strong> ${data.items.join(', ') || ""}</p>
                 <p><strong>대여 날짜:</strong> ${rentalDate}</p>
                 <p><strong>대여 시간:</strong> ${rentalTime}</p>
-                <p><strong>상태:</strong> ${data.status || ""
-                               </p>
+                <p><strong>상태:</strong> ${data.status || ""}</p>
                 <div class="actions">
-                  <button onclick="moveToTrash('${doc.id}')">휴지통으로 이동</button>
+                  <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
+                  <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
+                  <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
                 </div>
-                <div class="close-btn" onclick="deleteItem('${doc.id}')">×</div>
+                <span class="close-btn" onclick="moveToTrash('${doc.id}')">&times;</span>
               </div>
             `;
           });
@@ -171,35 +164,33 @@
     }
 
     function moveToTrash(docId) {
-      if (confirm("이 항목을 휴지통으로 이동하시겠습니까?")) {
-        db.collection('rentals').doc(docId).update({
-          status: '휴지통'
-        })
-        .then(() => {
-          alert('휴지통으로 이동되었습니다.');
-        })
-        .catch(err => {
-          console.error('오류 발생:', err);
-          alert('휴지통으로 이동 중 오류가 발생했습니다.');
-        });
-      }
+      db.collection('rentals').doc(docId).update({
+        status: '휴지통'
+      })
+      .then(() => {
+        alert('휴지통으로 이동되었습니다.');
+      })
+      .catch(err => {
+        console.error('휴지통 이동 실패:', err);
+        alert('오류가 발생했습니다.');
+      });
     }
 
-    function deleteItem(docId) {
-      if (confirm("이 항목을 삭제하시겠습니까?")) {
-        db.collection('rentals').doc(docId).delete()
-        .then(() => {
-          alert('항목이 삭제되었습니다.');
-        })
-        .catch(err => {
-          console.error('삭제 실패:', err);
-          alert('삭제 중 오류가 발생했습니다.');
-        });
-      }
+    function updateStatus(docId, newStatus) {
+      db.collection('rentals').doc(docId).update({
+        status: newStatus
+      })
+      .then
+(() => {
+        alert('상태가 변경되었습니다.');
+      })
+      .catch(err => {
+        console.error('상태 변경 실패:', err);
+        alert('오류가 발생했습니다.');
+      });
     }
 
-    // 초기 데이터 로딩
-    loadData('pending'); // 대기 내역을 로드
+    loadData('pending'); // 대기 내역 로드
   </script>
 </body>
 </html>
