@@ -4,7 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>관리자 대시보드</title>
+  
+  <!-- Tailwind CSS 사용 -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" href="favicon.ico" /> <!-- Favicon 아이콘 경로 추가 -->
+
   <style>
     body, html {
       margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif;
@@ -87,7 +91,7 @@
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
       projectId: "yonseirent-setup",
-      storageBucket: "yonseirent-setup.appspot.com",
+      storageBucket: "yonseirent-setup.appspot.com",  
       messagingSenderId: "1072524969376",
       appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
       measurementId: "G-CQZEKPE02D"
@@ -168,7 +172,8 @@
         status: '휴지통'
       })
       .then(() => {
-        alert('휴지통으로 이동되었습니다.');
+        alert
+('휴지통으로 이동되었습니다.');
       })
       .catch(err => {
         console.error('휴지통 이동 실패:', err);
@@ -180,8 +185,7 @@
       db.collection('rentals').doc(docId).update({
         status: newStatus
       })
-      .then
-(() => {
+      .then(() => {
         alert('상태가 변경되었습니다.');
       })
       .catch(err => {
