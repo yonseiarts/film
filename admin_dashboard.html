@@ -55,6 +55,17 @@
     .status-승인 { background-color: #4e73df; }
     .status-반려 { background-color: #e74a3b; }
     .status-휴지통 { background-color: #e2e2e2; }
+    .remove-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background-color: red;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      padding: 5px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -66,8 +77,7 @@
     <div class="sidebar">
       <h2>메뉴</h2>
       <ul>
-        <li id="menuEquipment" class="active" onclick="activateMenu(this); loadData('equipment')">장비 내역</li>
-        <li id="menuEditingRoom" onclick="activateMenu(this); loadData('editingRoom')">편집실 내역</li>
+        <li id="menuPending" class="active" onclick="activateMenu(this); loadData('pending')">대기 내역</li>
         <li id="menuLogins" onclick="activateMenu(this); loadData('logins')">로그인 내역</li>
         <li id="menuTrash" onclick="activateMenu(this); loadData('trash')">휴지통</li>
       </ul>
@@ -110,10 +120,48 @@
 
       if (category === 'logins') {
         query = db.collection('studentLogins').orderBy('timestamp', 'desc');
-      } else if (category === 'equipment') {
-        query = db.collection('rentals').where('status', '==', '대기').where('isEditingRoom', '==', false).orderBy('createdAt', 'desc');
-      } else if (category === 'editingRoom') {
-        query = db.collection('rentals').where('status', '==', '대기').where('isEditingRoom', '==', true).orderBy('createdAt', 'desc');
+      } else if (category === 'pending') {
+        const equipmentQuery = db.collection('rentals').where('status', '==', '대기').where('isEditingRoom', '==', false).orderBy('createdAt', 'desc');
+        const editingRoomQuery = db.collection('rentals').where('status', '==', '대기').where('isEditingRoom', '==', true).orderBy('createdAt', 'desc');
+        
+        // UI를 위한 두 탭을 구분합니다
+        contentArea.innerHTML = `
+          <div class="tab-button-container">
+            <button class="tab-button active" onclick="showEquipment()">장비</button>
+            <button class="tab-button" onclick="showEditingRoom()">편집실</button>
+          </div>
+          <div id="equipmentTab" class="tab-content"></div>
+          <div id="editingRoomTab" class="tab-content hidden"></div>
+        `;
+        
+        currentUnsubscribe = equipmentQuery.onSnapshot(
+          snapshot => {
+            let html = '';
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              html += generateCard(data, doc.id);
+            });
+            document.getElementById('equipmentTab').innerHTML = html;
+          },
+          error => {
+            console.error("데이터 가져오기 오류:", error);
+            contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
+          }
+        );
+
+        currentUnsubscribe = editingRoomQuery.onSnapshot(
+          snapshot => {
+            let html = '';
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              html += generateCard(data, doc.id);
+            });
+            document.getElementById('editingRoomTab').innerHTML = html;
+          },
+          error => {
+            console.error("데이터 가져오기 오류:", error);
+          }
+        );
       } else if (category === 'trash') {
         query = db.collection('rentals').where('status', '==', '휴지통').orderBy('createdAt', 'desc');
       }
@@ -127,27 +175,7 @@
           let html = '';
           snapshot.forEach(doc => {
             const data = doc.data();
-            let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
-            let rentalDate = data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : data.editingDate;
-            let rentalTime = data.hours ? `시간: ${data.hours.join(', ')}시` : '';
-
-            html += `
-              <div class="card">
-                <div class="status-indicator ${statusClass}"></div>
-                <h3>대여 신청 내역</h3>
-                <p><strong>이름:</strong> ${data.userName || ""}</p>
-                <p><strong>학번:</strong> ${data.studentID || ""}</p>
-                <p><strong>기자재:</strong> ${data.items || ""}</p>
-                <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-                <p><strong>대여 시간:</strong> ${rentalTime}</p>
-                <p><strong>상태:</strong> ${data.status || ""}</p>
-                <div class="actions">
-                  <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
-                  <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
-                  <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-                </div>
-              </div>
-            `;
+            html += generateCard(data, doc.id);
           });
           contentArea.innerHTML = html;
         },
@@ -156,6 +184,44 @@
           contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
         }
       );
+    }
+
+    function generateCard(data, docId) {
+      let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
+      let rentalDate = data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : data.editingDate;
+      let rentalTime = data.hours ? `시간: ${data.hours.join(', ')}시` : '';
+
+      return `
+        <div class="card">
+          <div class="status-indicator ${statusClass}"></div>
+          <h3>대여 신청 내역</h3>
+          <p><strong>이름:</strong> ${data.userName || ""}</p>
+          <p><strong>학번:</strong> ${data.studentID || ""}</p>
+          <p><strong>기자재:</strong> ${data.items || ""}</p>
+          <p><strong>대여 날짜:</strong> ${rentalDate}</p>
+          <p><strong>대여 시간:</strong> ${rentalTime}</p>
+          <p><strong>상태:</strong> ${data.status || ""}</p>
+          <div class="actions">
+            <button onclick="updateStatus('${docId}', '승인')">승인</button>
+            <button onclick="updateStatus('${docId}', '반려')">반려</button>
+            <button onclick="updateStatus('${docId}', '휴지통')">휴지통</button>
+          </div>
+          <button class="remove-btn" onclick="removeFromTrash('${docId}')">x</button>
+        </div>
+      `;
+    }
+
+     function removeFromTrash(docId) {
+      if (confirm("정말로 이 항목을 휴지통으로 이동하시겠습니까?")) {
+        db.collection('rentals').doc(docId).update({
+          status: '휴지통'
+        }).then(() => {
+          alert("항목이 휴지통으로 이동되었습니다.");
+        }).catch((error) => {
+          console.error("휴지통 이동 실패:", error);
+          alert("휴지통으로 이동하는 데 실패했습니다.");
+        });
+      }
     }
 
     function updateStatus(docId, newStatus) {
@@ -167,12 +233,28 @@
         alert('상태가 변경되었습니다.');
       })
       .catch(err => {
-         console.error('상태 변경 실패:', err);
-         alert('오류가 발생했습니다.');
+        console.error('상태 변경 실패:', err);
+        alert('오류가 발생했습니다.');
       });
     }
 
-    loadData('equipment'); // 장비 내역 로드
+    // 탭을 전환하는 함수
+    function showEquipment() {
+      document.getElementById('equipmentTab').classList.remove('hidden');
+      document.getElementById('editingRoomTab').classList.add('hidden');
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector('.tab-button[data-tab="equipment"]').classList.add('active');
+    }
+
+    function showEditingRoom() {
+      document.getElementById('equipmentTab').classList.add('hidden');
+      document.getElementById('editingRoomTab').classList.remove('hidden');
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector('.tab-button[data-tab="editingRoom"]').classList.add('active');
+    }
+
+    // 페이지 로드 시 대기 내역을 불러옵니다.
+    loadData('pending');
   </script>
 </body>
 </html>
