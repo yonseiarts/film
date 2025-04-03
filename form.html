@@ -108,7 +108,7 @@
     <!-- Step 2: 대여일 선택 -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-      <!-- **자동 입력되는 사용자 정보** -->
+      <!-- 자동 입력되는 사용자 정보 -->
       <div class="mb-4">
         <label class="block mb-2 font-medium">이름</label>
         <input type="text" id="userNameInput" class="border p-2 rounded w-full mb-4" readonly />
@@ -138,6 +138,7 @@
         <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded">다음 단계 →</button>
       </div>
     </div>
+
     <!-- Step 3: 규정 동의 -->
     <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
@@ -174,7 +175,7 @@
     </div>
 
     <!-- Step 4: 완료 화면 -->
-    <div id="step4" class="step hidden text-center py-20">
+    <div id="step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
       <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
       <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
