@@ -1,190 +1,106 @@
+통합 수정해서 보내주세요
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>관리자 대시보드</title>
+  <title>기자재 대여 신청</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <style>
-    body, html {
-      margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif;
-      background-color: #f8f9fc; font-size: 14px; color: #333;
+    .step-active { background-color: #1D4ED8; color: white; }
+    .step-inactive { background-color: #e5e7eb; color: #6b7280; }
+    .tab-button.active { background-color: #dbeafe; font-weight: 600; }
+    .subtab-button.active { background-color: #dbeafe; font-weight: 600; }
+    .equipment.selected { border-color: #facc15; background-color: #fefce8; }
+    .equipment-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
     }
-    header {
-      background-color: #4e73df; color: #fff; padding: 16px;
-      display: flex; align-items: center; justify-content: space-between;
+    .equipment-card img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      flex-shrink: 0;
     }
-    header h1 { margin: 0; font-size: 20px; }
-    header .home-btn {
-      background-color: #fff; color: #4e73df; border: none;
-      padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 14px;
+    .equipment-card.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+      background-color: #f3f4f6;
     }
-    .container { display: flex; min-height: calc(100vh - 64px); }
-    .sidebar {
-      width: 260px; background-color: #2e59d9; padding: 20px; color: #fff;
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.5rem;
     }
-    .sidebar h2 { margin: 0 0 20px; font-size: 18px; }
-    .sidebar ul { list-style: none; padding: 0; margin: 0; font-size: 14px; }
-    .sidebar ul li {
-      padding: 10px 14px; margin-bottom: 10px;
-      border-radius: 4px; cursor: pointer;
+    .time-grid label {
+      display: block;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      text-align: center;
+      background-color: #f3f4f6;
+      cursor: pointer;
+      font-size: 0.875rem;
     }
-    .sidebar ul li:hover, .sidebar ul li.active {
-      background-color: rgba(255,255,255,0.2);
+    .time-grid input[type="checkbox"] {
+      display: none;
     }
-    .main { flex: 1; padding: 24px; background-color: #fff; }
-    .card {
-      background-color: #fff; border: 1px solid #e3e6f0;
-      border-radius: 6px; padding: 16px; margin-bottom: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08); position: relative; font-size: 13px;
+    .time-grid input[type="checkbox"]:checked + label {
+      background-color: #60a5fa;
+      color: white;
+      font-weight: bold;
     }
-    .card h3 { margin-top: 0; color: #4e73df; font-size: 16px; margin-bottom: 8px; }
-    .card p { margin: 4px 0; }
-    .actions { margin-top: 12px; }
-    .actions button {
-      margin-right: 8px; background-color: #4e73df; color: #fff;
-      border: none; padding: 6px 12px; border-radius: 4px;
-      cursor: pointer; font-size: 13px;
-    }
-    .actions button:hover { background-color: #375a9c; }
-    .loading { text-align: center; padding: 40px 0; font-size: 15px; }
-    .sub-tabs { margin-bottom: 16px; }
-    .sub-tabs button {
-      background-color: #e2e6ea; border: none; padding: 6px 12px;
-      margin-right: 8px; border-radius: 4px; cursor: pointer; font-size: 13px;
-    }
-    .sub-tabs button.active { background-color: #4e73df; color: #fff; }
-    .status-indicator {
-      position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
-      border-top-left-radius: 6px; border-bottom-left-radius: 6px;
-    }
-    .status-승인 { background-color: #4e73df; }
-    .status-반려 { background-color: #e74a3b; }
-    .status-휴지통 { background-color: #e2e2e2; }
   </style>
 </head>
-<body>
-  <header>
-    <h1>관리자 대시보드</h1>
-    <button class="home-btn" onclick="window.location.href='index.html'">홈으로</button>
-  </header>
-  <div class="container">
-    <div class="sidebar">
-      <h2>메뉴</h2>
-      <ul>
-        <li id="menuPending" class="active" onclick="activateMenu(this); loadData('pending')">대기 내역</li>
-        <li id="menuProcessed" onclick="activateMenu(this); loadData('processed')">처리 완료</li>
-        <li id="menuLogins" onclick="activateMenu(this); loadData('logins')">로그인 내역</li>
-        <li id="menuTrash" onclick="activateMenu(this); loadData('trash')">휴지통</li>
-      </ul>
+<body class="bg-gray-50">
+  <!-- 헤더 -->
+  <div class="bg-blue-700 text-white py-6 text-center relative">
+    <a href="index.html" class="absolute left-4 top-1/2 -translate-y-1/2 transform text-white underline text-sm">홈으로</a>
+    <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
+    <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
+  </div>
+  
+  <!-- 사용자 정보 (자동 입력, 읽기 전용) -->
+  <div class="max-w-4xl mx-auto p-4">
+    <div class="mb-4">
+      <label class="block font-semibold">이름</label>
+      <input type="text" id="userNameInput" class="border p-2 rounded w-full" readonly>
     </div>
-    <div class="main" id="contentArea">
-      <div class="loading">데이터 로딩 중...</div>
+    <div class="mb-4">
+      <label class="block font-semibold">학번</label>
+      <input type="text" id="studentIDInput" class="border p-2 rounded w-full" readonly>
     </div>
   </div>
-
-  <!-- Firebase SDK & Initialization -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-      authDomain: "yonseirent-setup.firebaseapp.com",
-      projectId: "yonseirent-setup",
-      storageBucket: "yonseirent-setup.firebasestorage.app",
-      messagingSenderId: "1072524969376",
-      appId: "1:1072524969376:web:33d1c55ca9f08da93e10c5",
-      measurementId: "G-8G1D43NXMW"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    let currentUnsubscribe = null;
-
-    // activateMenu 함수를 추가합니다.
-    function activateMenu(el) {
-      document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
-      el.classList.add('active');
-    }
-
-    // 데이터 불러오기 함수 (대기, 처리, 로그인, 휴지통)
-    function loadData(category) {
-      if (currentUnsubscribe) currentUnsubscribe(); // 기존의 구독 취소
-      const contentArea = document.getElementById('contentArea');
-      contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
-
-      let query;
-
-      if (category === 'logins') {
-        query = db.collection('studentLogins').orderBy('timestamp', 'desc');
-      } else if (category === 'pending') {
-        query = db.collection('rentals').where('status', '==', '대기').orderBy('createdAt', 'desc');
-      } else if (category === 'processed') {
-        query = db.collection('rentals').where('status', 'in', ['승인', '반려']).orderBy('createdAt', 'desc');
-      } else if (category === 'trash') {
-        query = db.collection('rentals').where('status', '==', '휴지통').orderBy('createdAt', 'desc');
-      }
-
-      currentUnsubscribe = query.onSnapshot(
-        snapshot => {
-          if (snapshot.empty) {
-            contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
-            return;
-          }
-          let html = '';
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
-            let rentalDate = data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : data.editingDate;
-            let rentalTime = data.hours ? `시간: ${data.hours.join(', ')}시` : '';
-
-            // items 배열은 data.items로 저장되어 있다고 가정합니다.
-            let itemsText = Array.isArray(data.items) ? data.items.join(', ') : '';
-
-            html += `
-              <div class="card">
-                <div class="status-indicator ${statusClass}"></div>
-                <h3>대여 신청 내역</h3>
-                <p><strong>이름:</strong> ${data.userName || ""}</p>
-                <p><strong>학번:</strong> ${data.studentID || ""}</p>
-                <p><strong>기자재:</strong> ${itemsText}</p>
-                <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-                <p><strong>대여 시간:</strong> ${rentalTime}</p>
-                <p><strong>상태:</strong> ${data.status || ""}</p>
-                <div class="actions">
-                  <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
-                  <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
-                  <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-                </div>
-              </div>
-            `;
-          });
-          contentArea.innerHTML = html;
-        },
-        error => {
-          console.error("데이터 가져오기 오류:", error);
-          contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
-        }
-      );
-    }
-
-    function updateStatus(docId, newStatus) {
-      if (!confirm(`상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
-      db.collection('rentals').doc(docId).update({
-        status: newStatus
-      })
-      .then(() => {
-        alert('상태가 변경되었습니다.');
-      })
-      .catch(err => {
-         console.error('상태 변경 실패:', err);
-         alert('오류가 발생했습니다.');
-      });
-    }
-
-    // 페이지 로드 시 대기 내역을 불러옵니다.
-    loadData('pending');
-  </script>
-</body>
-</html>
+  
+  <!-- 폼 컨테이너 (1단계 ~ 4단계) -->
+  <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
+    <!-- 단계 표시 -->
+    <div class="flex justify-between mb-8">
+      <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
+      <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
+      <div id="step3Btn" class="flex-1 text-center p-2 rounded step-inactive">3. 규정 동의</div>
+      <div id="step4Btn" class="flex-1 text-center p-2 rounded step-inactive">4. 완료</div>
+    </div>
+    
+    <!-- Step 1: 장비 선택 -->
+    <div id="step1">
+      <h2 class="text-xl font-bold mb-2">장비 선택</h2>
+      <div class="flex space-x-2 mb-4">
+        <button class="tab-button active px-4 py-1 border rounded" data-tab="camera">카메라</button>
+        <button class="tab-button px-4 py-1 border rounded" data-tab="lighting">조명</button>
+        <button class="tab-button px-4 py-1 border rounded" data-tab="sound">사운드</button>
+        <button class="tab-button px-4 py-1 border rounded" data-tab="monitor">모니터</button>
+        <button class="tab-button px-4 py-1 border rounded" data-tab="editing">편집실</button>
+        <button class="tab-button px-4 py-1 border rounded" data-tab="line">라인</button>\n      </div>\n      <!-- 중분류 (카메라 탭에만 표시) -->\n      <div id=\"cameraSubTabs\" class=\"flex gap-2 mb-4\">\n        <button class=\"subtab-button active px-3 py-1 rounded text-sm\" data-subtab=\"body\">바디</button>\n        <button class=\"subtab-button px-3 py-1 rounded text-sm\" data-subtab=\"lens\">렌즈</button>\n        <button class=\"subtab-button px-3 py-1 rounded text-sm\" data-subtab=\"tripod\">삼각대</button>\n      </div>\n      <!-- 장비 카드 출력 영역 -->\n      <div id=\"equipment-list\" class=\"grid grid-cols-1 sm:grid-cols-2 gap-4\"></div>\n      <!-- 선택된 장비 표시 -->\n      <div id=\"selected-section\" class=\"mt-6 hidden\">\n        <h3 class=\"font-medium mb-2\">선택된 장비</h3>\n        <ul id=\"selected-items\" class=\"list-disc ml-5 text-sm text-gray-700\"></ul>\n      </div>\n      <div class=\"flex justify-between mt-6\">\n        <button onclick=\"goHome()\" class=\"text-blue-600 text-sm\">홈으로</button>\n        <button id=\"toStep2\" onclick=\"goToStep(2)\" class=\"bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden\">다음 단계 →</button>\n      </div>\n    </div>\n\n    <!-- Step 2: 대여일 선택 -->\n    <div id=\"step2\" class=\"hidden\">\n      <h2 class=\"text-xl font-bold mb-4\">대여일 선택</h2>\n      <!-- 일반 장비 대여 입력 -->\n      <div id=\"commonDateSection\">\n        <label class=\"block mb-2 font-medium\">대여 시작일</label>\n        <input type=\"date\" id=\"startDate\" class=\"border p-2 rounded w-full mb-4\" />\n        <label class=\"block mb-2 font-medium\">반납일</label>\n        <input type=\"date\" id=\"endDate\" class=\"border p-2 rounded w-full mb-4\" />\n        <label class=\"block mb-2 font-medium\">증명사진 첨부</label>\n        <input type=\"file\" id=\"proofImage\" accept=\"image/*\" class=\"border p-2 rounded w-full mb-4\" />\n      </div>\n      <!-- 편집실 대여 입력 -->\n      <div id=\"editingDateSection\" class=\"hidden\">\n        <label class=\"block mb-2 font-medium\">편집실 대여일자</label>\n        <input type=\"date\" id=\"editingDate\" class=\"border p-2 rounded w-full mb-4\" />\n        <label class=\"block mb-2 font-medium\">시간 선택</label>\n        <div class=\"time-grid mb-4\" id=\"timeGrid\"></div>\n      </div>\n      <div class=\"flex justify-between mt-6\">\n        <button onclick=\"goToStep(1)\" class=\"text-sm text-blue-600\">← 이전 단계</button>\n        <button onclick=\"validateStep2()\" class=\"bg-blue-600 text-white px-4 py-2 rounded\">다음 단계 →</button>\n      </div>\n    </div>\n\n    <!-- Step 3: 규정 동의 -->\n    <div id=\"step3\" class=\"hidden\">\n      <h2 class=\"text-xl font-bold mb-4\">기자재 사용 규정</h2>\n      <div class=\"bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed\">\n        <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>\n        <strong>제1장 총칙</strong><br/>\n        <em>제1조 (목적)</em><br/>\n        본 규정은 예술원의 기자재 운영과 관리에 관한 사항을 규정함으로써 교육 및 창작활동을 지원하고 기자재의 효율적 운영을 도모함을 목적으로 한다.<br/><br/>\n        <em>제2조 (적용범위)</em><br/>\n        본 규정은 예술원이 보유한 모든 촬영, 음향, 조명 및 편집 장비에 적용된다.<br/><br/>\n        <strong>제2장 관리체계</strong><br/>\n        <em>제1조 (주임교수의 권한)</em><br/>\n        • 기자재 운영 정책 수립 및 변경<br/>\n        • 기자재 담당 인력 임명<br/>\n        • 장비 대여 승인<br/>\n        • 외부 촬영 허가<br/>\n        • 분쟁 조정 및 제재 조치 결정<br/><br/>\n        <em>제2조 (행정실 업무)</em><br/>\n        • 기자재 대장 관리<br/>\n        • 예산 집행 및 회계 관리<br/><br/>\n        <strong>부칙</strong><br/>\n        제1조 (시행일) 본 규정은 2025년 3월 4일부터 시행한다.<br/>\n        제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>\n        2025년 3월 23일<br/>\n        연세예술원 영화학 주임교수 유영식\n      </div>\n      <label class=\"flex items-center mb-4\">\n        <input type=\"checkbox\" id=\"agreeCheck\" class=\"mr-2\"> 위 규정에 동의합니다.\n      </label>\n      <div class=\"flex justify-between\">\n        <button onclick=\"goToStep(2)\" class=\"text-sm text-blue-600\">← 이전 단계</button>\n        <button id=\"toStep4\" onclick=\"submitApplication()\" disabled class=\"bg-blue-600 text-white px-4 py-2 rounded opacity-50\">신청 완료</button>\n      </div>\n    </div>\n\n    <!-- Step 4: 완료 화면 -->\n    <div id=\"step4\" class=\"step hidden text-center py-20\">\n      <h2 class=\"text-2xl font-bold text-green-600 mb-4\">✅ 신청이 완료되었습니다!</h2>\n      <h3 class=\"text-lg font-bold mb-4\">선택한 장비 목록</h3>\n      <ul id=\"final-selected-items\" class=\"text-sm text-gray-700\"></ul>\n      <p id=\"final-dates\" class=\"text-sm text-gray-700 mt-4\"></p>\n      <div id=\"final-time\" class=\"text-sm text-gray-700 mt-1\"></div>\n      <div class=\"mt-8\">\n        <button onclick=\"goHome()\" class=\"text-blue-600 text-sm underline\">홈으로</button>\n      </div>\n    </div>\n  </div>\n\n  <!-- Firebase SDK & Initialization -->\n  <script>\n    const firebaseConfig = {\n      apiKey: \"AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ\",\n      authDomain: \"yonseirent-setup.firebaseapp.com\",\n      projectId: \"yonseirent-setup\",\n      storageBucket: \"yonseirent-setup.appspot.com\",\n      messagingSenderId: \"1072524969376\",\n      appId: \"1:1072524969376:web:e23491a7196f97fd3e10c5\",\n      measurementId: \"G-CQZEKPE02D\"\n    };\n    firebase.initializeApp(firebaseConfig);\n    const db = firebase.firestore();\n  </script>\n  <script>\n    const equipmentData = {\n      camera: {\n        body: Array.from({ length: 8 }, (_, i) => ({ name: `카메라 바디 ${i + 1}`, image: \"https://placehold.co/80x80?text=Body\" })),\n        lens: Array.from({ length: 8 }, (_, i) => ({ name: `렌즈 ${i + 1}`, image: \"https://placehold.co/80x80?text=Lens\" })),\n        tripod: Array.from({ length: 8 }, (_, i) => ({ name: `삼각대 ${i + 1}`, image: \"https://placehold.co/80x80?text=Tripod\" }))\n      },\n      lighting: Array.from({ length: 8 }, (_, i) => ({ name: `조명 ${i + 1}`, image: \"https://placehold.co/80x80?text=Light\" })),\n      sound: Array.from({ length: 8 }, (_, i) => ({ name: `마이크 ${i + 1}`, image: \"https://placehold.co/80x80?text=Mic\" })),\n      monitor: Array.from({ length: 8 }, (_, i) => ({ name: `모니터 ${i + 1}`, image: \"https://placehold.co/80x80?text=Monitor\" })),\n      line: Array.from({ length: 8 }, (_, i) => ({ name: `라인 ${i + 1}`, image: \"https://placehold.co/80x80?text=Line\" })),\n      editing: [\n        { name: \"편집실 1\", image: \"https://placehold.co/80x80?text=Edit1\" },\n        { name: \"편집실 2\", image: \"https://placehold.co/80x80?text=Edit2\" }\n      ]\n    };\n\n    let selectedItems = [];\n    let currentTab = \"camera\";\n    let currentSub = \"body\";\n    let selectedHours = [];\n    let currentUserName = \"\";\n    let currentStudentID = \"\";\n\n    firebase.auth().onAuthStateChanged(user => {\n      if (user) {\n        db.collection(\"users\").doc(user.uid).get().then(doc => {\n          if (doc.exists) {\n            const data = doc.data();\n            currentUserName = data.userName || \"\";\n            currentStudentID = data.studentID || \"\";\n            const nameInput = document.getElementById(\"userNameInput\");\n            const idInput = document.getElementById(\"studentIDInput\");\n            if (nameInput && idInput) {\n              nameInput.value = currentUserName;\n              idInput.value = currentStudentID;\n            }\n          } else {\n            console.error(\"사용자 정보 없음\");\n          }\n        }).catch(error => {\n          console.error(\"사용자 정보 불러오기 실패: \", error);\n        });\n      } else {\n        console.log(\"로그인된 사용자가 없습니다.\");\n      }\n    });\n\n    function renderEquipmentList() {\n      const container = document.getElementById(\"equipment-list\");\n      container.innerHTML = \"\";\n      const items = currentTab === \"camera\" ? equipmentData.camera[currentSub] : equipmentData[currentTab];\n\n      const isEditingSelected = selectedItems.some(name => name.includes(\"편집실\"));\n      const isOtherSelected = selectedItems.some(name => !name.includes(\"편집실\"));\n\n      items.forEach(item => {\n        const div = document.createElement(\"div\");\n        div.className = \"equipment-card\";\n        const isEditing = item.name.includes(\"편집실\");\n        const shouldDisable = (isEditing && isOtherSelected) || (!isEditing && isEditingSelected);\n        if (shouldDisable) div.classList.add(\"disabled\");\n\n        const isSelected = selectedItems.includes(item.name);\n        if (isSelected) div.classList.add(\"selected\");\n\n        div.innerHTML = `<img src=\"${item.image}\" alt=\"${item.name}\"><span class=\"text-sm\">${item.name}</span>`;\n        div.onclick = () => {\n          if (shouldDisable) return;\n          if (isSelected) {\n            selectedItems = selectedItems.filter(i => i !== item.name);\n          } else {\n            selectedItems.push(item.name);\n          }\n          updateSelectedUI();\n          renderEquipmentList();\n        };\n        container.appendChild(div);\n      });\n    }\n\n    function updateSelectedUI() {\n      const sec = document.getElementById(\"selected-section\");\n      const btn = document.getElementById(\"toStep2\");\n      if (selectedItems.length === 0) {\n        sec.classList.add(\"hidden\");\n        btn.classList.add(\"hidden\");\n      } else {\n        sec.classList.remove(\"hidden\");\n        btn.classList.remove(\"hidden\");\n      }\n      document.getElementById(\"selected-items\").innerHTML = selectedItems.map(item => {\n        const safeItem = item.replace(/'/g, \"\\'\");\n        return '<li>' + item + ' <button type=\"button\" class=\"ml-2 text-red-500\" onclick=\"removeSelectedItem(\\'' + safeItem + '\\')\">&times;</button></li>';\n      }).join(\"\");\n    }\n\n    function removeSelectedItem(itemName) {\n      selectedItems = selectedItems.filter(i => i !== itemName);\n      updateSelectedUI();\n      renderEquipmentList();\n    }\n\n    document.querySelectorAll(\".tab-button\").forEach(btn => {\n      btn.addEventListener(\"click\", () => {\n        document.querySelectorAll(\".tab-button\").forEach(b => b.classList.remove(\"active\"));\n        btn.classList.add(\"active\");\n        currentTab = btn.dataset.tab;\n        document.getElementById(\"cameraSubTabs\").style.display = currentTab === \"camera\" ? \"flex\" : \"none\";\n        currentSub = \"body\";\n        renderEquipmentList();\n      });\n    });\n\n    document.querySelectorAll(\".subtab-button\").forEach(btn => {\n      btn.addEventListener(\"click\", () => {\n        document.querySelectorAll(\".subtab-button\").forEach(b => b.classList.remove(\"active\"));\n        btn.classList.add(\"active\");\n        currentSub = btn.dataset.subtab;\n        renderEquipmentList();\n      });\n    });\n\n    function goToStep(n) {\n      for (let i = 1; i <= 4; i++) {\n        document.getElementById(\"step\" + i)?.classList.add(\"hidden\");\n        document.getElementById(\"step\" + i + \"Btn\")?.classList.remove(\"step-active\");\n        document.getElementById(\"step\" + i + \"Btn\")?.classList.add(\"step-inactive\");\n      }\n      document.getElementById(\"step\" + n)?.classList.remove(\"hidden\");\n      document.getElementById(\"step\" + n + \"Btn\")?.classList.add(\"step-active\");\n      document.getElementById(\"step\" + n + \"Btn\")?.classList.remove(\"step-inactive\");\n\n      if (n === 2) {\n        const editingOnly = selectedItems.every(i => i.includes(\"편집실\"));\n        document.getElementById(\"commonDateSection\").classList.toggle(\"hidden\", editingOnly);\n        document.getElementById(\"editingDateSection\").classList.toggle(\"hidden\", !editingOnly);\n        if (editingOnly) generateTimeGrid();\n      }\n\n      if (n === 3) {\n        document.getElementById(\"final-selected-items\").innerHTML = selectedItems.map(i => `<li>${i}</li>`).join(\"\");\n        const editingOnly = selectedItems.every(i => i.includes(\"편집실\"));\n        const start = document.getElementById(\"startDate\")?.value || \"-\";\n        const end = document.getElementById(\"endDate\")?.value || \"-\";\n        const dateText = editingOnly ? document.getElementById(\"editingDate\").value : `${start} ~ ${end}`;\n        document.getElementById(\"final-dates\").innerText = `대여일자: ${dateText}`;\n        document.getElementById(\"final-time\").innerText = editingOnly && selectedHours.length\n          ? `선택한 시간: ${selectedHours.sort((a, b) => a - b).join(', ')}시`\n          : '';\n      }\n    }\n\n    function goHome() {\n      location.href = \"index.html\";\n    }\n\n    function generateTimeGrid() {\n      const grid = document.getElementById(\"timeGrid\");\n      grid.innerHTML = \"\";\n      selectedHours = [];\n      for (let h = 0; h < 24; h++) {\n        const id = `hour-${h}`;\n        const input = document.createElement(\"input\");\n        input.type = \"checkbox\";\n        input.id = id;\n        input.value = h;\n        input.addEventListener(\"change\", () => {\n          if (input.checked) {\n            selectedHours.push(h);\n          } else {\n            selectedHours = selectedHours.filter(val => val !== h);\n          }\n        });\n        const label = document.createElement(\"label\");\n        label.setAttribute(\"for\", id);\n        label.className = \"inline-block w-12 py-1 text-center text-sm bg-gray-200 rounded\";\n        label.innerText = `${h}:00`;\n        const wrapper = document.createElement(\"div\");\n        wrapper.className = \"inline-block\";\n        wrapper.appendChild(input);\n        wrapper.appendChild(label);\n        grid.appendChild(wrapper);\n      }\n    }\n\n    function validateStep2() {\n      const editingOnly = selectedItems.every(i => i.includes(\"편집실\"));\n      if (editingOnly) {\n        if (!document.getElementById(\"editingDate\").value || selectedHours.length === 0) {\n          alert(\"편집실 대여일자와 시간을 선택해주세요.\");\n          return;\n        }\n      } else {\n        const start = document.getElementById(\"startDate\").value;\n        const end = document.getElementById(\"endDate\").value;\n        const proof = document.getElementById(\"proofImage\").files[0];\n        if (!start || !end || !proof) {\n          alert(\"대여 시작일, 반납일, 증명사진을 모두 입력해주세요.\");\n          return;\n        }\n        const startDate = new Date(start);\n        const endDate = new Date(end);\n        const diff = (endDate - startDate) / (1000 * 60 * 60 * 24);\n        if (diff < 0 || diff > 3) {\n          alert(\"대여 기간은 최대 3일 이내여야 하며, 반납일은 시작일보다 이후여야 합니다.\");\n          return;\n        }\n      }\n      goToStep(3);\n    }\n\n    function submitApplication() {\n      const editingOnly = selectedItems.every(i => i.includes(\"편집실\"));\n      const data = {\n        items: [...selectedItems],\n        startDate: \"\",\n        endDate: \"\",\n        editingDate: \"\",\n        hours: [],\n        status: \"대기\",\n        createdAt: firebase.firestore.FieldValue.serverTimestamp()\n      };\n      if (editingOnly) {\n        data.editingDate = document.getElementById(\"editingDate\").value;\n        data.hours = [...selectedHours].sort((a, b) => a - b);\n      } else {\n        data.startDate = document.getElementById(\"startDate\").value;\n        data.endDate = document.getElementById(\"endDate\").value;\n      }\n      data.userName = currentUserName;\n      data.studentID = currentStudentID;\n\n      db.collection(\"rentals\").add(data)\n        .then(() => {\n          goToStep(4);\n        })\n        .catch(error => {\n          console.error(\"Error adding document: \", error);\n          alert(\"신청 정보를 저장하는데 실패했습니다. 다시 시도해주세요.\");\n        });\n    }\n\n    document.getElementById(\"agreeCheck\").addEventListener(\"change\", e => {\n      const btn = document.getElementById(\"toStep4\");\n      btn.disabled = !e.target.checked;\n      btn.classList.toggle(\"opacity-50\", !e.target.checked);\n    });\n\n    document.addEventListener(\"DOMContentLoaded\", () => {\n      renderEquipmentList();\n      goToStep(1);\n    });\n  </script>\n</body>\n</html>\n"
+}
