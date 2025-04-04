@@ -124,11 +124,6 @@
     <!-- Step 2: 대여일 선택 -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-      <!-- 사용자 정보 입력 -->
-      <label class="block mb-2 font-medium">이름</label>
-      <input type="text" id="userName" class="border p-2 rounded w-full mb-4" />
-      <label class="block mb-2 font-medium">학번</label>
-      <input type="text" id="userId" class="border p-2 rounded w-full mb-4" />
       <!-- 일반 장비 선택 -->
       <div id="commonDateSection">
         <label class="block mb-2 font-medium">대여 시작일</label>
@@ -238,6 +233,14 @@
     let currentTab = "camera";
     let currentSub = "body";
     let selectedHours = [];
+
+    // 이름과 학번은 상단 read-only 필드에서 가져옵니다.
+    function getUserName() {
+      return document.getElementById("userNameInput").value;
+    }
+    function getStudentID() {
+      return document.getElementById("studentIDInput").value;
+    }
 
     function renderEquipmentList() {
       const container = document.getElementById("equipment-list");
@@ -380,8 +383,9 @@
     }
 
     function validateStep2() {
-      if (!document.getElementById("userName").value || !document.getElementById("userId").value) {
-        alert("이름과 학번을 입력해주세요.");
+      // 여기서는 상단 read-only 필드에서 이름과 학번을 가져옵니다.
+      if (!getUserName() || !getStudentID()) {
+        alert("이름과 학번이 없습니다. 로그인 상태를 확인하세요.");
         return;
       }
       const editingOnly = selectedItems.every(i => i.includes("편집실"));
@@ -417,11 +421,12 @@
         endDate: "",
         editingDate: "",
         hours: [],
-        status: "대기",  // 추가: 상태 필드
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()  // 추가: 생성 시각
+        status: "대기",  // 상태 필드 추가
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()  // 생성 시각 추가
       };
-      data.name = document.getElementById("userName").value;
-      data.studentId = document.getElementById("userId").value;
+      // 여기서는 상단의 읽기 전용 필드에서 값을 가져옵니다.
+      data.userName = getUserName();
+      data.studentID = getStudentID();
       if (editingOnly) {
         data.editingDate = document.getElementById("editingDate").value;
         data.hours = [...selectedHours].sort((a, b) => a - b);
