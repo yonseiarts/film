@@ -209,9 +209,17 @@
   <!-- 메인 스크립트 -->
   <script>
     const equipmentData = {
-      camera: [{
-        body:{ name: "Sony FX6", image: "images/fx6.jpg", description: "4K 시네마 카메라" },
-         body:{ name: "Sony FX3", image: "images/fx6.jpg", description: "4K 시네마 카메라" },
+      camera: {
+        body: [
+  { name: "Sony FX6", image: "images/fx6.jpg" },
+  { name: "Canon C70", image: "images/c70.jpg" },
+  { name: "Blackmagic 6K", image: "images/bmpcc6k.jpg" },
+  { name: "Sony A7S III", image: "images/a7s3.jpg" },
+  { name: "Panasonic EVA1", image: "images/eva1.jpg" },
+  { name: "Canon R5C", image: "images/r5c.jpg" },
+  { name: "Z CAM E2", image: "images/zcam.jpg" },
+  { name: "RED Komodo", image: "images/redkomodo.jpg" }
+],
         lens: Array.from({ length: 8 }, (_, i) => ({ name: `렌즈 ${i + 1}`, image: "https://placehold.co/80x80?text=Lens" })),
         tripod: Array.from({ length: 8 }, (_, i) => ({ name: `삼각대 ${i + 1}`, image: "https://placehold.co/80x80?text=Tripod" }))
       },
