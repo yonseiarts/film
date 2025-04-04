@@ -93,23 +93,35 @@
       <div id="step4Btn" class="flex-1 text-center p-2 rounded step-inactive">4. 완료</div>
     </div>
 
-    <!-- Step 1: 장비 선택 -->
-    <div id="step1">
-      <h2 class="text-xl font-bold mb-2">장비 선택</h2>
-      <div class="flex space-x-2 mb-4">
-        <button class="tab-button active px-4 py-1 border rounded" data-tab="camera">카메라</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="lighting">조명</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="sound">사운드</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="monitor">모니터</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="editing">편집실</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="line">라인</button>
-      </div>
-      <!-- 중분류 (카메라 탭에만 표시) -->
-      <div id="cameraSubTabs" class="flex gap-2 mb-4">
-        <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
-        <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
-        <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대</button>
-      </div>
+   <!-- Step 1: 장비 선택 -->
+<div id="step1">
+  <h2 class="text-xl font-bold mb-2">장비 선택</h2>
+  <div class="flex space-x-2 mb-4">
+    <button class="tab-button active px-4 py-1 border rounded" data-tab="camera">카메라</button>
+    <button class="tab-button px-4 py-1 border rounded" data-tab="lighting">조명</button>
+    <button class="tab-button px-4 py-1 border rounded" data-tab="sound">사운드</button>
+    <button class="tab-button px-4 py-1 border rounded" data-tab="monitor">모니터</button>
+    <button class="tab-button px-4 py-1 border rounded" data-tab="line">라인</button>
+    <button class="tab-button px-4 py-1 border rounded" data-tab="editing">편집실</button> <!-- 라인 다음으로 편집실 -->
+    <button class="tab-button px-4 py-1 border rounded" data-tab="battery">배터리</button> <!-- 편집실 다음으로 배터리 추가 -->
+  </div>
+
+  <!-- 중분류: 카메라 -->
+  <div id="cameraSubTabs" class="flex gap-2 mb-4">
+    <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
+    <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
+    <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripodGimbal">삼각대&짐벌</button> <!-- 교체 -->
+    <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="accessory">부속품</button> <!-- 새로 추가 -->
+  </div>
+
+  <!-- 중분류: 조명 -->
+  <div id="lightingSubTabs" class="flex gap-2 mb-4 hidden">
+    <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="light">조명</button>
+    <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="goboDiffuserStand">고보&디퓨저&스탠드</button> <!-- 하나로 통합 -->
+  </div>
+
+</div>
+
       <!-- 장비 카드 영역 -->
       <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
       <!-- 선택된 장비 표시 -->
@@ -570,4 +582,4 @@
     });
   </script>
 </body>
-</html> 1페이지 장비 선택 페이지에서는 카/조/사/모/편/라 의 대분류가 있고, 카의 중분류에서는 바/렌/삼의 탭이 있고 그 하위탭마다 분류가 되어 있습니다. 이 하위탭을 카드별로 1개씩 ,커스텀하고 싶습니다.
+</html> 
