@@ -3,21 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>마이페이지</title>
-  <!-- Tailwind CSS CDN (개발용) -->
+  <title>마이페이지 로그인</title>
+  <!-- Tailwind CSS (개발용) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Firebase Compat SDKs (한 번만 로드) -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
-  <link rel="icon" href="favicon.ico">
-  <style>
-    /* 간단한 스타일 예시 */
-    body { background-color: #f8f9fc; }
-    .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
-    .card { background-color: white; border: 1px solid #e3e6f0; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1rem; }
-    .card h3 { font-size: 1.25rem; color: #4e73df; margin-bottom: 0.5rem; }
-    .card p { margin-bottom: 0.25rem; }
-  </style>
   <script>
     // Firebase 초기화
     const firebaseConfig = {
@@ -33,88 +24,63 @@
     const db = firebase.firestore();
   </script>
 </head>
-<body class="min-h-screen flex flex-col">
-  <!-- 헤더 -->
-  <header class="bg-blue-700 text-white py-4">
-    <div class="container flex justify-between items-center">
-      <h1 class="text-xl font-bold">마이페이지</h1>
-      <button onclick="logout()" class="bg-white text-blue-700 px-3 py-1 rounded">로그아웃</button>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+  <div class="max-w-md w-full p-6 bg-white rounded shadow-md">
+    <h2 class="text-2xl font-bold text-center text-blue-700 mb-6">마이페이지 로그인</h2>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium mb-1" for="studentId">학번</label>
+      <input id="studentId" type="text" placeholder="20251234" class="w-full border p-2 rounded"/>
     </div>
-  </header>
-  
-  <!-- 메인 컨텐츠 -->
-  <main class="container flex-1 mt-6">
-    <div id="userInfo" class="mb-6">
-      <!-- 학생 정보 표시 -->
-      <h2 class="text-2xl font-bold mb-2">내 정보</h2>
-      <p id="displayName" class="text-lg"></p>
-      <p id="displayStudentId" class="text-lg"></p>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium mb-1" for="password">비밀번호</label>
+      <input id="password" type="password" placeholder="******" class="w-full border p-2 rounded"/>
     </div>
-    
-    <div id="rentalContainer">
-      <h2 class="text-2xl font-bold mb-4">대여 신청 내역</h2>
-      <div id="rentalList">
-        <p class="text-gray-600">내 대여 신청 내역을 불러오는 중입니다...</p>
-      </div>
-    </div>
-  </main>
-  
-  <!-- 하단 스크립트: 사용자 정보 및 대여 내역 로딩 -->
+
+    <button onclick="loginMyPage()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">로그인</button>
+  </div>
+
   <script>
-    // 로그인 정보는 마이페이지 로그인 시 localStorage에 저장됨
-    const storedInfo = localStorage.getItem("studentInfo");
-    if (!storedInfo) {
-      // 로그인 정보가 없으면 로그인 페이지로 이동
-      window.location.href = "mypage_login.html"; // 로그인 페이지 파일명에 맞게 수정
-    }
-    const studentInfo = JSON.parse(storedInfo);
-    
-    // 화면에 사용자 정보 표시
-    document.getElementById("displayName").innerText = "이름: " + (studentInfo.name || "미입력");
-    document.getElementById("displayStudentId").innerText = "학번: " + (studentInfo.studentId || studentInfo.studentId || "미입력");
-    
-    // Firestore에서 해당 학생의 대여 신청 내역을 로드하는 함수
-    function loadRentalApplications() {
-      const rentalList = document.getElementById("rentalList");
-      rentalList.innerHTML = '<p class="text-gray-600">내 대여 신청 내역을 불러오는 중입니다...</p>';
-      
-      // "studentId" 필드가 로그인한 학생의 학번과 일치하는 대여 신청을 쿼리합니다.
-      db.collection("rentals")
-        .where("studentId", "==", studentInfo.studentId)
-        .orderBy("createdAt", "desc")
-        .onSnapshot(snapshot => {
-          if (snapshot.empty) {
-            rentalList.innerHTML = '<p class="text-gray-600">대여 신청 내역이 없습니다.</p>';
-            return;
-          }
-          let html = "";
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            html += `
-              <div class="card">
-                <h3>신청 내역</h3>
-                <p><strong>신청자:</strong> ${data.userName || ""}</p>
-                <p><strong>학번:</strong> ${data.studentId || ""}</p>
-                <p><strong>신청 항목:</strong> ${Array.isArray(data.items) ? data.items.join(", ") : ""}</p>
-                <p><strong>대여 날짜:</strong> ${data.startDate && data.endDate ? data.startDate + " ~ " + data.endDate : (data.editingDate || "")}</p>
-                <p><strong>대여 시간:</strong> ${data.hours ? data.hours.join(", ") + "시" : ""}</p>
-                <p><strong>상태:</strong> ${data.status || ""}</p>
-              </div>
-            `;
-          });
-          rentalList.innerHTML = html;
-        }, error => {
-          console.error("대여 신청 내역 로드 오류:", error);
-          rentalList.innerHTML = '<p class="text-red-500">대여 신청 내역을 불러오는 데 실패했습니다.</p>';
-        });
-    }
-    
-    loadRentalApplications();
-    
-    // 로그아웃 함수: localStorage 삭제 후 로그인 페이지로 이동
-    function logout() {
-      localStorage.removeItem("studentInfo");
-      window.location.href = "mypage_login.html";
+    async function loginMyPage() {
+      const studentId = document.getElementById('studentId').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!studentId || !password) {
+        alert("학번과 비밀번호를 모두 입력해주세요.");
+        return;
+      }
+
+      try {
+        // Firestore에서 users 컬렉션에서 학번이 문서 ID라고 가정
+        // (문서 ID가 아니라면, .where("studentID", "==", studentId) 형태로 수정)
+        const docRef = db.collection("users").doc(studentId);
+        const docSnap = await docRef.get();
+        if (!docSnap.exists) {
+          alert("해당 학번의 사용자가 존재하지 않습니다.");
+          return;
+        }
+        const userData = docSnap.data();
+        
+        // userData.password와 입력한 password가 일치하는지 확인
+        if (userData.password !== password) {
+          alert("비밀번호가 일치하지 않습니다.");
+          return;
+        }
+
+        // 로그인 성공 시 localStorage에 필요한 정보 저장
+        const studentInfo = {
+          studentID: studentId,       // 문서 ID를 학번으로 사용
+          userName: userData.userName // Firestore에서 userName 필드를 가져온다고 가정
+        };
+        localStorage.setItem("studentInfo", JSON.stringify(studentInfo));
+        
+        // 마이페이지로 이동
+        window.location.href = "mypage.html";
+      } catch (error) {
+        console.error("로그인 오류:", error);
+        alert("로그인 처리 중 오류가 발생했습니다.");
+      }
     }
   </script>
 </body>
