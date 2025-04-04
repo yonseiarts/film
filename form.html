@@ -351,32 +351,46 @@
     });
 
     function renderEquipmentList() {
-      const container = document.getElementById("equipment-list");
-      container.innerHTML = "";
-      const items = currentTab === "camera" ? equipmentData.camera[currentSub] : equipmentData[currentTab];
-      // disable 로직 제거: 모든 항목을 자유롭게 선택
-      items.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "equipment-card";
-        const isSelected = selectedItems.includes(item.name);
-        if (isSelected) div.classList.add("selected");
-        div.innerHTML = `
-  <img src="${item.image}" alt="${item.name}" />
-  <span class="text-sm">${item.name}</span>
-`;
+  const container = document.getElementById("equipment-list");
+  container.innerHTML = "";
 
-        div.onclick = () => {
-          if (isSelected) {
-            selectedItems = selectedItems.filter(i => i !== item.name);
-          } else {
-            selectedItems.push(item.name);
-          }
-          updateSelectedUI();
-          renderEquipmentList();
-        };
-        container.appendChild(div);
-      });
-    }
+  let items = [];
+
+  if (currentTab === "camera") {
+    items = equipmentData.camera[currentSub] || [];
+  } else if (currentTab === "lighting") {
+    items = equipmentData.lighting[currentSub] || [];
+  } else {
+    items = equipmentData[currentTab] || [];
+  }
+
+  if (!Array.isArray(items) || items.length === 0) {
+    container.innerHTML = '<p class="text-gray-500 col-span-2">등록된 장비가 없습니다.</p>';
+    return;
+  }
+
+  items.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "equipment-card";
+    const isSelected = selectedItems.includes(item.name);
+    if (isSelected) div.classList.add("selected");
+    div.innerHTML = `
+      <img src="${item.image}" alt="${item.name}" />
+      <span class="text-sm">${item.name}</span>
+    `;
+    div.onclick = () => {
+      if (isSelected) {
+        selectedItems = selectedItems.filter(i => i !== item.name);
+      } else {
+        selectedItems.push(item.name);
+      }
+      updateSelectedUI();
+      renderEquipmentList();
+    };
+    container.appendChild(div);
+  });
+}
+
 
     function updateSelectedUI() {
       const sec = document.getElementById("selected-section");
