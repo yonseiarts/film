@@ -640,10 +640,26 @@
       btn.classList.toggle("opacity-50", !e.target.checked);
     });
 
-    document.addEventListener("DOMContentLoaded", () => {
-      renderEquipmentList();
-      goToStep(1);
-    });
-  </script>
+   document.addEventListener("DOMContentLoaded", () => {
+  renderEquipmentList();
+  goToStep(1);
+});
+
+// ✅ 중분류(서브탭) 버튼 클릭 시 장비 다시 렌더링
+document.querySelectorAll(".subtab-button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    // 기존 active 제거
+    btn.parentElement.querySelectorAll(".subtab-button").forEach(b => b.classList.remove("active"));
+    // 현재 클릭한 버튼 active 추가
+    btn.classList.add("active");
+
+    // 현재 선택된 subtab 설정
+    currentSub = btn.dataset.subtab;
+
+    // 다시 장비 렌더링
+    renderEquipmentList();
+  });
+});
+</script>
 </body>
-</html> 
+</html>
