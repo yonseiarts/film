@@ -114,10 +114,12 @@
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대&짐벌</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">부속품</button>
       <!-- 중분류  -->
-      <div id="lightingSubTabs" class="flex gap-2 mb-4">   
-      <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">조명</button>
-      <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">스탠드</button>
-      <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">고보&디퓨저</button>
+     <div id="lightingSubTabs" class="flex gap-2 mb-4">   
+  <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="light">조명</button>
+  <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="stand">스탠드</button>
+  <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="gobo">고보&디퓨저</button>
+</div>
+
       </div>
       <!-- 장비 카드 영역 -->
       <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
@@ -216,105 +218,93 @@
   </script>
   
   <!-- 메인 스크립트 -->
-  <script>
- const equipmentData = {
-  camera: {
-    body: [
-      { name: "Sony FX6", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-      { name: "Sony FX3 1번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-      { name: "Sony FX3 2번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-      { name: "Sony FX3 3번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-      { name: "Sony FX3 4번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-      { name: "Sony A7C 1번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-      { name: "Sony A7C 2번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-      { name: "GoPro Hero 11 Black 1번", image: "" },
-      { name: "GoPro Hero 11 Black 2번", image: "" }
-    ],
-    lens: [
-  { name: "COOKE SP3 SET (25mm, 32mm, 50mm, 75mm, 100mm)", image: "" },
-  { name: "Sony FE 35mm GM", image: "" },
-  { name: "Sony E-Mount F1.8 컴팩트 렌즈", image: "" },
-  { name: "Sony FE 70-200mm f/2.8 GM OSS II Lens 1번", image: "" },
-  { name: "Sony FE 70-200mm f/2.8 GM OSS II Lens 2번", image: "" },
-  { name: "Sony FE 70-200mm f/2.8 GM OSS II Lens 3번", image: "" },
-  { name: "Sony FE 24-70mm f/2.8 GM II Lens 1번", image: "" },
-  { name: "Sony FE 24-70mm f/2.8 GM II Lens 2번", image: "" },
-  { name: "Sony FE 24-70mm f/2.8 GM II Lens 3번", image: "" },
-  { name: "Sony 24mm, 35mm, 85mm f/1.4 GM 1번", image: "" },
-  { name: "Sony 24mm, 35mm, 85mm f/1.4 GM 2번", image: "" },
-  { name: "Sony 24mm, 35mm, 85mm f/1.4 GM 3번", image: "" },
-  { name: "Kase MCUV II 82mm", image: "" }
-],
-
-    tripod: [
-      { name: "카토니 포커스 22씨네", image: "" },
-      { name: "iFootage GazelleTripod TC9 1번", image: "" },
-      { name: "iFootage GazelleTripod TC9 2번", image: "" },
-      { name: "iFootage GazelleTripod TC9 3번", image: "" },
-      { name: "DJI RS3 PRO Combo 1번", image: "" },
-      { name: "DJI RS3 PRO Combo 2번", image: "" },
-      { name: "이지리그", image: "" },
-      { name: "틸타 링그립", image: "" }
-    ]
+ <script>
   const equipmentData = {
-  camera: {
-    body: [...],     // 기존 내용 그대로
-    lens: [...],     // 아까 고쳐드린 lens 내용 넣으세요
-    tripod: [...]    // 기존 내용 그대로
-  },
-  lighting: [
-    { name: "씨네로이드 120W 1번", image: "" },
-    { name: "씨네로이드 120W 2번", image: "" },
-    { name: "씨네로이드 120W 3번", image: "" },
-    { name: "씨네로이드 120W 4번", image: "" },
-    { name: "씨네로이드 120W 5번", image: "" },
-    { name: "씨네로이드 120W 6번", image: "" },
-    { name: "SmallRig RC 220B 조명 1번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-    { name: "SmallRig RC 220B 조명 2번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-    { name: "SmallRig RC 220B 조명 3번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-    { name: "SmallRig RC 220B 조명 4번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-    { name: "SmallRig RC 220B 조명 5번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-    { name: "SmallRig RC 220B 조명 6번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-    { name: "SmallRig RC 220B 조명 7번", image: "" },
-    { name: "SmallRig RC 220B 조명 8번", image: "" },
-    { name: "SmallRig RC 220B 조명 9번", image: "" },
-    { name: "Aputure amaran F21C 조명", image: "" },
-    { name: "Aputure amaran F22C 조명", image: "" },
-    { name: "난라이트 2400b 조명", image: "" },
-    { name: "프레넬 렌즈 1번", image: "" },
-    { name: "프레넬 렌즈 2번", image: "" },
-    { name: "프레넬 렌즈 3번", image: "" },
-    { name: "Skypanel S60 CASE 1번", image: "" },
-    { name: "Skypanel S60 CASE 2번", image: "" },
-    { name: "Skypanel S60 CASE 3번", image: "" }
-  ],
-  sound: Array.from({ length: 8 }, (_, i) => ({
-    name: `마이크 ${i + 1}`,
-    image: "https://placehold.co/80x80?text=Mic"
-  })),
-  monitor: Array.from({ length: 8 }, (_, i) => ({
-    name: `모니터 ${i + 1}`,
-    image: "https://placehold.co/80x80?text=Monitor"
-  })),
-  line: Array.from({ length: 8 }, (_, i) => ({
-    name: `라인 ${i + 1}`,
-    image: "https://placehold.co/80x80?text=Line"
-  })),
-  editing: [
-    { name: "편집실 1", image: "https://placehold.co/80x80?text=Edit1" },
-    { name: "편집실 2", image: "https://placehold.co/80x80?text=Edit2" }
-  ]
-};
+    camera: {
+      body: [
+        { name: "Sony FX6", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+        { name: "Sony FX3 1번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+        { name: "Sony FX3 2번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+        { name: "Sony FX3 3번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+        { name: "Sony FX3 4번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+        { name: "Sony A7C 1번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+        { name: "Sony A7C 2번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+        { name: "GoPro Hero 11 Black 1번", image: "" },
+        { name: "GoPro Hero 11 Black 2번", image: "" }
+      ],
+      lens: [
+        { name: "COOKE SP3 SET (25mm, 32mm, 50mm, 75mm, 100mm)", image: "" },
+        { name: "Sony FE 35mm GM", image: "" },
+        { name: "Sony E-Mount F1.8 컴팩트 렌즈", image: "" },
+        { name: "Sony FE 70-200mm f/2.8 GM OSS II Lens 1번", image: "" },
+        { name: "Sony FE 70-200mm f/2.8 GM OSS II Lens 2번", image: "" },
+        { name: "Sony FE 70-200mm f/2.8 GM OSS II Lens 3번", image: "" },
+        { name: "Sony FE 24-70mm f/2.8 GM II Lens 1번", image: "" },
+        { name: "Sony FE 24-70mm f/2.8 GM II Lens 2번", image: "" },
+        { name: "Sony FE 24-70mm f/2.8 GM II Lens 3번", image: "" },
+        { name: "Sony 24mm, 35mm, 85mm f/1.4 GM 1번", image: "" },
+        { name: "Sony 24mm, 35mm, 85mm f/1.4 GM 2번", image: "" },
+        { name: "Sony 24mm, 35mm, 85mm f/1.4 GM 3번", image: "" },
+        { name: "Kase MCUV II 82mm", image: "" }
+      ],
+      tripod: [
+        { name: "카토니 포커스 22씨네", image: "" },
+        { name: "iFootage GazelleTripod TC9 1번", image: "" },
+        { name: "iFootage GazelleTripod TC9 2번", image: "" },
+        { name: "iFootage GazelleTripod TC9 3번", image: "" },
+        { name: "DJI RS3 PRO Combo 1번", image: "" },
+        { name: "DJI RS3 PRO Combo 2번", image: "" },
+        { name: "이지리그", image: "" },
+        { name: "틸타 링그립", image: "" }
+      ]
+    },
+    lighting: {
+      light: [
+        { name: "씨네로이드 120W 1번", image: "" },
+        { name: "씨네로이드 120W 2번", image: "" },
+        { name: "씨네로이드 120W 3번", image: "" },
+        { name: "씨네로이드 120W 4번", image: "" },
+        { name: "씨네로이드 120W 5번", image: "" },
+        { name: "씨네로이드 120W 6번", image: "" },
+        { name: "SmallRig RC 220B 조명 1번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+        { name: "SmallRig RC 220B 조명 2번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+        { name: "SmallRig RC 220B 조명 3번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+        { name: "SmallRig RC 220B 조명 4번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+        { name: "SmallRig RC 220B 조명 5번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+        { name: "SmallRig RC 220B 조명 6번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+        { name: "SmallRig RC 220B 조명 7번", image: "" },
+        { name: "SmallRig RC 220B 조명 8번", image: "" },
+        { name: "SmallRig RC 220B 조명 9번", image: "" },
+        { name: "Aputure amaran F21C 조명", image: "" },
+        { name: "Aputure amaran F22C 조명", image: "" },
+        { name: "난라이트 2400b 조명", image: "" }
+      ],
+      stand: [
+        { name: "프레넬 렌즈 1번", image: "" },
+        { name: "프레넬 렌즈 2번", image: "" },
+        { name: "프레넬 렌즈 3번", image: "" }
+      ],
+      gobo: [
+        { name: "Skypanel S60 CASE 1번", image: "" },
+        { name: "Skypanel S60 CASE 2번", image: "" },
+        { name: "Skypanel S60 CASE 3번", image: "" }
+      ]
+    },
+    sound: Array.from({ length: 8 }, (_, i) => ({ name: `마이크 ${i + 1}`, image: "https://placehold.co/80x80?text=Mic" })),
+    monitor: Array.from({ length: 8 }, (_, i) => ({ name: `모니터 ${i + 1}`, image: "https://placehold.co/80x80?text=Monitor" })),
+    line: Array.from({ length: 8 }, (_, i) => ({ name: `라인 ${i + 1}`, image: "https://placehold.co/80x80?text=Line" })),
+    editing: [
+      { name: "편집실 1", image: "https://placehold.co/80x80?text=Edit1" },
+      { name: "편집실 2", image: "https://placehold.co/80x80?text=Edit2" }
+    ]
+  };
 
+  let selectedItems = [];
+  let currentTab = "camera";
+  let currentSub = "body";
+  let selectedHours = [];
+</script>
 
-  sound: Array.from({ length: 8 }, (_, i) => ({ name: `마이크 ${i + 1}`, image: "https://placehold.co/80x80?text=Mic" })),
-  monitor: Array.from({ length: 8 }, (_, i) => ({ name: `모니터 ${i + 1}`, image: "https://placehold.co/80x80?text=Monitor" })),
-  line: Array.from({ length: 8 }, (_, i) => ({ name: `라인 ${i + 1}`, image: "https://placehold.co/80x80?text=Line" })),
-  editing: [
-    { name: "편집실 1", image: "https://placehold.co/80x80?text=Edit1" },
-    { name: "편집실 2", image: "https://placehold.co/80x80?text=Edit2" }
-  ]
-};
 
 // 🔽 변수 선언 (반드시 세미콜론 포함)
 let selectedItems = [];
@@ -353,28 +343,42 @@ let selectedHours = [];
     });
 
     function renderEquipmentList() {
-      const container = document.getElementById("equipment-list");
-      container.innerHTML = "";
-      const items = currentTab === "camera" ? equipmentData.camera[currentSub] : equipmentData[currentTab];
-      // disable 로직 제거: 모든 항목을 자유롭게 선택
-      items.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "equipment-card";
-        const isSelected = selectedItems.includes(item.name);
-        if (isSelected) div.classList.add("selected");
-        div.innerHTML = `<img src="${item.image}" alt="${item.name}"><span class="text-sm">${item.name}</span>`;
-        div.onclick = () => {
-          if (isSelected) {
-            selectedItems = selectedItems.filter(i => i !== item.name);
-          } else {
-            selectedItems.push(item.name);
-          }
-          updateSelectedUI();
-          renderEquipmentList();
-        };
-        container.appendChild(div);
-      });
-    }
+  const container = document.getElementById("equipment-list");
+  container.innerHTML = "";
+
+  // ✅ 카메라와 조명은 중분류, 나머지는 단일 배열로 처리
+  const items =
+    currentTab === "camera"
+      ? equipmentData.camera[currentSub]
+      : currentTab === "lighting"
+        ? equipmentData.lighting[currentSub]
+        : equipmentData[currentTab];
+
+  items.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "equipment-card";
+    const isSelected = selectedItems.includes(item.name);
+    if (isSelected) div.classList.add("selected");
+
+    div.innerHTML = `
+      <img src="${item.image}" alt="${item.name}" />
+      <span class="text-sm">${item.name}</span>
+    `;
+
+    div.onclick = () => {
+      if (isSelected) {
+        selectedItems = selectedItems.filter(i => i !== item.name);
+      } else {
+        selectedItems.push(item.name);
+      }
+      updateSelectedUI();
+      renderEquipmentList(); // 선택 상태 반영 위해 다시 그리기
+    };
+
+    container.appendChild(div);
+  });
+}
+
 
     function updateSelectedUI() {
       const sec = document.getElementById("selected-section");
