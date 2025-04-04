@@ -7,7 +7,7 @@
   
   <!-- Tailwind CSS (개발용) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="icon" href="favicon.ico" /> 
+  <link rel="icon" href="favicon.ico" />
   <style>
     body, html {
       margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif;
@@ -69,6 +69,10 @@
     .delete-all-btn:hover {
       background-color: #c0392b;
     }
+    /* 그룹 헤더 스타일 */
+    .group-header {
+      font-size: 16px; font-weight: 600; color: #4e73df; margin: 20px 0 10px;
+    }
   </style>
 </head>
 <body>
@@ -93,14 +97,12 @@
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <script>
-    // Firebase 초기화는 이미 head에서 완료되었으므로, 여기서는 Firestore 객체만 사용합니다.
+    // Firebase 초기화는 head에서 완료되었으므로, 여기서는 Firestore 객체만 사용합니다.
     const db = firebase.firestore();
   </script>
 
   <!-- 메인 스크립트 -->
   <script>
-    // pending 탭에서는 "휴지통" 상태가 아닌 모든 신청 내역(대기, 승인, 반려)을 보여줍니다.
-    // trash 탭에서는 status가 "휴지통"인 신청 내역만 표시합니다.
     let currentUnsubscribe = null;
 
     function activateMenu(el) {
@@ -112,10 +114,9 @@
       if (currentUnsubscribe) currentUnsubscribe();
       const contentArea = document.getElementById('contentArea');
       contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
-
       let query;
       if (category === 'pending') {
-        // pending 탭: status가 "휴지통"이 아닌 모든 신청 내역
+        // pending 탭: "휴지통" 상태가 아닌 모든 신청 내역
         query = db.collection('rentals')
                   .where('status', 'not-in', ['휴지통'])
                   .orderBy('createdAt', 'desc');
@@ -128,8 +129,8 @@
       currentUnsubscribe = query.onSnapshot(
         snapshot => {
           let html = "";
-          // trash 탭이면 상단 우측에 전체삭제 버튼 추가
           if (category === 'trash') {
+            // 휴지통 탭: 전체삭제 버튼 우측 상단
             html += `<div class="flex justify-end mb-4">
                       <button onclick="deleteAllData()" class="delete-all-btn">전체삭제</button>
                      </div>`;
@@ -139,38 +140,66 @@
             contentArea.innerHTML = html;
             return;
           }
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
-            let rentalDate = (data.startDate && data.endDate) ? data.startDate + " ~ " + data.endDate : (data.editingDate || "");
-            let rentalTime = data.hours ? `시간: ${data.hours.join(', ')}시` : '';
-
-            html += `
-              <div class="card">
-                <div class="status-indicator ${statusClass}"></div>
-                <h3>대여 신청 내역</h3>
-                <p><strong>이름:</strong> ${data.userName || ""}</p>
-                <p><strong>학번:</strong> ${data.studentID || data.studentId || ""}</p>
-                <p><strong>기자재:</strong> ${Array.isArray(data.items) ? data.items.join(', ') : ""}</p>
-                <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-                <p><strong>대여 시간:</strong> ${rentalTime}</p>
-                <p><strong>상태:</strong> ${data.status || ""}</p>
-                <div class="actions">
-                  <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
-                  <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
-                  <button onclick="updateStatus('${doc.id}', '휴지통')">휴지통</button>
-                </div>
-                <span class="close-btn" onclick="moveToTrash('${doc.id}')">&times;</span>
-              </div>
-            `;
-          });
+          if (category === 'pending') {
+            // pending 탭: 신청 내역을 장비와 편집실로 분리
+            let equipmentHTML = "";
+            let editingHTML = "";
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              // data.items가 배열일 때, 모든 항목에 "편집실" 문자열이 포함되면 편집실 그룹으로 분류합니다.
+              if (Array.isArray(data.items) && data.items.every(item => item.includes("편집실"))) {
+                editingHTML += createCardHTML(doc.id, data);
+              } else {
+                equipmentHTML += createCardHTML(doc.id, data);
+              }
+            });
+            if (equipmentHTML) {
+              html += `<div class="group-header">장비 대여 신청 내역</div>`;
+              html += equipmentHTML;
+            }
+            if (editingHTML) {
+              html += `<div class="group-header">편집실 대여 신청 내역</div>`;
+              html += editingHTML;
+            }
+          } else {
+            // trash 탭: 그대로 출력
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              html += createCardHTML(doc.id, data);
+            });
+          }
           contentArea.innerHTML = html;
         },
         error => {
           console.error("데이터 가져오기 오류:", error);
-          contentArea.innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
+          document.getElementById('contentArea').innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
         }
       );
+    }
+
+    // 카드 HTML 생성 함수 (승인/반려/휴지통 버튼 포함)
+    function createCardHTML(docId, data) {
+      let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
+      let rentalDate = (data.startDate && data.endDate) ? data.startDate + " ~ " + data.endDate : (data.editingDate || "");
+      let rentalTime = data.hours ? `시간: ${data.hours.join(', ')}시` : '';
+      return `
+        <div class="card">
+          <div class="status-indicator ${statusClass}"></div>
+          <h3>대여 신청 내역</h3>
+          <p><strong>이름:</strong> ${data.userName || ""}</p>
+          <p><strong>학번:</strong> ${data.studentID || data.studentId || ""}</p>
+          <p><strong>기자재:</strong> ${Array.isArray(data.items) ? data.items.join(', ') : ""}</p>
+          <p><strong>대여 날짜:</strong> ${rentalDate}</p>
+          <p><strong>대여 시간:</strong> ${rentalTime}</p>
+          <p><strong>상태:</strong> ${data.status || ""}</p>
+          <div class="actions">
+            <button onclick="updateStatus('${docId}', '승인')">승인</button>
+            <button onclick="updateStatus('${docId}', '반려')">반려</button>
+            <button onclick="updateStatus('${docId}', '휴지통')">휴지통</button>
+          </div>
+          <span class="close-btn" onclick="moveToTrash('${docId}')">&times;</span>
+        </div>
+      `;
     }
 
     function updateStatus(docId, newStatus) {
@@ -188,7 +217,6 @@
     }
 
     function moveToTrash(docId) {
-      // "휴지통" 버튼과 close-btn 기능은 동일하게 status 업데이트
       updateStatus(docId, '휴지통');
     }
 
