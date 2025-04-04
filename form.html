@@ -4,12 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 신청</title>
-  <!-- Tailwind CSS CDN (개발 중에는 사용 가능) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Firebase Compat SDKs (한 번만 로드) -->
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <style>
     .step-active { background-color: #1D4ED8; color: white; }
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
@@ -68,20 +63,8 @@
     <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
     <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
   </div>
-  
-  <!-- 사용자 정보 (자동 입력, 읽기 전용) -->
-  <div class="max-w-4xl mx-auto p-4">
-    <div class="mb-4">
-      <label class="block font-semibold">이름</label>
-      <input type="text" id="userNameInput" class="border p-2 rounded w-full" readonly>
-    </div>
-    <div class="mb-4">
-      <label class="block font-semibold">학번</label>
-      <input type="text" id="studentIDInput" class="border p-2 rounded w-full" readonly>
-    </div>
-  </div>
-  
-  <!-- 폼 컨테이너 (1단계 ~ 4단계) -->
+
+  <!-- 폼 컨테이너 -->
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
     <!-- 단계 표시 -->
     <div class="flex justify-between mb-8">
@@ -90,7 +73,7 @@
       <div id="step3Btn" class="flex-1 text-center p-2 rounded step-inactive">3. 규정 동의</div>
       <div id="step4Btn" class="flex-1 text-center p-2 rounded step-inactive">4. 완료</div>
     </div>
-    
+
     <!-- Step 1: 장비 선택 -->
     <div id="step1">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
@@ -102,7 +85,7 @@
         <button class="tab-button px-4 py-1 border rounded" data-tab="editing">편집실</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="line">라인</button>
       </div>
-      <!-- 중분류 (카메라 탭에만 표시) -->
+      <!-- 중분류 (카메라용) -->
       <div id="cameraSubTabs" class="flex gap-2 mb-4">
         <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
@@ -110,7 +93,8 @@
       </div>
       <!-- 장비 카드 -->
       <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-      <!-- 선택된 장비 표시 -->
+
+      <!-- 선택 장비 표시 -->
       <div id="selected-section" class="mt-6 hidden">
         <h3 class="font-medium mb-2">선택된 장비</h3>
         <ul id="selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
@@ -120,15 +104,10 @@
         <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">다음 단계 →</button>
       </div>
     </div>
-    
+
     <!-- Step 2: 대여일 선택 -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-      <!-- 사용자 정보 입력 -->
-      <label class="block mb-2 font-medium">이름</label>
-      <input type="text" id="userName" class="border p-2 rounded w-full mb-4" />
-      <label class="block mb-2 font-medium">학번</label>
-      <input type="text" id="userId" class="border p-2 rounded w-full mb-4" />
       <!-- 일반 장비 선택 -->
       <div id="commonDateSection">
         <label class="block mb-2 font-medium">대여 시작일</label>
@@ -138,6 +117,7 @@
         <label class="block mb-2 font-medium">증명사진 첨부</label>
         <input type="file" id="proofImage" accept="image/*" class="border p-2 rounded w-full mb-4" />
       </div>
+
       <!-- 편집실 선택 시 -->
       <div id="editingDateSection" class="hidden">
         <label class="block mb-2 font-medium">편집실 대여일자</label>
@@ -145,12 +125,13 @@
         <label class="block mb-2 font-medium">시간 선택</label>
         <div class="time-grid mb-4" id="timeGrid"></div>
       </div>
+
       <div class="flex justify-between mt-6">
         <button onclick="goToStep(1)" class="text-sm text-blue-600">← 이전 단계</button>
         <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded">다음 단계 →</button>
       </div>
     </div>
-    
+
     <!-- Step 3: 규정 동의 -->
     <div id="step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
@@ -185,7 +166,7 @@
         <button id="toStep4" onclick="submitApplication()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">신청 완료</button>
       </div>
     </div>
-    
+
     <!-- Step 4: 완료 화면 -->
     <div id="step4" class="step hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
@@ -198,8 +179,8 @@
       </div>
     </div>
   </div>
-  
-  <!-- Firebase SDK & Initialization (하단에 한 번만 로드) -->
+
+  <!-- Firebase SDK & Initialization -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <script>
@@ -209,13 +190,13 @@
       projectId: "yonseirent-setup",
       storageBucket: "yonseirent-setup.appspot.com",
       messagingSenderId: "1072524969376",
-      appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
-      measurementId: "G-CQZEKPE02D"
+      appId: "1:1072524969376:web:e23491a7196f97fd3e10c5",
+      measurementId: "G-8G1D43NXMW"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
   </script>
-  
+
   <!-- 메인 스크립트 -->
   <script>
     const equipmentData = {
@@ -238,32 +219,6 @@
     let currentTab = "camera";
     let currentSub = "body";
     let selectedHours = [];
-    let currentUserName = "";
-    let currentStudentID = "";
-
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        db.collection("users").doc(user.uid).get().then(doc => {
-          if (doc.exists) {
-            const data = doc.data();
-            currentUserName = data.userName || "";
-            currentStudentID = data.studentID || "";
-            const nameInput = document.getElementById("userNameInput");
-            const idInput = document.getElementById("studentIDInput");
-            if (nameInput && idInput) {
-              nameInput.value = currentUserName;
-              idInput.value = currentStudentID;
-            }
-          } else {
-            console.error("사용자 정보 없음");
-          }
-        }).catch(error => {
-          console.error("사용자 정보 불러오기 실패: ", error);
-        });
-      } else {
-        console.log("로그인된 사용자가 없습니다.");
-      }
-    });
 
     function renderEquipmentList() {
       const container = document.getElementById("equipment-list");
@@ -354,7 +309,7 @@
         const editingOnly = selectedItems.every(i => i.includes("편집실"));
         document.getElementById("commonDateSection").classList.toggle("hidden", editingOnly);
         document.getElementById("editingDateSection").classList.toggle("hidden", !editingOnly);
-        if (editingOnly) generateTimeGrid();
+               if (editingOnly) generateTimeGrid();
       }
 
       if (n === 3) {
@@ -406,10 +361,6 @@
     }
 
     function validateStep2() {
-      if (!document.getElementById("userName").value || !document.getElementById("userId").value) {
-        alert("이름과 학번을 입력해주세요.");
-        return;
-      }
       const editingOnly = selectedItems.every(i => i.includes("편집실"));
       if (editingOnly) {
         if (!document.getElementById("editingDate").value || selectedHours.length === 0) {
@@ -442,11 +393,8 @@
         startDate: "",
         endDate: "",
         editingDate: "",
-        hours: [],
-        status: "대기"
+        hours: []
       };
-      data.name = document.getElementById("userName").value;
-      data.studentId = document.getElementById("userId").value;
       if (editingOnly) {
         data.editingDate = document.getElementById("editingDate").value;
         data.hours = [...selectedHours].sort((a, b) => a - b);
@@ -476,4 +424,5 @@
     });
   </script>
 </body>
-</html> 
+</html>
+
