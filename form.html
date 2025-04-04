@@ -377,10 +377,13 @@
   selectedHours = [];
 
   const date = document.getElementById("editingDate").value;
-  if (!date) return;
+  const selectedRoom = selectedItems[0]; // '편집실 1' 또는 '편집실 2' 중 하나
+
+  if (!date || !selectedRoom) return;
 
   db.collection("rentals")
     .where("editingDate", "==", date)
+    .where("items", "array-contains", selectedRoom)
     .get()
     .then(querySnapshot => {
       const reservedHours = [];
