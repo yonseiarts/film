@@ -340,42 +340,81 @@
       }
     });
 
-    function renderEquipmentList() {
-  const container = document.getElementById("equipment-list");
-  container.innerHTML = "";
-
-  const items =
-    currentTab === "camera"
-      ? equipmentData.camera[currentSub]
-      : currentTab === "lighting"
-        ? equipmentData.lighting[currentSub]
-        : equipmentData[currentTab];
-
-  items.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "equipment-card";
-    const isSelected = selectedItems.includes(item.name);
-    if (isSelected) div.classList.add("selected");
-
-    div.innerHTML = `
-      <img src="${item.image}" alt="${item.name}" />
-      <span class="text-sm">${item.name}</span>
-    `;
-
-    div.onclick = () => {
-      if (isSelected) {
-        selectedItems = selectedItems.filter(i => i !== item.name);
-      } else {
-        selectedItems.push(item.name);
-      }
-      updateSelectedUI();
-      renderEquipmentList();
-    };
-
-    container.appendChild(div);
-  });
-}
+   <!-- HTML 코드 끝 -->
 <script>
+  // Firebase 초기화 (이미 되어있음)
+
+  let selectedItems = [];
+  let currentTab = "camera";
+  let currentSub = "body";
+  let selectedHours = [];
+
+  function renderEquipmentList() {
+    const container = document.getElementById("equipment-list");
+    container.innerHTML = "";
+
+    const items =
+      currentTab === "camera"
+        ? equipmentData.camera[currentSub]
+        : currentTab === "lighting"
+          ? equipmentData.lighting[currentSub]
+          : equipmentData[currentTab];
+
+    items.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "equipment-card";
+      const isSelected = selectedItems.includes(item.name);
+      if (isSelected) div.classList.add("selected");
+
+      div.innerHTML = `
+        <img src="${item.image}" alt="${item.name}" />
+        <span class="text-sm">${item.name}</span>
+      `;
+
+      div.onclick = () => {
+        if (isSelected) {
+          selectedItems = selectedItems.filter(i => i !== item.name);
+        } else {
+          if (!selectedItems.includes(item.name)) selectedItems.push(item.name);
+        }
+        updateSelectedUI();
+        renderEquipmentList();
+      };
+
+      container.appendChild(div);
+    });
+  }
+
+  function updateSelectedUI() {
+    const sec = document.getElementById("selected-section");
+    const btn = document.getElementById("toStep2");
+    if (selectedItems.length === 0) {
+      sec.classList.add("hidden");
+      btn.classList.add("hidden");
+    } else {
+      sec.classList.remove("hidden");
+      btn.classList.remove("hidden");
+    }
+    document.getElementById("selected-items").innerHTML = selectedItems.map(item => {
+      const safeItem = item.replace(/'/g, "\\'");
+      return '<li>' + item + ' <button type="button" class="ml-2 text-red-500" onclick="removeSelectedItem(\'' + safeItem + '\')">&times;</button></li>';
+    }).join("");
+  }
+
+  function removeSelectedItem(itemName) {
+    selectedItems = selectedItems.filter(i => i !== itemName);
+    updateSelectedUI();
+    renderEquipmentList();
+  }
+
+  // 기타 모든 JS함수와 로직들을 이 안에 완전히 넣으세요.
+
+  document.addEventListener("DOMContentLoaded", () => {
+    renderEquipmentList();
+    goToStep(1);
+  });
+</script>
+
     function updateSelectedUI() {
       const sec = document.getElementById("selected-section");
       const btn = document.getElementById("toStep2");
