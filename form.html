@@ -335,11 +335,24 @@
       document.getElementById("step" + n + "Btn")?.classList.remove("step-inactive");
 
       if (n === 2) {
-        const editingOnly = selectedItems.every(i => i.includes("편집실"));
-        document.getElementById("commonDateSection").classList.toggle("hidden", editingOnly);
-        document.getElementById("editingDateSection").classList.toggle("hidden", !editingOnly);
-        if (editingOnly) generateTimeGrid();
-      }
+  const editingOnly = selectedItems.every(i => i.includes("편집실"));
+  const editingDateInput = document.getElementById("editingDate");
+  const commonDateSection = document.getElementById("commonDateSection");
+  const editingDateSection = document.getElementById("editingDateSection");
+
+  if (editingOnly) {
+    commonDateSection.classList.add("hidden");
+    editingDateSection.classList.remove("hidden");
+
+    // ✨ 대여일자 변경 시마다 generateTimeGrid 재호출
+    editingDateInput.addEventListener("change", generateTimeGrid);
+    generateTimeGrid(); // 초기 1회 호출
+  } else {
+    commonDateSection.classList.remove("hidden");
+    editingDateSection.classList.add("hidden");
+  }
+}
+
 
       if (n === 3) {
         document.getElementById("final-selected-items").innerHTML = selectedItems.map(i => `<li>${i}</li>`).join("");
