@@ -359,35 +359,63 @@
     }
 
     function generateTimeGrid() {
-      const grid = document.getElementById("timeGrid");
-      grid.innerHTML = "";
-      selectedHours = [];
+  const grid = document.getElementById("timeGrid");
+  grid.innerHTML = "";
+  selectedHours = [];
+
+  const date = document.getElementById("editingDate").value;
+  if (!date) return;
+
+  db.collection("rentals")
+    .where("editingDate", "==", date)
+    .get()
+    .then(querySnapshot => {
+      const reservedHours = [];
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        if (Array.isArray(data.hours)) {
+          reservedHours.push(...data.hours);
+        }
+      });
+
       for (let h = 0; h < 24; h++) {
         const id = `hour-${h}`;
         const input = document.createElement("input");
         input.type = "checkbox";
         input.id = id;
         input.value = h;
-        input.addEventListener("change", () => {
-          if (input.checked) {
-            selectedHours.push(h);
-          } else {
-            selectedHours = selectedHours.filter(val => val !== h);
-          }
-        });
 
         const label = document.createElement("label");
         label.setAttribute("for", id);
-        label.className = "inline-block w-12 py-1 text-center text-sm bg-gray-200 rounded";
-        label.innerText = `${h}:00`;
+        label.className = "inline-block w-12 py-1 text-center text-sm rounded";
 
+        if (reservedHours.includes(h)) {
+          input.disabled = true;
+          label.classList.add("bg-gray-300", "text-gray-500", "line-through", "cursor-not-allowed");
+        } else {
+          label.classList.add("bg-gray-200", "cursor-pointer");
+          input.addEventListener("change", () => {
+            if (input.checked) {
+              selectedHours.push(h);
+            } else {
+              selectedHours = selectedHours.filter(val => val !== h);
+            }
+          });
+        }
+
+        label.innerText = `${h}:00`;
         const wrapper = document.createElement("div");
         wrapper.className = "inline-block";
         wrapper.appendChild(input);
         wrapper.appendChild(label);
         grid.appendChild(wrapper);
       }
-    }
+    })
+    .catch(error => {
+      console.error("시간 정보 조회 실패:", error);
+    });
+}
+
 
     function validateStep2() {
       if (!getUserName() || !getStudentID()) {
