@@ -107,18 +107,21 @@
         <button class="tab-button px-4 py-1 border rounded" data-tab="editing">편집실</button>
         
       </div>
-      <!-- 중분류  -->
-      <div id="cameraSubTabs" class="flex gap-2 mb-4">
-        <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
-        <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
-        <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대&짐벌</button>
-        <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">부속품</button>
-      <!-- 중분류  -->
-     <div id="lightingSubTabs" class="flex gap-2 mb-4">   
+    <!-- 중분류: 카메라 -->
+<div id="cameraSubTabs" class="flex gap-2 mb-4">
+  <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
+  <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
+  <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대&짐벌</button>
+  <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">부속품</button>
+</div>
+
+<!-- 중분류: 조명 -->
+<div id="lightingSubTabs" class="flex gap-2 mb-4 hidden">
   <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="light">조명</button>
   <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="stand">스탠드</button>
   <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="gobo">고보&디퓨저</button>
 </div>
+
 
       </div>
       <!-- 장비 카드 영역 -->
@@ -346,7 +349,6 @@ let selectedHours = [];
   const container = document.getElementById("equipment-list");
   container.innerHTML = "";
 
-  // ✅ 카메라와 조명은 중분류, 나머지는 단일 배열로 처리
   const items =
     currentTab === "camera"
       ? equipmentData.camera[currentSub]
@@ -372,12 +374,13 @@ let selectedHours = [];
         selectedItems.push(item.name);
       }
       updateSelectedUI();
-      renderEquipmentList(); // 선택 상태 반영 위해 다시 그리기
+      renderEquipmentList();
     };
 
     container.appendChild(div);
   });
 }
+</script>
 
 
     function updateSelectedUI() {
@@ -403,24 +406,32 @@ let selectedHours = [];
     }
 
     document.querySelectorAll(".tab-button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentTab = btn.dataset.tab;
-        document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
-        currentSub = "body";
-        renderEquipmentList();
-      });
-    });
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
 
-    document.querySelectorAll(".subtab-button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".subtab-button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentSub = btn.dataset.subtab;
-        renderEquipmentList();
-      });
-    });
+    currentTab = btn.dataset.tab;
+
+    // 카메라 탭이면 카메라 중분류만 보이기
+    document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
+    document.getElementById("lightingSubTabs").style.display = currentTab === "lighting" ? "flex" : "none";
+
+    // 기본 중분류 설정
+    currentSub = currentTab === "camera" ? "body" : currentTab === "lighting" ? "light" : "";
+
+    renderEquipmentList();
+  });
+});
+
+document.querySelectorAll(".subtab-button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".subtab-button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentSub = btn.dataset.subtab;
+    renderEquipmentList();
+  });
+});
+
 
     function goToStep(n) {
       for (let i = 1; i <= 4; i++) {
