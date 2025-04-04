@@ -411,14 +411,25 @@
       });
     });
 
-    document.querySelectorAll(".subtab-button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".subtab-button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentSub = btn.dataset.subtab;
-        renderEquipmentList();
-      });
-    });
+   document.querySelectorAll(".tab-button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentTab = btn.dataset.tab;
+
+    // 카메라 중분류 보여주기
+    document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
+
+    // ✅ 조명 중분류 보여주기
+    document.getElementById("lightingSubTabs").style.display = currentTab === "lighting" ? "flex" : "none";
+
+    // 기본 중분류 설정
+    currentSub = currentTab === "camera" ? "body" :
+                 currentTab === "lighting" ? "light" : null;
+
+    renderEquipmentList();
+  });
+});
 
     function goToStep(n) {
       for (let i = 1; i <= 4; i++) {
