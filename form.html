@@ -210,10 +210,7 @@
   <script>
     const equipmentData = {
       camera: {
-        body: Array.from({ length: 8 }, (_, i) => ({ name: `카메라 바디 ${i + 1}`, image: "https://placehold.co/80x80?text=Body" })),
-        lens: Array.from({ length: 8 }, (_, i) => ({ name: `렌즈 ${i + 1}`, image: "https://placehold.co/80x80?text=Lens" })),
-        tripod: Array.from({ length: 8 }, (_, i) => ({ name: `삼각대 ${i + 1}`, image: "https://placehold.co/80x80?text=Tripod" }))
-      },
+      
       lighting: Array.from({ length: 8 }, (_, i) => ({ name: `조명 ${i + 1}`, image: "https://placehold.co/80x80?text=Light" })),
       sound: Array.from({ length: 8 }, (_, i) => ({ name: `마이크 ${i + 1}`, image: "https://placehold.co/80x80?text=Mic" })),
       monitor: Array.from({ length: 8 }, (_, i) => ({ name: `모니터 ${i + 1}`, image: "https://placehold.co/80x80?text=Monitor" })),
@@ -258,29 +255,17 @@
       }
     });
 
-    function renderEquipmentList() {
-      const container = document.getElementById("equipment-list");
-      container.innerHTML = "";
-      const items = currentTab === "camera" ? equipmentData.camera[currentSub] : equipmentData[currentTab];
-      // disable 로직 제거: 모든 항목을 자유롭게 선택
-      items.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "equipment-card";
-        const isSelected = selectedItems.includes(item.name);
-        if (isSelected) div.classList.add("selected");
-        div.innerHTML = `<img src="${item.image}" alt="${item.name}"><span class="text-sm">${item.name}</span>`;
-        div.onclick = () => {
-          if (isSelected) {
-            selectedItems = selectedItems.filter(i => i !== item.name);
-          } else {
-            selectedItems.push(item.name);
-          }
-          updateSelectedUI();
-          renderEquipmentList();
-        };
-        container.appendChild(div);
-      });
-    }
+    div.innerHTML = `
+  <div class="flex items-center space-x-4">
+    <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded" />
+    <div>
+      <p class="font-semibold text-sm">${item.name}</p>
+      <p class="text-xs text-gray-500">${item.spec || '사양 정보 없음'}</p>
+      <p class="text-xs text-gray-400">${item.description || ''}</p>
+    </div>
+  </div>
+`;
+
 
     function updateSelectedUI() {
       const sec = document.getElementById("selected-section");
@@ -309,7 +294,7 @@
         document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
         currentTab = btn.dataset.tab;
-        document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
+        document.getElementById("cameraSubTabs").style.display = currentTab === "fx3 1" ? "flex" : "none";
         currentSub = "body";
         renderEquipmentList();
       });
