@@ -201,7 +201,7 @@
     </div>
   </div>
   
-  <!-- Firestore 연결: Firebase 초기화 후, db 변수 할당 (한 번만 로드) -->
+  <!-- Firestore 연결: Firebase 초기화 후, db 변수 할당 (하단에 한 번만 로드) -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <script>
@@ -246,7 +246,7 @@
           if (doc.exists) {
             const data = doc.data();
             const name = data.userName || "";
-            // Firestore에 학번 필드는 "studentID"로 저장되어 있다고 가정 (대문자 D)
+            // Firestore에 학번 필드는 "studentID"로 저장되어 있다고 가정
             const studentID = data.studentID || "";
             document.getElementById("userName").value = name;
             document.getElementById("userId").value = studentID;
@@ -266,7 +266,7 @@
       container.innerHTML = "";
       const items = currentTab === "camera" ? equipmentData.camera[currentSub] : equipmentData[currentTab];
 
-      // disable 로직 제거: 모든 항목을 자유롭게 선택
+      // disable 로직 제거: 모든 항목 자유 선택
       items.forEach(item => {
         const div = document.createElement("div");
         div.className = "equipment-card";
@@ -431,8 +431,8 @@
         endDate: "",
         editingDate: "",
         hours: [],
-        status: "대기",  // 상태 필드 추가
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()  // 생성 시각 추가
+        status: "대기",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       data.userName = getUserName();
       data.studentId = getStudentID();
