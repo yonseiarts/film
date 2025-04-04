@@ -6,7 +6,7 @@
   <title>마이페이지</title>
   <!-- Tailwind CSS (개발용) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Firebase SDK -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <link rel="icon" href="favicon.ico">
@@ -44,7 +44,6 @@
   <!-- 메인 컨텐츠 -->
   <main class="container flex-1 mt-6">
     <div id="userInfo" class="mb-6">
-      <!-- 학생 정보 표시 -->
       <h2 class="text-2xl font-bold mb-2">내 정보</h2>
       <p id="displayName" class="text-lg"></p>
       <p id="displayStudentId" class="text-lg"></p>
@@ -63,7 +62,7 @@
     const storedInfo = localStorage.getItem("studentInfo");
     if (!storedInfo) {
       // 로그인 정보가 없으면 로그인 페이지로 이동
-      window.location.href = "mypage_login.html"; // 로그인 페이지 파일명에 맞게 수정
+      window.location.href = "mypage_login.html";
     }
     const studentInfo = JSON.parse(storedInfo);
     
@@ -71,12 +70,12 @@
     document.getElementById("displayName").innerText = "이름: " + (studentInfo.userName || "미입력");
     document.getElementById("displayStudentId").innerText = "학번: " + (studentInfo.studentID || "미입력");
     
-    // Firestore에서 해당 학생의 대여 신청 내역을 로드하는 함수
+    // Firestore에서 해당 학생의 대여 신청 내역을 로드
     function loadRentalApplications() {
       const rentalList = document.getElementById("rentalList");
       rentalList.innerHTML = '<p class="text-gray-600">내 대여 신청 내역을 불러오는 중입니다...</p>';
       
-      // rentals 컬렉션에서 "studentId" 필드가 localStorage에 저장된 studentID와 일치하는 문서를 찾습니다.
+      // rentals 컬렉션에서 "studentId" 필드가 localStorage에 저장된 학번과 일치하는 문서를 쿼리합니다.
       db.collection("rentals")
         .where("studentId", "==", studentInfo.studentID)
         .orderBy("createdAt", "desc")
@@ -96,12 +95,10 @@
                 <p><strong>신청 항목:</strong> ${Array.isArray(data.items) ? data.items.join(", ") : ""}</p>
                 <p><strong>대여 날짜:</strong> ${
                   data.startDate && data.endDate 
-                    ? data.startDate + " ~ " + data.endDate
+                    ? data.startDate + " ~ " + data.endDate 
                     : (data.editingDate || "")
                 }</p>
-                <p><strong>대여 시간:</strong> ${
-                  data.hours ? data.hours.join(", ") + "시" : ""
-                }</p>
+                <p><strong>대여 시간:</strong> ${data.hours ? data.hours.join(", ") + "시" : ""}</p>
                 <p><strong>상태:</strong> ${data.status || ""}</p>
               </div>
             `;
