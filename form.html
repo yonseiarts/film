@@ -6,10 +6,11 @@
   <title>기자재 대여 신청</title>
   <!-- Tailwind CSS CDN (개발 중 사용; 프로덕션에서는 빌드된 CSS 사용 권장) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Firebase Compat SDKs -->
+  <!-- Firebase Compat SDKs (한 번만 로드) -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
+  <link rel="icon" href="favicon.ico" />
   <style>
     .step-active { background-color: #1D4ED8; color: white; }
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
@@ -60,6 +61,19 @@
       font-weight: bold;
     }
   </style>
+  <script>
+    // Firebase 초기화 (head 내에 한 번만 로드)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      authDomain: "yonseirent-setup.firebaseapp.com",
+      projectId: "yonseirent-setup",
+      storageBucket: "yonseirent-setup.appspot.com",
+      messagingSenderId: "1072524969376",
+      appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
+      measurementId: "G-CQZEKPE02D"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
 </head>
 <body class="bg-gray-50">
   <!-- 헤더 -->
@@ -96,7 +110,7 @@
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대</button>
       </div>
-      <!-- 장비 카드 -->
+      <!-- 장비 카드 영역 -->
       <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
       <!-- 선택된 장비 표시 -->
       <div id="selected-section" class="mt-6 hidden">
@@ -187,20 +201,8 @@
     </div>
   </div>
   
-  <!-- Firebase SDK & Initialization (하단에 한 번만 로드) -->
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
+  <!-- Firebase 초기화 및 Firestore 연결 (중복 없이 한 번만 로드) -->
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-      authDomain: "yonseirent-setup.firebaseapp.com",
-      projectId: "yonseirent-setup",
-      storageBucket: "yonseirent-setup.appspot.com",
-      messagingSenderId: "1072524969376",
-      appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
-      measurementId: "G-CQZEKPE02D"
-    };
-    firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
   </script>
   
@@ -227,7 +229,7 @@
     let currentSub = "body";
     let selectedHours = [];
 
-    // 이름과 학번은 Step 2의 입력 필드에서 가져옵니다.
+    // Step 2의 이름, 학번 입력 필드에서 값 가져오기
     function getUserName() {
       return document.getElementById("userName").value;
     }
@@ -235,7 +237,7 @@
       return document.getElementById("userId").value;
     }
 
-    // onAuthStateChanged: 로그인된 사용자가 있다면 Step 2의 입력 필드에 값을 채웁니다.
+    // onAuthStateChanged: 로그인된 사용자가 있다면 Step 2 입력 필드에 값을 채웁니다.
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         db.collection("users").doc(user.uid).get().then(doc => {
