@@ -256,33 +256,56 @@
       { name: "이지리그", image: "" },
       { name: "틸타 링그립", image: "" }
     ]
+  const equipmentData = {
+  camera: {
+    body: [...],     // 기존 내용 그대로
+    lens: [...],     // 아까 고쳐드린 lens 내용 넣으세요
+    tripod: [...]    // 기존 내용 그대로
   },
   lighting: [
-  { name: "씨네로이드 120W 1번", image: "" },
-  { name: "씨네로이드 120W 2번", image: "" },
-  { name: "씨네로이드 120W 3번", image: "" },
-  { name: "씨네로이드 120W 4번", image: "" },
-  { name: "씨네로이드 120W 5번", image: "" },
-  { name: "씨네로이드 120W 6번", image: "" },
-  { name: "SmallRig RC 220B 조명 1번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-  { name: "SmallRig RC 220B 조명 2번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-  { name: "SmallRig RC 220B 조명 3번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-  { name: "SmallRig RC 220B 조명 4번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-  { name: "SmallRig RC 220B 조명 5번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-  { name: "SmallRig RC 220B 조명 6번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
-  { name: "SmallRig RC 220B 조명 7번", image: "" },
-  { name: "SmallRig RC 220B 조명 8번", image: "" },
-  { name: "SmallRig RC 220B 조명 9번", image: "" },
-  { name: "Aputure amaran F21C 조명", image: "" },
-  { name: "Aputure amaran F22C 조명", image: "" },
-  { name: "난라이트 2400b 조명", image: "" },
-  { name: "프레넬 렌즈 1번", image: "" },
-  { name: "프레넬 렌즈 2번", image: "" },
-  { name: "프레넬 렌즈 3번", image: "" },
-  { name: "Skypanel S60 CASE 1번", image: "" },
-  { name: "Skypanel S60 CASE 2번", image: "" },
-  { name: "Skypanel S60 CASE 3번", image: "" }
-]
+    { name: "씨네로이드 120W 1번", image: "" },
+    { name: "씨네로이드 120W 2번", image: "" },
+    { name: "씨네로이드 120W 3번", image: "" },
+    { name: "씨네로이드 120W 4번", image: "" },
+    { name: "씨네로이드 120W 5번", image: "" },
+    { name: "씨네로이드 120W 6번", image: "" },
+    { name: "SmallRig RC 220B 조명 1번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+    { name: "SmallRig RC 220B 조명 2번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+    { name: "SmallRig RC 220B 조명 3번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+    { name: "SmallRig RC 220B 조명 4번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+    { name: "SmallRig RC 220B 조명 5번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+    { name: "SmallRig RC 220B 조명 6번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32870070_List0.png" },
+    { name: "SmallRig RC 220B 조명 7번", image: "" },
+    { name: "SmallRig RC 220B 조명 8번", image: "" },
+    { name: "SmallRig RC 220B 조명 9번", image: "" },
+    { name: "Aputure amaran F21C 조명", image: "" },
+    { name: "Aputure amaran F22C 조명", image: "" },
+    { name: "난라이트 2400b 조명", image: "" },
+    { name: "프레넬 렌즈 1번", image: "" },
+    { name: "프레넬 렌즈 2번", image: "" },
+    { name: "프레넬 렌즈 3번", image: "" },
+    { name: "Skypanel S60 CASE 1번", image: "" },
+    { name: "Skypanel S60 CASE 2번", image: "" },
+    { name: "Skypanel S60 CASE 3번", image: "" }
+  ],
+  sound: Array.from({ length: 8 }, (_, i) => ({
+    name: `마이크 ${i + 1}`,
+    image: "https://placehold.co/80x80?text=Mic"
+  })),
+  monitor: Array.from({ length: 8 }, (_, i) => ({
+    name: `모니터 ${i + 1}`,
+    image: "https://placehold.co/80x80?text=Monitor"
+  })),
+  line: Array.from({ length: 8 }, (_, i) => ({
+    name: `라인 ${i + 1}`,
+    image: "https://placehold.co/80x80?text=Line"
+  })),
+  editing: [
+    { name: "편집실 1", image: "https://placehold.co/80x80?text=Edit1" },
+    { name: "편집실 2", image: "https://placehold.co/80x80?text=Edit2" }
+  ]
+};
+
 
   sound: Array.from({ length: 8 }, (_, i) => ({ name: `마이크 ${i + 1}`, image: "https://placehold.co/80x80?text=Mic" })),
   monitor: Array.from({ length: 8 }, (_, i) => ({ name: `모니터 ${i + 1}`, image: "https://placehold.co/80x80?text=Monitor" })),
