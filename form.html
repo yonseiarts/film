@@ -6,7 +6,7 @@
   <title>기자재 대여 신청</title>
   <!-- Tailwind CSS CDN (개발 중 사용; 프로덕션에서는 빌드된 CSS 사용 권장) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Firebase Compat SDKs (한 번만 로드) -->
+  <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
@@ -201,8 +201,11 @@
     </div>
   </div>
   
-  <!-- Firebase 초기화 및 Firestore 연결 (중복 없이 한 번만 로드) -->
+  <!-- Firebase SDK & Initialization (하단에 한 번만 로드) -->
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <script>
+    // Firestore 연결: head에서 Firebase 초기화 후, 여기서 db 변수 할당
     const db = firebase.firestore();
   </script>
   
@@ -229,7 +232,7 @@
     let currentSub = "body";
     let selectedHours = [];
 
-    // Step 2의 이름, 학번 입력 필드에서 값 가져오기
+    // Step 2의 입력 필드에서 이름과 학번을 가져오는 함수
     function getUserName() {
       return document.getElementById("userName").value;
     }
@@ -237,14 +240,15 @@
       return document.getElementById("userId").value;
     }
 
-    // onAuthStateChanged: 로그인된 사용자가 있다면 Step 2 입력 필드에 값을 채웁니다.
+    // onAuthStateChanged: 로그인된 사용자가 있다면 Step 2의 입력 필드에 값을 채웁니다.
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         db.collection("users").doc(user.uid).get().then(doc => {
           if (doc.exists) {
             const data = doc.data();
             const name = data.userName || "";
-            const studentID = data.studentID || "";
+            // Firestore에 학번이 'studentId'로 저장되어 있다고 가정합니다.
+            const studentID = data.studentId || "";
             document.getElementById("userName").value = name;
             document.getElementById("userId").value = studentID;
           } else {
