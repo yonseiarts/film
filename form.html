@@ -103,7 +103,7 @@
         <button class="tab-button px-4 py-1 border rounded" data-tab="sound">사운드</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="monitor">모니터</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="line">라인</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="editing">베터리</button>
+        <button class="tab-button px-4 py-1 border rounded" data-tab="battery">베터리</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="editing">편집실</button>
         
       </div>
@@ -111,8 +111,8 @@
 <div id="cameraSubTabs" class="flex gap-2 mb-4">
   <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
   <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
-  <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">삼각대&짐벌</button>
-  <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod">부속품</button>
+  <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripod&gimbal">삼각대&짐벌</button>
+  <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="accessory">부속품</button>
 </div>
 
 <!-- 중분류: 조명 -->
@@ -250,7 +250,7 @@
         { name: "Sony 24mm, 35mm, 85mm f/1.4 GM 3번", image: "" },
         { name: "Kase MCUV II 82mm", image: "" }
       ],
-      tripod: [
+      tripod&gimbal: [
         { name: "카토니 포커스 22씨네", image: "" },
         { name: "iFootage GazelleTripod TC9 1번", image: "" },
         { name: "iFootage GazelleTripod TC9 2번", image: "" },
@@ -260,6 +260,8 @@
         { name: "이지리그", image: "" },
         { name: "틸타 링그립", image: "" }
       ]
+     accessory: [ {name: "부속품1", image:""}, ...],
+     
     },
     lighting: {
       light: [
@@ -296,6 +298,7 @@
     sound: Array.from({ length: 8 }, (_, i) => ({ name: `마이크 ${i + 1}`, image: "https://placehold.co/80x80?text=Mic" })),
     monitor: Array.from({ length: 8 }, (_, i) => ({ name: `모니터 ${i + 1}`, image: "https://placehold.co/80x80?text=Monitor" })),
     line: Array.from({ length: 8 }, (_, i) => ({ name: `라인 ${i + 1}`, image: "https://placehold.co/80x80?text=Line" })),
+    battery: [{name: "베터리 1번", image:""}, ...]
     editing: [
       { name: "편집실 1", image: "https://placehold.co/80x80?text=Edit1" },
       { name: "편집실 2", image: "https://placehold.co/80x80?text=Edit2" }
@@ -307,14 +310,6 @@
   let currentSub = "body";
   let selectedHours = [];
 </script>
-
-
-// 🔽 변수 선언 (반드시 세미콜론 포함)
-let selectedItems = [];
-let currentTab = "camera";
-let currentSub = "body";
-let selectedHours = [];
-
 
     // Step 2의 입력 필드에서 이름과 학번을 가져오는 함수
     function getUserName() {
@@ -380,9 +375,7 @@ let selectedHours = [];
     container.appendChild(div);
   });
 }
-</script>
-
-
+<script>
     function updateSelectedUI() {
       const sec = document.getElementById("selected-section");
       const btn = document.getElementById("toStep2");
@@ -486,9 +479,9 @@ document.querySelectorAll(".subtab-button").forEach(btn => {
   selectedHours = [];
 
   const date = document.getElementById("editingDate").value;
-  const selectedRoom = selectedItems[0]; // '편집실 1' 또는 '편집실 2' 중 하나
+  const selectedRoom = selectedItems.find(i => i.includes("편집실")); // 안정적인 선택
 
-  if (!date || !selectedRoom) return;
+  if (!date || !selectedRoom) return;  // 안정성 추가
 
   db.collection("rentals")
     .where("editingDate", "==", date)
@@ -497,10 +490,7 @@ document.querySelectorAll(".subtab-button").forEach(btn => {
     .then(querySnapshot => {
       const reservedHours = [];
       querySnapshot.forEach(doc => {
-        const data = doc.data();
-        if (Array.isArray(data.hours)) {
-          reservedHours.push(...data.hours);
-        }
+        reservedHours.push(...(doc.data().hours || []));
       });
 
       for (let h = 0; h < 24; h++) {
@@ -512,34 +502,29 @@ document.querySelectorAll(".subtab-button").forEach(btn => {
 
         const label = document.createElement("label");
         label.setAttribute("for", id);
-        label.className = "inline-block w-12 py-1 text-center text-sm rounded";
+        label.className = reservedHours.includes(h)
+          ? "bg-gray-300 text-gray-500 line-through cursor-not-allowed"
+          : "bg-gray-200 cursor-pointer";
+        label.innerText = `${h}:00`;
 
-        if (reservedHours.includes(h)) {
-          input.disabled = true;
-          label.classList.add("bg-gray-300", "text-gray-500", "line-through", "cursor-not-allowed");
-        } else {
-          label.classList.add("bg-gray-200", "cursor-pointer");
+        if (!reservedHours.includes(h)) {
           input.addEventListener("change", () => {
-            if (input.checked) {
-              selectedHours.push(h);
-            } else {
-              selectedHours = selectedHours.filter(val => val !== h);
-            }
+            if (input.checked) selectedHours.push(h);
+            else selectedHours = selectedHours.filter(val => val !== h);
           });
+        } else {
+          input.disabled = true;
         }
 
-        label.innerText = `${h}:00`;
         const wrapper = document.createElement("div");
-        wrapper.className = "inline-block";
         wrapper.appendChild(input);
         wrapper.appendChild(label);
         grid.appendChild(wrapper);
       }
     })
-    .catch(error => {
-      console.error("시간 정보 조회 실패:", error);
-    });
+    .catch(console.error);
 }
+
 
 
     function validateStep2() {
