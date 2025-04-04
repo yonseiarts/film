@@ -114,11 +114,13 @@
     <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="accessory">부속품</button> <!-- 새로 추가 -->
   </div>
 
-  <!-- 중분류: 조명 -->
-  <div id="lightingSubTabs" class="flex gap-2 mb-4 hidden">
-    <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="light">조명</button>
-    <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="goboDiffuserStand">고보&디퓨저&스탠드</button> <!-- 하나로 통합 -->
-  </div>
+ <!-- 중분류: 조명 -->
+<div id="lightingSubTabs" class="flex gap-2 mb-4 hidden">
+  <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="light">조명</button>
+  <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="gobo">고보&디퓨저</button>
+  <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="stand">스탠드</button>
+</div>
+
 
 </div>
 
@@ -284,7 +286,7 @@
       { name: "Aputure amaran F22C 조명", image: "" },
       { name: "난라이트 2400b 조명", image: "" }
     ],
-    goboDiffuserStand: [
+    gobo: [
       { name: "프레넬 렌즈 1번", image: "" },
       { name: "프레넬 렌즈 2번", image: "" },
       { name: "프레넬 렌즈 3번", image: "" },
@@ -292,6 +294,9 @@
       { name: "Skypanel S60 CASE 2번", image: "" },
       { name: "Skypanel S60 CASE 3번", image: "" }
     ]
+    Stand: [
+    { name: "Skypanel S60 CASE 3번", image: "" }
+     ]
   },
   sound: Array.from({ length: 8 }, (_, i) => ({
     name: `마이크 ${i + 1}`,
