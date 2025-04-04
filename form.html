@@ -209,8 +209,9 @@
   <!-- 메인 스크립트 -->
   <script>
     const equipmentData = {
-      camera: {
-        body: Array.from({ length: 8 }, (_, i) => ({ name: `카메라 바디 ${i + 1}`, image: "https://placehold.co/80x80?text=Body" })),
+      camera: [{
+        body:{ name: "Sony FX6", image: "images/fx6.jpg", description: "4K 시네마 카메라" },
+         body:{ name: "Sony FX3", image: "images/fx6.jpg", description: "4K 시네마 카메라" },
         lens: Array.from({ length: 8 }, (_, i) => ({ name: `렌즈 ${i + 1}`, image: "https://placehold.co/80x80?text=Lens" })),
         tripod: Array.from({ length: 8 }, (_, i) => ({ name: `삼각대 ${i + 1}`, image: "https://placehold.co/80x80?text=Tripod" }))
       },
