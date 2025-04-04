@@ -6,6 +6,10 @@
   <title>기자재 대여 신청</title>
   <!-- Tailwind CSS CDN (개발 중 사용; 프로덕션에서는 빌드된 CSS 사용 권장) -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <style>
     .step-active { background-color: #1D4ED8; color: white; }
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
@@ -413,7 +417,8 @@
         endDate: "",
         editingDate: "",
         hours: [],
-        status: "대기"
+        status: "대기",  // 추가: 상태 필드
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()  // 추가: 생성 시각
       };
       data.name = document.getElementById("userName").value;
       data.studentId = document.getElementById("userId").value;
