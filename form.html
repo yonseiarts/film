@@ -69,18 +69,6 @@
     <p class="text-sm mt-1">원하는 장비를 선택하고 예약 단계를 진행하세요.</p>
   </div>
   
-  <!-- 사용자 정보 (자동 입력, 읽기 전용) -->
-  <div class="max-w-4xl mx-auto p-4">
-    <div class="mb-4">
-      <label class="block font-semibold">이름</label>
-      <input type="text" id="userNameInput" class="border p-2 rounded w-full" readonly>
-    </div>
-    <div class="mb-4">
-      <label class="block font-semibold">학번</label>
-      <input type="text" id="studentIDInput" class="border p-2 rounded w-full" readonly>
-    </div>
-  </div>
-  
   <!-- 폼 컨테이너 (1단계 ~ 4단계) -->
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
     <!-- 단계 표시 -->
@@ -121,9 +109,14 @@
       </div>
     </div>
 
-    <!-- Step 2: 대여일 선택 -->
+    <!-- Step 2: 대여일 선택 (여기에 이름과 학번 입력 필드 포함) -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
+      <!-- 사용자 정보 입력 (Step 2에 포함) -->
+      <label class="block mb-2 font-medium">이름</label>
+      <input type="text" id="userName" class="border p-2 rounded w-full mb-4" placeholder="이름을 입력하세요" />
+      <label class="block mb-2 font-medium">학번</label>
+      <input type="text" id="userId" class="border p-2 rounded w-full mb-4" placeholder="학번을 입력하세요" />
       <!-- 일반 장비 선택 -->
       <div id="commonDateSection">
         <label class="block mb-2 font-medium">대여 시작일</label>
@@ -234,12 +227,12 @@
     let currentSub = "body";
     let selectedHours = [];
 
-    // 이름과 학번은 상단 read-only 필드에서 가져옵니다.
+    // 이름과 학번은 Step 2의 입력 필드에서 가져옵니다.
     function getUserName() {
-      return document.getElementById("userNameInput").value;
+      return document.getElementById("userName").value;
     }
     function getStudentID() {
-      return document.getElementById("studentIDInput").value;
+      return document.getElementById("userId").value;
     }
 
     function renderEquipmentList() {
@@ -383,9 +376,8 @@
     }
 
     function validateStep2() {
-      // 여기서는 상단 read-only 필드에서 이름과 학번을 가져옵니다.
       if (!getUserName() || !getStudentID()) {
-        alert("이름과 학번이 없습니다. 로그인 상태를 확인하세요.");
+        alert("이름과 학번을 입력해주세요.");
         return;
       }
       const editingOnly = selectedItems.every(i => i.includes("편집실"));
@@ -424,9 +416,8 @@
         status: "대기",  // 상태 필드 추가
         createdAt: firebase.firestore.FieldValue.serverTimestamp()  // 생성 시각 추가
       };
-      // 여기서는 상단의 읽기 전용 필드에서 값을 가져옵니다.
       data.userName = getUserName();
-      data.studentID = getStudentID();
+      data.studentId = getStudentID();
       if (editingOnly) {
         data.editingDate = document.getElementById("editingDate").value;
         data.hours = [...selectedHours].sort((a, b) => a - b);
