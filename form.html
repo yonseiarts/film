@@ -109,10 +109,10 @@
       </div>
     </div>
 
-    <!-- Step 2: 대여일 선택 (여기에 이름과 학번 입력 필드 포함) -->
+    <!-- Step 2: 대여일 선택 (이름과 학번 입력 필드 포함) -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-      <!-- 사용자 정보 입력 (Step 2에 포함) -->
+      <!-- 사용자 정보 입력 (여기서 입력받은 값을 Firestore에 저장합니다.) -->
       <label class="block mb-2 font-medium">이름</label>
       <input type="text" id="userName" class="border p-2 rounded w-full mb-4" placeholder="이름을 입력하세요" />
       <label class="block mb-2 font-medium">학번</label>
@@ -234,6 +234,29 @@
     function getStudentID() {
       return document.getElementById("userId").value;
     }
+
+    // onAuthStateChanged: 로그인된 사용자가 있다면 Step 2의 입력 필드에 값을 채웁니다.
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        db.collection("users").doc(user.uid).get().then(doc => {
+          if (doc.exists) {
+            const data = doc.data();
+            // 필드명은 Firestore에 저장된 이름에 따라 다를 수 있습니다.
+            const name = data.userName || "";
+            const studentID = data.studentID || "";
+            // Step 2의 입력 필드에 값을 채웁니다.
+            document.getElementById("userName").value = name;
+            document.getElementById("userId").value = studentID;
+          } else {
+            console.error("사용자 정보 없음");
+          }
+        }).catch(error => {
+          console.error("사용자 정보 불러오기 실패:", error);
+        });
+      } else {
+        console.log("로그인된 사용자가 없습니다.");
+      }
+    });
 
     function renderEquipmentList() {
       const container = document.getElementById("equipment-list");
@@ -376,6 +399,7 @@
     }
 
     function validateStep2() {
+      // 이름과 학번은 Step 2의 입력 필드에서 가져옵니다.
       if (!getUserName() || !getStudentID()) {
         alert("이름과 학번을 입력해주세요.");
         return;
