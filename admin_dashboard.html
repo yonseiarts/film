@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>관리자 대시보드</title>
-  
-  <!-- Tailwind CSS (개발용) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" href="favicon.ico" />
   <style>
@@ -61,18 +59,6 @@
     .close-btn {
       position: absolute; right: 10px; top: 10px; cursor: pointer; font-size: 16px;
     }
-    /* 전체삭제 버튼 스타일 (휴지통 탭 상단 우측) */
-    .delete-all-btn {
-      background-color: #e74a3b; color: #fff; border: none; padding: 6px 12px;
-      border-radius: 4px; cursor: pointer; font-size: 13px;
-    }
-    .delete-all-btn:hover {
-      background-color: #c0392b;
-    }
-    /* 그룹 헤더 스타일 */
-    .group-header {
-      font-size: 16px; font-weight: 600; color: #4e73df; margin: 20px 0 10px;
-    }
   </style>
 </head>
 <body>
@@ -93,16 +79,22 @@
     </div>
   </div>
 
-  <!-- Firebase SDK & Initialization (하단에서 Firestore 연결만 수행) -->
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
+  <!-- Firebase SDK & Initialization -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
   <script>
-    // Firebase 초기화는 head에서 완료되었으므로, 여기서는 Firestore 객체만 사용합니다.
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      authDomain: "yonseirent-setup.firebaseapp.com",
+      projectId: "yonseirent-setup",
+      storageBucket: "yonseirent-setup.appspot.com",
+      messagingSenderId: "1072524969376",
+      appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
+      measurementId: "G-CQZEKPE02D"
+    };
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-  </script>
 
-  <!-- 메인 스크립트 -->
-  <script>
     let currentUnsubscribe = null;
 
     function activateMenu(el) {
@@ -114,130 +106,83 @@
       if (currentUnsubscribe) currentUnsubscribe();
       const contentArea = document.getElementById('contentArea');
       contentArea.innerHTML = '<div class="loading">데이터 로딩 중...</div>';
+
       let query;
       if (category === 'pending') {
-        // pending 탭: "휴지통" 상태가 아닌 모든 신청 내역
-        query = db.collection('rentals')
-                  .where('status', 'not-in', ['휴지통'])
-                  .orderBy('createdAt', 'desc');
+        query = db.collection('rentals').orderBy('createdAt', 'desc');
       } else if (category === 'trash') {
-        query = db.collection('rentals')
-                  .where('status', '==', '휴지통')
-                  .orderBy('createdAt', 'desc');
+        query = db.collection('rentals').where('status', '==', '휴지통').orderBy('createdAt', 'desc');
       }
 
-      currentUnsubscribe = query.onSnapshot(
-        snapshot => {
-          let html = "";
-          if (category === 'trash') {
-            // 휴지통 탭: 전체삭제 버튼 우측 상단
-            html += `<div class="flex justify-end mb-4">
-                      <button onclick="deleteAllData()" class="delete-all-btn">전체삭제</button>
-                     </div>`;
-          }
-          if (snapshot.empty) {
-            html += '<div class="loading">표시할 데이터가 없습니다.</div>';
-            contentArea.innerHTML = html;
-            return;
-          }
-          if (category === 'pending') {
-            // pending 탭: 신청 내역을 장비와 편집실로 분리
-            let equipmentHTML = "";
-            let editingHTML = "";
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              // data.items가 배열일 때, 모든 항목에 "편집실" 문자열이 포함되면 편집실 그룹으로 분류합니다.
-              if (Array.isArray(data.items) && data.items.every(item => item.includes("편집실"))) {
-                editingHTML += createCardHTML(doc.id, data);
-              } else {
-                equipmentHTML += createCardHTML(doc.id, data);
-              }
-            });
-            if (equipmentHTML) {
-              html += `<div class="group-header">장비 대여 신청 내역</div>`;
-              html += equipmentHTML;
-            }
-            if (editingHTML) {
-              html += `<div class="group-header">편집실 대여 신청 내역</div>`;
-              html += editingHTML;
-            }
-          } else {
-            // trash 탭: 그대로 출력
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              html += createCardHTML(doc.id, data);
-            });
-          }
-          contentArea.innerHTML = html;
-        },
-        error => {
-          console.error("데이터 가져오기 오류:", error);
-          document.getElementById('contentArea').innerHTML = '<div class="loading">데이터 로딩 중 오류가 발생했습니다.</div>';
+      currentUnsubscribe = query.onSnapshot(snapshot => {
+        if (snapshot.empty) {
+          contentArea.innerHTML = '<div class="loading">표시할 데이터가 없습니다.</div>';
+          return;
         }
-      );
-    }
 
-    // 카드 HTML 생성 함수 (승인/반려/휴지통 버튼 포함)
-    function createCardHTML(docId, data) {
-      let statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
-      let rentalDate = (data.startDate && data.endDate) ? data.startDate + " ~ " + data.endDate : (data.editingDate || "");
-      let rentalTime = data.hours ? `시간: ${data.hours.join(', ')}시` : '';
-      return `
-        <div class="card">
-          <div class="status-indicator ${statusClass}"></div>
-          <h3>대여 신청 내역</h3>
-          <p><strong>이름:</strong> ${data.userName || ""}</p>
-          <p><strong>학번:</strong> ${data.studentID || data.studentId || ""}</p>
-          <p><strong>기자재:</strong> ${Array.isArray(data.items) ? data.items.join(', ') : ""}</p>
-          <p><strong>대여 날짜:</strong> ${rentalDate}</p>
-          <p><strong>대여 시간:</strong> ${rentalTime}</p>
-          <p><strong>상태:</strong> ${data.status || ""}</p>
-          <div class="actions">
-            <button onclick="updateStatus('${docId}', '승인')">승인</button>
-            <button onclick="updateStatus('${docId}', '반려')">반려</button>
-            <button onclick="updateStatus('${docId}', '휴지통')">휴지통</button>
-          </div>
-          <span class="close-btn" onclick="moveToTrash('${docId}')">&times;</span>
-        </div>
-      `;
+        let html = '';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const statusClass = data.status === '승인' ? 'status-승인' : (data.status === '반려' ? 'status-반려' : 'status-휴지통');
+          const rentalDate = data.startDate && data.endDate ? `${data.startDate} ~ ${data.endDate}` : data.editingDate || '-';
+          const rentalTime = data.hours && data.hours.length ? `시간: ${data.hours.join(', ')}시` : '';
+          const type = data.items.some(item => item.includes('편집실')) ? '편집실' : '장비';
+
+          html += `
+            <div class="card">
+              <div class="status-indicator ${statusClass}"></div>
+              <h3>${type} 대여 신청</h3>
+              <p><strong>이름:</strong> ${data.userName || ''}</p>
+              <p><strong>학번:</strong> ${data.studentID || ''}</p>
+              <p><strong>기자재:</strong> ${data.items.join(', ')}</p>
+              <p><strong>대여 날짜:</strong> ${rentalDate}</p>
+              <p><strong>대여 시간:</strong> ${rentalTime}</p>
+              <p><strong>상태:</strong> ${data.status || '대기'}</p>
+              ${category !== 'trash' ? `
+                <div class="actions">
+                  <button onclick="updateStatus('${doc.id}', '승인')">승인</button>
+                  <button onclick="updateStatus('${doc.id}', '반려')">반려</button>
+                  <button onclick="moveToTrash('${doc.id}')">휴지통</button>
+                </div>` : ''}
+              ${category === 'trash' ? `
+                <span class="close-btn" onclick="deleteEntry('${doc.id}')">🗑</span>` : ''}
+            </div>`;
+        });
+
+        if (category === 'trash') {
+          html = `<div class="text-right mb-4">
+            <button onclick="deleteAllTrash()" class="bg-red-500 text-white px-4 py-1 rounded text-sm hover:bg-red-600">전체 삭제</button>
+          </div>` + html;
+        }
+
+        contentArea.innerHTML = html;
+      }, err => {
+        console.error("오류 발생:", err);
+        contentArea.innerHTML = '<div class="loading">데이터 로딩 실패</div>';
+      });
     }
 
     function updateStatus(docId, newStatus) {
-      if (!confirm(`상태를 '${newStatus}'(으)로 변경하시겠습니까?`)) return;
-      db.collection('rentals').doc(docId).update({
-        status: newStatus
-      })
-      .then(() => {
-        alert('상태가 변경되었습니다.');
-      })
-      .catch(err => {
-         console.error('상태 변경 실패:', err);
-         alert('오류가 발생했습니다.');
-      });
+      db.collection('rentals').doc(docId).update({ status: newStatus });
     }
 
     function moveToTrash(docId) {
-      updateStatus(docId, '휴지통');
+      db.collection('rentals').doc(docId).update({ status: '휴지통' });
     }
 
-    function deleteAllData() {
-      if (!confirm("전체 데이터를 삭제하시겠습니까? 이 작업은 복구할 수 없습니다.")) return;
-      db.collection("rentals").where("status", "==", "휴지통").get().then(snapshot => {
+    function deleteEntry(docId) {
+      db.collection('rentals').doc(docId).delete();
+    }
+
+    function deleteAllTrash() {
+      db.collection('rentals').where('status', '==', '휴지통').get().then(snapshot => {
         const batch = db.batch();
-        snapshot.forEach(doc => {
-          batch.delete(doc.ref);
-        });
+        snapshot.forEach(doc => batch.delete(doc.ref));
         return batch.commit();
-      }).then(() => {
-        alert("전체 데이터가 삭제되었습니다.");
-      }).catch(err => {
-        console.error("전체 데이터 삭제 실패:", err);
-        alert("전체 데이터 삭제 중 오류가 발생했습니다.");
-      });
+      }).then(() => alert('휴지통 항목이 모두 삭제되었습니다.'));
     }
 
-    // 페이지 로드 시 pending 탭 로드
-    loadData('pending');
+    document.addEventListener('DOMContentLoaded', () => loadData('pending'));
   </script>
 </body>
 </html>
