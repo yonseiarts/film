@@ -345,7 +345,11 @@
         div.className = "equipment-card";
         const isSelected = selectedItems.includes(item.name);
         if (isSelected) div.classList.add("selected");
-        div.innerHTML = `<img src="${item.image}" alt="${item.name}"><span class="text-sm">${item.name}</span>`;
+        div.innerHTML = `
+  <img src="${item.image}" alt="${item.name}" />
+  <span class="text-sm">${item.name}</span>
+`;
+
         div.onclick = () => {
           if (isSelected) {
             selectedItems = selectedItems.filter(i => i !== item.name);
