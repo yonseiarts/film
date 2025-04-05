@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>관리자 대시보드</title>
+  <!-- Tailwind CSS CDN (개발 중 사용; 프로덕션에서는 빌드된 CSS 사용 권장) -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
@@ -44,15 +46,19 @@
   </header>
 
   <main class="max-w-5xl mx-auto px-4 py-6">
-    <!-- 상단 탭 메뉴 (사각형 탭 디자인) -->
+    <!-- 상단 탭 메뉴 (세련된 사각형 탭 디자인) -->
     <div class="flex border-b border-gray-300 mb-4">
-      <button id="tab-waiting" class="px-4 py-2 -mb-px border-b-2 border-blue-700 text-blue-700 font-semibold focus:outline-none">대기 내역</button>
-      <button id="tab-trash" class="px-4 py-2 -mb-px border-b-2 border-transparent text-gray-500 font-medium hover:border-gray-300 hover:text-gray-700 focus:outline-none">휴지통</button>
+      <button id="tab-waiting" class="px-4 py-2 -mb-px border-b-2 border-blue-700 text-blue-700 font-semibold focus:outline-none">
+        대기 내역
+      </button>
+      <button id="tab-trash" class="px-4 py-2 -mb-px border-b-2 border-transparent text-gray-500 font-medium hover:border-gray-300 hover:text-gray-700 focus:outline-none">
+        휴지통
+      </button>
     </div>
 
     <!-- 대기 내역 탭 내부 -->
     <div id="waiting-content">
-      <!-- 대분류 필터 (초기에는 숨김; 대기 내역) -->
+      <!-- 대분류 필터 (초기에는 숨김) -->
       <div id="waiting-filters" class="hidden flex space-x-2 mb-4">
         <button id="filter-waiting-equipment" class="px-3 py-2 border border-gray-300 bg-blue-50 rounded-t-md focus:outline-none">장비 신청</button>
         <button id="filter-waiting-editing" class="px-3 py-2 border border-gray-300 bg-blue-50 rounded-t-md focus:outline-none">편집실 신청</button>
@@ -62,7 +68,7 @@
 
     <!-- 휴지통 탭 내부 -->
     <div id="trash-content" class="hidden">
-      <!-- 대분류 필터 (초기에는 숨김; 휴지통) -->
+      <!-- 대분류 필터 (초기에는 숨김) -->
       <div id="trash-filters" class="hidden flex space-x-2 mb-4">
         <button id="filter-trash-equipment" class="px-3 py-2 border border-gray-300 bg-gray-100 rounded-t-md focus:outline-none">장비 신청</button>
         <button id="filter-trash-editing" class="px-3 py-2 border border-gray-300 bg-gray-100 rounded-t-md focus:outline-none">편집실 신청</button>
@@ -115,14 +121,10 @@
     </div>
   </template>
 
-  <script>
-    const db = firebase.firestore();
-  </script>
-
   <!-- 관리자 대시보드 스크립트 -->
   <script>
-    let currentTab = "waiting"; // "waiting" 또는 "trash"
-    let currentType = "";       // "equipment" 또는 "editing"
+    let currentTab = "waiting"; // 'waiting' 또는 'trash'
+    let currentType = "";       // 'equipment' 또는 'editing'
 
     // 탭 전환 이벤트
     document.getElementById("tab-waiting").addEventListener("click", () => switchTab("waiting"));
@@ -139,8 +141,10 @@
       currentTab = tab;
       document.getElementById("waiting-content").classList.toggle("hidden", tab !== "waiting");
       document.getElementById("trash-content").classList.toggle("hidden", tab !== "trash");
+
       document.getElementById("tab-waiting").classList.toggle("bg-blue-100", tab === "waiting");
       document.getElementById("tab-trash").classList.toggle("bg-gray-100", tab === "trash");
+
       // 초기 대분류 필터 숨김
       currentType = "";
       document.getElementById("waiting-filters").classList.add("hidden");
@@ -152,17 +156,16 @@
       currentType = type;
       if (tab === "waiting") {
         document.getElementById("waiting-filters").classList.remove("hidden");
-        // 필터 버튼 배경 색상 업데이트 (active: 진한색, inactive: 연한색)
-        document.getElementById("filter-waiting-equipment").classList.toggle("bg-blue-200", type === "equipment");
-        document.getElementById("filter-waiting-equipment").classList.toggle("bg-blue-50", type !== "equipment");
-        document.getElementById("filter-waiting-editing").classList.toggle("bg-blue-200", type === "editing");
-        document.getElementById("filter-waiting-editing").classList.toggle("bg-blue-50", type !== "editing");
+        document.getElementById("filter-waiting-equipment").classList.remove("bg-blue-200", "bg-blue-50");
+        document.getElementById("filter-waiting-editing").classList.remove("bg-blue-200", "bg-blue-50");
+        document.getElementById("filter-waiting-equipment").classList.add(type === "equipment" ? "bg-blue-200" : "bg-blue-50");
+        document.getElementById("filter-waiting-editing").classList.add(type === "editing" ? "bg-blue-200" : "bg-blue-50");
       } else {
         document.getElementById("trash-filters").classList.remove("hidden");
-        document.getElementById("filter-trash-equipment").classList.toggle("bg-gray-300", type === "equipment");
-        document.getElementById("filter-trash-equipment").classList.toggle("bg-gray-100", type !== "equipment");
-        document.getElementById("filter-trash-editing").classList.toggle("bg-gray-300", type === "editing");
-        document.getElementById("filter-trash-editing").classList.toggle("bg-gray-100", type !== "editing");
+        document.getElementById("filter-trash-equipment").classList.remove("bg-gray-300", "bg-gray-100");
+        document.getElementById("filter-trash-editing").classList.remove("bg-gray-300", "bg-gray-100");
+        document.getElementById("filter-trash-equipment").classList.add(type === "equipment" ? "bg-gray-300" : "bg-gray-100");
+        document.getElementById("filter-trash-editing").classList.add(type === "editing" ? "bg-gray-300" : "bg-gray-100");
       }
       loadData();
     }
@@ -233,6 +236,19 @@
       db.collection("rentals").doc(id).update(data).then(loadData);
     }
 
+    function goHome() {
+      location.href = "index.html";
+    }
+  </script>
+
+  <!-- 관리자 대시보드에 필요한 추가 스크립트 (유저 정보 등) -->
+  <script>
+    function getUserName() {
+      return document.getElementById("userName") ? document.getElementById("userName").value.trim() : "";
+    }
+    function getStudentID() {
+      return document.getElementById("userId") ? document.getElementById("userId").value.trim() : "";
+    }
     function goHome() {
       location.href = "index.html";
     }
