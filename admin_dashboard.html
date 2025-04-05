@@ -115,7 +115,7 @@
     const db = firebase.firestore();
   </script>
 
-  <!-- 관리자 대시보드 로직 -->
+  <!-- 관리자 대시보드 스크립트 -->
   <script>
     let currentTab = "waiting"; // 'waiting' 또는 'trash'
     let currentType = ""; // 'equipment' 또는 'editing'
@@ -135,10 +135,11 @@
       currentTab = tab;
       document.getElementById("waiting-content").classList.toggle("hidden", tab !== "waiting");
       document.getElementById("trash-content").classList.toggle("hidden", tab !== "trash");
+
       document.getElementById("tab-waiting").classList.toggle("bg-blue-100", tab === "waiting");
       document.getElementById("tab-trash").classList.toggle("bg-gray-100", tab === "trash");
+
       currentType = "";
-      // 필터 탭도 초기화 (숨김 처리)
       document.getElementById("waiting-filters").classList.add("hidden");
       document.getElementById("trash-filters").classList.add("hidden");
       loadData();
@@ -148,7 +149,6 @@
       currentType = type;
       if (tab === "waiting") {
         document.getElementById("waiting-filters").classList.remove("hidden");
-        // 스타일 업데이트 (간단 예시)
         document.getElementById("filter-waiting-equipment").classList.toggle("bg-blue-200", type === "equipment");
         document.getElementById("filter-waiting-editing").classList.toggle("bg-blue-200", type === "editing");
       } else {
@@ -226,185 +226,19 @@
     }
   </script>
 
-  <!-- 유저 정보 및 단계 전환, 폼 제출 관련 스크립트 -->
+  <!-- 유저 정보 및 폼 제출 관련 스크립트 (관리자 대시보드에서는 필요 없는 부분은 호출하지 않음) -->
   <script>
     function getUserName() {
-      return document.getElementById("userName").value.trim();
+      return document.getElementById("userName") ? document.getElementById("userName").value.trim() : "";
     }
     function getStudentID() {
-      return document.getElementById("userId").value.trim();
+      return document.getElementById("userId") ? document.getElementById("userId").value.trim() : "";
     }
     function goHome() {
       location.href = "index.html";
     }
     function goToStep(n) {
-      for (let i = 1; i <= 4; i++) {
-        document.getElementById("step" + i)?.classList.add("hidden");
-        document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
-        document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
-      }
-      document.getElementById("step" + n)?.classList.remove("hidden");
-      document.getElementById("step" + n + "Btn")?.classList.add("step-active");
-
-      if (n === 2) {
-        const editingOnly = selectedItems.every(i => i.includes("편집실"));
-        document.getElementById("commonDateSection").classList.toggle("hidden", editingOnly);
-        document.getElementById("editingDateSection").classList.toggle("hidden", !editingOnly);
-        if (editingOnly) {
-          const input = document.getElementById("editingDate");
-          input.removeEventListener("change", generateTimeGrid);
-          input.addEventListener("change", generateTimeGrid);
-          generateTimeGrid();
-        }
-      }
-      if (n === 3) {
-        document.getElementById("final-selected-items").innerHTML = selectedItems.map(i => `<li>${i}</li>`).join("");
-        const editingOnly = selectedItems.every(i => i.includes("편집실"));
-        const start = document.getElementById("startDate")?.value || "-";
-        const end = document.getElementById("endDate")?.value || "-";
-        const dateText = editingOnly ? document.getElementById("editingDate").value : `${start} ~ ${end}`;
-        document.getElementById("final-dates").innerText = `대여일자: ${dateText}`;
-        document.getElementById("final-time").innerText = editingOnly && selectedHours.length
-          ? `선택한 시간: ${selectedHours.sort((a, b) => a - b).join(', ')}시` : '';
-      }
-    }
-
-    function generateTimeGrid() {
-      const grid = document.getElementById("timeGrid");
-      grid.innerHTML = "";
-      selectedHours = [];
-      const date = document.getElementById("editingDate").value;
-      const room = selectedItems[0];
-      if (!date || !room) return;
-      db.collection("rentals")
-        .where("editingDate", "==", date)
-        .where("items", "array-contains", room)
-        .get()
-        .then(snapshot => {
-          const reserved = [];
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            if (Array.isArray(data.hours)) reserved.push(...data.hours);
-          });
-          for (let h = 0; h < 24; h++) {
-            const id = `hour-${h}`;
-            const input = document.createElement("input");
-            const label = document.createElement("label");
-            input.type = "checkbox";
-            input.id = id;
-            input.value = h;
-            label.htmlFor = id;
-            label.innerText = `${h}:00`;
-            if (reserved.includes(h)) {
-              input.disabled = true;
-              label.className = "bg-gray-300 text-gray-500 line-through cursor-not-allowed";
-            } else {
-              label.className = "bg-gray-200 cursor-pointer";
-              input.addEventListener("change", () => {
-                if (input.checked) selectedHours.push(h);
-                else selectedHours = selectedHours.filter(v => v !== h);
-              });
-            }
-            const wrap = document.createElement("div");
-            wrap.className = "inline-block";
-            wrap.appendChild(input);
-            wrap.appendChild(label);
-            grid.appendChild(wrap);
-          }
-        });
-    }
-
-    function validateStep2() {
-      if (!getUserName() || !getStudentID()) {
-        alert("이름과 학번을 입력해주세요.");
-        return;
-      }
-      const editingOnly = selectedItems.every(i => i.includes("편집실"));
-      if (editingOnly) {
-        if (!document.getElementById("editingDate").value || selectedHours.length === 0) {
-          alert("편집실 대여일자와 시간을 선택해주세요.");
-          return;
-        }
-      } else {
-        const start = document.getElementById("startDate").value;
-        const end = document.getElementById("endDate").value;
-        const proof = document.getElementById("proofImage").files[0];
-        if (!start || !end || !proof) {
-          alert("대여 시작일, 반납일, 증명사진을 모두 입력해주세요.");
-          return;
-        }
-        const diff = (new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24);
-        if (diff < 0 || diff > 3) {
-          alert("대여 기간은 최대 3일 이내여야 하며, 반납일은 시작일 이후여야 합니다.");
-          return;
-        }
-      }
-      goToStep(3);
-    }
-
-    function submitApplication() {
-      const editingOnly = selectedItems.every(i => i.includes("편집실"));
-      const data = {
-        items: [...selectedItems],
-        userName: getUserName(),
-        studentId: getStudentID(),
-        startDate: "",
-        endDate: "",
-        editingDate: "",
-        hours: [],
-        status: "대기",
-        trashed: false,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      if (editingOnly) {
-        data.editingDate = document.getElementById("editingDate").value;
-        data.hours = [...selectedHours].sort((a, b) => a - b);
-      } else {
-        data.startDate = document.getElementById("startDate").value;
-        data.endDate = document.getElementById("endDate").value;
-      }
-      db.collection("rentals").add(data)
-        .then(() => goToStep(4))
-        .catch(err => {
-          console.error("신청 실패:", err);
-          alert("신청 정보를 저장하는 데 실패했습니다.");
-        });
-    }
-  </script>
-
-  <!-- 관리자 대시보드 초기화 스크립트 -->
-  <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      goToStep(1);
-      updateSelectedUI();
-      renderEquipmentList();
-
-      // 탭 전환 이벤트 추가 (대시보드용)
-      const tabWaiting = document.getElementById("tab-waiting");
-      const tabTrash = document.getElementById("tab-trash");
-      if (tabWaiting && tabTrash) {
-        tabWaiting.addEventListener("click", () => switchTab("waiting"));
-        tabTrash.addEventListener("click", () => switchTab("trash"));
-      }
-      // 필터 이벤트 추가 (대기 내역)
-      const filterWaitingEquipment = document.getElementById("filter-waiting-equipment");
-      const filterWaitingEditing = document.getElementById("filter-waiting-editing");
-      if (filterWaitingEquipment && filterWaitingEditing) {
-        filterWaitingEquipment.addEventListener("click", () => switchType("equipment", "waiting"));
-        filterWaitingEditing.addEventListener("click", () => switchType("editing", "waiting"));
-      }
-    });
-  </script>
-
-  <script>
-    function getUserName() {
-      return document.getElementById("userName").value.trim();
-    }
-    function getStudentID() {
-      return document.getElementById("userId").value.trim();
-    }
-    function goHome() {
-      location.href = "index.html";
+      // 이 함수는 폼 페이지용이므로 관리자 대시보드에는 사용하지 않음
     }
   </script>
 </body>
