@@ -6,9 +6,6 @@
   <title>기자재 대여 신청</title>
   <!-- 개발용 Tailwind CSS (프로덕션에서는 빌드된 CSS 사용 권장) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Flatpickr CSS/JS (날짜 선택 기능용) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
@@ -39,6 +36,34 @@
       object-fit: cover;
       flex-shrink: 0;
     }
+    .equipment-card.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+      background-color: #f3f4f6;
+    }
+    /* 시간 선택 그리드 */
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.5rem;
+    }
+    .time-grid label {
+      display: block;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      text-align: center;
+      background-color: #f3f4f6;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .time-grid input[type="checkbox"] {
+      display: none;
+    }
+    .time-grid input[type="checkbox"]:checked + label {
+      background-color: #60a5fa;
+      color: white;
+      font-weight: bold;
+    }
   </style>
   <script>
     // Firebase 초기화
@@ -65,7 +90,7 @@
 
   <!-- 폼 컨테이너 -->
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-    <!-- 단계 버튼 (1단계 ~ 4단계) -->
+    <!-- 단계 버튼 -->
     <div class="flex justify-between mb-8">
       <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
       <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
@@ -95,7 +120,7 @@
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="accessory">부속품</button>
       </div>
 
-      <!-- 조명 중분류 (필요한 경우만 표시) -->
+      <!-- 조명 중분류 (카메라, 조명 탭에서만 보임) -->
       <div id="lightingSubTabs" class="flex gap-2 mb-4 hidden">
         <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="light">조명</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="gobo">고보&디퓨저</button>
@@ -125,16 +150,16 @@
       <input type="text" id="userName" class="border p-2 rounded w-full mb-4" placeholder="이름을 입력하세요" />
       <label class="block mb-2 font-medium">학번</label>
       <input type="text" id="userId" class="border p-2 rounded w-full mb-4" placeholder="학번을 입력하세요" />
-      <!-- 일반 장비 대여일 (편집실 예약은 별도 처리) -->
+      <!-- 일반 장비 대여일 -->
       <div id="commonDateSection">
         <label class="block mb-2 font-medium">대여 시작일</label>
-        <input type="text" id="startDate" class="border p-2 rounded w-full mb-4" placeholder="날짜 선택" />
+        <input type="date" id="startDate" class="border p-2 rounded w-full mb-4" />
         <label class="block mb-2 font-medium">반납일</label>
-        <input type="text" id="endDate" class="border p-2 rounded w-full mb-4" placeholder="날짜 선택" />
+        <input type="date" id="endDate" class="border p-2 rounded w-full mb-4" />
         <label class="block mb-2 font-medium">증명사진 첨부</label>
         <input type="file" id="proofImage" accept="image/*" class="border p-2 rounded w-full mb-4" />
       </div>
-      <!-- 편집실 대여일 및 시간 선택 -->
+      <!-- 편집실 대여일 및 시간 선택 (편집실 신청 시) -->
       <div id="editingDateSection" class="hidden">
         <label class="block mb-2 font-medium">편집실 대여일자</label>
         <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4" />
@@ -199,16 +224,16 @@
 
   <!-- Firebase Firestore 인스턴스 -->
   <script>
-    const db = firebase.firestore();
+    // 이미 firebase.initializeApp() 후 db 생성 완료
   </script>
 
-  <!-- 폼 관련 스크립트 -->
+  <!-- 다단계 폼 및 예약 관련 스크립트 -->
   <script>
     let selectedItems = [];
     let selectedHours = [];
-    let currentTab = "camera"; // 1단계에서 선택되는 대분류 (초기값)
+    let currentTab = "camera";
     let currentSub = "body";
-const equipmentData = {
+ const equipmentData = {
   camera: {
     body: [
       { name: "Sony FX6", image: "https://www.bhphotovideo.com/cdn-cgi/image/fit=scale-down,width=500,quality=95/https://www.bhphotovideo.com/images/images500x500/sony_pxw_fx6_cinema_camera_body_1673526912_1592066.jpg" },
@@ -292,7 +317,7 @@ const equipmentData = {
     { name: "SC55 24x36 Silk 1번", image: "https://www.canvasgrip.com/mm5/graphics/00000001/2X3POLY19_447x640.jpg" },
     { name: "SC55 24x36 Silk 2번", image: "https://www.canvasgrip.com/mm5/graphics/00000001/2X3POLY19_447x640.jpg" },
     { name: "SC55 24x36 Silk 3번", image: "https://www.canvasgrip.com/mm5/graphics/00000001/2X3POLY19_447x640.jpg" },
-    { name: "4x4 플로피", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20250217_73%2F1739789314090zmFID_JPEG%2F14225127227403943_751708824.jpg&type=sc960_832" },
+    { name: "4x4 플로피", image: "https://via.placeholder.com/100?text=4x4+Floppy" },
     { name: "Lee 필터 216", image: "https://via.placeholder.com/100?text=Lee+216" },
     { name: "Lee 필터 250", image: "https://via.placeholder.com/100?text=Lee+250" },
     { name: "Lee 필터 251", image: "https://via.placeholder.com/100?text=Lee+251" },
@@ -309,9 +334,9 @@ const equipmentData = {
     { name: "RODE NTG4 붐폴 1번", image: "https://cdn1.rode.com/ntg4/images/NTG4_1.jpg" },
     { name: "RODE NTG4 붐폴 2번", image: "https://cdn1.rode.com/ntg4/images/NTG4_1.jpg" },
     { name: "RODE NTG4 붐폴 3번", image: "https://cdn1.rode.com/ntg4/images/NTG4_1.jpg" },
-    { name: "신규 붐폴", image: "https://zoomcorp.com/media/images/H6_AllBlack_slant_RGB_3.0e16d0ba.fill-1200x630-c100.jpg" },
-    { name: "타스캠 레코더 1번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20220726_142%2F165880565867863lmK_JPEG%2F59941501379750621_1960646652.jpg&type=sc960_832" },
-    { name: "타스캠 레코더 2번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20220726_142%2F165880565867863lmK_JPEG%2F59941501379750621_1960646652.jpg&type=sc960_832" },
+    { name: "K-Tek 붐폴", image: "https://cdn.011st.com/11dims/resize/600x600/quality/75/11src/product/7484330741/B.jpg?587725191" },
+    { name: "타스캡 레코더 1번", image: "https://cdn1.rode.com/videomicntg/images/VideoMicNTG_1.jpg" },
+    { name: "타스캡 레코더 2번", image: "https://cdn1.rode.com/videomicntg/images/VideoMicNTG_1.jpg" },
     { name: "ZOOM H6 레코더", image: "https://zoomcorp.com/media/images/H6_AllBlack_slant_RGB_3.0e16d0ba.fill-1200x630-c100.jpg" },
     { name: "무선 핀마이크 SET 1", image: "https://shure.scene7.com/is/image/Shure/BLX14R_MX53_H10_front_xl?fmt=jpg&wid=1800&qlt=85" },
     { name: "무선 핀마이크 SET 2", image: "https://shure.scene7.com/is/image/Shure/BLX14R_MX53_H10_front_xl?fmt=jpg&wid=1800&qlt=85" },
@@ -319,12 +344,12 @@ const equipmentData = {
     { name: "무선 핀마이크 SET 4", image: "https://shure.scene7.com/is/image/Shure/BLX14R_MX53_H10_front_xl?fmt=jpg&wid=1800&qlt=85" }
   ],
   monitor: [
-    { name: "HOLLYLAND MARS-M1 1번", image: "https://search.pstatic.net/sunny/?src=https%3A%2F%2Fphoto3.enuri.info%2Fdata%2Fimages%2Fservice%2Fdnw%2Fmaster%2F131960000%2F131960520.jpg&type=sc960_832" },
-    { name: "HOLLYLAND MARS-M1 2번", image: "https://search.pstatic.net/sunny/?src=https%3A%2F%2Fphoto3.enuri.info%2Fdata%2Fimages%2Fservice%2Fdnw%2Fmaster%2F131960000%2F131960520.jpg&type=sc960_832" },
-    { name: "HOLLYLAND MARS-M1 3번", image: "https://search.pstatic.net/sunny/?src=https%3A%2F%2Fphoto3.enuri.info%2Fdata%2Fimages%2Fservice%2Fdnw%2Fmaster%2F131960000%2F131960520.jpg&type=sc960_832" },
+    { name: "HOLLYLAND MARS-M1 1번", image: "https://cdn.shopify.com/s/files/1/0012/8710/9155/products/5-Inch-FW568-V3-Monitor_1_1000x.jpg" },
+    { name: "HOLLYLAND MARS-M1 2번", image: "https://cdn.shopify.com/s/files/1/0012/8710/9155/products/5-Inch-FW568-V3-Monitor_1_1000x.jpg" },
+    { name: "HOLLYLAND MARS-M1 3번", image: "https://cdn.shopify.com/s/files/1/0012/8710/9155/products/5-Inch-FW568-V3-Monitor_1_1000x.jpg" },
     { name: "Smaller indie 7", image: "https://www.atomos.com/images/products/ninja-v-plus/overview/Ninja-V-Plus_Overview_01.webp" },
-    { name: "아트모스 쇼군 7인치", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20240320_262%2F17108996604051TT6K_JPEG%2F112035440114090765_1905343380.jpg&type=sc960_832" },
-    { name: "TVLogic LVM-181S 18.5IN FHD PBP LCD Monitor", image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fshop-phinf.pstatic.net%2F20241122_209%2F17322434951981vRDf_JPEG%2F2770350039685349_1734308046.jpeg&type=sc960_832" },
+    { name: "아트모스 쇼군 7인치", image: "https://lilliputdirect.com/wp-content/uploads/2021/02/A7S.jpg" },
+    { name: "TVLogic LVM-181S 18.5IN FHD PBP LCD Monitor", image: "https://smallhd.com/cdn/shop/products/Indie7-Front-hero_800x.jpg" },
     { name: "모니터 암", image: "https://www.smallrig.com/cdn/shop/products/2903-SmallRig-Adjustable-Monitor-Mount-for-Select-DJI-Ronin-Series-650x650-2.jpg" }
   ],
   line: [
@@ -346,7 +371,7 @@ const equipmentData = {
     { name: "SCFexpress Type A SD 메모리카드 리더기", image: "https://www.sony.com/image/9e336e68239b6bd5fdf396c634383f48?fmt=png-alpha&wid=480" }
   ]
 };
-    // 선택된 장비 UI 업데이트
+    // 장비 카드 선택 후 UI 업데이트
     function updateSelectedUI() {
       const sec = document.getElementById("selected-section");
       const btn = document.getElementById("toStep2");
@@ -363,8 +388,8 @@ const equipmentData = {
       renderEquipmentList();
     }
 
-    // 장비 카드 렌더링 (편집실 제외, 항상 활성)
-    function renderEquipmentList() {
+    // 장비 카드 렌더링 (편집실 제외)
+    async function renderEquipmentList() {
       const container = document.getElementById("equipment-list");
       container.innerHTML = "";
       let items = [];
@@ -375,45 +400,68 @@ const equipmentData = {
         container.innerHTML = '<p class="text-gray-500">등록된 장비가 없습니다.</p>';
         return;
       }
-      items.forEach(item => {
+      const today = new Date();
+      // 각 장비마다 예약 여부를 체크 (편집실은 제외)
+      for (const item of items) {
         const div = document.createElement("div");
         div.className = "equipment-card";
+        // 이미 선택된 항목이면 selected 처리
         if (selectedItems.includes(item.name)) div.classList.add("selected");
+
+        // 편집실이 아니라면 예약 여부 확인
+        if (currentTab !== "editing") {
+          try {
+            const snapshot = await db.collection("rentals")
+              .where("items", "array-contains", item.name)
+              .where("status", "!=", "반납 완료")
+              .get();
+            let isUnavailable = false;
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              if (data.endDate) {
+                const endDate = new Date(data.endDate);
+                const diff = (today - endDate) / (1000 * 60 * 60 * 24);
+                if (diff < 3) {
+                  isUnavailable = true;
+                }
+              }
+            });
+            if (isUnavailable) {
+              div.classList.add("disabled");
+            }
+          } catch (err) {
+            console.error("예약 여부 확인 오류:", err);
+          }
+        }
+
         div.innerHTML = `<img src="${item.image}" alt="${item.name}" /><span class="text-sm">${item.name}</span>`;
         div.onclick = () => {
+          if (div.classList.contains("disabled")) return; // 예약된 경우 클릭 무시
           const isSelected = selectedItems.includes(item.name);
-          selectedItems = isSelected
-            ? selectedItems.filter(i => i !== item.name)
-            : [...selectedItems, item.name];
+          selectedItems = isSelected ? selectedItems.filter(i => i !== item.name) : [...selectedItems, item.name];
           updateSelectedUI();
           renderEquipmentList();
         };
         container.appendChild(div);
-      });
+      }
     }
 
-    // 단계 이동 함수: 각 단계 이동 시, 해당 단계 버튼에 'step-active' 클래스를 부여하여 파란색 표시
+    // 단계 이동 함수
     function goToStep(n) {
       for (let i = 1; i <= 4; i++) {
-        document.getElementById("step" + i).classList.add("hidden");
-        document.getElementById("step" + i + "Btn").classList.remove("step-active");
-        document.getElementById("step" + i + "Btn").classList.add("step-inactive");
+        document.getElementById("step" + i)?.classList.add("hidden");
+        document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
+        document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
       }
-      document.getElementById("step" + n).classList.remove("hidden");
-      document.getElementById("step" + n + "Btn").classList.remove("step-inactive");
-      document.getElementById("step" + n + "Btn").classList.add("step-active");
+      document.getElementById("step" + n)?.classList.remove("hidden");
+      document.getElementById("step" + n + "Btn")?.classList.add("step-active");
 
       if (n === 2) {
+        // 편집실 예약인 경우와 일반 장비 예약인 경우 필드 전환
         const editingOnly = selectedItems.every(i => i.includes("편집실"));
         document.getElementById("commonDateSection").classList.toggle("hidden", editingOnly);
         document.getElementById("editingDateSection").classList.toggle("hidden", !editingOnly);
-        if (!editingOnly) {
-          // 일반 장비 예약: Flatpickr 사용, 예약된 날짜 불가능 처리
-          loadReservedDates().then(disabledDates => {
-            flatpickr("#startDate", { dateFormat: "Y-m-d", disable: disabledDates });
-            flatpickr("#endDate", { dateFormat: "Y-m-d", disable: disabledDates });
-          });
-        } else {
+        if (editingOnly) {
           const input = document.getElementById("editingDate");
           input.removeEventListener("change", generateTimeGrid);
           input.addEventListener("change", generateTimeGrid);
@@ -428,44 +476,12 @@ const equipmentData = {
         const dateText = editingOnly ? document.getElementById("editingDate").value : `${start} ~ ${end}`;
         document.getElementById("final-dates").innerText = `대여일자: ${dateText}`;
         document.getElementById("final-time").innerText = editingOnly && selectedHours.length
-          ? `선택한 시간: ${selectedHours.sort((a, b) => a - b).join(', ')}시`
-          : '';
+          ? `선택한 시간: ${selectedHours.sort((a, b) => a - b).join(', ')}시` : '';
       }
     }
 
     function goHome() {
       location.href = "index.html";
-    }
-
-    // 예약된 날짜를 불러와서 Flatpickr의 disable 옵션에 사용할 배열 생성
-    async function loadReservedDates() {
-      let disabledDates = [];
-      const today = new Date();
-      for (const item of selectedItems) {
-        const snapshot = await db.collection("rentals")
-          .where("items", "array-contains", item)
-          .where("status", "!=", "반납 완료")
-          .get();
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          if (data.startDate && data.endDate) {
-            const start = new Date(data.startDate);
-            const end = new Date(data.endDate);
-            let currentDate = new Date(start);
-            while (currentDate <= end) {
-              const yyyy = currentDate.getFullYear();
-              const mm = String(currentDate.getMonth() + 1).padStart(2, '0');
-              const dd = String(currentDate.getDate()).padStart(2, '0');
-              const dateStr = `${yyyy}-${mm}-${dd}`;
-              if (!disabledDates.includes(dateStr)) {
-                disabledDates.push(dateStr);
-              }
-              currentDate.setDate(currentDate.getDate() + 1);
-            }
-          }
-        });
-      }
-      return disabledDates;
     }
 
     // 편집실 시간표 생성 함수
@@ -514,7 +530,34 @@ const equipmentData = {
         });
     }
 
-    // 2단계 유효성 검사
+    // 날짜 충돌 검사 함수 (일반 장비 예약 시)
+    async function checkDateConflicts(startDate, endDate) {
+      let conflict = false;
+      // 각 선택된 장비에 대해 예약 기간과 겹치는지 확인
+      for (const item of selectedItems) {
+        const snapshot = await db.collection("rentals")
+          .where("items", "array-contains", item)
+          .where("status", "!=", "반납 완료")
+          .get();
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          if (data.startDate && data.endDate) {
+            const existingStart = new Date(data.startDate);
+            const existingEnd = new Date(data.endDate);
+            const newStart = new Date(startDate);
+            const newEnd = new Date(endDate);
+            // 두 기간이 겹치면 conflict 발생
+            if (newStart <= existingEnd && existingStart <= newEnd) {
+              conflict = true;
+            }
+          }
+        });
+        if (conflict) break;
+      }
+      return conflict;
+    }
+
+    // 2단계 유효성 검사 함수
     async function validateStep2() {
       if (!getUserName() || !getStudentID()) {
         alert("이름과 학번을 입력해주세요.");
@@ -534,11 +577,17 @@ const equipmentData = {
           alert("대여 시작일, 반납일, 증명사진을 모두 입력해주세요.");
           return;
         }
+        // 날짜 충돌 검사 실행
+        const conflict = await checkDateConflicts(start, end);
+        if (conflict) {
+          alert("선택하신 날짜 중 일부는 이미 예약된 항목이 있습니다. 다른 날짜를 선택해주세요.");
+          return;
+        }
       }
       goToStep(3);
     }
 
-    // 신청서 제출
+    // 신청서 제출 함수
     function submitApplication() {
       const editingOnly = selectedItems.every(i => i.includes("편집실"));
       const data = {
@@ -582,6 +631,7 @@ const equipmentData = {
     document.querySelectorAll(".tab-button").forEach(btn => {
       btn.addEventListener("click", () => {
         currentTab = btn.dataset.tab;
+        // 카메라와 조명 탭일 경우만 하위 중분류 표시
         document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
         document.getElementById("lightingSubTabs").style.display = currentTab === "lighting" ? "flex" : "none";
         currentSub = currentTab === "camera" ? "body" : (currentTab === "lighting" ? "light" : null);
@@ -613,19 +663,6 @@ const equipmentData = {
       updateSelectedUI();
       renderEquipmentList();
     });
-  </script>
-  
-  <!-- 유저 정보 및 폼 제출 관련 스크립트 -->
-  <script>
-    function getUserName() {
-      return document.getElementById("userName").value.trim();
-    }
-    function getStudentID() {
-      return document.getElementById("userId").value.trim();
-    }
-    function goHome() {
-      location.href = "index.html";
-    }
   </script>
 </body>
 </html>
