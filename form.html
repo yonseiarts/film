@@ -90,7 +90,7 @@
 
   <!-- 폼 컨테이너 -->
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-    <!-- 단계 버튼 (각 단계 선택 시 파란색 표시) -->
+    <!-- 단계 버튼 (각 단계 선택 시 파란색으로 표시) -->
     <div class="flex justify-between mb-8">
       <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
       <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
@@ -145,11 +145,9 @@
     <!-- Step 2: 대여일 선택 -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
-
       <!-- 사용자 정보 입력 -->
       <label class="block mb-2 font-medium">이름</label>
       <input type="text" id="userName" class="border p-2 rounded w-full mb-4" placeholder="이름을 입력하세요" />
-      
       <label class="block mb-2 font-medium">학번</label>
       <input type="text" id="userId" class="border p-2 rounded w-full mb-4" placeholder="학번을 입력하세요" />
 
@@ -157,10 +155,8 @@
       <div id="commonDateSection">
         <label class="block mb-2 font-medium">대여 시작일</label>
         <input type="date" id="startDate" class="border p-2 rounded w-full mb-4" />
-        
         <label class="block mb-2 font-medium">반납일</label>
         <input type="date" id="endDate" class="border p-2 rounded w-full mb-4" />
-        
         <label class="block mb-2 font-medium">증명사진 첨부</label>
         <input type="file" id="proofImage" accept="image/*" class="border p-2 rounded w-full mb-4" />
       </div>
@@ -169,7 +165,6 @@
       <div id="editingDateSection" class="hidden">
         <label class="block mb-2 font-medium">편집실 대여일자</label>
         <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4" />
-
         <label class="block mb-2 font-medium">시간 선택</label>
         <div id="timeGrid" class="grid grid-cols-6 gap-2 text-sm">
           <!-- 시간 버튼들이 동적으로 생성됩니다 -->
@@ -230,14 +225,17 @@
     </div>
   </div>
 
-  <!-- Firebase Firestore 인스턴스 (firebase.initializeApp() 후 이미 생성됨) -->
+  <!-- Firebase Firestore 인스턴스는 firebase.initializeApp() 후 이미 생성됨 -->
+
+  <!-- 다단계 폼 및 예약 관련 스크립트 -->
   <script>
-    // 다단계 폼 및 예약 관련 스크립트
+    // 전역 변수 선언
     let selectedItems = [];
     let selectedHours = [];
     let currentTab = "camera";
     let currentSub = "body";
 
+    // 장비 데이터 (예시)
     const equipmentData = {
   camera: {
     body: [
@@ -377,6 +375,75 @@
   ]
 };
 
+    // 선택된 장비 UI 업데이트 함수
+    function updateSelectedUI() {
+      const sec = document.getElementById("selected-section");
+      const btn = document.getElementById("toStep2");
+      sec.classList.toggle("hidden", selectedItems.length === 0);
+      btn.classList.toggle("hidden", selectedItems.length === 0);
+      document.getElementById("selected-items").innerHTML = selectedItems.map(item =>
+        `<li>${item} <button type="button" class="ml-2 text-red-500" onclick="removeSelectedItem('${item.replace(/'/g, "\\'")}')">&times;</button></li>`
+      ).join("");
+    }
+
+    function removeSelectedItem(name) {
+      selectedItems = selectedItems.filter(i => i !== name);
+      updateSelectedUI();
+      renderEquipmentList();
+    }
+
+    // 장비 카드 렌더링 함수 (편집실 제외 예약 체크 포함)
+    async function renderEquipmentList() {
+      const container = document.getElementById("equipment-list");
+      container.innerHTML = "";
+      let items = [];
+      if (currentTab === "camera") items = equipmentData.camera[currentSub] || [];
+      else if (currentTab === "lighting") items = equipmentData.lighting[currentSub] || [];
+      else items = equipmentData[currentTab] || [];
+      if (!Array.isArray(items) || items.length === 0) {
+        container.innerHTML = '<p class="text-gray-500">등록된 장비가 없습니다.</p>';
+        return;
+      }
+      const today = new Date();
+      for (const item of items) {
+        const div = document.createElement("div");
+        div.className = "equipment-card";
+        if (selectedItems.includes(item.name)) div.classList.add("selected");
+        // 편집실이 아닌 경우, 예약된 경우 비활성화
+        if (currentTab !== "editing") {
+          try {
+            const snapshot = await db.collection("rentals")
+              .where("items", "array-contains", item.name)
+              .where("status", "!=", "반납 완료")
+              .get();
+            let isUnavailable = false;
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              if (data.endDate) {
+                const endDate = new Date(data.endDate);
+                const diff = (today - endDate) / (1000 * 60 * 60 * 24);
+                if (diff < 3) isUnavailable = true;
+              }
+            });
+            if (isUnavailable) {
+              div.classList.add("disabled");
+            }
+          } catch (err) {
+            console.error("예약 여부 확인 오류:", err);
+          }
+        }
+        div.innerHTML = `<img src="${item.image}" alt="${item.name}" /><span class="text-sm">${item.name}</span>`;
+        div.onclick = () => {
+          if (div.classList.contains("disabled")) return;
+          const isSelected = selectedItems.includes(item.name);
+          selectedItems = isSelected ? selectedItems.filter(i => i !== item.name) : [...selectedItems, item.name];
+          updateSelectedUI();
+          renderEquipmentList();
+        };
+        container.appendChild(div);
+      }
+    }
+
     // 단계 이동 함수
     function goToStep(n) {
       for (let i = 1; i <= 4; i++) {
@@ -412,56 +479,6 @@
 
     function goHome() {
       location.href = "index.html";
-    }
-
-    // 장비 카드 렌더링 (편집실 제외)
-    async function renderEquipmentList() {
-      const container = document.getElementById("equipment-list");
-      container.innerHTML = "";
-      let items = [];
-      if (currentTab === "camera") items = equipmentData.camera[currentSub] || [];
-      else if (currentTab === "lighting") items = equipmentData.lighting[currentSub] || [];
-      else items = equipmentData[currentTab] || [];
-      if (!Array.isArray(items) || items.length === 0) {
-        container.innerHTML = '<p class="text-gray-500">등록된 장비가 없습니다.</p>';
-        return;
-      }
-      const today = new Date();
-      // 각 장비에 대해 예약 여부 검사 (편집실 제외)
-      for (const item of items) {
-        const div = document.createElement("div");
-        div.className = "equipment-card";
-        if (selectedItems.includes(item.name)) div.classList.add("selected");
-        if (currentTab !== "editing") {
-          try {
-            const snapshot = await db.collection("rentals")
-              .where("items", "array-contains", item.name)
-              .where("status", "!=", "반납 완료")
-              .get();
-            let isUnavailable = false;
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              if (data.endDate) {
-                const endDate = new Date(data.endDate);
-                const diff = (today - endDate) / (1000 * 60 * 60 * 24);
-                if (diff < 3) isUnavailable = true;
-              }
-            });
-            if (isUnavailable) div.classList.add("disabled");
-          } catch (err) {
-            console.error("예약 여부 확인 오류:", err);
-          }
-        }
-        div.innerHTML = `<img src="${item.image}" alt="${item.name}" /><span class="text-sm">${item.name}</span>`;
-        div.onclick = () => {
-          if (div.classList.contains("disabled")) return; // 예약된 경우 선택 불가
-          const isSelected = selectedItems.includes(item.name);
-          selectedItems = isSelected ? selectedItems.filter(i => i !== item.name) : [...selectedItems, item.name];
-          updateSelectedUI();
-          renderEquipmentList();
-        };
-        container.appendChild(div);
-      }
     }
 
     // 편집실 시간표 생성 함수
@@ -510,7 +527,7 @@
         });
     }
 
-    // 날짜 충돌 검사 함수 (일반 장비 예약 시)
+    // 날짜 충돌 검사 (일반 장비 예약 시)
     async function checkDateConflicts(startDate, endDate) {
       let conflict = false;
       for (const item of selectedItems) {
@@ -535,7 +552,7 @@
       return conflict;
     }
 
-    // 2단계 유효성 검사 함수
+    // 2단계 유효성 검사
     async function validateStep2() {
       if (!getUserName() || !getStudentID()) {
         alert("이름과 학번을 입력해주세요.");
@@ -564,7 +581,7 @@
       goToStep(3);
     }
 
-    // 신청서 제출 함수
+    // 신청서 제출
     function submitApplication() {
       const editingOnly = selectedItems.every(i => i.includes("편집실"));
       const data = {
@@ -593,28 +610,12 @@
           alert("신청 정보를 저장하는 데 실패했습니다.");
         });
     }
-  </script>
 
-  <!-- 폼 내 유저 정보 및 기타 함수 -->
-  <script>
-    function getUserName() {
-      return document.getElementById("userName").value.trim();
-    }
-    function getStudentID() {
-      return document.getElementById("userId").value.trim();
-    }
-    function goHome() {
-      location.href = "index.html";
-    }
-  </script>
-
-  <!-- 탭 전환 및 초기화 -->
-  <script>
-    // 탭 전환 이벤트 (대분류 탭)
+    // 탭 전환 및 하위 탭 이벤트 처리
     document.querySelectorAll(".tab-button").forEach(btn => {
       btn.addEventListener("click", () => {
         currentTab = btn.dataset.tab;
-        // 카메라와 조명 탭인 경우 하위 중분류 표시
+        // 카메라와 조명 탭인 경우 하위 탭 표시
         document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
         document.getElementById("lightingSubTabs").style.display = currentTab === "lighting" ? "flex" : "none";
         currentSub = currentTab === "camera" ? "body" : (currentTab === "lighting" ? "light" : null);
@@ -623,7 +624,6 @@
       });
     });
 
-    // 하위 중분류 탭 전환 이벤트
     document.querySelectorAll(".subtab-button").forEach(btn => {
       btn.addEventListener("click", () => {
         btn.parentElement.querySelectorAll(".subtab-button").forEach(b => b.classList.remove("active"));
@@ -646,6 +646,19 @@
       updateSelectedUI();
       renderEquipmentList();
     });
+  </script>
+
+  <!-- 유저 정보 및 기타 함수 -->
+  <script>
+    function getUserName() {
+      return document.getElementById("userName").value.trim();
+    }
+    function getStudentID() {
+      return document.getElementById("userId").value.trim();
+    }
+    function goHome() {
+      location.href = "index.html";
+    }
   </script>
 </body>
 </html>
