@@ -217,7 +217,144 @@
     let selectedHours = [];
     let currentTab = "camera";
     let currentSub = "body";
-
+     const equipmentData = {
+  camera: {
+    body: [
+      { name: "Sony FX6", image: "https://www.bhphotovideo.com/cdn-cgi/image/fit=scale-down,width=500,quality=95/https://www.bhphotovideo.com/images/images500x500/sony_pxw_fx6_cinema_camera_body_1673526912_1592066.jpg" },
+      { name: "Sony FX3 1번", image: "http://manuals.plus/wp-content/uploads/2022/11/SONY-FX3-Interchangeable-Lens-Digital-Camera-Featured-Image.png" },
+      { name: "Sony FX3 2번", image: "http://manuals.plus/wp-content/uploads/2022/11/SONY-FX3-Interchangeable-Lens-Digital-Camera-Featured-Image.png" },
+      { name: "Sony FX3 3번", image: "http://manuals.plus/wp-content/uploads/2022/11/SONY-FX3-Interchangeable-Lens-Digital-Camera-Featured-Image.png" },
+      { name: "Sony FX3 4번", image: "http://manuals.plus/wp-content/uploads/2022/11/SONY-FX3-Interchangeable-Lens-Digital-Camera-Featured-Image.png" },
+      { name: "Sony A7C 1번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKXzc9Z_HMbpiBxkMdz2SH1qPHWEBhBieySg&s" },
+      { name: "Sony A7C 2번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKXzc9Z_HMbpiBxkMdz2SH1qPHWEBhBieySg&s" },
+      { name: "GoPro Hero 11 Black 1번", image: "https://shop-phinf.pstatic.net/20241118_251/1731890583499vgrK6_JPEG/57065449302471065_2038158014.jpg?type=f296_296" },
+      { name: "GoPro Hero 11 Black 2번", image: "https://shop-phinf.pstatic.net/20241118_251/1731890583499vgrK6_JPEG/57065449302471065_2038158014.jpg?type=f296_296" }
+    ],
+    lens: [
+      { name: "COOKE SP3 SET", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzA5MTBfMTM1%2FMDAxNjk0MzE2ODIxMDIz.XQm3j6QmiJ3e8vPv9PEQ6oDbKKk08fpaI8fjgEtbJAog.MuS2eZPGweAEQ7hGYEM5Ae-KfacciVXhOKB10ljyXeQg.JPEG.1967jk%2FIMG_7634.JPG&type=sc960_832" },
+      { name: "Sony FE 35mm GM 1번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32848940_List0.png" },
+      { name: "Sony FE 35mm GM 2번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32848940_List0.png" },
+      { name: "Sony FE 35mm GM 3번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32848940_List0.png" },
+      { name: "Sony E-Mount F1.8 컴팩트 렌즈", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32848140_List0.png" },
+      { name: "Sony FE 70-200mm GM 1번", image: "https://sony.cdn-nhncommerce.com/20220126/122912.152412000/102265974_1.png" },
+      { name: "Sony FE 70-200mm GM 2번", image: "https://sony.cdn-nhncommerce.com/20220126/122912.152412000/102265974_1.png" },
+      { name: "Sony FE 70-200mm GM 3번", image: "https://sony.cdn-nhncommerce.com/20220126/122912.152412000/102265974_1.png" },
+      { name: "Sony FE 24-70mm GM 1번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+      { name: "Sony FE 24-70mm GM 2번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+      { name: "Sony FE 24-70mm GM 3번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+      { name: "Sony 85mm f/1.4 GM 1번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+      { name: "Sony 85mm f/1.4 GM 2번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+      { name: "Sony 85mm f/1.4 GM 3번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+      { name: "Kase MCUV II 82mm", image: "https://kasefilters.com/wp-content/uploads/2020/03/Kase-MCUV-Magnetic-Filter-82mm.jpg" }
+    ],
+    tripodGimbal: [
+      { name: "카토니 포커스 22씨네", image: "https://withusmedia.co.kr/web/product/big/202307/c21fe63a6876968bafedd53af69efcd6.jpg" },
+      { name: "iFootage GazelleTripod TC9 1번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
+      { name: "iFootage GazelleTripod TC9 2번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
+      { name: "iFootage GazelleTripod TC9 3번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
+      { name: "DJI RS3 PRO Combo 1번", image: "https://www-cdn.djiits.com/cms/uploads/777e2e0023f55a99d393684c8a03c5aa@640*640.png" },
+      { name: "DJI RS3 PRO Combo 2번", image: "https://www-cdn.djiits.com/cms/uploads/777e2e0023f55a99d393684c8a03c5aa@640*640.png" },
+      { name: "이지리그", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9mWWxfT4r17U8i5xgKLaMfDSKYR9jhkvs4w&s" },
+      { name: "틸타 링그립", image: "https://cdn.imweb.me/thumbnail/20230802/49697b5cdb039.jpg" }
+    ],
+    accessory: [
+      { name: "부속품 1번", image: "https://via.placeholder.com/100?text=Accessory+1" },
+      { name: "부속품 2번", image: "https://via.placeholder.com/100?text=Accessory+2" }
+    ]
+  },
+  lighting: {
+    light: [
+      { name: "씨네로이드 120W 1번", image: "https://cdn.imweb.me/thumbnail/20230323/5ae5e8bba6979.jpg" },
+      { name: "씨네로이드 120W 2번", image: "https://cdn.imweb.me/thumbnail/20230323/5ae5e8bba6979.jpg" },
+      { name: "씨네로이드 120W 3번", image: "https://cdn.imweb.me/thumbnail/20230323/5ae5e8bba6979.jpg" },
+      { name: "씨네로이드 120W 4번", image: "https://cdn.imweb.me/thumbnail/20230323/5ae5e8bba6979.jpg" },
+      { name: "씨네로이드 120W 5번", image: "https://cdn.imweb.me/thumbnail/20230323/5ae5e8bba6979.jpg" },
+      { name: "SmallRig RC 220B 1번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "SmallRig RC 220B 2번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "SmallRig RC 220B 3번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "SmallRig RC 220B 4번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "SmallRig RC 220B 5번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "SmallRig RC 220B 6번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "SmallRig RC 220B 7번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "SmallRig RC 220B 8번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "SmallRig RC 220B 9번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "Aputure amaran F21C", image: "https://www.economik.com/products/20501-21000/20715_full.jpg" },
+      { name: "Aputure amaran F22C", image: "https://www.mediabox-x.co.kr/data/goods/1/2022/08/_temp_16596921858951view.jpg" },
+      { name: "난라이트 2400b", image: "https://cdn.imweb.me/thumbnail/20240911/7d99b5cc9460e.jpg" },
+      { name: "프레넬 렌즈1번", image: "https://cdn.shopify.com/s/files/1/0252/6524/5843/products/LightStorm-Fresnel-2x-Accessory-Front_1024x1024.jpg" },
+      { name: "프레넬 렌즈2번", image: "https://cdn.shopify.com/s/files/1/0252/6524/5843/products/LightStorm-Fresnel-2x-Accessory-Front_1024x1024.jpg" },
+      { name: "프레넬 렌즈3번", image: "https://cdn.shopify.com/s/files/1/0252/6524/5843/products/LightStorm-Fresnel-2x-Accessory-Front_1024x1024.jpg" },
+      { name: "Skypanel S60 1번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3095_temp_16729690273473view.jpg" },
+      { name: "Skypanel S60 2번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3095_temp_16729690273473view.jpg" },
+      { name: "Skypanel S60 3번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3095_temp_16729690273473view.jpg" }
+    ],
+    gobo: [
+    { name: "FL30 24x36 Solid Flag 1번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwYOl7gC2c5ErUpefwg4goL64KdDOpAvs3AQ&s" },
+    { name: "FL30 24x36 Solid Flag 2번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwYOl7gC2c5ErUpefwg4goL64KdDOpAvs3AQ&s" },
+    { name: "FL30 24x36 Solid Flag 3번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwYOl7gC2c5ErUpefwg4goL64KdDOpAvs3AQ&s" },
+    { name: "SC45 24x36 Single Black Net 1번", image: "https://via.placeholder.com/100?text=Single+Net" },
+    { name: "SC45 24x36 Single Black Net 2번", image: "https://via.placeholder.com/100?text=Single+Net" },
+    { name: "SC45 24x36 Single Black Net 3번", image: "https://via.placeholder.com/100?text=Single+Net" },
+    { name: "SC50 24x36 Double Black Net 1번", image: "https://via.placeholder.com/100?text=Double+Net" },
+    { name: "SC50 24x36 Double Black Net 2번", image: "https://via.placeholder.com/100?text=Double+Net" },
+    { name: "SC50 24x36 Double Black Net 3번", image: "https://via.placeholder.com/100?text=Double+Net" },
+    { name: "SC55 24x36 Silk 1번", image: "https://www.canvasgrip.com/mm5/graphics/00000001/2X3POLY19_447x640.jpg" },
+    { name: "SC55 24x36 Silk 2번", image: "https://www.canvasgrip.com/mm5/graphics/00000001/2X3POLY19_447x640.jpg" },
+    { name: "SC55 24x36 Silk 3번", image: "https://www.canvasgrip.com/mm5/graphics/00000001/2X3POLY19_447x640.jpg" },
+    { name: "4x4 플로피", image: "https://via.placeholder.com/100?text=4x4+Floppy" },
+    { name: "Lee 필터 216", image: "https://via.placeholder.com/100?text=Lee+216" },
+    { name: "Lee 필터 250", image: "https://via.placeholder.com/100?text=Lee+250" },
+    { name: "Lee 필터 251", image: "https://via.placeholder.com/100?text=Lee+251" },
+    { name: "넉자 프레임", image: "https://via.placeholder.com/100?text=4x4+Frame" },
+    { name: "2436 프레임", image: "https://via.placeholder.com/100?text=2436+Frame" }
+  ],
+    stand: [
+      { name: "베이비 콤보 1번", image: "https://m.photodynamic.co.kr/web/product/big/201901/53e51a2198fabaa1f2680077cdca8e89.jpg" },
+      { name: "베이비 콤보 2번", image: "https://m.photodynamic.co.kr/web/product/big/201901/53e51a2198fabaa1f2680077cdca8e89.jpgg" },
+      { name: "c스탠드", image: "https://m.fomex.co.kr/web/product/medium/CS-20M30M40M.jpg" }
+    ]
+  },
+  sound: [
+    { name: "RODE NTG4 붐폴 1번", image: "https://cdn1.rode.com/ntg4/images/NTG4_1.jpg" },
+    { name: "RODE NTG4 붐폴 2번", image: "https://cdn1.rode.com/ntg4/images/NTG4_1.jpg" },
+    { name: "RODE NTG4 붐폴 3번", image: "https://cdn1.rode.com/ntg4/images/NTG4_1.jpg" },
+    { name: "신규 붐폴", image: "https://zoomcorp.com/media/images/H6_AllBlack_slant_RGB_3.0e16d0ba.fill-1200x630-c100.jpg" },
+    { name: "타스캡 레코더 1번", image: "https://cdn1.rode.com/videomicntg/images/VideoMicNTG_1.jpg" },
+    { name: "타스캡 레코더 2번", image: "https://cdn1.rode.com/videomicntg/images/VideoMicNTG_1.jpg" },
+    { name: "ZOOM H6 레코더", image: "https://zoomcorp.com/media/images/H6_AllBlack_slant_RGB_3.0e16d0ba.fill-1200x630-c100.jpg" },
+    { name: "무선 핀마이크 SET 1", image: "https://shure.scene7.com/is/image/Shure/BLX14R_MX53_H10_front_xl?fmt=jpg&wid=1800&qlt=85" },
+    { name: "무선 핀마이크 SET 2", image: "https://shure.scene7.com/is/image/Shure/BLX14R_MX53_H10_front_xl?fmt=jpg&wid=1800&qlt=85" },
+    { name: "무선 핀마이크 SET 3", image: "https://shure.scene7.com/is/image/Shure/BLX14R_MX53_H10_front_xl?fmt=jpg&wid=1800&qlt=85" },
+    { name: "무선 핀마이크 SET 4", image: "https://shure.scene7.com/is/image/Shure/BLX14R_MX53_H10_front_xl?fmt=jpg&wid=1800&qlt=85" }
+  ],
+  monitor: [
+    { name: "HOLLYLAND MARS-M1 1번", image: "https://cdn.shopify.com/s/files/1/0012/8710/9155/products/5-Inch-FW568-V3-Monitor_1_1000x.jpg" },
+    { name: "HOLLYLAND MARS-M1 2번", image: "https://cdn.shopify.com/s/files/1/0012/8710/9155/products/5-Inch-FW568-V3-Monitor_1_1000x.jpg" },
+    { name: "HOLLYLAND MARS-M1 3번", image: "https://cdn.shopify.com/s/files/1/0012/8710/9155/products/5-Inch-FW568-V3-Monitor_1_1000x.jpg" },
+    { name: "Smaller indie 7", image: "https://www.atomos.com/images/products/ninja-v-plus/overview/Ninja-V-Plus_Overview_01.webp" },
+    { name: "아트모스 쇼군 7인치", image: "https://lilliputdirect.com/wp-content/uploads/2021/02/A7S.jpg" },
+    { name: "TVLogic LVM-181S 18.5IN FHD PBP LCD Monitor", image: "https://smallhd.com/cdn/shop/products/Indie7-Front-hero_800x.jpg" },
+    { name: "모니터 암", image: "https://www.smallrig.com/cdn/shop/products/2903-SmallRig-Adjustable-Monitor-Mount-for-Select-DJI-Ronin-Series-650x650-2.jpg" }
+  ],
+  line: [
+    { name: "SDI 케이블", image: "https://www.canare.com/image/SDI-L5CFW.png" },
+    { name: "HDMI 케이블", image: "https://images.philips.com/is/image/PhilipsConsumer/SWP1321W_10-IMS-en_PH?$jpglarge$" },
+    { name: "XLR 케이블", image: "https://www.bhphotovideo.com/images/images2500x2500/auray_pexmxf_25_premium_xlr_male_to_xlr_female_25_1036023.jpg" },
+    { name: "연장 전원선", image: "https://www.masterplug.com/wp-content/uploads/2020/04/HLP2013SL-P1.jpg" },
+    { name: "전기 릴선", image: "https://cpc.farnell.com/productimages/farnell/standard/DP/EL12086-40.jpg" }
+  ],
+  editing: [
+    { name: "편집실 1", image: "https://www.sac.or.kr/design/theme/sac/images/sub/studio_imgs4.jpg" },
+    { name: "편집실 2", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyWGV9IK1CFeE1vJthQcjKnL3e2E0bj79J-DkWkBUL_FBPgaCY2xKTv9Jo7Pp1HaQQ3Gk&usqp=CAU" }
+  ],
+  battery: [
+    { name: "V마운트 배터리", image: "https://cdn.shopify.com/s/files/1/0564/6749/4593/products/IMicro-150-front.jpg" },
+    { name: "NP-F 배터리", image: "https://www.sony.com.sg/image/88d4d71e4680f5708f070a0d7e82694e?fmt=pjpeg&wid=330" },
+    { name: "충전기 세트", image: "https://www.sony.com/image/9e336e68239b6bd5fdf396c634383f48?fmt=png-alpha&wid=480" },
+    { name: "Sony 160GB CFexpress 카드 Type A", image: "https://www.sony.com/image/9e336e68239b6bd5fdf396c634383f48?fmt=png-alpha&wid=480" },
+    { name: "SCFexpress Type A SD 메모리카드 리더기", image: "https://www.sony.com/image/9e336e68239b6bd5fdf396c634383f48?fmt=png-alpha&wid=480" }
+  ]
+};
     // Firestore 대여 내역 검사: 최근 반납 완료 후 3일이 지나면 선택 가능
     async function isItemAvailable(itemName) {
       const snapshot = await db.collection("rentals")
