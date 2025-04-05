@@ -539,6 +539,7 @@ function validateStep2() {
     }
   }
 
+  // 이 줄이 중요합니다!
   goToStep(3);
 }
 
@@ -798,6 +799,11 @@ document.getElementById("agreeCheck").addEventListener("change", e => {
   });
 });
 
+<script>
+  // ...여기에 있는 모든 JS 코드 끝나고 아래처럼 마지막 줄에 추가!
+  window.addEventListener("DOMContentLoaded", () => {
+    goToStep(1); // 시작 시 무조건 1단계 보여줌
+  });
 </script>
 </body>
 </html>
