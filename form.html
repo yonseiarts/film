@@ -407,14 +407,14 @@ function renderEquipmentList() {
 
     div.innerHTML = `<img src="${item.image}" alt="${item.name}" /><span class="text-sm">${item.name}</span>`;
     div.onclick = () => {
-      const isSelected = selectedItems.includes(item.name);
-      selectedItems = isSelected ? selectedItems.filter(i => i !== item.name) : [...selectedItems, item.name];
-      updateSelectedUI();
-      renderEquipmentList();
-    };
-    container.appendChild(div);
-  });
-}
+  const isSelected = selectedItems.includes(item.name);
+  selectedItems = isSelected
+    ? selectedItems.filter(i => i !== item.name)
+    : [...selectedItems, item.name];  // ✅ 배열 구조 유지
+  updateSelectedUI();
+  renderEquipmentList();
+};
+
 
 function updateSelectedUI() {
   const sec = document.getElementById("selected-section");
@@ -439,28 +439,11 @@ function goToStep(n) {
     document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
     document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
   }
+
   document.getElementById("step" + n)?.classList.remove("hidden");
   document.getElementById("step" + n + "Btn")?.classList.add("step-active");
 
-function goToStep(n) {
-  // 모든 단계 숨기기
-  for (let i = 1; i <= 4; i++) {
-    ...
-  }
-
-  // 지금 보여줄 단계 보여주기
-  document.getElementById("step" + n)?.classList.remove("hidden");
-
   if (n === 2) {
-    const editingOnly = selectedItems.every(i => i.includes("편집실"));
-    ...
-  }
-
-  if (n === 3) {
-    ...
-  }
-}
-
     const editingOnly = selectedItems.every(i => i.includes("편집실"));
     document.getElementById("commonDateSection").classList.toggle("hidden", editingOnly);
     document.getElementById("editingDateSection").classList.toggle("hidden", !editingOnly);
@@ -484,6 +467,7 @@ function goToStep(n) {
       ? `선택한 시간: ${selectedHours.sort((a, b) => a - b).join(', ')}시` : '';
   }
 }
+
 
 function goHome() {
   location.href = "index.html";
@@ -628,7 +612,6 @@ document.getElementById("agreeCheck").addEventListener("change", e => {
                  currentTab === "lighting" ? "light" : null;
 
     renderEquipmentList();
-  });
 
       if (n === 2) {
   const editingOnly = selectedItems.every(i => i.includes("편집실"));
