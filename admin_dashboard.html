@@ -76,7 +76,9 @@
       <div class="flex items-center">
         <div class="status-dot"></div>
         <div>
-          <h3 class="font-bold text-gray-800 text-sm mb-1">신청자: <span class="user-name"></span> (<span class="student-id"></span>)</h3>
+          <h3 class="font-bold text-gray-800 text-sm mb-1">
+            신청자: <span class="user-name"></span> (<span class="student-id"></span>)
+          </h3>
           <p class="text-xs text-gray-600">장비: <span class="items"></span></p>
           <p class="text-xs text-gray-600 mt-1 date-info"></p>
           <p class="text-xs text-gray-600 mt-1 time-info hidden"></p>
@@ -97,7 +99,9 @@
       <div class="flex items-center">
         <div class="status-dot"></div>
         <div>
-          <h3 class="font-bold text-gray-800 text-sm mb-1">신청자: <span class="user-name"></span> (<span class="student-id"></span>)</h3>
+          <h3 class="font-bold text-gray-800 text-sm mb-1">
+            신청자: <span class="user-name"></span> (<span class="student-id"></span>)
+          </h3>
           <p class="text-xs text-gray-600">장비: <span class="items"></span></p>
           <p class="text-xs text-gray-600 mt-1 date-info"></p>
           <p class="text-xs text-gray-600 mt-1 time-info hidden"></p>
@@ -110,7 +114,6 @@
     </div>
   </template>
 
-  <!-- Firebase 및 스크립트 -->
   <script>
     const db = firebase.firestore();
   </script>
@@ -120,7 +123,7 @@
     let currentTab = "waiting"; // 'waiting' 또는 'trash'
     let currentType = ""; // 'equipment' 또는 'editing'
 
-    // 탭 전환
+    // 탭 전환 이벤트
     document.getElementById("tab-waiting").addEventListener("click", () => switchTab("waiting"));
     document.getElementById("tab-trash").addEventListener("click", () => switchTab("trash"));
 
@@ -139,6 +142,7 @@
       document.getElementById("tab-waiting").classList.toggle("bg-blue-100", tab === "waiting");
       document.getElementById("tab-trash").classList.toggle("bg-gray-100", tab === "trash");
 
+      // 초기 대분류 필터는 숨김
       currentType = "";
       document.getElementById("waiting-filters").classList.add("hidden");
       document.getElementById("trash-filters").classList.add("hidden");
@@ -149,12 +153,17 @@
       currentType = type;
       if (tab === "waiting") {
         document.getElementById("waiting-filters").classList.remove("hidden");
-        document.getElementById("filter-waiting-equipment").classList.toggle("bg-blue-200", type === "equipment");
-        document.getElementById("filter-waiting-editing").classList.toggle("bg-blue-200", type === "editing");
+        // 필터 버튼 스타일 업데이트
+        document.getElementById("filter-waiting-equipment").classList.remove("bg-blue-200", "bg-blue-50");
+        document.getElementById("filter-waiting-editing").classList.remove("bg-blue-200", "bg-blue-50");
+        document.getElementById("filter-waiting-equipment").classList.add(type === "equipment" ? "bg-blue-200" : "bg-blue-50");
+        document.getElementById("filter-waiting-editing").classList.add(type === "editing" ? "bg-blue-200" : "bg-blue-50");
       } else {
         document.getElementById("trash-filters").classList.remove("hidden");
-        document.getElementById("filter-trash-equipment").classList.toggle("bg-gray-300", type === "equipment");
-        document.getElementById("filter-trash-editing").classList.toggle("bg-gray-300", type === "editing");
+        document.getElementById("filter-trash-equipment").classList.remove("bg-gray-300", "bg-gray-100");
+        document.getElementById("filter-trash-editing").classList.remove("bg-gray-300", "bg-gray-100");
+        document.getElementById("filter-trash-equipment").classList.add(type === "equipment" ? "bg-gray-300" : "bg-gray-100");
+        document.getElementById("filter-trash-editing").classList.add(type === "editing" ? "bg-gray-300" : "bg-gray-100");
       }
       loadData();
     }
@@ -226,8 +235,8 @@
     }
   </script>
 
-  <!-- 유저 정보 및 폼 제출 관련 스크립트 (관리자 대시보드에서는 필요 없는 부분은 호출하지 않음) -->
   <script>
+    // 관리자 대시보드에는 폼 페이지 코드 호출 X
     function getUserName() {
       return document.getElementById("userName") ? document.getElementById("userName").value.trim() : "";
     }
@@ -238,7 +247,7 @@
       location.href = "index.html";
     }
     function goToStep(n) {
-      // 이 함수는 폼 페이지용이므로 관리자 대시보드에는 사용하지 않음
+      // 관리자 대시보드에선 사용하지 않음
     }
   </script>
 </body>
