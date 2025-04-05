@@ -9,190 +9,208 @@
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
   <style>
-    .tab-active {
-      background-color: #1D4ED8;
-      color: white;
-      font-weight: bold;
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 9999px;
+      margin-right: 8px;
     }
-    .tab-inactive {
-      background-color: #E5E7EB;
-      color: #374151;
-    }
-    .card {
-      @apply bg-white p-4 rounded shadow border relative;
-    }
-    .tag {
-      @apply inline-block px-2 py-1 text-xs font-medium rounded;
-    }
+    .bg-waiting { background-color: #d1d5db; }   /* 회색 - 대기 */
+    .bg-approved { background-color: #34d399; }  /* 초록 - 승인 */
+    .bg-rejected { background-color: #f87171; }  /* 빨강 - 반려 */
+    .bg-returned { background-color: #1f2937; }  /* 검정 - 반납 완료 */
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
-  <!-- 상단 메뉴바 -->
-  <div class="bg-blue-700 text-white p-4 flex justify-between items-center">
-    <h1 class="text-xl font-bold">기자재 관리자 대시보드</h1>
-    <nav class="space-x-4">
-      <button onclick="switchPage('pending')" class="menu-tab font-semibold">대기 내역</button>
-      <button onclick="switchPage('trash')" class="menu-tab font-semibold">휴지통</button>
-    </nav>
-  </div>
+  <header class="bg-blue-700 text-white py-5">
+    <div class="max-w-5xl mx-auto px-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold">기자재 대여 관리자 대시보드</h1>
+      <a href="index.html" class="text-sm underline">홈으로 이동</a>
+    </div>
+  </header>
 
-  <!-- 콘텐츠 컨테이너 -->
-  <div class="max-w-5xl mx-auto p-6">
-    <!-- 탭 선택 -->
-    <div class="flex gap-2 mb-6" id="categoryTabs">
-      <button class="tab-button tab-active px-4 py-2 rounded" data-category="equipment">장비</button>
-      <button class="tab-button tab-inactive px-4 py-2 rounded" data-category="editing">편집실</button>
+  <main class="max-w-5xl mx-auto px-4 py-6">
+    <!-- 탭 메뉴 -->
+    <div class="flex space-x-4 mb-4">
+      <button id="tab-waiting" class="tab-button px-4 py-2 rounded bg-blue-100 font-semibold">대기 내역</button>
+      <button id="tab-trash" class="tab-button px-4 py-2 rounded bg-gray-100">휴지통</button>
     </div>
 
-    <!-- 대기 내역 -->
-    <div id="pendingPage">
-      <div id="pendingList" class="grid gap-4"></div>
+    <!-- 대기 내역 탭 내부 장비/편집실 필터 -->
+    <div id="waiting-content" class="">
+      <div class="flex space-x-4 mb-4">
+        <button id="filter-waiting-equipment" class="subtab-button px-3 py-1 rounded bg-blue-200 font-medium">장비 신청</button>
+        <button id="filter-waiting-editing" class="subtab-button px-3 py-1 rounded bg-blue-50">편집실 신청</button>
+      </div>
+      <div id="waiting-list" class="grid grid-cols-1 gap-4"></div>
     </div>
 
-    <!-- 휴지통 -->
-    <div id="trashPage" class="hidden">
-      <div id="trashList" class="grid gap-4"></div>
+    <!-- 휴지통 탭 내부 장비/편집실 필터 -->
+    <div id="trash-content" class="hidden">
+      <div class="flex space-x-4 mb-4">
+        <button id="filter-trash-equipment" class="subtab-button px-3 py-1 rounded bg-gray-300 font-medium">장비 신청</button>
+        <button id="filter-trash-editing" class="subtab-button px-3 py-1 rounded bg-gray-100">편집실 신청</button>
+      </div>
+      <div id="trash-list" class="grid grid-cols-1 gap-4"></div>
     </div>
-  </div>
+  </main>
+  <template id="card-template">
+    <div class="card-item bg-white p-4 rounded shadow flex justify-between items-start relative">
+      <div class="flex items-center">
+        <div class="status-dot"></div>
+        <div>
+          <h3 class="font-bold text-gray-800 text-sm mb-1">신청자: <span class="user-name"></span> (<span class="student-id"></span>)</h3>
+          <p class="text-xs text-gray-600">장비: <span class="items"></span></p>
+          <p class="text-xs text-gray-600 mt-1 date-info"></p>
+          <p class="text-xs text-gray-600 mt-1 time-info hidden"></p>
+        </div>
+      </div>
+      <div class="flex flex-col space-y-2 ml-4 text-right">
+        <button class="approve-btn text-green-600 text-sm hover:underline">✅ 승인</button>
+        <button class="reject-btn text-red-500 text-sm hover:underline">❌ 반려</button>
+        <button class="return-btn text-black text-sm hover:underline">📦 반납 완료</button>
+      </div>
+      <button class="trash-btn absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl">×</button>
+    </div>
+  </template>
 
-  <!-- Firebase 초기화 -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-      authDomain: "yonseirent-setup.firebaseapp.com",
-      projectId: "yonseirent-setup",
-      storageBucket: "yonseirent-setup.appspot.com",
-      messagingSenderId: "1072524969376",
-      appId: "1:1072524969376:web:0d7aa9875341262f3e10c5"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    let currentPage = 'pending';
-    let currentCategory = 'equipment';
-
-    // 페이지 전환
-    function switchPage(page) {
-      currentPage = page;
-      document.getElementById('pendingPage').classList.toggle('hidden', page !== 'pending');
-      document.getElementById('trashPage').classList.toggle('hidden', page !== 'trash');
-      loadData();
-    }
-
-    // 카테고리 탭 전환
-    document.querySelectorAll('.tab-button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-button').forEach(b => {
-          b.classList.remove('tab-active');
-          b.classList.add('tab-inactive');
-        });
-        btn.classList.add('tab-active');
-        btn.classList.remove('tab-inactive');
-        currentCategory = btn.dataset.category;
-        loadData();
-      });
-    });
-
-    // 항목 로딩
-    function loadData() {
-      const targetList = currentPage === 'pending' ? 'pendingList' : 'trashList';
-      document.getElementById(targetList).innerHTML = '';
-
-      db.collection('rentals')
-        .where('status', 'in', currentPage === 'pending' ? ['대기'] : ['휴지통'])
-        .orderBy('createdAt', 'desc')
-        .get()
-        .then(snapshot => {
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            const isEditing = data.items.every(i => i.includes('편집실'));
-            if ((currentCategory === 'editing' && isEditing) || (currentCategory === 'equipment' && !isEditing)) {
-              renderCard(doc.id, data, targetList);
-            }
-          });
-        });
-    }
-  </script>
-  <script>
-    function renderCard(id, data, containerId) {
-      const container = document.getElementById(containerId);
-      const div = document.createElement("div");
-      div.className = "bg-white rounded-lg shadow p-4 relative";
-
-      // 상단 휴지통 아이콘 (대기 페이지에서만 표시)
-      if (currentPage === 'pending') {
-        const trashBtn = document.createElement("button");
-        trashBtn.innerHTML = "&times;";
-        trashBtn.className = "absolute top-2 right-2 text-gray-400 hover:text-red-500 text-xl";
-        trashBtn.onclick = () => updateStatus(id, '휴지통');
-        div.appendChild(trashBtn);
-      }
-
-      // 신청 정보 표시
-      div.innerHTML += `
-        <p class="font-bold text-blue-700">${data.userName} (${data.studentId})</p>
-        <p class="text-sm text-gray-600 mb-2">${data.items.join(', ')}</p>
-        <p class="text-xs text-gray-500">
-          ${data.editingDate
-            ? `편집실: ${data.editingDate} / ${data.hours?.join(', ')}시`
-            : `대여: ${data.startDate} ~ ${data.endDate}`}
-        </p>
-        ${data.status === '휴지통' && data.returnedAt ? `
-          <p class="text-xs mt-1 text-green-600">반납완료: ${data.returnedAt.toDate().toLocaleString()}</p>
-        ` : ""}
-      `;
-
-      // 버튼 영역
-      const btnGroup = document.createElement("div");
-      btnGroup.className = "mt-4 flex gap-2 flex-wrap";
-
-      if (currentPage === 'pending') {
-        const approveBtn = createBtn("승인", "bg-green-500", () => updateStatus(id, '승인'));
-        const rejectBtn = createBtn("반려", "bg-red-500", () => updateStatus(id, '반려'));
-        const returnBtn = createBtn("반납완료", "bg-gray-600", () => markReturned(id));
-        btnGroup.append(approveBtn, rejectBtn, returnBtn);
-      }
-
-      if (currentPage === 'trash') {
-        const restoreBtn = createBtn("복원", "bg-blue-500", () => updateStatus(id, '대기'));
-        btnGroup.append(restoreBtn);
-      }
-
-      div.appendChild(btnGroup);
-      container.appendChild(div);
-    }
-
-    function createBtn(label, colorClass, onClick) {
-      const btn = document.createElement("button");
-      btn.innerText = label;
-      btn.className = `${colorClass} text-white px-3 py-1 rounded text-sm`;
-      btn.onclick = onClick;
-      return btn;
-    }
-
-    function updateStatus(id, status) {
-      db.collection("rentals").doc(id).update({ status }).then(loadData);
-    }
-
-    function markReturned(id) {
-      const returnedAt = firebase.firestore.Timestamp.now();
-      db.collection("rentals").doc(id).update({ returnedAt }).then(loadData);
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      switchPage('pending');
-    });
-  </script>
-  <style>
-    .tab-btn.active {
-      background-color: #3b82f6;
-      color: white;
-    }
-
-    .page-btn.active {
-      background-color: #1e40af;
-      color: white;
-    }
-  </style>
+  <template id="trash-template">
+    <div class="card-item bg-gray-100 p-4 rounded shadow flex justify-between items-start relative">
+      <div class="flex items-center">
+        <div class="status-dot"></div>
+        <div>
+          <h3 class="font-bold text-gray-800 text-sm mb-1">신청자: <span class="user-name"></span> (<span class="student-id"></span>)</h3>
+          <p class="text-xs text-gray-600">장비: <span class="items"></span></p>
+          <p class="text-xs text-gray-600 mt-1 date-info"></p>
+          <p class="text-xs text-gray-600 mt-1 time-info hidden"></p>
+        </div>
+      </div>
+      <div class="text-right">
+        <p class="text-xs text-gray-500 mb-2">반납 완료일: <span class="returned-time"></span></p>
+        <button class="restore-btn text-blue-500 text-sm hover:underline">🔄 복원</button>
+      </div>
+    </div>
+  </template>
 </body>
 </html>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+    authDomain: "yonseirent-setup.firebaseapp.com",
+    projectId: "yonseirent-setup",
+    storageBucket: "yonseirent-setup.appspot.com",
+    messagingSenderId: "1072524969376",
+    appId: "1:1072524969376:web:0d7aa9875341262f3e10c5"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  let currentTab = "waiting"; // or 'trash'
+  let currentType = "equipment"; // or 'editing'
+
+  document.getElementById("tab-waiting").addEventListener("click", () => switchTab("waiting"));
+  document.getElementById("tab-trash").addEventListener("click", () => switchTab("trash"));
+  document.getElementById("filter-waiting-equipment").addEventListener("click", () => switchType("equipment", "waiting"));
+  document.getElementById("filter-waiting-editing").addEventListener("click", () => switchType("editing", "waiting"));
+  document.getElementById("filter-trash-equipment").addEventListener("click", () => switchType("equipment", "trash"));
+  document.getElementById("filter-trash-editing").addEventListener("click", () => switchType("editing", "trash"));
+
+  function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById("waiting-content").classList.toggle("hidden", tab !== "waiting");
+    document.getElementById("trash-content").classList.toggle("hidden", tab !== "trash");
+
+    document.getElementById("tab-waiting").classList.toggle("bg-blue-100", tab === "waiting");
+    document.getElementById("tab-trash").classList.toggle("bg-gray-100", tab === "trash");
+
+    loadData();
+  }
+
+  function switchType(type, tab) {
+    currentType = type;
+
+    document.querySelectorAll(".subtab-button").forEach(btn => btn.classList.remove("bg-blue-200", "bg-blue-50", "bg-gray-300", "bg-gray-100"));
+
+    if (tab === "waiting") {
+      document.getElementById("filter-waiting-equipment").classList.add(type === "equipment" ? "bg-blue-200" : "bg-blue-50");
+      document.getElementById("filter-waiting-editing").classList.add(type === "editing" ? "bg-blue-200" : "bg-blue-50");
+    } else {
+      document.getElementById("filter-trash-equipment").classList.add(type === "equipment" ? "bg-gray-300" : "bg-gray-100");
+      document.getElementById("filter-trash-editing").classList.add(type === "editing" ? "bg-gray-300" : "bg-gray-100");
+    }
+
+    loadData();
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    switchTab("waiting");
+    switchType("equipment", "waiting");
+  });
+
+  function loadData() {
+    const isEditing = currentType === "editing";
+
+    db.collection("rentals")
+      .where("trashed", "==", currentTab === "trash")
+      .orderBy("createdAt", "desc")
+      .get()
+      .then(snapshot => {
+        const listEl = document.getElementById(currentTab === "trash" ? "trash-list" : "waiting-list");
+        listEl.innerHTML = "";
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const id = doc.id;
+
+          const onlyEditing = data.items?.every(i => i.includes("편집실"));
+          if (onlyEditing !== isEditing) return;
+
+          const isTrash = currentTab === "trash";
+          const template = document.getElementById(isTrash ? "trash-template" : "card-template");
+          const clone = template.content.cloneNode(true);
+          const dot = clone.querySelector(".status-dot");
+
+          // 상태별 색상
+          if (data.status === "승인") dot.classList.add("bg-approved");
+          else if (data.status === "반려") dot.classList.add("bg-rejected");
+          else if (data.status === "반납 완료") dot.classList.add("bg-returned");
+          else dot.classList.add("bg-waiting");
+
+          clone.querySelector(".user-name").textContent = data.userName;
+          clone.querySelector(".student-id").textContent = data.studentId;
+          clone.querySelector(".items").textContent = (data.items || []).join(", ");
+
+          const dateInfo = clone.querySelector(".date-info");
+          dateInfo.textContent = data.editingDate
+            ? `대여일: ${data.editingDate}`
+            : `대여: ${data.startDate} ~ 반납: ${data.endDate}`;
+
+          const timeInfo = clone.querySelector(".time-info");
+          if (data.hours?.length && data.editingDate) {
+            timeInfo.textContent = `시간: ${data.hours.join(", ")}시`;
+            timeInfo.classList.remove("hidden");
+          }
+
+          if (isTrash) {
+            const rTime = clone.querySelector(".returned-time");
+            rTime.textContent = data.returnedAt ? new Date(data.returnedAt.toDate()).toLocaleString() : "-";
+            clone.querySelector(".restore-btn").onclick = () => updateField(id, { trashed: false });
+          } else {
+            clone.querySelector(".approve-btn").onclick = () => updateField(id, { status: "승인" });
+            clone.querySelector(".reject-btn").onclick = () => updateField(id, { status: "반려" });
+            clone.querySelector(".return-btn").onclick = () => updateField(id, {
+              status: "반납 완료",
+              returnedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            clone.querySelector(".trash-btn").onclick = () => updateField(id, { trashed: true });
+          }
+
+          listEl.appendChild(clone);
+        });
+      });
+  }
+
+  function updateField(id, data) {
+    db.collection("rentals").doc(id).update(data).then(loadData);
+  }
+</script>
