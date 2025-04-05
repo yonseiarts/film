@@ -598,13 +598,14 @@ function submitApplication() {
  
 document.querySelectorAll(".tab-button").forEach(btn => {
   btn.addEventListener("click", () => {
-    // 모든 탭에서 active 클래스 제거 후 현재 탭만 active
+    // 모든 탭 버튼에서 active 제거 후 현재 버튼만 active
     document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
 
+    // 현재 선택된 탭 저장
     currentTab = btn.dataset.tab;
 
-    // 중분류 탭 표시 설정
+    // 중분류 영역 표시 조건
     document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
     document.getElementById("lightingSubTabs").style.display = currentTab === "lighting" ? "flex" : "none";
 
@@ -612,9 +613,12 @@ document.querySelectorAll(".tab-button").forEach(btn => {
     currentSub = currentTab === "camera" ? "body" :
                  currentTab === "lighting" ? "light" : null;
 
+    // 장비 목록 렌더링
     renderEquipmentList();
   });
 });
+
+    
 
 
     // 카메라 중분류 보여주기
