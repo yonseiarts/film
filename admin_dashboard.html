@@ -6,28 +6,56 @@
   <title>관리자 대시보드</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
   <style>
-    .status-tag {
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.8rem;
+    .tab-active {
+      background-color: #1D4ED8;
+      color: white;
+      font-weight: bold;
     }
-    .status-대기 { background-color: #fef08a; }
-    .status-승인 { background-color: #a7f3d0; }
-    .status-반려 { background-color: #fecaca; }
-    .status-반납완료 { background-color: #d1d5db; }
+    .tab-inactive {
+      background-color: #E5E7EB;
+      color: #374151;
+    }
+    .card {
+      @apply bg-white p-4 rounded shadow border relative;
+    }
+    .tag {
+      @apply inline-block px-2 py-1 text-xs font-medium rounded;
+    }
   </style>
 </head>
-<body class="bg-gray-50">
-  <div class="max-w-6xl mx-auto px-6 py-10">
-    <h1 class="text-2xl font-bold mb-6">🎬 관리자 대시보드</h1>
-    <div id="rental-list" class="space-y-4">
-      <!-- 대여 신청 목록이 여기에 렌더링됩니다 -->
+<body class="bg-gray-50 min-h-screen">
+  <!-- 상단 메뉴바 -->
+  <div class="bg-blue-700 text-white p-4 flex justify-between items-center">
+    <h1 class="text-xl font-bold">기자재 관리자 대시보드</h1>
+    <nav class="space-x-4">
+      <button onclick="switchPage('pending')" class="menu-tab font-semibold">대기 내역</button>
+      <button onclick="switchPage('trash')" class="menu-tab font-semibold">휴지통</button>
+    </nav>
+  </div>
+
+  <!-- 콘텐츠 컨테이너 -->
+  <div class="max-w-5xl mx-auto p-6">
+    <!-- 탭 선택 -->
+    <div class="flex gap-2 mb-6" id="categoryTabs">
+      <button class="tab-button tab-active px-4 py-2 rounded" data-category="equipment">장비</button>
+      <button class="tab-button tab-inactive px-4 py-2 rounded" data-category="editing">편집실</button>
+    </div>
+
+    <!-- 대기 내역 -->
+    <div id="pendingPage">
+      <div id="pendingList" class="grid gap-4"></div>
+    </div>
+
+    <!-- 휴지통 -->
+    <div id="trashPage" class="hidden">
+      <div id="trashList" class="grid gap-4"></div>
     </div>
   </div>
 
+  <!-- Firebase 초기화 -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
@@ -35,69 +63,136 @@
       projectId: "yonseirent-setup",
       storageBucket: "yonseirent-setup.appspot.com",
       messagingSenderId: "1072524969376",
-      appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
-      measurementId: "G-CQZEKPE02D"
+      appId: "1:1072524969376:web:0d7aa9875341262f3e10c5"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    function fetchRentalList() {
-      db.collection("rentals")
-        .orderBy("createdAt", "desc")
+    let currentPage = 'pending';
+    let currentCategory = 'equipment';
+
+    // 페이지 전환
+    function switchPage(page) {
+      currentPage = page;
+      document.getElementById('pendingPage').classList.toggle('hidden', page !== 'pending');
+      document.getElementById('trashPage').classList.toggle('hidden', page !== 'trash');
+      loadData();
+    }
+
+    // 카테고리 탭 전환
+    document.querySelectorAll('.tab-button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-button').forEach(b => {
+          b.classList.remove('tab-active');
+          b.classList.add('tab-inactive');
+        });
+        btn.classList.add('tab-active');
+        btn.classList.remove('tab-inactive');
+        currentCategory = btn.dataset.category;
+        loadData();
+      });
+    });
+
+    // 항목 로딩
+    function loadData() {
+      const targetList = currentPage === 'pending' ? 'pendingList' : 'trashList';
+      document.getElementById(targetList).innerHTML = '';
+
+      db.collection('rentals')
+        .where('status', 'in', currentPage === 'pending' ? ['대기'] : ['휴지통'])
+        .orderBy('createdAt', 'desc')
         .get()
         .then(snapshot => {
-          const container = document.getElementById("rental-list");
-          container.innerHTML = "";
-
           snapshot.forEach(doc => {
             const data = doc.data();
-            const id = doc.id;
-            const div = document.createElement("div");
-            div.className = "bg-white p-4 rounded shadow";
-
-            const statusColor = `status-${data.status.replace(/\s/g, "")}`;
-
-            div.innerHTML = `
-              <div class="flex justify-between items-center mb-2">
-                <div>
-                  <p class="font-semibold">${data.userName} (${data.studentId})</p>
-                  <p class="text-sm text-gray-600">신청일: ${data.createdAt?.toDate().toLocaleString() || "-"}</p>
-                </div>
-                <span class="status-tag ${statusColor}">${data.status}</span>
-              </div>
-              <p class="mb-1"><strong>장비:</strong> ${data.items?.join(", ")}</p>
-              ${data.editingDate ? `<p class="mb-1"><strong>편집실 날짜:</strong> ${data.editingDate}</p>` : ""}
-              ${data.startDate ? `<p><strong>대여기간:</strong> ${data.startDate} ~ ${data.endDate}</p>` : ""}
-              ${data.hours?.length ? `<p><strong>시간:</strong> ${data.hours.join(", ")}시</p>` : ""}
-              <div class="mt-4 flex gap-2">
-                <button onclick="approveRental('${id}')" class="bg-green-500 text-white px-3 py-1 rounded">승인</button>
-                <button onclick="rejectRental('${id}')" class="bg-red-500 text-white px-3 py-1 rounded">반려</button>
-                <button onclick="markReturned('${id}')" class="bg-gray-600 text-white px-3 py-1 rounded">반납 완료</button>
-              </div>
-            `;
-            container.appendChild(div);
+            const isEditing = data.items.every(i => i.includes('편집실'));
+            if ((currentCategory === 'editing' && isEditing) || (currentCategory === 'equipment' && !isEditing)) {
+              renderCard(doc.id, data, targetList);
+            }
           });
         });
     }
-    function approveRental(id) {
-      db.collection("rentals").doc(id).update({ status: "승인" })
-        .then(fetchRentalList)
-        .catch(err => alert("승인 실패: " + err));
+  </script>
+  <script>
+    function renderCard(id, data, containerId) {
+      const container = document.getElementById(containerId);
+      const div = document.createElement("div");
+      div.className = "bg-white rounded-lg shadow p-4 relative";
+
+      // 상단 휴지통 아이콘 (대기 페이지에서만 표시)
+      if (currentPage === 'pending') {
+        const trashBtn = document.createElement("button");
+        trashBtn.innerHTML = "&times;";
+        trashBtn.className = "absolute top-2 right-2 text-gray-400 hover:text-red-500 text-xl";
+        trashBtn.onclick = () => updateStatus(id, '휴지통');
+        div.appendChild(trashBtn);
+      }
+
+      // 신청 정보 표시
+      div.innerHTML += `
+        <p class="font-bold text-blue-700">${data.userName} (${data.studentId})</p>
+        <p class="text-sm text-gray-600 mb-2">${data.items.join(', ')}</p>
+        <p class="text-xs text-gray-500">
+          ${data.editingDate
+            ? `편집실: ${data.editingDate} / ${data.hours?.join(', ')}시`
+            : `대여: ${data.startDate} ~ ${data.endDate}`}
+        </p>
+        ${data.status === '휴지통' && data.returnedAt ? `
+          <p class="text-xs mt-1 text-green-600">반납완료: ${data.returnedAt.toDate().toLocaleString()}</p>
+        ` : ""}
+      `;
+
+      // 버튼 영역
+      const btnGroup = document.createElement("div");
+      btnGroup.className = "mt-4 flex gap-2 flex-wrap";
+
+      if (currentPage === 'pending') {
+        const approveBtn = createBtn("승인", "bg-green-500", () => updateStatus(id, '승인'));
+        const rejectBtn = createBtn("반려", "bg-red-500", () => updateStatus(id, '반려'));
+        const returnBtn = createBtn("반납완료", "bg-gray-600", () => markReturned(id));
+        btnGroup.append(approveBtn, rejectBtn, returnBtn);
+      }
+
+      if (currentPage === 'trash') {
+        const restoreBtn = createBtn("복원", "bg-blue-500", () => updateStatus(id, '대기'));
+        btnGroup.append(restoreBtn);
+      }
+
+      div.appendChild(btnGroup);
+      container.appendChild(div);
     }
 
-    function rejectRental(id) {
-      db.collection("rentals").doc(id).update({ status: "반려" })
-        .then(fetchRentalList)
-        .catch(err => alert("반려 실패: " + err));
+    function createBtn(label, colorClass, onClick) {
+      const btn = document.createElement("button");
+      btn.innerText = label;
+      btn.className = `${colorClass} text-white px-3 py-1 rounded text-sm`;
+      btn.onclick = onClick;
+      return btn;
+    }
+
+    function updateStatus(id, status) {
+      db.collection("rentals").doc(id).update({ status }).then(loadData);
     }
 
     function markReturned(id) {
-      db.collection("rentals").doc(id).update({ status: "반납 완료" })
-        .then(fetchRentalList)
-        .catch(err => alert("반납 완료 처리 실패: " + err));
+      const returnedAt = firebase.firestore.Timestamp.now();
+      db.collection("rentals").doc(id).update({ returnedAt }).then(loadData);
     }
 
-    window.onload = fetchRentalList;
+    window.addEventListener("DOMContentLoaded", () => {
+      switchPage('pending');
+    });
   </script>
+  <style>
+    .tab-btn.active {
+      background-color: #3b82f6;
+      color: white;
+    }
+
+    .page-btn.active {
+      background-color: #1e40af;
+      color: white;
+    }
+  </style>
 </body>
 </html>
