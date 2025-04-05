@@ -32,6 +32,7 @@
       measurementId: "G-CQZEKPE02D"
     };
     firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
   </script>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -114,14 +115,10 @@
     </div>
   </template>
 
-  <script>
-    const db = firebase.firestore();
-  </script>
-
   <!-- 관리자 대시보드 스크립트 -->
   <script>
-    let currentTab = "waiting"; // 'waiting' 또는 'trash'
-    let currentType = ""; // 'equipment' 또는 'editing'
+    let currentTab = "waiting"; // "waiting" 또는 "trash"
+    let currentType = "";       // "equipment" 또는 "editing"
 
     // 탭 전환 이벤트
     document.getElementById("tab-waiting").addEventListener("click", () => switchTab("waiting"));
@@ -138,10 +135,8 @@
       currentTab = tab;
       document.getElementById("waiting-content").classList.toggle("hidden", tab !== "waiting");
       document.getElementById("trash-content").classList.toggle("hidden", tab !== "trash");
-
       document.getElementById("tab-waiting").classList.toggle("bg-blue-100", tab === "waiting");
       document.getElementById("tab-trash").classList.toggle("bg-gray-100", tab === "trash");
-
       // 초기 대분류 필터 숨김
       currentType = "";
       document.getElementById("waiting-filters").classList.add("hidden");
@@ -232,20 +227,12 @@
     function updateField(id, data) {
       db.collection("rentals").doc(id).update(data).then(loadData);
     }
-  </script>
 
-  <!-- 관리자 대시보드에 필요한 추가 스크립트 (폼 페이지와 관련 없는 부분) -->
-  <script>
-    function getUserName() {
-      return document.getElementById("userName") ? document.getElementById("userName").value.trim() : "";
-    }
-    function getStudentID() {
-      return document.getElementById("userId") ? document.getElementById("userId").value.trim() : "";
-    }
+    // 관리자 대시보드 스크립트 끝
+
     function goHome() {
       location.href = "index.html";
     }
-    // goToStep 함수는 폼 페이지 전용이므로 관리자 대시보드에서는 사용하지 않음.
   </script>
 </body>
 </html>
