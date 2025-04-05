@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 신청</title>
-  <!-- Tailwind CSS CDN (개발 중 사용; 프로덕션에서는 빌드된 CSS 사용 권장) -->
+  <!-- Tailwind CSS (개발 중용 - 프로덕션에서는 빌드된 CSS 사용 권장) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
@@ -37,7 +37,6 @@
       pointer-events: none;
       background-color: #f3f4f6;
     }
-    /* 시간 선택 그리드 (편집실 전용) */
     .time-grid {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
@@ -52,9 +51,7 @@
       cursor: pointer;
       font-size: 0.875rem;
     }
-    .time-grid input[type="checkbox"] {
-      display: none;
-    }
+    .time-grid input[type="checkbox"] { display: none; }
     .time-grid input[type="checkbox"]:checked + label {
       background-color: #60a5fa;
       color: white;
@@ -106,26 +103,29 @@
         <button class="tab-button px-4 py-1 border rounded" data-tab="editing">편집실</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="battery">배터리</button>
       </div>
-      <!-- 카메라 중분류 탭 -->
+
+      <!-- 카메라 중분류 -->
       <div id="cameraSubTabs" class="flex gap-2 mb-4">
         <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripodGimbal">삼각대&짐벌</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="accessory">부속품</button>
       </div>
-      <!-- 조명 중분류 탭 -->
+
+      <!-- 조명 중분류 (숨김) -->
       <div id="lightingSubTabs" class="flex gap-2 mb-4 hidden">
         <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="light">조명</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="gobo">고보&디퓨저</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="stand">스탠드</button>
       </div>
-      <!-- 장비 목록 -->
+
       <div id="equipment-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-      <!-- 선택된 장비 표시 -->
+
       <div id="selected-section" class="mt-6 hidden">
         <h3 class="font-medium mb-2">선택된 장비</h3>
         <ul id="selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
       </div>
+
       <div class="flex justify-between mt-6">
         <button onclick="goHome()" class="text-blue-600 text-sm">홈으로</button>
         <button id="toStep2" onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">다음 단계 →</button>
@@ -140,7 +140,8 @@
       <input type="text" id="userName" class="border p-2 rounded w-full mb-4" placeholder="이름을 입력하세요" />
       <label class="block mb-2 font-medium">학번</label>
       <input type="text" id="userId" class="border p-2 rounded w-full mb-4" placeholder="학번을 입력하세요" />
-      <!-- 일반 장비 대여일 -->
+
+      <!-- 일반 대여일 선택 -->
       <div id="commonDateSection">
         <label class="block mb-2 font-medium">대여 시작일</label>
         <input type="date" id="startDate" class="border p-2 rounded w-full mb-4" />
@@ -149,13 +150,15 @@
         <label class="block mb-2 font-medium">증명사진 첨부</label>
         <input type="file" id="proofImage" accept="image/*" class="border p-2 rounded w-full mb-4" />
       </div>
-      <!-- 편집실 대여일 및 시간 선택 -->
+
+      <!-- 편집실 선택 시 (숨김) -->
       <div id="editingDateSection" class="hidden">
         <label class="block mb-2 font-medium">편집실 대여일자</label>
         <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4" />
         <label class="block mb-2 font-medium">시간 선택</label>
-        <div class="grid grid-cols-6 gap-2 text-sm" id="timeGrid"></div>
+        <div id="timeGrid" class="grid grid-cols-6 gap-2 text-sm"></div>
       </div>
+
       <div class="flex justify-between mt-6">
         <button onclick="goToStep(1)" class="text-sm text-blue-600">← 이전 단계</button>
         <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded">다음 단계 →</button>
@@ -188,9 +191,11 @@
         2025년 3월 23일<br/>
         연세예술원 영화학 주임교수 유영식
       </div>
+
       <label class="flex items-center mb-4">
         <input type="checkbox" id="agreeCheck" class="mr-2"> 위 규정에 동의합니다.
       </label>
+
       <div class="flex justify-between">
         <button onclick="goToStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
         <button id="toStep4" onclick="submitApplication()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">신청 완료</button>
@@ -198,7 +203,7 @@
     </div>
 
     <!-- Step 4: 완료 화면 -->
-    <div id="step4" class="step hidden text-center py-20">
+    <div id="step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
       <h3 class="text-lg font-bold mb-4">선택한 장비 목록</h3>
       <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
@@ -210,9 +215,9 @@
     </div>
   </div>
 
-  <!-- 스크립트 시작 -->
+  <!-- Firebase 및 스크립트 -->
   <script>
-    // 전역 변수들
+    // 신청폼 관련 스크립트
     let selectedItems = [];
     let selectedHours = [];
     let currentTab = "camera";
@@ -355,20 +360,15 @@
     { name: "SCFexpress Type A SD 메모리카드 리더기", image: "https://www.sony.com/image/9e336e68239b6bd5fdf396c634383f48?fmt=png-alpha&wid=480" }
   ]
 };
-    // Firestore 대여 내역 검사: 최근 반납 완료 후 3일이 지나면 선택 가능
-    async function isItemAvailable(itemName) {
-      const snapshot = await db.collection("rentals")
-        .where("items", "array-contains", itemName)
-        .where("status", "==", "반납 완료")
-        .orderBy("returnedAt", "desc")
-        .limit(1)
-        .get();
-      if (snapshot.empty) return true;
-      const last = snapshot.docs[0].data();
-      const returnedAt = last.returnedAt ? last.returnedAt.toDate() : null;
-      if (!returnedAt) return true;
-      const diffDays = (new Date() - returnedAt) / (1000 * 60 * 60 * 24);
-      return diffDays > 3;
+    // 유저 정보 함수
+    function getUserName() {
+      return document.getElementById("userName").value.trim();
+    }
+    function getStudentID() {
+      return document.getElementById("userId").value.trim();
+    }
+    function goHome() {
+      location.href = "index.html";
     }
 
     // 선택된 장비 UI 업데이트
@@ -388,7 +388,7 @@
       renderEquipmentList();
     }
 
-    // 장비 목록 렌더링 (대여 가능 여부도 체크)
+    // 장비 목록 렌더링 (Firestore에서 최근 3일 대여 여부도 확인)
     async function renderEquipmentList() {
       const container = document.getElementById("equipment-list");
       container.innerHTML = "";
@@ -397,24 +397,40 @@
       else if (currentTab === "lighting") items = equipmentData.lighting[currentSub] || [];
       else items = equipmentData[currentTab] || [];
       if (!Array.isArray(items) || items.length === 0) {
-        container.innerHTML = '<p class="text-gray-500 col-span-2">등록된 장비가 없습니다.</p>';
+        container.innerHTML = '<p class="text-gray-500">등록된 장비가 없습니다.</p>';
         return;
       }
+      const today = new Date();
       for (const item of items) {
-        const available = await isItemAvailable(item.name);
+        let isUnavailable = false;
+        // Firestore 쿼리로 해당 장비가 최근 3일 동안 대여되어 아직 반납 완료가 안 된 경우를 체크
+        const snapshot = await db.collection("rentals")
+          .where("items", "array-contains", item.name)
+          .where("status", "in", ["대기", "승인", "반려"])
+          .get();
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          if (data.endDate) {
+            const end = new Date(data.endDate);
+            const diff = (today - end) / (1000 * 60 * 60 * 24);
+            if (diff < 3) isUnavailable = true;
+          }
+        });
         const div = document.createElement("div");
         div.className = "equipment-card";
-        if (!available) div.classList.add("disabled");
+        if (isUnavailable) div.classList.add("disabled");
         if (selectedItems.includes(item.name)) div.classList.add("selected");
         div.innerHTML = `<img src="${item.image}" alt="${item.name}" /><span class="text-sm">${item.name}</span>`;
         div.onclick = () => {
-          if (!available) return; // 사용 불가 항목은 선택되지 않음
-          const isSelected = selectedItems.includes(item.name);
-          selectedItems = isSelected
-            ? selectedItems.filter(i => i !== item.name)
-            : [...selectedItems, item.name];
-          updateSelectedUI();
-          renderEquipmentList();
+          if (!isUnavailable) {
+            if (selectedItems.includes(item.name)) {
+              selectedItems = selectedItems.filter(i => i !== item.name);
+            } else {
+              selectedItems.push(item.name);
+            }
+            updateSelectedUI();
+            renderEquipmentList();
+          }
         };
         container.appendChild(div);
       }
@@ -449,13 +465,8 @@
         const dateText = editingOnly ? document.getElementById("editingDate").value : `${start} ~ ${end}`;
         document.getElementById("final-dates").innerText = `대여일자: ${dateText}`;
         document.getElementById("final-time").innerText = editingOnly && selectedHours.length
-          ? `선택한 시간: ${selectedHours.sort((a, b) => a - b).join(', ')}시`
-          : '';
+          ? `선택한 시간: ${selectedHours.sort((a, b) => a - b).join(', ')}시` : '';
       }
-    }
-
-    function goHome() {
-      location.href = "index.html";
     }
 
     // 편집실 시간표 생성
@@ -464,7 +475,7 @@
       grid.innerHTML = "";
       selectedHours = [];
       const date = document.getElementById("editingDate").value;
-      const room = selectedItems[0]; // 편집실 1 또는 편집실 2
+      const room = selectedItems[0];
       if (!date || !room) return;
       db.collection("rentals")
         .where("editingDate", "==", date)
@@ -563,11 +574,10 @@
         });
     }
 
-    // 탭 전환 이벤트 처리
+    // 탭 전환 이벤트 (폼 페이지)
     document.querySelectorAll(".tab-button").forEach(btn => {
       btn.addEventListener("click", () => {
         currentTab = btn.dataset.tab;
-        // 중분류 표시 제어
         document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
         document.getElementById("lightingSubTabs").style.display = currentTab === "lighting" ? "flex" : "none";
         currentSub = currentTab === "camera" ? "body" : currentTab === "lighting" ? "light" : null;
@@ -576,7 +586,7 @@
       });
     });
 
-    // 중분류 탭 전환
+    // 중분류 탭 전환 이벤트
     document.querySelectorAll(".subtab-button").forEach(btn => {
       btn.addEventListener("click", () => {
         btn.parentElement.querySelectorAll(".subtab-button").forEach(b => b.classList.remove("active"));
@@ -593,25 +603,12 @@
       btn.classList.toggle("opacity-50", !e.target.checked);
     });
 
-    // 유저 정보 getter 함수
-    function getUserName() {
-      return document.getElementById("userName").value.trim();
-    }
-    function getStudentID() {
-      return document.getElementById("userId").value.trim();
-    }
-
     // 초기화
     window.addEventListener("DOMContentLoaded", () => {
       goToStep(1);
       updateSelectedUI();
       renderEquipmentList();
     });
-
-    // goHome 함수
-    function goHome() {
-      location.href = "index.html";
-    }
   </script>
 </body>
 </html>
