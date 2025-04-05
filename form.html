@@ -90,7 +90,7 @@
 
   <!-- 폼 컨테이너 -->
   <div class="max-w-4xl mx-auto p-6 bg-white mt-6 rounded-lg shadow-md">
-    <!-- 단계 버튼 -->
+    <!-- 단계 버튼 (각 단계 선택 시 파란색 표시) -->
     <div class="flex justify-between mb-8">
       <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 장비 선택</div>
       <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 대여일 선택</div>
@@ -120,7 +120,7 @@
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="accessory">부속품</button>
       </div>
 
-      <!-- 조명 중분류 (카메라, 조명 탭에서만 보임) -->
+      <!-- 조명 중분류 (조명 탭에서만 보임) -->
       <div id="lightingSubTabs" class="flex gap-2 mb-4 hidden">
         <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="light">조명</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="gobo">고보&디퓨저</button>
@@ -145,29 +145,37 @@
     <!-- Step 2: 대여일 선택 -->
     <div id="step2" class="hidden">
       <h2 class="text-xl font-bold mb-4">대여일 선택</h2>
+
       <!-- 사용자 정보 입력 -->
       <label class="block mb-2 font-medium">이름</label>
       <input type="text" id="userName" class="border p-2 rounded w-full mb-4" placeholder="이름을 입력하세요" />
+      
       <label class="block mb-2 font-medium">학번</label>
       <input type="text" id="userId" class="border p-2 rounded w-full mb-4" placeholder="학번을 입력하세요" />
+
       <!-- 일반 장비 대여일 -->
       <div id="commonDateSection">
         <label class="block mb-2 font-medium">대여 시작일</label>
         <input type="date" id="startDate" class="border p-2 rounded w-full mb-4" />
+        
         <label class="block mb-2 font-medium">반납일</label>
         <input type="date" id="endDate" class="border p-2 rounded w-full mb-4" />
+        
         <label class="block mb-2 font-medium">증명사진 첨부</label>
         <input type="file" id="proofImage" accept="image/*" class="border p-2 rounded w-full mb-4" />
       </div>
+
       <!-- 편집실 대여일 및 시간 선택 (편집실 신청 시) -->
       <div id="editingDateSection" class="hidden">
         <label class="block mb-2 font-medium">편집실 대여일자</label>
         <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4" />
+
         <label class="block mb-2 font-medium">시간 선택</label>
         <div id="timeGrid" class="grid grid-cols-6 gap-2 text-sm">
           <!-- 시간 버튼들이 동적으로 생성됩니다 -->
         </div>
       </div>
+
       <div class="flex justify-between mt-6">
         <button onclick="goToStep(1)" class="text-sm text-blue-600">← 이전 단계</button>
         <button onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded">다음 단계 →</button>
@@ -222,18 +230,15 @@
     </div>
   </div>
 
-  <!-- Firebase Firestore 인스턴스 -->
+  <!-- Firebase Firestore 인스턴스 (firebase.initializeApp() 후 이미 생성됨) -->
   <script>
-    // 이미 firebase.initializeApp() 후 db 생성 완료
-  </script>
-
-  <!-- 다단계 폼 및 예약 관련 스크립트 -->
-  <script>
+    // 다단계 폼 및 예약 관련 스크립트
     let selectedItems = [];
     let selectedHours = [];
     let currentTab = "camera";
     let currentSub = "body";
- const equipmentData = {
+
+    const equipmentData = {
   camera: {
     body: [
       { name: "Sony FX6", image: "https://www.bhphotovideo.com/cdn-cgi/image/fit=scale-down,width=500,quality=95/https://www.bhphotovideo.com/images/images500x500/sony_pxw_fx6_cinema_camera_body_1673526912_1592066.jpg" },
@@ -297,9 +302,9 @@
       { name: "Aputure amaran F21C", image: "https://www.economik.com/products/20501-21000/20715_full.jpg" },
       { name: "Aputure amaran F22C", image: "https://www.mediabox-x.co.kr/data/goods/1/2022/08/_temp_16596921858951view.jpg" },
       { name: "난라이트 2400b", image: "https://cdn.imweb.me/thumbnail/20240911/7d99b5cc9460e.jpg" },
-      { name: "프레넬 렌즈1번", image: "https://cdn.shopify.com/s/files/1/0252/6524/5843/products/LightStorm-Fresnel-2x-Accessory-Front_1024x1024.jpg" },
-      { name: "프레넬 렌즈2번", image: "https://cdn.shopify.com/s/files/1/0252/6524/5843/products/LightStorm-Fresnel-2x-Accessory-Front_1024x1024.jpg" },
-      { name: "프레넬 렌즈3번", image: "https://cdn.shopify.com/s/files/1/0252/6524/5843/products/LightStorm-Fresnel-2x-Accessory-Front_1024x1024.jpg" },
+      { name: "프레넬 렌즈1번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSoyGBe9AEpxQp9AopkO_Jh_JybRasKCleaRg&s" },
+      { name: "프레넬 렌즈2번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSoyGBe9AEpxQp9AopkO_Jh_JybRasKCleaRg&s" },
+      { name: "프레넬 렌즈3번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSoyGBe9AEpxQp9AopkO_Jh_JybRasKCleaRg&s" },
       { name: "Skypanel S60 1번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3095_temp_16729690273473view.jpg" },
       { name: "Skypanel S60 2번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3095_temp_16729690273473view.jpg" },
       { name: "Skypanel S60 3번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3095_temp_16729690273473view.jpg" }
@@ -335,21 +340,21 @@
     { name: "RODE NTG4 붐폴 2번", image: "https://cdn1.rode.com/ntg4/images/NTG4_1.jpg" },
     { name: "RODE NTG4 붐폴 3번", image: "https://cdn1.rode.com/ntg4/images/NTG4_1.jpg" },
     { name: "K-Tek 붐폴", image: "https://cdn.011st.com/11dims/resize/600x600/quality/75/11src/product/7484330741/B.jpg?587725191" },
-    { name: "타스캡 레코더 1번", image: "https://cdn1.rode.com/videomicntg/images/VideoMicNTG_1.jpg" },
-    { name: "타스캡 레코더 2번", image: "https://cdn1.rode.com/videomicntg/images/VideoMicNTG_1.jpg" },
-    { name: "ZOOM H6 레코더", image: "https://zoomcorp.com/media/images/H6_AllBlack_slant_RGB_3.0e16d0ba.fill-1200x630-c100.jpg" },
-    { name: "무선 핀마이크 SET 1", image: "https://shure.scene7.com/is/image/Shure/BLX14R_MX53_H10_front_xl?fmt=jpg&wid=1800&qlt=85" },
-    { name: "무선 핀마이크 SET 2", image: "https://shure.scene7.com/is/image/Shure/BLX14R_MX53_H10_front_xl?fmt=jpg&wid=1800&qlt=85" },
-    { name: "무선 핀마이크 SET 3", image: "https://shure.scene7.com/is/image/Shure/BLX14R_MX53_H10_front_xl?fmt=jpg&wid=1800&qlt=85" },
-    { name: "무선 핀마이크 SET 4", image: "https://shure.scene7.com/is/image/Shure/BLX14R_MX53_H10_front_xl?fmt=jpg&wid=1800&qlt=85" }
+    { name: "타스캠 레코더 1번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20220726_142%2F165880565867863lmK_JPEG%2F59941501379750621_1960646652.jpg&type=sc960_832" },
+    { name: "타스캠 레코더 2번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20220726_142%2F165880565867863lmK_JPEG%2F59941501379750621_1960646652.jpg&type=sc960_832" },
+    { name: "ZOOM H6 레코더", image: "https://i.ebayimg.com/images/g/3nMAAOSwgVZfiCp6/s-l1600.jpg" },
+    { name: "무선 핀마이크 SET 1", image: "https://thumbnail7.coupangcdn.com/thumbnails/remote/492x492ex/image/retail/images/2023/04/24/17/4/4870bf4f-7eeb-4912-82c6-2b5e897fd981.jpg" },
+    { name: "무선 핀마이크 SET 2", image: "https://thumbnail7.coupangcdn.com/thumbnails/remote/492x492ex/image/retail/images/2023/04/24/17/4/4870bf4f-7eeb-4912-82c6-2b5e897fd981.jpg" },
+    { name: "무선 핀마이크 SET 3", image: "https://thumbnail7.coupangcdn.com/thumbnails/remote/492x492ex/image/retail/images/2023/04/24/17/4/4870bf4f-7eeb-4912-82c6-2b5e897fd981.jpg" },
+    { name: "무선 핀마이크 SET 4", image: "https://thumbnail7.coupangcdn.com/thumbnails/remote/492x492ex/image/retail/images/2023/04/24/17/4/4870bf4f-7eeb-4912-82c6-2b5e897fd981.jpg" }
   ],
   monitor: [
-    { name: "HOLLYLAND MARS-M1 1번", image: "https://cdn.shopify.com/s/files/1/0012/8710/9155/products/5-Inch-FW568-V3-Monitor_1_1000x.jpg" },
-    { name: "HOLLYLAND MARS-M1 2번", image: "https://cdn.shopify.com/s/files/1/0012/8710/9155/products/5-Inch-FW568-V3-Monitor_1_1000x.jpg" },
-    { name: "HOLLYLAND MARS-M1 3번", image: "https://cdn.shopify.com/s/files/1/0012/8710/9155/products/5-Inch-FW568-V3-Monitor_1_1000x.jpg" },
+    { name: "HOLLYLAND MARS-M1 1번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3102_temp_16734080435217view.jpg" },
+    { name: "HOLLYLAND MARS-M1 2번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3102_temp_16734080435217view.jpg" },
+    { name: "HOLLYLAND MARS-M1 3번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3102_temp_16734080435217view.jpg" },
     { name: "Smaller indie 7", image: "https://www.atomos.com/images/products/ninja-v-plus/overview/Ninja-V-Plus_Overview_01.webp" },
-    { name: "아트모스 쇼군 7인치", image: "https://lilliputdirect.com/wp-content/uploads/2021/02/A7S.jpg" },
-    { name: "TVLogic LVM-181S 18.5IN FHD PBP LCD Monitor", image: "https://smallhd.com/cdn/shop/products/Indie7-Front-hero_800x.jpg" },
+    { name: "아트모스 쇼군 7인치", image: "https://m.samyangtechmall.com/web/product/big/202401/8a3804e36704b7d2fee3fa1ca8c75dce.jpg" },
+    { name: "TVLogic LVM-181S 18.5IN FHD PBP LCD Monitor", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqdzFEDjqnSUDjCaUASpfbtE_dQw0G4ZKY-A&s" },
     { name: "모니터 암", image: "https://www.smallrig.com/cdn/shop/products/2903-SmallRig-Adjustable-Monitor-Mount-for-Select-DJI-Ronin-Series-650x650-2.jpg" }
   ],
   line: [
@@ -371,80 +376,6 @@
     { name: "SCFexpress Type A SD 메모리카드 리더기", image: "https://www.sony.com/image/9e336e68239b6bd5fdf396c634383f48?fmt=png-alpha&wid=480" }
   ]
 };
-    // 장비 카드 선택 후 UI 업데이트
-    function updateSelectedUI() {
-      const sec = document.getElementById("selected-section");
-      const btn = document.getElementById("toStep2");
-      sec.classList.toggle("hidden", selectedItems.length === 0);
-      btn.classList.toggle("hidden", selectedItems.length === 0);
-      document.getElementById("selected-items").innerHTML = selectedItems.map(item =>
-        `<li>${item} <button type="button" class="ml-2 text-red-500" onclick="removeSelectedItem('${item.replace(/'/g, "\\'")}')">&times;</button></li>`
-      ).join("");
-    }
-
-    function removeSelectedItem(name) {
-      selectedItems = selectedItems.filter(i => i !== name);
-      updateSelectedUI();
-      renderEquipmentList();
-    }
-
-    // 장비 카드 렌더링 (편집실 제외)
-    async function renderEquipmentList() {
-      const container = document.getElementById("equipment-list");
-      container.innerHTML = "";
-      let items = [];
-      if (currentTab === "camera") items = equipmentData.camera[currentSub] || [];
-      else if (currentTab === "lighting") items = equipmentData.lighting[currentSub] || [];
-      else items = equipmentData[currentTab] || [];
-      if (!Array.isArray(items) || items.length === 0) {
-        container.innerHTML = '<p class="text-gray-500">등록된 장비가 없습니다.</p>';
-        return;
-      }
-      const today = new Date();
-      // 각 장비마다 예약 여부를 체크 (편집실은 제외)
-      for (const item of items) {
-        const div = document.createElement("div");
-        div.className = "equipment-card";
-        // 이미 선택된 항목이면 selected 처리
-        if (selectedItems.includes(item.name)) div.classList.add("selected");
-
-        // 편집실이 아니라면 예약 여부 확인
-        if (currentTab !== "editing") {
-          try {
-            const snapshot = await db.collection("rentals")
-              .where("items", "array-contains", item.name)
-              .where("status", "!=", "반납 완료")
-              .get();
-            let isUnavailable = false;
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              if (data.endDate) {
-                const endDate = new Date(data.endDate);
-                const diff = (today - endDate) / (1000 * 60 * 60 * 24);
-                if (diff < 3) {
-                  isUnavailable = true;
-                }
-              }
-            });
-            if (isUnavailable) {
-              div.classList.add("disabled");
-            }
-          } catch (err) {
-            console.error("예약 여부 확인 오류:", err);
-          }
-        }
-
-        div.innerHTML = `<img src="${item.image}" alt="${item.name}" /><span class="text-sm">${item.name}</span>`;
-        div.onclick = () => {
-          if (div.classList.contains("disabled")) return; // 예약된 경우 클릭 무시
-          const isSelected = selectedItems.includes(item.name);
-          selectedItems = isSelected ? selectedItems.filter(i => i !== item.name) : [...selectedItems, item.name];
-          updateSelectedUI();
-          renderEquipmentList();
-        };
-        container.appendChild(div);
-      }
-    }
 
     // 단계 이동 함수
     function goToStep(n) {
@@ -457,7 +388,6 @@
       document.getElementById("step" + n + "Btn")?.classList.add("step-active");
 
       if (n === 2) {
-        // 편집실 예약인 경우와 일반 장비 예약인 경우 필드 전환
         const editingOnly = selectedItems.every(i => i.includes("편집실"));
         document.getElementById("commonDateSection").classList.toggle("hidden", editingOnly);
         document.getElementById("editingDateSection").classList.toggle("hidden", !editingOnly);
@@ -482,6 +412,56 @@
 
     function goHome() {
       location.href = "index.html";
+    }
+
+    // 장비 카드 렌더링 (편집실 제외)
+    async function renderEquipmentList() {
+      const container = document.getElementById("equipment-list");
+      container.innerHTML = "";
+      let items = [];
+      if (currentTab === "camera") items = equipmentData.camera[currentSub] || [];
+      else if (currentTab === "lighting") items = equipmentData.lighting[currentSub] || [];
+      else items = equipmentData[currentTab] || [];
+      if (!Array.isArray(items) || items.length === 0) {
+        container.innerHTML = '<p class="text-gray-500">등록된 장비가 없습니다.</p>';
+        return;
+      }
+      const today = new Date();
+      // 각 장비에 대해 예약 여부 검사 (편집실 제외)
+      for (const item of items) {
+        const div = document.createElement("div");
+        div.className = "equipment-card";
+        if (selectedItems.includes(item.name)) div.classList.add("selected");
+        if (currentTab !== "editing") {
+          try {
+            const snapshot = await db.collection("rentals")
+              .where("items", "array-contains", item.name)
+              .where("status", "!=", "반납 완료")
+              .get();
+            let isUnavailable = false;
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              if (data.endDate) {
+                const endDate = new Date(data.endDate);
+                const diff = (today - endDate) / (1000 * 60 * 60 * 24);
+                if (diff < 3) isUnavailable = true;
+              }
+            });
+            if (isUnavailable) div.classList.add("disabled");
+          } catch (err) {
+            console.error("예약 여부 확인 오류:", err);
+          }
+        }
+        div.innerHTML = `<img src="${item.image}" alt="${item.name}" /><span class="text-sm">${item.name}</span>`;
+        div.onclick = () => {
+          if (div.classList.contains("disabled")) return; // 예약된 경우 선택 불가
+          const isSelected = selectedItems.includes(item.name);
+          selectedItems = isSelected ? selectedItems.filter(i => i !== item.name) : [...selectedItems, item.name];
+          updateSelectedUI();
+          renderEquipmentList();
+        };
+        container.appendChild(div);
+      }
     }
 
     // 편집실 시간표 생성 함수
@@ -533,7 +513,6 @@
     // 날짜 충돌 검사 함수 (일반 장비 예약 시)
     async function checkDateConflicts(startDate, endDate) {
       let conflict = false;
-      // 각 선택된 장비에 대해 예약 기간과 겹치는지 확인
       for (const item of selectedItems) {
         const snapshot = await db.collection("rentals")
           .where("items", "array-contains", item)
@@ -546,7 +525,6 @@
             const existingEnd = new Date(data.endDate);
             const newStart = new Date(startDate);
             const newEnd = new Date(endDate);
-            // 두 기간이 겹치면 conflict 발생
             if (newStart <= existingEnd && existingStart <= newEnd) {
               conflict = true;
             }
@@ -577,7 +555,6 @@
           alert("대여 시작일, 반납일, 증명사진을 모두 입력해주세요.");
           return;
         }
-        // 날짜 충돌 검사 실행
         const conflict = await checkDateConflicts(start, end);
         if (conflict) {
           alert("선택하신 날짜 중 일부는 이미 예약된 항목이 있습니다. 다른 날짜를 선택해주세요.");
@@ -616,7 +593,10 @@
           alert("신청 정보를 저장하는 데 실패했습니다.");
         });
     }
+  </script>
 
+  <!-- 폼 내 유저 정보 및 기타 함수 -->
+  <script>
     function getUserName() {
       return document.getElementById("userName").value.trim();
     }
@@ -626,12 +606,15 @@
     function goHome() {
       location.href = "index.html";
     }
+  </script>
 
+  <!-- 탭 전환 및 초기화 -->
+  <script>
     // 탭 전환 이벤트 (대분류 탭)
     document.querySelectorAll(".tab-button").forEach(btn => {
       btn.addEventListener("click", () => {
         currentTab = btn.dataset.tab;
-        // 카메라와 조명 탭일 경우만 하위 중분류 표시
+        // 카메라와 조명 탭인 경우 하위 중분류 표시
         document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
         document.getElementById("lightingSubTabs").style.display = currentTab === "lighting" ? "flex" : "none";
         currentSub = currentTab === "camera" ? "body" : (currentTab === "lighting" ? "light" : null);
