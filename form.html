@@ -222,8 +222,6 @@
     const db = firebase.firestore();
   </script>
   <script>
-const equipmentData = {
-  // ... (기존 장비 데이터 그대로 유지)
 };
 
 let selectedItems = [];
@@ -482,16 +480,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-
-  document.querySelectorAll(".subtab-button").forEach(btn => {
-    btn.addEventListener("click", () => {
-      btn.parentElement.querySelectorAll(".subtab-button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      currentSub = btn.dataset.subtab;
-      renderEquipmentList();
-    });
-  });
-
   document.getElementById("agreeCheck").addEventListener("change", e => {
     const btn = document.getElementById("toStep4");
     btn.disabled = !e.target.checked;
@@ -641,12 +629,6 @@ const equipmentData = {
   ]
 };
 
-
-    let selectedItems = [];
-    let currentTab = "camera";
-    let currentSub = "body";
-    let selectedHours = [];
-
     // Step 2의 입력 필드에서 이름과 학번을 가져오는 함수
     function getUserName() {
       return document.getElementById("userName").value;
@@ -750,12 +732,6 @@ const equipmentData = {
         renderEquipmentList();
       });
     });
-
-   document.querySelectorAll(".tab-button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentTab = btn.dataset.tab;
 
     // 카메라 중분류 보여주기
     document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
@@ -945,11 +921,6 @@ const equipmentData = {
       btn.disabled = !e.target.checked;
       btn.classList.toggle("opacity-50", !e.target.checked);
     });
-
-   document.addEventListener("DOMContentLoaded", () => {
-  renderEquipmentList();
-  goToStep(1);
-});
 
 // ✅ 중분류(서브탭) 버튼 클릭 시 장비 다시 렌더링
 document.querySelectorAll(".subtab-button").forEach(btn => {
