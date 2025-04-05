@@ -142,7 +142,7 @@
       document.getElementById("tab-waiting").classList.toggle("bg-blue-100", tab === "waiting");
       document.getElementById("tab-trash").classList.toggle("bg-gray-100", tab === "trash");
 
-      // 초기 대분류 필터는 숨김
+      // 초기 대분류 필터 숨김
       currentType = "";
       document.getElementById("waiting-filters").classList.add("hidden");
       document.getElementById("trash-filters").classList.add("hidden");
@@ -153,7 +153,6 @@
       currentType = type;
       if (tab === "waiting") {
         document.getElementById("waiting-filters").classList.remove("hidden");
-        // 필터 버튼 스타일 업데이트
         document.getElementById("filter-waiting-equipment").classList.remove("bg-blue-200", "bg-blue-50");
         document.getElementById("filter-waiting-editing").classList.remove("bg-blue-200", "bg-blue-50");
         document.getElementById("filter-waiting-equipment").classList.add(type === "equipment" ? "bg-blue-200" : "bg-blue-50");
@@ -235,8 +234,8 @@
     }
   </script>
 
+  <!-- 관리자 대시보드에 필요한 추가 스크립트 (폼 페이지와 관련 없는 부분) -->
   <script>
-    // 관리자 대시보드에는 폼 페이지 코드 호출 X
     function getUserName() {
       return document.getElementById("userName") ? document.getElementById("userName").value.trim() : "";
     }
@@ -246,9 +245,7 @@
     function goHome() {
       location.href = "index.html";
     }
-    function goToStep(n) {
-      // 관리자 대시보드에선 사용하지 않음
-    }
+    // goToStep 함수는 폼 페이지 전용이므로 관리자 대시보드에서는 사용하지 않음.
   </script>
 </body>
 </html>
