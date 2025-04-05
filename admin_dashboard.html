@@ -30,30 +30,32 @@
   </header>
 
   <main class="max-w-5xl mx-auto px-4 py-6">
-    <!-- 탭 메뉴 -->
+    <!-- 대시보드 탭 메뉴 -->
     <div class="flex space-x-4 mb-4">
       <button id="tab-waiting" class="tab-button px-4 py-2 rounded bg-blue-100 font-semibold">대기 내역</button>
       <button id="tab-trash" class="tab-button px-4 py-2 rounded bg-gray-100">휴지통</button>
     </div>
 
-    <!-- 대기 내역 탭 내부 장비/편집실 필터 -->
+    <!-- 대기 내역 탭 (초기에는 대분류 탭 숨김) -->
     <div id="waiting-content" class="">
-      <div class="flex space-x-4 mb-4">
-        <button id="filter-waiting-equipment" class="subtab-button px-3 py-1 rounded bg-blue-200 font-medium">장비 신청</button>
-        <button id="filter-waiting-editing" class="subtab-button px-3 py-1 rounded bg-blue-50">편집실 신청</button>
+      <div id="waiting-filters" class="hidden flex space-x-4 mb-4">
+        <button id="filter-waiting-equipment" class="subtab-button px-3 py-1 rounded">장비 신청</button>
+        <button id="filter-waiting-editing" class="subtab-button px-3 py-1 rounded">편집실 신청</button>
       </div>
       <div id="waiting-list" class="grid grid-cols-1 gap-4"></div>
     </div>
 
-    <!-- 휴지통 탭 내부 장비/편집실 필터 -->
+    <!-- 휴지통 탭 (초기에는 대분류 탭 숨김) -->
     <div id="trash-content" class="hidden">
-      <div class="flex space-x-4 mb-4">
-        <button id="filter-trash-equipment" class="subtab-button px-3 py-1 rounded bg-gray-300 font-medium">장비 신청</button>
-        <button id="filter-trash-editing" class="subtab-button px-3 py-1 rounded bg-gray-100">편집실 신청</button>
+      <div id="trash-filters" class="hidden flex space-x-4 mb-4">
+        <button id="filter-trash-equipment" class="subtab-button px-3 py-1 rounded">장비 신청</button>
+        <button id="filter-trash-editing" class="subtab-button px-3 py-1 rounded">편집실 신청</button>
       </div>
       <div id="trash-list" class="grid grid-cols-1 gap-4"></div>
     </div>
   </main>
+
+  <!-- 카드 템플릿 (대기 내역용) -->
   <template id="card-template">
     <div class="card-item bg-white p-4 rounded shadow flex justify-between items-start relative">
       <div class="flex items-center">
@@ -74,6 +76,7 @@
     </div>
   </template>
 
+  <!-- 카드 템플릿 (휴지통용) -->
   <template id="trash-template">
     <div class="card-item bg-gray-100 p-4 rounded shadow flex justify-between items-start relative">
       <div class="flex items-center">
@@ -91,126 +94,135 @@
       </div>
     </div>
   </template>
-</body>
-</html>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-    authDomain: "yonseirent-setup.firebaseapp.com",
-    projectId: "yonseirent-setup",
-    storageBucket: "yonseirent-setup.appspot.com",
-    messagingSenderId: "1072524969376",
-    appId: "1:1072524969376:web:0d7aa9875341262f3e10c5"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
 
-  let currentTab = "waiting"; // or 'trash'
-  let currentType = "equipment"; // or 'editing'
+  <script>
+    // Firebase 초기화는 이미 완료됨.
+    // Firestore 인스턴스: db
+    const db = firebase.firestore();
 
-  document.getElementById("tab-waiting").addEventListener("click", () => switchTab("waiting"));
-  document.getElementById("tab-trash").addEventListener("click", () => switchTab("trash"));
-  document.getElementById("filter-waiting-equipment").addEventListener("click", () => switchType("equipment", "waiting"));
-  document.getElementById("filter-waiting-editing").addEventListener("click", () => switchType("editing", "waiting"));
-  document.getElementById("filter-trash-equipment").addEventListener("click", () => switchType("equipment", "trash"));
-  document.getElementById("filter-trash-editing").addEventListener("click", () => switchType("editing", "trash"));
+    let currentTab = "waiting"; // 'waiting' 또는 'trash'
+    let currentType = ""; // 'equipment' 또는 'editing'. 초기에는 아무것도 선택되지 않음.
 
-  function switchTab(tab) {
-    currentTab = tab;
-    document.getElementById("waiting-content").classList.toggle("hidden", tab !== "waiting");
-    document.getElementById("trash-content").classList.toggle("hidden", tab !== "trash");
+    // 탭 전환 이벤트 처리
+    document.getElementById("tab-waiting").addEventListener("click", () => switchTab("waiting"));
+    document.getElementById("tab-trash").addEventListener("click", () => switchTab("trash"));
 
-    document.getElementById("tab-waiting").classList.toggle("bg-blue-100", tab === "waiting");
-    document.getElementById("tab-trash").classList.toggle("bg-gray-100", tab === "trash");
-
-    loadData();
-  }
-
-  function switchType(type, tab) {
-    currentType = type;
-
-    document.querySelectorAll(".subtab-button").forEach(btn => btn.classList.remove("bg-blue-200", "bg-blue-50", "bg-gray-300", "bg-gray-100"));
-
-    if (tab === "waiting") {
-      document.getElementById("filter-waiting-equipment").classList.add(type === "equipment" ? "bg-blue-200" : "bg-blue-50");
-      document.getElementById("filter-waiting-editing").classList.add(type === "editing" ? "bg-blue-200" : "bg-blue-50");
-    } else {
-      document.getElementById("filter-trash-equipment").classList.add(type === "equipment" ? "bg-gray-300" : "bg-gray-100");
-      document.getElementById("filter-trash-editing").classList.add(type === "editing" ? "bg-gray-300" : "bg-gray-100");
+    // 대분류(장비 신청 / 편집실 신청) 탭은 대분류가 선택되었을 때 보이도록 함
+    function showFilterTabs() {
+      if (currentTab === "waiting") {
+        document.getElementById("waiting-filters").classList.remove("hidden");
+      } else if (currentTab === "trash") {
+        document.getElementById("trash-filters").classList.remove("hidden");
+      }
     }
 
-    loadData();
-  }
+    // 대분류 탭 클릭 이벤트 (대기 내역)
+    document.getElementById("filter-waiting-equipment").addEventListener("click", () => switchType("equipment", "waiting"));
+    document.getElementById("filter-waiting-editing").addEventListener("click", () => switchType("editing", "waiting"));
+    // 대분류 탭 클릭 이벤트 (휴지통)
+    document.getElementById("filter-trash-equipment").addEventListener("click", () => switchType("equipment", "trash"));
+    document.getElementById("filter-trash-editing").addEventListener("click", () => switchType("editing", "trash"));
 
-  window.addEventListener("DOMContentLoaded", () => {
-    switchTab("waiting");
-    switchType("equipment", "waiting");
-  });
+    function switchTab(tab) {
+      currentTab = tab;
+      // 초기에는 대분류 탭은 숨김 (reset)
+      document.getElementById("waiting-filters").classList.add("hidden");
+      document.getElementById("trash-filters").classList.add("hidden");
 
-  function loadData() {
-    const isEditing = currentType === "editing";
+      document.getElementById("waiting-content").classList.toggle("hidden", tab !== "waiting");
+      document.getElementById("trash-content").classList.toggle("hidden", tab !== "trash");
 
-    db.collection("rentals")
-      .where("trashed", "==", currentTab === "trash")
-      .orderBy("createdAt", "desc")
-      .get()
-      .then(snapshot => {
-        const listEl = document.getElementById(currentTab === "trash" ? "trash-list" : "waiting-list");
-        listEl.innerHTML = "";
+      document.getElementById("tab-waiting").classList.toggle("bg-blue-100", tab === "waiting");
+      document.getElementById("tab-trash").classList.toggle("bg-gray-100", tab === "trash");
 
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const id = doc.id;
+      // 초기 상태: 현재 대분류 선택 초기화
+      currentType = "";
+      loadData();
+    }
 
-          const onlyEditing = data.items?.every(i => i.includes("편집실"));
-          if (onlyEditing !== isEditing) return;
+    function switchType(type, tab) {
+      currentType = type;
+      // Reset 필터 버튼 스타일
+      if (tab === "waiting") {
+        document.getElementById("filter-waiting-equipment").classList.remove("bg-blue-200", "bg-blue-50");
+        document.getElementById("filter-waiting-editing").classList.remove("bg-blue-200", "bg-blue-50");
+        document.getElementById("filter-waiting-equipment").classList.add(type === "equipment" ? "bg-blue-200" : "bg-blue-50");
+        document.getElementById("filter-waiting-editing").classList.add(type === "editing" ? "bg-blue-200" : "bg-blue-50");
+      } else {
+        document.getElementById("filter-trash-equipment").classList.remove("bg-gray-300", "bg-gray-100");
+        document.getElementById("filter-trash-editing").classList.remove("bg-gray-300", "bg-gray-100");
+        document.getElementById("filter-trash-equipment").classList.add(type === "equipment" ? "bg-gray-300" : "bg-gray-100");
+        document.getElementById("filter-trash-editing").classList.add(type === "editing" ? "bg-gray-300" : "bg-gray-100");
+      }
+      loadData();
+    }
 
-          const isTrash = currentTab === "trash";
-          const template = document.getElementById(isTrash ? "trash-template" : "card-template");
-          const clone = template.content.cloneNode(true);
-          const dot = clone.querySelector(".status-dot");
+    window.addEventListener("DOMContentLoaded", () => {
+      switchTab("waiting");
+      // 대분류 탭은 아직 선택되지 않았으므로 필터 탭은 보이지 않음
+    });
 
-          // 상태별 색상
-          if (data.status === "승인") dot.classList.add("bg-approved");
-          else if (data.status === "반려") dot.classList.add("bg-rejected");
-          else if (data.status === "반납 완료") dot.classList.add("bg-returned");
-          else dot.classList.add("bg-waiting");
-
-          clone.querySelector(".user-name").textContent = data.userName;
-          clone.querySelector(".student-id").textContent = data.studentId;
-          clone.querySelector(".items").textContent = (data.items || []).join(", ");
-
-          const dateInfo = clone.querySelector(".date-info");
-          dateInfo.textContent = data.editingDate
-            ? `대여일: ${data.editingDate}`
-            : `대여: ${data.startDate} ~ 반납: ${data.endDate}`;
-
-          const timeInfo = clone.querySelector(".time-info");
-          if (data.hours?.length && data.editingDate) {
-            timeInfo.textContent = `시간: ${data.hours.join(", ")}시`;
-            timeInfo.classList.remove("hidden");
-          }
-
-          if (isTrash) {
-            const rTime = clone.querySelector(".returned-time");
-            rTime.textContent = data.returnedAt ? new Date(data.returnedAt.toDate()).toLocaleString() : "-";
-            clone.querySelector(".restore-btn").onclick = () => updateField(id, { trashed: false });
-          } else {
-            clone.querySelector(".approve-btn").onclick = () => updateField(id, { status: "승인" });
-            clone.querySelector(".reject-btn").onclick = () => updateField(id, { status: "반려" });
-            clone.querySelector(".return-btn").onclick = () => updateField(id, {
-              status: "반납 완료",
-              returnedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            clone.querySelector(".trash-btn").onclick = () => updateField(id, { trashed: true });
-          }
-
-          listEl.appendChild(clone);
+    function loadData() {
+      // 현재 대분류가 선택되지 않은 경우 필터 탭은 숨기고 목록은 비워둠
+      if (!currentType) {
+        const listEl = currentTab === "trash" ? document.getElementById("trash-list") : document.getElementById("waiting-list");
+        listEl.innerHTML = '<p class="text-sm text-gray-500">대분류를 선택하세요.</p>';
+        return;
+      }
+      const isEditing = currentType === "editing";
+      db.collection("rentals")
+        .where("trashed", "==", currentTab === "trash")
+        .orderBy("createdAt", "desc")
+        .get()
+        .then(snapshot => {
+          const listEl = currentTab === "trash" ? document.getElementById("trash-list") : document.getElementById("waiting-list");
+          listEl.innerHTML = "";
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const id = doc.id;
+            const onlyEditing = data.items?.every(i => i.includes("편집실"));
+            if (onlyEditing !== isEditing) return;
+            const isTrash = currentTab === "trash";
+            const template = document.getElementById(isTrash ? "trash-template" : "card-template");
+            const clone = template.content.cloneNode(true);
+            const dot = clone.querySelector(".status-dot");
+            if (data.status === "승인") dot.classList.add("bg-approved");
+            else if (data.status === "반려") dot.classList.add("bg-rejected");
+            else if (data.status === "반납 완료") dot.classList.add("bg-returned");
+            else dot.classList.add("bg-waiting");
+            clone.querySelector(".user-name").textContent = data.userName;
+            clone.querySelector(".student-id").textContent = data.studentId;
+            clone.querySelector(".items").textContent = (data.items || []).join(", ");
+            const dateInfo = clone.querySelector(".date-info");
+            dateInfo.textContent = data.editingDate
+              ? `대여일: ${data.editingDate}`
+              : `대여: ${data.startDate} ~ 반납: ${data.endDate}`;
+            const timeInfo = clone.querySelector(".time-info");
+            if (data.hours?.length && data.editingDate) {
+              timeInfo.textContent = `시간: ${data.hours.join(", ")}시`;
+              timeInfo.classList.remove("hidden");
+            }
+            if (isTrash) {
+              const rTime = clone.querySelector(".returned-time");
+              rTime.textContent = data.returnedAt ? new Date(data.returnedAt.toDate()).toLocaleString() : "-";
+              clone.querySelector(".restore-btn").onclick = () => updateField(id, { trashed: false });
+            } else {
+              clone.querySelector(".approve-btn").onclick = () => updateField(id, { status: "승인" });
+              clone.querySelector(".reject-btn").onclick = () => updateField(id, { status: "반려" });
+              clone.querySelector(".return-btn").onclick = () => updateField(id, {
+                status: "반납 완료",
+                returnedAt: firebase.firestore.FieldValue.serverTimestamp()
+              });
+              clone.querySelector(".trash-btn").onclick = () => updateField(id, { trashed: true });
+            }
+            listEl.appendChild(clone);
+          });
         });
-      });
-  }
+    }
 
-  function updateField(id, data) {
-    db.collection("rentals").doc(id).update(data).then(loadData);
-  }
-</script>
+    function updateField(id, data) {
+      db.collection("rentals").doc(id).update(data).then(loadData);
+    }
+  </script>
+</body>
+</html>
