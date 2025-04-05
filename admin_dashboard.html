@@ -44,28 +44,28 @@
   </header>
 
   <main class="max-w-5xl mx-auto px-4 py-6">
-    <!-- 탭 메뉴 -->
-    <div class="flex space-x-4 mb-4">
-      <button id="tab-waiting" class="tab-button px-4 py-2 rounded bg-blue-100 font-semibold">대기 내역</button>
-      <button id="tab-trash" class="tab-button px-4 py-2 rounded bg-gray-100">휴지통</button>
+    <!-- 상단 탭 메뉴 (사각형 탭 디자인) -->
+    <div class="flex border-b border-gray-300 mb-4">
+      <button id="tab-waiting" class="px-4 py-2 -mb-px border-b-2 border-blue-700 text-blue-700 font-semibold focus:outline-none">대기 내역</button>
+      <button id="tab-trash" class="px-4 py-2 -mb-px border-b-2 border-transparent text-gray-500 font-medium hover:border-gray-300 hover:text-gray-700 focus:outline-none">휴지통</button>
     </div>
 
     <!-- 대기 내역 탭 내부 -->
     <div id="waiting-content">
-      <!-- 대분류 필터 (초기에는 숨김) -->
-      <div id="waiting-filters" class="hidden flex space-x-4 mb-4">
-        <button id="filter-waiting-equipment" class="subtab-button px-3 py-1 rounded">장비 신청</button>
-        <button id="filter-waiting-editing" class="subtab-button px-3 py-1 rounded">편집실 신청</button>
+      <!-- 대분류 필터 (초기에는 숨김; 대기 내역) -->
+      <div id="waiting-filters" class="hidden flex space-x-2 mb-4">
+        <button id="filter-waiting-equipment" class="px-3 py-2 border border-gray-300 bg-blue-50 rounded-t-md focus:outline-none">장비 신청</button>
+        <button id="filter-waiting-editing" class="px-3 py-2 border border-gray-300 bg-blue-50 rounded-t-md focus:outline-none">편집실 신청</button>
       </div>
       <div id="waiting-list" class="grid grid-cols-1 gap-4"></div>
     </div>
 
     <!-- 휴지통 탭 내부 -->
     <div id="trash-content" class="hidden">
-      <!-- 대분류 필터 (초기에는 숨김) -->
-      <div id="trash-filters" class="hidden flex space-x-4 mb-4">
-        <button id="filter-trash-equipment" class="subtab-button px-3 py-1 rounded">장비 신청</button>
-        <button id="filter-trash-editing" class="subtab-button px-3 py-1 rounded">편집실 신청</button>
+      <!-- 대분류 필터 (초기에는 숨김; 휴지통) -->
+      <div id="trash-filters" class="hidden flex space-x-2 mb-4">
+        <button id="filter-trash-equipment" class="px-3 py-2 border border-gray-300 bg-gray-100 rounded-t-md focus:outline-none">장비 신청</button>
+        <button id="filter-trash-editing" class="px-3 py-2 border border-gray-300 bg-gray-100 rounded-t-md focus:outline-none">편집실 신청</button>
       </div>
       <div id="trash-list" class="grid grid-cols-1 gap-4"></div>
     </div>
@@ -115,6 +115,10 @@
     </div>
   </template>
 
+  <script>
+    const db = firebase.firestore();
+  </script>
+
   <!-- 관리자 대시보드 스크립트 -->
   <script>
     let currentTab = "waiting"; // "waiting" 또는 "trash"
@@ -148,16 +152,17 @@
       currentType = type;
       if (tab === "waiting") {
         document.getElementById("waiting-filters").classList.remove("hidden");
-        document.getElementById("filter-waiting-equipment").classList.remove("bg-blue-200", "bg-blue-50");
-        document.getElementById("filter-waiting-editing").classList.remove("bg-blue-200", "bg-blue-50");
-        document.getElementById("filter-waiting-equipment").classList.add(type === "equipment" ? "bg-blue-200" : "bg-blue-50");
-        document.getElementById("filter-waiting-editing").classList.add(type === "editing" ? "bg-blue-200" : "bg-blue-50");
+        // 필터 버튼 배경 색상 업데이트 (active: 진한색, inactive: 연한색)
+        document.getElementById("filter-waiting-equipment").classList.toggle("bg-blue-200", type === "equipment");
+        document.getElementById("filter-waiting-equipment").classList.toggle("bg-blue-50", type !== "equipment");
+        document.getElementById("filter-waiting-editing").classList.toggle("bg-blue-200", type === "editing");
+        document.getElementById("filter-waiting-editing").classList.toggle("bg-blue-50", type !== "editing");
       } else {
         document.getElementById("trash-filters").classList.remove("hidden");
-        document.getElementById("filter-trash-equipment").classList.remove("bg-gray-300", "bg-gray-100");
-        document.getElementById("filter-trash-editing").classList.remove("bg-gray-300", "bg-gray-100");
-        document.getElementById("filter-trash-equipment").classList.add(type === "equipment" ? "bg-gray-300" : "bg-gray-100");
-        document.getElementById("filter-trash-editing").classList.add(type === "editing" ? "bg-gray-300" : "bg-gray-100");
+        document.getElementById("filter-trash-equipment").classList.toggle("bg-gray-300", type === "equipment");
+        document.getElementById("filter-trash-equipment").classList.toggle("bg-gray-100", type !== "equipment");
+        document.getElementById("filter-trash-editing").classList.toggle("bg-gray-300", type === "editing");
+        document.getElementById("filter-trash-editing").classList.toggle("bg-gray-100", type !== "editing");
       }
       loadData();
     }
@@ -227,8 +232,6 @@
     function updateField(id, data) {
       db.collection("rentals").doc(id).update(data).then(loadData);
     }
-
-    // 관리자 대시보드 스크립트 끝
 
     function goHome() {
       location.href = "index.html";
