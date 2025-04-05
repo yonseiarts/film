@@ -10,55 +10,70 @@
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <link rel="icon" href="favicon.ico" />
   <style>
-    .step-active { background-color: #1D4ED8; color: white; }
-    .step-inactive { background-color: #e5e7eb; color: #6b7280; }
-    .tab-button.active { background-color: #dbeafe; font-weight: 600; }
-    .subtab-button.active { background-color: #dbeafe; font-weight: 600; }
-    .equipment.selected { border-color: #facc15; background-color: #fefce8; }
-    .equipment-card {
-      border: 1px solid #e5e7eb;
-      border-radius: 0.5rem;
-      padding: 1rem;
-      background-color: white;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      cursor: pointer;
-    }
-    .equipment-card img {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
-    .equipment-card.disabled {
-      opacity: 0.4;
-      pointer-events: none;
-      background-color: #f3f4f6;
-    }
-    .time-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 0.5rem;
-    }
-    .time-grid label {
-      display: block;
-      padding: 0.5rem;
-      border-radius: 0.375rem;
-      text-align: center;
-      background-color: #f3f4f6;
-      cursor: pointer;
-      font-size: 0.875rem;
-    }
-    .time-grid input[type="checkbox"] {
-      display: none;
-    }
-    .time-grid input[type="checkbox"]:checked + label {
-      background-color: #60a5fa;
-      color: white;
-      font-weight: bold;
-    }
-  </style>
+  .step-active {
+    background-color: #1D4ED8 !important;
+    color: white !important;
+  }
+  .step-inactive {
+    background-color: #e5e7eb !important;
+    color: #6b7280 !important;
+  }
+  .tab-button.active {
+    background-color: #dbeafe;
+    font-weight: 600;
+  }
+  .subtab-button.active {
+    background-color: #dbeafe;
+    font-weight: 600;
+  }
+  .equipment.selected {
+    border-color: #facc15;
+    background-color: #fefce8;
+  }
+  .equipment-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+  }
+  .equipment-card img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .equipment-card.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    background-color: #f3f4f6;
+  }
+  .time-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.5rem;
+  }
+  .time-grid label {
+    display: block;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    text-align: center;
+    background-color: #f3f4f6;
+    cursor: pointer;
+    font-size: 0.875rem;
+  }
+  .time-grid input[type="checkbox"] {
+    display: none;
+  }
+  .time-grid input[type="checkbox"]:checked + label {
+    background-color: #60a5fa;
+    color: white;
+    font-weight: bold;
+  }
+</style>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
