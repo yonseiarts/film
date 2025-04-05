@@ -407,13 +407,18 @@ function renderEquipmentList() {
 
     div.innerHTML = `<img src="${item.image}" alt="${item.name}" /><span class="text-sm">${item.name}</span>`;
     div.onclick = () => {
-  const isSelected = selectedItems.includes(item.name);
-  selectedItems = isSelected
-    ? selectedItems.filter(i => i !== item.name)
-    : [...selectedItems, item.name];  // ✅ 배열 구조 유지
-  updateSelectedUI();
-  renderEquipmentList();
-};
+      const isSelected = selectedItems.includes(item.name);
+      selectedItems = isSelected
+        ? selectedItems.filter(i => i !== item.name)
+        : [...selectedItems, item.name];
+      updateSelectedUI();
+      renderEquipmentList();
+    };
+
+    container.appendChild(div);  // ❗️ 이게 빠져있으면 카드 안 나옴
+  });
+} // ✅ 꼭 닫아야 함!
+
 
 
 function updateSelectedUI() {
