@@ -596,16 +596,26 @@ function submitApplication() {
 </script>
 
  
-    document.querySelectorAll(".tab-button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentTab = btn.dataset.tab;
-        document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
-        currentSub = "body";
-        renderEquipmentList();
-      });
-    });
+document.querySelectorAll(".tab-button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    // 모든 탭에서 active 클래스 제거 후 현재 탭만 active
+    document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    currentTab = btn.dataset.tab;
+
+    // 중분류 탭 표시 설정
+    document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
+    document.getElementById("lightingSubTabs").style.display = currentTab === "lighting" ? "flex" : "none";
+
+    // 중분류 기본값 설정
+    currentSub = currentTab === "camera" ? "body" :
+                 currentTab === "lighting" ? "light" : null;
+
+    renderEquipmentList();
+  });
+});
+
 
     // 카메라 중분류 보여주기
     document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
