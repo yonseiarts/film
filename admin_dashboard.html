@@ -16,12 +16,12 @@
       margin-right: 8px;
     }
     .bg-waiting { background-color: #d1d5db; }   /* 회색 - 대기 */
-    .bg-approved { background-color: #34d399; }    /* 초록 - 승인 */
-    .bg-rejected { background-color: #f87171; }    /* 빨강 - 반려 */
-    .bg-returned { background-color: #1f2937; }    /* 검정 - 반납 완료 */
+    .bg-approved { background-color: #34d399; }  /* 초록 - 승인 */
+    .bg-rejected { background-color: #f87171; }  /* 빨강 - 반려 */
+    .bg-returned { background-color: #1f2937; }  /* 검정 - 반납 완료 */
   </style>
+  <!-- Firebase 초기화: Firestore 및 Auth 사용 전에 실행 -->
   <script>
-    // Firebase 초기화 (DOM보다 먼저 실행되어도 상관없음)
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
@@ -51,18 +51,20 @@
 
     <!-- 대기 내역 탭 내부 -->
     <div id="waiting-content">
-      <div id="waiting-filters" class="flex space-x-4 mb-4">
-        <button id="filter-waiting-equipment" class="subtab-button px-3 py-1 rounded bg-blue-200 font-medium">장비 신청</button>
-        <button id="filter-waiting-editing" class="subtab-button px-3 py-1 rounded bg-blue-50">편집실 신청</button>
+      <!-- 대분류 필터 (초기에는 숨김) -->
+      <div id="waiting-filters" class="hidden flex space-x-4 mb-4">
+        <button id="filter-waiting-equipment" class="subtab-button px-3 py-1 rounded">장비 신청</button>
+        <button id="filter-waiting-editing" class="subtab-button px-3 py-1 rounded">편집실 신청</button>
       </div>
       <div id="waiting-list" class="grid grid-cols-1 gap-4"></div>
     </div>
 
     <!-- 휴지통 탭 내부 -->
     <div id="trash-content" class="hidden">
-      <div id="trash-filters" class="flex space-x-4 mb-4">
-        <button id="filter-trash-equipment" class="subtab-button px-3 py-1 rounded bg-gray-300 font-medium">장비 신청</button>
-        <button id="filter-trash-editing" class="subtab-button px-3 py-1 rounded bg-gray-100">편집실 신청</button>
+      <!-- 대분류 필터 (초기에는 숨김) -->
+      <div id="trash-filters" class="hidden flex space-x-4 mb-4">
+        <button id="filter-trash-equipment" class="subtab-button px-3 py-1 rounded">장비 신청</button>
+        <button id="filter-trash-editing" class="subtab-button px-3 py-1 rounded">편집실 신청</button>
       </div>
       <div id="trash-list" class="grid grid-cols-1 gap-4"></div>
     </div>
@@ -108,273 +110,342 @@
     </div>
   </template>
 
+  <!-- Firebase 및 스크립트 -->
   <script>
-    // 모든 이벤트와 DOM 조작 코드를 DOMContentLoaded 내부에 넣습니다.
-    window.addEventListener("DOMContentLoaded", () => {
-      const db = firebase.firestore();
+    // Firestore 및 Auth 인스턴스
+    const db = firebase.firestore();
 
-      let currentTab = "waiting"; // 'waiting' 또는 'trash'
-      let currentType = ""; // 'equipment' 또는 'editing'
-      
-      // 탭 전환 함수
-      function switchTab(tab) {
-        currentTab = tab;
-        document.getElementById("waiting-content").classList.toggle("hidden", tab !== "waiting");
-        document.getElementById("trash-content").classList.toggle("hidden", tab !== "trash");
-        document.getElementById("tab-waiting").classList.toggle("bg-blue-100", tab === "waiting");
-        document.getElementById("tab-trash").classList.toggle("bg-gray-100", tab === "trash");
-        currentType = "";
-        loadData();
+    let currentTab = "waiting"; // 'waiting' 또는 'trash'
+    let currentType = ""; // 'equipment' 또는 'editing' (대분류)
+    
+    // 탭 전환
+    document.getElementById("tab-waiting").addEventListener("click", () => switchTab("waiting"));
+    document.getElementById("tab-trash").addEventListener("click", () => switchTab("trash"));
+
+    // 대분류 필터 탭 이벤트 (대기 내역)
+    document.getElementById("filter-waiting-equipment").addEventListener("click", () => switchType("equipment", "waiting"));
+    document.getElementById("filter-waiting-editing").addEventListener("click", () => switchType("editing", "waiting"));
+    // 대분류 필터 탭 이벤트 (휴지통)
+    document.getElementById("filter-trash-equipment").addEventListener("click", () => switchType("equipment", "trash"));
+    document.getElementById("filter-trash-editing").addEventListener("click", () => switchType("editing", "trash"));
+
+    function switchTab(tab) {
+      currentTab = tab;
+      // 필터 탭 초기화
+      document.getElementById("waiting-filters").classList.add("hidden");
+      document.getElementById("trash-filters").classList.add("hidden");
+      // 탭 콘텐츠 전환
+      document.getElementById("waiting-content").classList.toggle("hidden", tab !== "waiting");
+      document.getElementById("trash-content").classList.toggle("hidden", tab !== "trash");
+      // 탭 버튼 스타일 업데이트
+      document.getElementById("tab-waiting").classList.toggle("bg-blue-100", tab === "waiting");
+      document.getElementById("tab-trash").classList.toggle("bg-gray-100", tab === "trash");
+      // 대분류 초기화
+      currentType = "";
+      loadData();
+    }
+
+    function switchType(type, tab) {
+      currentType = type;
+      if (tab === "waiting") {
+        document.getElementById("filter-waiting-equipment").classList.remove("bg-blue-200", "bg-blue-50");
+        document.getElementById("filter-waiting-editing").classList.remove("bg-blue-200", "bg-blue-50");
+        document.getElementById("filter-waiting-equipment").classList.add(type === "equipment" ? "bg-blue-200" : "bg-blue-50");
+        document.getElementById("filter-waiting-editing").classList.add(type === "editing" ? "bg-blue-200" : "bg-blue-50");
+      } else {
+        document.getElementById("filter-trash-equipment").classList.remove("bg-gray-300", "bg-gray-100");
+        document.getElementById("filter-trash-editing").classList.remove("bg-gray-300", "bg-gray-100");
+        document.getElementById("filter-trash-equipment").classList.add(type === "equipment" ? "bg-gray-300" : "bg-gray-100");
+        document.getElementById("filter-trash-editing").classList.add(type === "editing" ? "bg-gray-300" : "bg-gray-100");
       }
-      
-      // 대분류 필터 전환 함수
-      function switchType(type, tab) {
-        currentType = type;
-        if (tab === "waiting") {
-          document.getElementById("filter-waiting-equipment").classList.remove("bg-blue-200", "bg-blue-50");
-          document.getElementById("filter-waiting-editing").classList.remove("bg-blue-200", "bg-blue-50");
-          document.getElementById("filter-waiting-equipment").classList.add(type === "equipment" ? "bg-blue-200" : "bg-blue-50");
-          document.getElementById("filter-waiting-editing").classList.add(type === "editing" ? "bg-blue-200" : "bg-blue-50");
-        } else {
-          document.getElementById("filter-trash-equipment").classList.remove("bg-gray-300", "bg-gray-100");
-          document.getElementById("filter-trash-editing").classList.remove("bg-gray-300", "bg-gray-100");
-          document.getElementById("filter-trash-equipment").classList.add(type === "equipment" ? "bg-gray-300" : "bg-gray-100");
-          document.getElementById("filter-trash-editing").classList.add(type === "editing" ? "bg-gray-300" : "bg-gray-100");
-        }
-        loadData();
+      loadData();
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      switchTab("waiting");
+      // 대분류 선택 전, 필터 탭은 숨김
+    });
+
+    async function loadData() {
+      // 만약 대분류(currentType)가 아직 선택되지 않았다면, 필터 탭은 숨기고 메시지를 출력
+      if (!currentType) {
+        const listEl = currentTab === "trash" ? document.getElementById("trash-list") : document.getElementById("waiting-list");
+        listEl.innerHTML = '<p class="text-sm text-gray-500">대분류를 선택하세요.</p>';
+        return;
       }
-      
-      // 이벤트 리스너 설정
-      document.getElementById("tab-waiting").addEventListener("click", () => switchTab("waiting"));
-      document.getElementById("tab-trash").addEventListener("click", () => switchTab("trash"));
-      document.getElementById("filter-waiting-equipment").addEventListener("click", () => switchType("equipment", "waiting"));
-      document.getElementById("filter-waiting-editing").addEventListener("click", () => switchType("editing", "waiting"));
-      document.getElementById("filter-trash-equipment").addEventListener("click", () => switchType("equipment", "trash"));
-      document.getElementById("filter-trash-editing").addEventListener("click", () => switchType("editing", "trash"));
-      
-      window.addEventListener("DOMContentLoaded", () => {
-        switchTab("waiting");
-        // 대분류가 아직 선택되지 않았으면 필터는 숨김
-      });
-      
-      async function loadData() {
-        if (!currentType) {
+      const isEditing = currentType === "editing";
+      db.collection("rentals")
+        .where("trashed", "==", currentTab === "trash")
+        .orderBy("createdAt", "desc")
+        .get()
+        .then(snapshot => {
           const listEl = currentTab === "trash" ? document.getElementById("trash-list") : document.getElementById("waiting-list");
-          listEl.innerHTML = '<p class="text-sm text-gray-500">대분류를 선택하세요.</p>';
-          return;
-        }
-        const isEditing = currentType === "editing";
-        db.collection("rentals")
-          .where("trashed", "==", currentTab === "trash")
-          .orderBy("createdAt", "desc")
-          .get()
-          .then(snapshot => {
-            const listEl = currentTab === "trash" ? document.getElementById("trash-list") : document.getElementById("waiting-list");
-            listEl.innerHTML = "";
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              const id = doc.id;
-              const onlyEditing = data.items?.every(i => i.includes("편집실"));
-              if (onlyEditing !== isEditing) return;
-              const isTrash = currentTab === "trash";
-              const template = document.getElementById(isTrash ? "trash-template" : "card-template");
-              const clone = template.content.cloneNode(true);
-              const dot = clone.querySelector(".status-dot");
-              if (data.status === "승인") dot.classList.add("bg-approved");
-              else if (data.status === "반려") dot.classList.add("bg-rejected");
-              else if (data.status === "반납 완료") dot.classList.add("bg-returned");
-              else dot.classList.add("bg-waiting");
-              clone.querySelector(".user-name").textContent = data.userName;
-              clone.querySelector(".student-id").textContent = data.studentId;
-              clone.querySelector(".items").textContent = (data.items || []).join(", ");
-              const dateInfo = clone.querySelector(".date-info");
-              dateInfo.textContent = data.editingDate
-                ? `대여일: ${data.editingDate}`
-                : `대여: ${data.startDate} ~ 반납: ${data.endDate}`;
-              const timeInfo = clone.querySelector(".time-info");
-              if (data.hours?.length && data.editingDate) {
-                timeInfo.textContent = `시간: ${data.hours.join(", ")}시`;
-                timeInfo.classList.remove("hidden");
-              }
-              if (isTrash) {
-                const rTime = clone.querySelector(".returned-time");
-                rTime.textContent = data.returnedAt ? new Date(data.returnedAt.toDate()).toLocaleString() : "-";
-                clone.querySelector(".restore-btn").onclick = () => updateField(id, { trashed: false });
-              } else {
-                clone.querySelector(".approve-btn").onclick = () => updateField(id, { status: "승인" });
-                clone.querySelector(".reject-btn").onclick = () => updateField(id, { status: "반려" });
-                clone.querySelector(".return-btn").onclick = () => updateField(id, {
-                  status: "반납 완료",
-                  returnedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                clone.querySelector(".trash-btn").onclick = () => updateField(id, { trashed: true });
-              }
-              listEl.appendChild(clone);
-            });
-          });
-      }
-      
-      function updateField(id, data) {
-        db.collection("rentals").doc(id).update(data).then(loadData);
-      }
-      
-      // 유저 정보 함수
-      function getUserName() {
-        return document.getElementById("userName").value.trim();
-      }
-      function getStudentID() {
-        return document.getElementById("userId").value.trim();
-      }
-      
-      // 단계 이동 함수
-      function goToStep(n) {
-        for (let i = 1; i <= 4; i++) {
-          document.getElementById("step" + i)?.classList.add("hidden");
-          document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
-          document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
-        }
-        document.getElementById("step" + n)?.classList.remove("hidden");
-        document.getElementById("step" + n + "Btn")?.classList.add("step-active");
-      
-        if (n === 2) {
-          const editingOnly = selectedItems.every(i => i.includes("편집실"));
-          document.getElementById("commonDateSection").classList.toggle("hidden", editingOnly);
-          document.getElementById("editingDateSection").classList.toggle("hidden", !editingOnly);
-          if (editingOnly) {
-            const input = document.getElementById("editingDate");
-            input.removeEventListener("change", generateTimeGrid);
-            input.addEventListener("change", generateTimeGrid);
-            generateTimeGrid();
-          }
-        }
-      
-        if (n === 3) {
-          document.getElementById("final-selected-items").innerHTML = selectedItems.map(i => `<li>${i}</li>`).join("");
-          const editingOnly = selectedItems.every(i => i.includes("편집실"));
-          const start = document.getElementById("startDate")?.value || "-";
-          const end = document.getElementById("endDate")?.value || "-";
-          const dateText = editingOnly ? document.getElementById("editingDate").value : `${start} ~ ${end}`;
-          document.getElementById("final-dates").innerText = `대여일자: ${dateText}`;
-          document.getElementById("final-time").innerText = editingOnly && selectedHours.length
-            ? `선택한 시간: ${selectedHours.sort((a, b) => a - b).join(', ')}시` : '';
-        }
-      }
-      
-      function goHome() {
-        location.href = "index.html";
-      }
-      
-      // 편집실 시간표 생성 함수
-      function generateTimeGrid() {
-        const grid = document.getElementById("timeGrid");
-        grid.innerHTML = "";
-        selectedHours = [];
-      
-        const date = document.getElementById("editingDate").value;
-        const room = selectedItems[0];
-        if (!date || !room) return;
-      
-        db.collection("rentals")
-          .where("editingDate", "==", date)
-          .where("items", "array-contains", room)
-          .get()
-          .then(snapshot => {
-            const reserved = [];
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              if (Array.isArray(data.hours)) reserved.push(...data.hours);
-            });
-      
-            for (let h = 0; h < 24; h++) {
-              const id = `hour-${h}`;
-              const input = document.createElement("input");
-              const label = document.createElement("label");
-              input.type = "checkbox";
-              input.id = id;
-              input.value = h;
-              label.htmlFor = id;
-              label.innerText = `${h}:00`;
-      
-              if (reserved.includes(h)) {
-                input.disabled = true;
-                label.className = "bg-gray-300 text-gray-500 line-through cursor-not-allowed";
-              } else {
-                label.className = "bg-gray-200 cursor-pointer";
-                input.addEventListener("change", () => {
-                  if (input.checked) selectedHours.push(h);
-                  else selectedHours = selectedHours.filter(v => v !== h);
-                });
-              }
-      
-              const wrap = document.createElement("div");
-              wrap.className = "inline-block";
-              wrap.appendChild(input);
-              wrap.appendChild(label);
-              grid.appendChild(wrap);
+          listEl.innerHTML = "";
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const id = doc.id;
+            const onlyEditing = data.items?.every(i => i.includes("편집실"));
+            if (onlyEditing !== isEditing) return;
+            const isTrash = currentTab === "trash";
+            const template = document.getElementById(isTrash ? "trash-template" : "card-template");
+            const clone = template.content.cloneNode(true);
+            const dot = clone.querySelector(".status-dot");
+            if (data.status === "승인") dot.classList.add("bg-approved");
+            else if (data.status === "반려") dot.classList.add("bg-rejected");
+            else if (data.status === "반납 완료") dot.classList.add("bg-returned");
+            else dot.classList.add("bg-waiting");
+            clone.querySelector(".user-name").textContent = data.userName;
+            clone.querySelector(".student-id").textContent = data.studentId;
+            clone.querySelector(".items").textContent = (data.items || []).join(", ");
+            const dateInfo = clone.querySelector(".date-info");
+            dateInfo.textContent = data.editingDate
+              ? `대여일: ${data.editingDate}`
+              : `대여: ${data.startDate} ~ 반납: ${data.endDate}`;
+            const timeInfo = clone.querySelector(".time-info");
+            if (data.hours?.length && data.editingDate) {
+              timeInfo.textContent = `시간: ${data.hours.join(", ")}시`;
+              timeInfo.classList.remove("hidden");
             }
+            if (isTrash) {
+              const rTime = clone.querySelector(".returned-time");
+              rTime.textContent = data.returnedAt ? new Date(data.returnedAt.toDate()).toLocaleString() : "-";
+              clone.querySelector(".restore-btn").onclick = () => updateField(id, { trashed: false });
+            } else {
+              clone.querySelector(".approve-btn").onclick = () => updateField(id, { status: "승인" });
+              clone.querySelector(".reject-btn").onclick = () => updateField(id, { status: "반려" });
+              clone.querySelector(".return-btn").onclick = () => updateField(id, {
+                status: "반납 완료",
+                returnedAt: firebase.firestore.FieldValue.serverTimestamp()
+              });
+              clone.querySelector(".trash-btn").onclick = () => updateField(id, { trashed: true });
+            }
+            listEl.appendChild(clone);
           });
+        });
+    }
+
+    function updateField(id, data) {
+      db.collection("rentals").doc(id).update(data).then(loadData);
+    }
+  </script>
+
+  <script>
+    // 유저 정보 가져오기
+    function getUserName() {
+      return document.getElementById("userName").value.trim();
+    }
+    function getStudentID() {
+      return document.getElementById("userId").value.trim();
+    }
+
+    // 단계 이동 함수
+    function goToStep(n) {
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById("step" + i)?.classList.add("hidden");
+        document.getElementById("step" + i + "Btn")?.classList.remove("step-active");
+        document.getElementById("step" + i + "Btn")?.classList.add("step-inactive");
       }
-      
-      // 2단계 유효성 검사
-      function validateStep2() {
-        if (!getUserName() || !getStudentID()) {
-          alert("이름과 학번을 입력해주세요.");
+      document.getElementById("step" + n)?.classList.remove("hidden");
+      document.getElementById("step" + n + "Btn")?.classList.add("step-active");
+
+      if (n === 2) {
+        const editingOnly = selectedItems.every(i => i.includes("편집실"));
+        document.getElementById("commonDateSection").classList.toggle("hidden", editingOnly);
+        document.getElementById("editingDateSection").classList.toggle("hidden", !editingOnly);
+        if (editingOnly) {
+          const input = document.getElementById("editingDate");
+          input.removeEventListener("change", generateTimeGrid);
+          input.addEventListener("change", generateTimeGrid);
+          generateTimeGrid();
+        }
+      }
+      if (n === 3) {
+        document.getElementById("final-selected-items").innerHTML = selectedItems.map(i => `<li>${i}</li>`).join("");
+        const editingOnly = selectedItems.every(i => i.includes("편집실"));
+        const start = document.getElementById("startDate")?.value || "-";
+        const end = document.getElementById("endDate")?.value || "-";
+        const dateText = editingOnly ? document.getElementById("editingDate").value : `${start} ~ ${end}`;
+        document.getElementById("final-dates").innerText = `대여일자: ${dateText}`;
+        document.getElementById("final-time").innerText = editingOnly && selectedHours.length
+          ? `선택한 시간: ${selectedHours.sort((a, b) => a - b).join(', ')}시` : '';
+      }
+    }
+
+    function goHome() {
+      location.href = "index.html";
+    }
+
+    // 편집실 시간표 생성
+    function generateTimeGrid() {
+      const grid = document.getElementById("timeGrid");
+      grid.innerHTML = "";
+      selectedHours = [];
+
+      const date = document.getElementById("editingDate").value;
+      const room = selectedItems[0];
+      if (!date || !room) return;
+
+      db.collection("rentals")
+        .where("editingDate", "==", date)
+        .where("items", "array-contains", room)
+        .get()
+        .then(snapshot => {
+          const reserved = [];
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            if (Array.isArray(data.hours)) reserved.push(...data.hours);
+          });
+          for (let h = 0; h < 24; h++) {
+            const id = `hour-${h}`;
+            const input = document.createElement("input");
+            const label = document.createElement("label");
+            input.type = "checkbox";
+            input.id = id;
+            input.value = h;
+            label.htmlFor = id;
+            label.innerText = `${h}:00`;
+            if (reserved.includes(h)) {
+              input.disabled = true;
+              label.className = "bg-gray-300 text-gray-500 line-through cursor-not-allowed";
+            } else {
+              label.className = "bg-gray-200 cursor-pointer";
+              input.addEventListener("change", () => {
+                if (input.checked) selectedHours.push(h);
+                else selectedHours = selectedHours.filter(v => v !== h);
+              });
+            }
+            const wrap = document.createElement("div");
+            wrap.className = "inline-block";
+            wrap.appendChild(input);
+            wrap.appendChild(label);
+            grid.appendChild(wrap);
+          }
+        });
+    }
+
+    // 2단계 유효성 검사
+    function validateStep2() {
+      if (!getUserName() || !getStudentID()) {
+        alert("이름과 학번을 입력해주세요.");
+        return;
+      }
+      const editingOnly = selectedItems.every(i => i.includes("편집실"));
+      if (editingOnly) {
+        if (!document.getElementById("editingDate").value || selectedHours.length === 0) {
+          alert("편집실 대여일자와 시간을 선택해주세요.");
           return;
         }
-      
-        const editingOnly = selectedItems.every(i => i.includes("편집실"));
-        if (editingOnly) {
-          if (!document.getElementById("editingDate").value || selectedHours.length === 0) {
-            alert("편집실 대여일자와 시간을 선택해주세요.");
-            return;
-          }
-        } else {
-          const start = document.getElementById("startDate").value;
-          const end = document.getElementById("endDate").value;
-          const proof = document.getElementById("proofImage").files[0];
-          if (!start || !end || !proof) {
-            alert("대여 시작일, 반납일, 증명사진을 모두 입력해주세요.");
-            return;
-          }
-          const diff = (new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24);
-          if (diff < 0 || diff > 3) {
-            alert("대여 기간은 최대 3일 이내여야 하며, 반납일은 시작일 이후여야 합니다.");
-            return;
-          }
+      } else {
+        const start = document.getElementById("startDate").value;
+        const end = document.getElementById("endDate").value;
+        const proof = document.getElementById("proofImage").files[0];
+        if (!start || !end || !proof) {
+          alert("대여 시작일, 반납일, 증명사진을 모두 입력해주세요.");
+          return;
         }
-        goToStep(3);
-      }
-      
-      // 신청서 제출 함수
-      function submitApplication() {
-        const editingOnly = selectedItems.every(i => i.includes("편집실"));
-        const data = {
-          items: [...selectedItems],
-          userName: getUserName(),
-          studentId: getStudentID(),
-          startDate: "",
-          endDate: "",
-          editingDate: "",
-          hours: [],
-          status: "대기",
-          trashed: false,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        if (editingOnly) {
-          data.editingDate = document.getElementById("editingDate").value;
-          data.hours = [...selectedHours].sort((a, b) => a - b);
-        } else {
-          data.startDate = document.getElementById("startDate").value;
-          data.endDate = document.getElementById("endDate").value;
+        const diff = (new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24);
+        if (diff < 0 || diff > 3) {
+          alert("대여 기간은 최대 3일 이내여야 하며, 반납일은 시작일 이후여야 합니다.");
+          return;
         }
-      
-        db.collection("rentals").add(data)
-          .then(() => goToStep(4))
-          .catch(err => {
-            console.error("신청 실패:", err);
-            alert("신청 정보를 저장하는 데 실패했습니다.");
-          });
       }
-      
-      // 규정 동의 체크박스 이벤트 처리
-      document.getElementById("agreeCheck").addEventListener("
+      goToStep(3);
+    }
+
+    // 신청서 제출
+    function submitApplication() {
+      const editingOnly = selectedItems.every(i => i.includes("편집실"));
+      const data = {
+        items: [...selectedItems],
+        userName: getUserName(),
+        studentId: getStudentID(),
+        startDate: "",
+        endDate: "",
+        editingDate: "",
+        hours: [],
+        status: "대기",
+        trashed: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      if (editingOnly) {
+        data.editingDate = document.getElementById("editingDate").value;
+        data.hours = [...selectedHours].sort((a, b) => a - b);
+      } else {
+        data.startDate = document.getElementById("startDate").value;
+        data.endDate = document.getElementById("endDate").value;
+      }
+      db.collection("rentals").add(data)
+        .then(() => goToStep(4))
+        .catch(err => {
+          console.error("신청 실패:", err);
+          alert("신청 정보를 저장하는 데 실패했습니다.");
+        });
+    }
+
+    // 탭 전환 및 중분류 탭 (장비, 조명 등) 이벤트 처리
+    document.querySelectorAll(".tab-button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentTab = btn.dataset.tab;
+        document.getElementById("cameraSubTabs").style.display = currentTab === "camera" ? "flex" : "none";
+        document.getElementById("lightingSubTabs").style.display = currentTab === "lighting" ? "flex" : "none";
+        currentSub = currentTab === "camera" ? "body" :
+                     currentTab === "lighting" ? "light" : null;
+        updateSelectedUI();
+        renderEquipmentList();
+      });
+    });
+
+    document.querySelectorAll(".subtab-button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        btn.parentElement.querySelectorAll(".subtab-button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentSub = btn.dataset.subtab;
+        renderEquipmentList();
+      });
+    });
+
+    // 규정 동의 체크박스 이벤트
+    document.getElementById("agreeCheck").addEventListener("change", e => {
+      const btn = document.getElementById("toStep4");
+      btn.disabled = !e.target.checked;
+      btn.classList.toggle("opacity-50", !e.target.checked);
+    });
+
+    <script>
+  window.addEventListener("DOMContentLoaded", () => {
+    // 기존 초기화 코드
+    goToStep(1);
+    updateSelectedUI();
+    renderEquipmentList();
+
+    // 예시: 탭 전환 관련 이벤트 리스너 추가 (대시보드가 아닌 폼 페이지 예시)
+    const tabWaiting = document.getElementById("tab-waiting");
+    const tabTrash = document.getElementById("tab-trash");
+    if (tabWaiting && tabTrash) {
+      tabWaiting.addEventListener("click", () => switchTab("waiting"));
+      tabTrash.addEventListener("click", () => switchTab("trash"));
+    }
+
+    // 예시: 대분류 필터 이벤트 리스너 추가
+    const filterWaitingEquipment = document.getElementById("filter-waiting-equipment");
+    const filterWaitingEditing = document.getElementById("filter-waiting-editing");
+    if (filterWaitingEquipment && filterWaitingEditing) {
+      filterWaitingEquipment.addEventListener("click", () => switchType("equipment", "waiting"));
+      filterWaitingEditing.addEventListener("click", () => switchType("editing", "waiting"));
+    }
+    
+    // 기타 필요한 이벤트 리스너들을 여기 추가하면 됩니다.
+  });
+</script>
+
+<script>
+  function getUserName() {
+    return document.getElementById("userName").value.trim();
+  }
+  function getStudentID() {
+    return document.getElementById("userId").value.trim();
+  }
+  function goHome() {
+    location.href = "index.html";
+  }
+</script>
