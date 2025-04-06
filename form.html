@@ -99,7 +99,7 @@
       <div id="step4Btn" class="flex-1 text-center p-2 rounded step-inactive">4. 완료</div>
     </div>
 
-    <!-- Step 1: 대여일 설정 및 로그인 (이름/학번 입력) -->
+    <!-- Step 1: 대여일 설정 및 사용자 정보 입력 -->
     <div id="step1">
       <h2 class="text-xl font-bold mb-4">대여일 및 사용자 정보 입력</h2>
       <label class="block mb-2 font-medium">대여 시작일</label>
@@ -231,7 +231,7 @@
       goToStep(2);
     }
 
-    // Step2 유효성 검사: 최소 1개의 장비를 선택했는지 확인
+    // Step2 유효성 검사: 최소 1개의 장비 선택 여부 확인
     function validateStep2() {
       if (selectedItems.length === 0) {
         alert("최소 1개의 장비를 선택해주세요.");
@@ -240,7 +240,7 @@
       goToStep(3);
     }
 
-    // 단계 이동 함수 (4단계까지)
+    // 단계 이동 함수
     function goToStep(n) {
       for (let i = 1; i <= 4; i++) {
         const stepDiv = document.getElementById("step" + i);
@@ -256,9 +256,12 @@
       }
       document.getElementById("step" + n).classList.remove("hidden");
       
-      // Step3 완료 페이지에 최종 정보 업데이트
-      if (n === 3) {
-        // (필요시 선택된 장비나 대여일 정보 업데이트)
+      // Step4 완료페이지에 최종 정보 업데이트 (필요 시)
+      if(n === 4){
+        document.getElementById("final-selected-items").innerHTML = selectedItems.map(item => `<li>${item}</li>`).join("");
+        const start = document.getElementById("startDate").value;
+        const end = document.getElementById("endDate").value;
+        document.getElementById("final-dates").innerText = `대여일: ${start} ~ ${end}`;
       }
     }
 
@@ -266,7 +269,7 @@
       location.href = "index.html";
     }
 
-    // 장비 카드 렌더링 함수 (Step2: 선택 시 대여일 정보를 반영)
+    // 장비 카드 렌더링 함수 (Step2: 대여일 정보를 반영하여 예약 여부 확인)
     async function renderEquipmentList() {
       const container = document.getElementById("equipment-list");
       container.innerHTML = "";
@@ -287,7 +290,7 @@
         const div = document.createElement("div");
         div.className = "equipment-card";
         if (selectedItems.includes(item.name)) div.classList.add("selected");
-        // 각 장비에 대해 해당 대여일에 예약이 있는지 Firestore에서 확인
+        // Firestore에서 해당 장비가 예약된 기간이 있는지 확인
         let isUnavailable = false;
         try {
           const snapshot = await db.collection("rentals")
@@ -365,6 +368,31 @@
       btn.classList.toggle("opacity-50", !e.target.checked);
     });
 
+    // 제출: Step3 규정 동의 후 신청 완료
+    function submitApplication() {
+      const name = document.getElementById("userName").value.trim();
+      const studentId = document.getElementById("userId").value.trim();
+      const start = document.getElementById("startDate").value;
+      const end = document.getElementById("endDate").value;
+      const data = {
+         userName: name,
+         studentId: studentId,
+         startDate: start,
+         endDate: end,
+         items: [...selectedItems],
+         status: "대기",
+         createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      db.collection("rentals").add(data)
+        .then(() => {
+           goToStep(4);
+        })
+        .catch(err => {
+          console.error("신청 실패:", err);
+          alert("신청 정보를 저장하는 데 실패했습니다.");
+        });
+    }
+
     // 초기화: Step1 페이지 로드 시
     window.addEventListener("DOMContentLoaded", () => {
       goToStep(1);
@@ -373,8 +401,7 @@
 
   <!-- 예제 장비 데이터 (필요에 따라 수정) -->
   <script>
-   const equipmentData = {
-  camera: {
+    camera: {
     body: [
       { name: "Sony FX6", image: "https://www.bhphotovideo.com/cdn-cgi/image/fit=scale-down,width=500,quality=95/https://www.bhphotovideo.com/images/images500x500/sony_pxw_fx6_cinema_camera_body_1673526912_1592066.jpg" },
       { name: "Sony FX3 1번", image: "http://manuals.plus/wp-content/uploads/2022/11/SONY-FX3-Interchangeable-Lens-Digital-Camera-Featured-Image.png" },
@@ -512,7 +539,7 @@
 };
   </script>
 
-  <!-- 유저 정보 및 기타 함수 -->
+  <!-- 유저 정보 관련 함수 -->
   <script>
     function getUserName() {
       return document.getElementById("userName").value.trim();
