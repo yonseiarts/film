@@ -17,7 +17,7 @@
     .step-inactive { background-color: #e5e7eb; color: #6b7280; }
     /* 탭 버튼 */
     .tab-button.active, .subtab-button.active { background-color: #dbeafe; font-weight: 600; }
-    /* 장비 카드 스타일 */
+    /* 카드 스타일 */
     .equipment-card {
       border: 1px solid #e5e7eb;
       border-radius: 0.5rem;
@@ -67,7 +67,7 @@
     }
   </style>
   <script>
-    // Firebase 초기화 (실제 프로젝트 정보로 교체)
+    // Firebase 초기화 – 실제 프로젝트 정보로 교체
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
       authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -141,7 +141,7 @@
     <!-- Equipment Step 2: 장비 선택 -->
     <div id="equip-step2" class="hidden">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
-      <!-- 대분류 탭 (편집실 제외) -->
+      <!-- 대분류 탭 -->
       <div class="flex space-x-2 mb-4">
         <button class="tab-button active px-4 py-1 border rounded" data-tab="camera">카메라</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="lighting">조명</button>
@@ -150,7 +150,7 @@
         <button class="tab-button px-4 py-1 border rounded" data-tab="line">라인</button>
         <button class="tab-button px-4 py-1 border rounded" data-tab="battery">배터리</button>
       </div>
-      <!-- 카메라 하위 탭 예시 -->
+      <!-- 카메라 하위 탭 (예시) -->
       <div id="cameraSubTabs" class="flex gap-2 mb-4">
         <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
@@ -174,8 +174,7 @@
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed">
         <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
-        <!-- 규정 내용 생략 -->
-        (생략)
+        (규정 내용 생략)
       </div>
       <label class="flex items-center mb-4">
         <input type="checkbox" id="equipAgree" class="mr-2"> 위 규정에 동의합니다.
@@ -213,9 +212,10 @@
     <!-- Editing Step 2: 편집실 선택 및 시간 선택 -->
     <div id="edit-step2" class="hidden">
       <h2 class="text-xl font-bold mb-2">편집실 선택</h2>
-      <div class="flex gap-2 mb-4">
-        <button id="editRoom1Btn" class="subtab-button active px-3 py-2 rounded" onclick="selectEditRoom('편집실 1')">편집실 1</button>
-        <button id="editRoom2Btn" class="subtab-button px-3 py-2 rounded" onclick="selectEditRoom('편집실 2')">편집실 2</button>
+      <div class="flex gap-4 mb-4">
+        <!-- 편집실 탭 버튼: 기존보다 크게 디자인 (px-6 py-3, text-lg) -->
+        <button id="editRoom1Btn" class="subtab-button active px-6 py-3 text-lg rounded" onclick="selectEditRoom('편집실 1')">편집실 1</button>
+        <button id="editRoom2Btn" class="subtab-button px-6 py-3 text-lg rounded" onclick="selectEditRoom('편집실 2')">편집실 2</button>
       </div>
       <!-- 시간 선택 그리드 -->
       <div id="editTimeGrid" class="grid grid-cols-6 gap-2 text-sm hidden"></div>
@@ -229,7 +229,7 @@
       <h2 class="text-xl font-bold mb-4">편집실 대관 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed">
         <strong>편집실 대관 규정</strong><br/><br/>
-        (생략)
+        (규정 내용 생략)
       </div>
       <label class="flex items-center mb-4">
         <input type="checkbox" id="editAgree" class="mr-2"> 위 규정에 동의합니다.
@@ -249,12 +249,12 @@
     </div>
   </div>
 
-  <!-- 스크립트: 플로우 전환 및 단계 이동, 유효성 검사, 렌더링 등 -->
+  <!-- 스크립트: 플로우 전환, 단계 이동, 유효성 검사 및 렌더링 -->
   <script>
     // 글로벌 변수들
     let flowType = "equipment"; // "equipment" 또는 "editing"
     let selectedItems = [];
-    let currentTab = "camera";  // 장비대여용 카테고리 (camera, lighting, etc.)
+    let currentTab = "camera";  // 장비대여용 카테고리 (camera, lighting 등)
     let currentSub = "body";
     let selectedHours = [];
 
@@ -264,7 +264,6 @@
       document.getElementById("steps-container").classList.remove("hidden");
       document.getElementById("equipment-flow").classList.remove("hidden");
       document.getElementById("editing-flow").classList.add("hidden");
-      // 초기화
       selectedItems = [];
       selectedHours = [];
       goToEquipmentStep(1);
@@ -281,18 +280,11 @@
 
     // 단계 이동 (장비대여 플로우)
     function goToEquipmentStep(n) {
-      // 단계 버튼 업데이트 (공통 id: step1Btn ~ step4Btn)
       for (let i = 1; i <= 4; i++) {
         const btn = document.getElementById("step" + i + "Btn");
-        if (i <= n) {
-          btn.classList.add("step-active");
-          btn.classList.remove("step-inactive");
-        } else {
-          btn.classList.add("step-inactive");
-          btn.classList.remove("step-active");
-        }
+        if (i <= n) { btn.classList.add("step-active"); btn.classList.remove("step-inactive"); }
+        else { btn.classList.add("step-inactive"); btn.classList.remove("step-active"); }
       }
-      // 화면 전환
       document.getElementById("equip-step1").classList.add("hidden");
       document.getElementById("equip-step2").classList.add("hidden");
       document.getElementById("equip-step3").classList.add("hidden");
@@ -310,17 +302,13 @@
         document.getElementById("equip-final-info").innerHTML = `<ul class="list-disc ml-5 mt-2">${summary}</ul>`;
       }
     }
+
     // 단계 이동 (편집실 대관 플로우)
     function goToEditingStep(n) {
       for (let i = 1; i <= 4; i++) {
         const btn = document.getElementById("step" + i + "Btn");
-        if (i <= n) {
-          btn.classList.add("step-active");
-          btn.classList.remove("step-inactive");
-        } else {
-          btn.classList.add("step-inactive");
-          btn.classList.remove("step-active");
-        }
+        if (i <= n) { btn.classList.add("step-active"); btn.classList.remove("step-inactive"); }
+        else { btn.classList.add("step-inactive"); btn.classList.remove("step-active"); }
       }
       document.getElementById("edit-step1").classList.add("hidden");
       document.getElementById("edit-step2").classList.add("hidden");
@@ -333,7 +321,7 @@
         document.getElementById("edit-step4").classList.remove("hidden");
         let summary = `<li>대관일: ${document.getElementById("editDate").value}</li>`;
         summary += `<li>선택된 편집실: ${selectedItems[0] || ""}</li>`;
-        summary += `<li>선택된 시간: ${selectedHours.sort((a, b) => a - b).join(", ")}시</li>`;
+        summary += `<li>선택된 시간: ${selectedHours.sort((a,b)=>a-b).join(", ")}시</li>`;
         document.getElementById("edit-final-info").innerHTML = `<ul class="list-disc ml-5 mt-2">${summary}</ul>`;
       }
     }
@@ -344,49 +332,32 @@
       const e = document.getElementById("equipEnd").value;
       const n = document.getElementById("equipName").value.trim();
       const i = document.getElementById("equipId").value.trim();
-      if (!s || !e || !n || !i) {
-        alert("모든 필드를 입력하세요.");
-        return;
-      }
-      if(new Date(s) > new Date(e)){
-        alert("대여 시작일이 반납일보다 늦습니다.");
-        return;
-      }
+      if (!s || !e || !n || !i) { alert("모든 필드를 입력하세요."); return; }
+      if(new Date(s) > new Date(e)) { alert("대여 시작일이 반납일보다 늦습니다."); return; }
       goToEquipmentStep(2);
-    }
-    // [장비대여] Step2 유효성 검사
-    function validateEquipStep2() {
-      if (selectedItems.length === 0) {
-        alert("최소 1개 이상의 장비를 선택하세요.");
-        return;
-      }
-      goToEquipmentStep(3);
     }
     // [편집실 대관] Step1 유효성 검사
     function validateEditStep1() {
       const d = document.getElementById("editDate").value;
       const n = document.getElementById("editName").value.trim();
       const i = document.getElementById("editId").value.trim();
-      if (!d || !n || !i) {
-        alert("모든 필드를 입력하세요.");
-        return;
-      }
+      if (!d || !n || !i) { alert("모든 필드를 입력하세요."); return; }
       goToEditingStep(2);
+    }
+
+    // [장비대여] Step2 유효성 검사
+    function validateEquipStep2() {
+      if(selectedItems.length === 0) { alert("최소 1개 이상의 장비를 선택하세요."); return; }
+      goToEquipmentStep(3);
     }
     // [편집실 대관] Step2 유효성 검사
     function validateEditStep2() {
-      if (selectedItems.length === 0) {
-        alert("편집실을 선택해주세요.");
-        return;
-      }
+      if(selectedItems.length === 0) { alert("편집실을 선택해주세요."); return; }
       goToEditingStep(3);
     }
-    // [편집실 대관] Step3 유효성 검사 (시간 선택 확인)
+    // [편집실 대관] Step3 유효성 검사 (시간 선택)
     function validateEditStep3() {
-      if (selectedHours.length === 0) {
-        alert("대관할 시간을 선택해주세요.");
-        return;
-      }
+      if(selectedHours.length === 0) { alert("대관할 시간을 선택해주세요."); return; }
       goToEditingStep(4);
     }
 
@@ -402,76 +373,65 @@
       btn.classList.toggle("opacity-50", !e.target.checked);
     });
 
-    // 제출 함수
+    // [장비대여] 제출
     function submitEquip() {
       const name = document.getElementById("equipName").value.trim();
       const studentId = document.getElementById("equipId").value.trim();
-      const start = document.getElementById("equipStart").value;
-      const end = document.getElementById("equipEnd").value;
+      const s = document.getElementById("equipStart").value;
+      const e = document.getElementById("equipEnd").value;
       const data = {
         userName: name,
         studentId: studentId,
-        startDate: start,
-        endDate: end,
+        startDate: s,
+        endDate: e,
         items: [...selectedItems],
         status: "대기",
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       db.collection("rentals").add(data)
-        .then(() => {
-          goToEquipmentStep(4);
-        })
-        .catch(err => {
-          console.error("신청 실패:", err);
-          alert("신청 정보를 저장하는 데 실패했습니다.");
-        });
+        .then(() => { goToEquipmentStep(4); })
+        .catch(err => { console.error("신청 실패:", err); alert("신청 정보를 저장하는 데 실패했습니다."); });
     }
+    // [편집실 대관] 제출
     function submitEdit() {
       const name = document.getElementById("editName").value.trim();
       const studentId = document.getElementById("editId").value.trim();
-      const date = document.getElementById("editDate").value;
+      const d = document.getElementById("editDate").value;
       const data = {
         userName: name,
         studentId: studentId,
-        editingDate: date,
+        editingDate: d,
         items: [...selectedItems],
-        hours: selectedHours.slice().sort((a, b) => a - b),
+        hours: selectedHours.slice().sort((a,b)=>a-b),
         status: "대기",
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       db.collection("rentals").add(data)
-        .then(() => {
-          goToEditingStep(4);
-        })
-        .catch(err => {
-          console.error("신청 실패:", err);
-          alert("신청 정보를 저장하는 데 실패했습니다.");
-        });
+        .then(() => { goToEditingStep(4); })
+        .catch(err => { console.error("신청 실패:", err); alert("신청 정보를 저장하는 데 실패했습니다."); });
     }
-    function goHome() {
-      location.href = "index.html";
-    }
+    function goHome() { location.href = "index.html"; }
 
     // [장비대여] Step2: 장비 선택 렌더링
     async function renderEquipmentList() {
       const container = document.getElementById("equip-list");
       container.innerHTML = "";
       let items = [];
-      if (currentTab === "camera") items = equipmentData.camera[currentSub] || [];
-      else if (currentTab === "lighting") items = equipmentData.lighting[currentSub] || [];
+      if(currentTab === "camera") items = equipmentData.camera[currentSub] || [];
+      else if(currentTab === "lighting") items = equipmentData.lighting[currentSub] || [];
       else items = equipmentData[currentTab] || [];
-      if (!Array.isArray(items) || items.length === 0) {
+      if(!Array.isArray(items) || items.length === 0){
         container.innerHTML = '<p class="text-gray-500">등록된 장비가 없습니다.</p>';
         return;
       }
-      const start = document.getElementById("equipStart").value;
-      const end = document.getElementById("equipEnd").value;
-      const newStart = new Date(start);
-      const newEnd = new Date(end);
-      for (const item of items) {
+      const s = document.getElementById("equipStart").value;
+      const e = document.getElementById("equipEnd").value;
+      const newS = new Date(s);
+      const newE = new Date(e);
+      for(const item of items){
         const div = document.createElement("div");
         div.className = "equipment-card";
-        if (selectedItems.includes(item.name)) div.classList.add("selected");
+        if(selectedItems.includes(item.name)) div.classList.add("selected");
         let isUnavailable = false;
         try {
           const snapshot = await db.collection("rentals")
@@ -481,16 +441,14 @@
           snapshot.forEach(doc => {
             const data = doc.data();
             if(data.startDate && data.endDate){
-              const existStart = new Date(data.startDate);
-              const existEnd = new Date(data.endDate);
-              if(newStart <= existEnd && existStart <= newEnd){
+              const existS = new Date(data.startDate);
+              const existE = new Date(data.endDate);
+              if(newS <= existE && existS <= newE){
                 isUnavailable = true;
               }
             }
           });
-        } catch(err){
-          console.error("예약 여부 확인 오류:", err);
-        }
+        } catch(err) { console.error("예약 여부 확인 오류:", err); }
         if(isUnavailable) div.classList.add("disabled");
         div.innerHTML = `<img src="${item.image}" alt="${item.name}" /><span class="text-sm">${item.name}</span>`;
         div.onclick = () => {
@@ -505,9 +463,8 @@
     }
     function updateEquipmentSelection() {
       const sec = document.getElementById("equip-selected-section");
-      if(selectedItems.length === 0) {
-        sec.classList.add("hidden");
-      } else {
+      if(selectedItems.length === 0) sec.classList.add("hidden");
+      else {
         sec.classList.remove("hidden");
         document.getElementById("equip-selected-items").innerHTML = selectedItems.map(item =>
           `<li>${item} <button type="button" class="ml-2 text-red-500" onclick="removeEquipmentItem('${item.replace(/'/g, "\\'")}')">&times;</button></li>`
@@ -520,10 +477,10 @@
       renderEquipmentList();
     }
 
-    // [편집실 대관] Step2: 편집실 선택은 하드코딩된 카드 사용, selectEditRoom() 호출
+    // [편집실 대관] Step2: 편집실 선택 (하드코딩된 카드)
     function selectEditRoom(room) {
       selectedItems = [room];
-      document.querySelectorAll("#editing-flow #edit-step2 .equipment-card").forEach(card => {
+      document.querySelectorAll("#edit-step2 .equipment-card").forEach(card => {
         if(card.innerText.includes(room)) card.classList.add("selected");
         else card.classList.remove("selected");
       });
@@ -531,20 +488,22 @@
       document.getElementById("editTimeGrid").classList.remove("hidden");
       generateEditTimeGrid();
     }
-    // [편집실 대관] Step2: 시간 선택 그리드 생성
+    // [편집실 대관] Step2: 시간 선택 그리드 생성 – 오류 해결을 위해 디버깅 로그 추가
     function generateEditTimeGrid() {
       const grid = document.getElementById("editTimeGrid");
       grid.innerHTML = "";
       selectedHours = [];
-      const date = document.getElementById("editDate").value;
-      if(!date){
+      const d = document.getElementById("editDate").value;
+      console.log("generateEditTimeGrid: 대관일 =", d);
+      if(!d) {
         grid.innerHTML = "<p class='text-sm text-red-500'>대관일을 먼저 선택해주세요.</p>";
         return;
       }
       const room = selectedItems[0];
+      console.log("generateEditTimeGrid: 선택된 편집실 =", room);
       if(!room) return;
       db.collection("rentals")
-        .where("editingDate", "==", date)
+        .where("editingDate", "==", d)
         .where("items", "array-contains", room)
         .get()
         .then(snapshot => {
@@ -553,6 +512,7 @@
             const data = doc.data();
             if(Array.isArray(data.hours)) reserved.push(...data.hours);
           });
+          console.log("예약된 시간:", reserved);
           for(let h = 0; h < 24; h++){
             const id = `editHour-${h}`;
             const checkbox = document.createElement("input");
@@ -581,48 +541,159 @@
         })
         .catch(err => {
           console.error("편집실 예약 시간 확인 오류:", err);
+          grid.innerHTML = "<p class='text-sm text-red-500'>시간 정보를 불러오지 못했습니다.</p>";
         });
     }
-  </script>
 
-  <!-- 예제 장비 데이터 (필요에 따라 수정) -->
-  <script>
-    const equipmentData = {
-      camera: {
-        body: [
-          { name: "Sony FX6", image: "https://www.bhphotovideo.com/cdn-cgi/image/fit=scale-down,width=500,quality=95/https://www.bhphotovideo.com/images/images500x500/sony_pxw_fx6_cinema_camera_body_1673526912_1592066.jpg" },
-          { name: "Sony FX3 1번", image: "https://example.com/sony_fx3_1.jpg" },
-          { name: "Sony FX3 2번", image: "https://example.com/sony_fx3_2.jpg" }
-        ]
-      },
-      lighting: {
-        light: [
-          { name: "씨네로이드 120W 1번", image: "https://example.com/light1.jpg" }
-        ]
-      },
-      sound: [
-        { name: "RODE NTG4 붐폴 1번", image: "https://example.com/sound1.jpg" }
-      ],
-      monitor: [
-        { name: "HOLLYLAND MARS-M1 1번", image: "https://example.com/monitor1.jpg" }
-      ],
-      line: [
-        { name: "HDMI 케이블", image: "https://example.com/hdmi.jpg" }
-      ],
-      battery: [
-        { name: "V마운트 배터리", image: "https://example.com/battery.jpg" }
-      ]
-    };
-  </script>
-
-  <!-- 유저 정보 관련 함수 -->
-  <script>
+    // 유저 정보 관련 함수
     function getUserName() {
       return flowType === "equipment" ? document.getElementById("equipName").value.trim() : document.getElementById("editName").value.trim();
     }
     function getStudentID() {
       return flowType === "equipment" ? document.getElementById("equipId").value.trim() : document.getElementById("editId").value.trim();
     }
+  </script>
+
+  <!-- 예제 장비 데이터 (간단 예시) -->
+  <script>
+    const equipmentData = {
+       camera: {
+    body: [
+      { name: "Sony FX6", image: "https://www.bhphotovideo.com/cdn-cgi/image/fit=scale-down,width=500,quality=95/https://www.bhphotovideo.com/images/images500x500/sony_pxw_fx6_cinema_camera_body_1673526912_1592066.jpg" },
+      { name: "Sony FX3 1번", image: "http://manuals.plus/wp-content/uploads/2022/11/SONY-FX3-Interchangeable-Lens-Digital-Camera-Featured-Image.png" },
+      { name: "Sony FX3 2번", image: "http://manuals.plus/wp-content/uploads/2022/11/SONY-FX3-Interchangeable-Lens-Digital-Camera-Featured-Image.png" },
+      { name: "Sony FX3 3번", image: "http://manuals.plus/wp-content/uploads/2022/11/SONY-FX3-Interchangeable-Lens-Digital-Camera-Featured-Image.png" },
+      { name: "Sony FX3 4번", image: "http://manuals.plus/wp-content/uploads/2022/11/SONY-FX3-Interchangeable-Lens-Digital-Camera-Featured-Image.png" },
+      { name: "Sony A7C 1번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKXzc9Z_HMbpiBxkMdz2SH1qPHWEBhBieySg&s" },
+      { name: "Sony A7C 2번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKXzc9Z_HMbpiBxkMdz2SH1qPHWEBhBieySg&s" },
+      { name: "GoPro Hero 11 Black 1번", image: "https://shop-phinf.pstatic.net/20241118_251/1731890583499vgrK6_JPEG/57065449302471065_2038158014.jpg?type=f296_296" },
+      { name: "GoPro Hero 11 Black 2번", image: "https://shop-phinf.pstatic.net/20241118_251/1731890583499vgrK6_JPEG/57065449302471065_2038158014.jpg?type=f296_296" }
+    ],
+    lens: [
+      { name: "COOKE SP3 SET", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzA5MTBfMTM1%2FMDAxNjk0MzE2ODIxMDIz.XQm3j6QmiJ3e8vPv9PEQ6oDbKKk08fpaI8fjgEtbJAog.MuS2eZPGweAEQ7hGYEM5Ae-KfacciVXhOKB10ljyXeQg.JPEG.1967jk%2FIMG_7634.JPG&type=sc960_832" },
+      { name: "Sony FE 35mm GM 1번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32848940_List0.png" },
+      { name: "Sony FE 35mm GM 2번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32848940_List0.png" },
+      { name: "Sony FE 35mm GM 3번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32848940_List0.png" },
+      { name: "Sony E-Mount F1.8 컴팩트 렌즈", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32848140_List0.png" },
+      { name: "Sony FE 70-200mm GM 1번", image: "https://sony.cdn-nhncommerce.com/20220126/122912.152412000/102265974_1.png" },
+      { name: "Sony FE 70-200mm GM 2번", image: "https://sony.cdn-nhncommerce.com/20220126/122912.152412000/102265974_1.png" },
+      { name: "Sony FE 70-200mm GM 3번", image: "https://sony.cdn-nhncommerce.com/20220126/122912.152412000/102265974_1.png" },
+      { name: "Sony FE 24-70mm GM 1번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+      { name: "Sony FE 24-70mm GM 2번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+      { name: "Sony FE 24-70mm GM 3번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+      { name: "Sony 85mm f/1.4 GM 1번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+      { name: "Sony 85mm f/1.4 GM 2번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+      { name: "Sony 85mm f/1.4 GM 3번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+      { name: "Kase MCUV II 82mm", image: "https://kasefilters.com/wp-content/uploads/2020/03/Kase-MCUV-Magnetic-Filter-82mm.jpg" }
+    ],
+    tripodGimbal: [
+      { name: "카토니 포커스 22씨네", image: "https://withusmedia.co.kr/web/product/big/202307/c21fe63a6876968bafedd53af69efcd6.jpg" },
+      { name: "iFootage GazelleTripod TC9 1번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
+      { name: "iFootage GazelleTripod TC9 2번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
+      { name: "iFootage GazelleTripod TC9 3번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
+      { name: "DJI RS3 PRO Combo 1번", image: "https://www-cdn.djiits.com/cms/uploads/777e2e0023f55a99d393684c8a03c5aa@640*640.png" },
+      { name: "DJI RS3 PRO Combo 2번", image: "https://www-cdn.djiits.com/cms/uploads/777e2e0023f55a99d393684c8a03c5aa@640*640.png" },
+      { name: "이지리그", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9mWWxfT4r17U8i5xgKLaMfDSKYR9jhkvs4w&s" },
+      { name: "틸타 링그립", image: "https://cdn.imweb.me/thumbnail/20230802/49697b5cdb039.jpg" }
+    ],
+    accessory: [
+      { name: "부속품 1번", image: "https://via.placeholder.com/100?text=Accessory+1" },
+      { name: "부속품 2번", image: "https://via.placeholder.com/100?text=Accessory+2" }
+    ]
+  },
+  lighting: {
+    light: [
+      { name: "씨네로이드 120W 1번", image: "https://cdn.imweb.me/thumbnail/20230323/5ae5e8bba6979.jpg" },
+      { name: "씨네로이드 120W 2번", image: "https://cdn.imweb.me/thumbnail/20230323/5ae5e8bba6979.jpg" },
+      { name: "씨네로이드 120W 3번", image: "https://cdn.imweb.me/thumbnail/20230323/5ae5e8bba6979.jpg" },
+      { name: "씨네로이드 120W 4번", image: "https://cdn.imweb.me/thumbnail/20230323/5ae5e8bba6979.jpg" },
+      { name: "씨네로이드 120W 5번", image: "https://cdn.imweb.me/thumbnail/20230323/5ae5e8bba6979.jpg" },
+      { name: "SmallRig RC 220B 1번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "SmallRig RC 220B 2번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "SmallRig RC 220B 3번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "SmallRig RC 220B 4번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "SmallRig RC 220B 5번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "SmallRig RC 220B 6번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "SmallRig RC 220B 7번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "SmallRig RC 220B 8번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "SmallRig RC 220B 9번", image: "https://img.danawa.com/prod_img/500000/367/191/img/17191367_2.jpg?_v=20220603170924" },
+      { name: "Aputure amaran F21C", image: "https://www.economik.com/products/20501-21000/20715_full.jpg" },
+      { name: "Aputure amaran F22C", image: "https://www.mediabox-x.co.kr/data/goods/1/2022/08/_temp_16596921858951view.jpg" },
+      { name: "난라이트 2400b", image: "https://cdn.imweb.me/thumbnail/20240911/7d99b5cc9460e.jpg" },
+      { name: "프레넬 렌즈1번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSoyGBe9AEpxQp9AopkO_Jh_JybRasKCleaRg&s" },
+      { name: "프레넬 렌즈2번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSoyGBe9AEpxQp9AopkO_Jh_JybRasKCleaRg&s" },
+      { name: "프레넬 렌즈3번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSoyGBe9AEpxQp9AopkO_Jh_JybRasKCleaRg&s" },
+      { name: "Skypanel S60 1번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3095_temp_16729690273473view.jpg" },
+      { name: "Skypanel S60 2번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3095_temp_16729690273473view.jpg" },
+      { name: "Skypanel S60 3번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3095_temp_16729690273473view.jpg" }
+    ],
+    gobo: [
+    { name: "FL30 24x36 Solid Flag 1번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwYOl7gC2c5ErUpefwg4goL64KdDOpAvs3AQ&s" },
+    { name: "FL30 24x36 Solid Flag 2번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwYOl7gC2c5ErUpefwg4goL64KdDOpAvs3AQ&s" },
+    { name: "FL30 24x36 Solid Flag 3번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwYOl7gC2c5ErUpefwg4goL64KdDOpAvs3AQ&s" },
+    { name: "SC45 24x36 Single Black Net 1번", image: "https://via.placeholder.com/100?text=Single+Net" },
+    { name: "SC45 24x36 Single Black Net 2번", image: "https://via.placeholder.com/100?text=Single+Net" },
+    { name: "SC45 24x36 Single Black Net 3번", image: "https://via.placeholder.com/100?text=Single+Net" },
+    { name: "SC50 24x36 Double Black Net 1번", image: "https://via.placeholder.com/100?text=Double+Net" },
+    { name: "SC50 24x36 Double Black Net 2번", image: "https://via.placeholder.com/100?text=Double+Net" },
+    { name: "SC50 24x36 Double Black Net 3번", image: "https://via.placeholder.com/100?text=Double+Net" },
+    { name: "SC55 24x36 Silk 1번", image: "https://www.canvasgrip.com/mm5/graphics/00000001/2X3POLY19_447x640.jpg" },
+    { name: "SC55 24x36 Silk 2번", image: "https://www.canvasgrip.com/mm5/graphics/00000001/2X3POLY19_447x640.jpg" },
+    { name: "SC55 24x36 Silk 3번", image: "https://www.canvasgrip.com/mm5/graphics/00000001/2X3POLY19_447x640.jpg" },
+    { name: "4x4 플로피", image: "https://via.placeholder.com/100?text=4x4+Floppy" },
+    { name: "Lee 필터 216", image: "https://via.placeholder.com/100?text=Lee+216" },
+    { name: "Lee 필터 250", image: "https://via.placeholder.com/100?text=Lee+250" },
+    { name: "Lee 필터 251", image: "https://via.placeholder.com/100?text=Lee+251" },
+    { name: "넉자 프레임", image: "https://via.placeholder.com/100?text=4x4+Frame" },
+    { name: "2436 프레임", image: "https://via.placeholder.com/100?text=2436+Frame" }
+  ],
+    stand: [
+      { name: "베이비 콤보 1번", image: "https://m.photodynamic.co.kr/web/product/big/201901/53e51a2198fabaa1f2680077cdca8e89.jpg" },
+      { name: "베이비 콤보 2번", image: "https://m.photodynamic.co.kr/web/product/big/201901/53e51a2198fabaa1f2680077cdca8e89.jpgg" },
+      { name: "c스탠드", image: "https://m.fomex.co.kr/web/product/medium/CS-20M30M40M.jpg" }
+    ]
+  },
+  sound: [
+    { name: "RODE NTG4 붐폴 1번", image: "https://greenshop.co.kr/data/goods/1/2023/02/1180_temp_16757449960624list1.png" },
+    { name: "RODE NTG4 붐폴 2번", image: "https://greenshop.co.kr/data/goods/1/2023/02/1180_temp_16757449960624list1.png" },
+    { name: "RODE NTG4 붐폴 3번", image: "https://greenshop.co.kr/data/goods/1/2023/02/1180_temp_16757449960624list1.png" },
+    { name: "K-Tek 붐폴", image: "https://cdn.011st.com/11dims/resize/600x600/quality/75/11src/product/7484330741/B.jpg?587725191" },
+    { name: "타스캠 레코더 1번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20220726_142%2F165880565867863lmK_JPEG%2F59941501379750621_1960646652.jpg&type=sc960_832" },
+    { name: "타스캠 레코더 2번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20220726_142%2F165880565867863lmK_JPEG%2F59941501379750621_1960646652.jpg&type=sc960_832" },
+    { name: "ZOOM H6 레코더", image: "https://i.ebayimg.com/images/g/3nMAAOSwgVZfiCp6/s-l1600.jpg" },
+    { name: "무선 핀마이크 SET 1", image: "https://thumbnail7.coupangcdn.com/thumbnails/remote/492x492ex/image/retail/images/2023/04/24/17/4/4870bf4f-7eeb-4912-82c6-2b5e897fd981.jpg" },
+    { name: "무선 핀마이크 SET 2", image: "https://thumbnail7.coupangcdn.com/thumbnails/remote/492x492ex/image/retail/images/2023/04/24/17/4/4870bf4f-7eeb-4912-82c6-2b5e897fd981.jpg" },
+    { name: "무선 핀마이크 SET 3", image: "https://thumbnail7.coupangcdn.com/thumbnails/remote/492x492ex/image/retail/images/2023/04/24/17/4/4870bf4f-7eeb-4912-82c6-2b5e897fd981.jpg" },
+    { name: "무선 핀마이크 SET 4", image: "https://thumbnail7.coupangcdn.com/thumbnails/remote/492x492ex/image/retail/images/2023/04/24/17/4/4870bf4f-7eeb-4912-82c6-2b5e897fd981.jpg" }
+  ],
+  monitor: [
+    { name: "HOLLYLAND MARS-M1 1번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3102_temp_16734080435217view.jpg" },
+    { name: "HOLLYLAND MARS-M1 2번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3102_temp_16734080435217view.jpg" },
+    { name: "HOLLYLAND MARS-M1 3번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3102_temp_16734080435217view.jpg" },
+    { name: "Smaller indie 7", image: "https://www.atomos.com/images/products/ninja-v-plus/overview/Ninja-V-Plus_Overview_01.webp" },
+    { name: "아트모스 쇼군 7인치", image: "https://m.samyangtechmall.com/web/product/big/202401/8a3804e36704b7d2fee3fa1ca8c75dce.jpg" },
+    { name: "TVLogic LVM-181S 18.5IN FHD PBP LCD Monitor", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqdzFEDjqnSUDjCaUASpfbtE_dQw0G4ZKY-A&s" },
+  ],
+  line: [
+    { name: "SDI 케이블", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxXwTxs6Wq96acDeXW4qzm40iPRpVytmB7zQ&s" },
+    { name: "HDMI 케이블", image: "https://m.hdmicable.co.kr/web/product/big/202407/1a6fd173af3b5a756aa6a51b52c4d588.jpg" },
+    { name: "XLR 케이블", image: "https://res.cloudinary.com/rsc/image/upload/b_rgb:FFFFFF,c_pad,dpr_2.625,f_auto,h_214,q_auto,w_380/c_pad,h_214,w_380/F7424517-01?pgw=1" },
+    { name: "연장 전원선", image: "https://m.intelrior.com/web/upload/NNEditor/20210627/mobile/e30880c8138488e21cd971ae3cdb3e0e_1624775440.jpg" },
+    { name: "전기 릴선", image: "https://m.ezlight.co.kr/web/product/small/201701/5630_shop1_399920.jpg" }
+  ],
+  battery: [
+    { name: "V마운트 배터리", image: "https://x-cament.com/web/product/big/202007/eb69f4fc4098a6dec0c6759a5c2fdb26.jpg" },
+    { name: "NP-F 배터리", image: "https://brilliant.com.sg//image/cache/catalog/sony%20battery%2008-760x540.JPG" },
+    { name: "충전기 세트", image: "https://img.danawa.com/prod_img/500000/616/166/img/5166616_2.jpg?_v=20210329182751" },
+    { name: "Sony 160GB CFexpress 카드 Type A", image: "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSoxw4LBhaRw03pNiFwifd1jwDmM6fXg1R42DyiD0n_fQirS7Upg3-MusWHHItKxWrUwU-_aDAh92OVtCTMOtzIuYQtRfBFFxeHCnPUQhRwmpZP7X4Ontvz" },
+    { name: "SCFexpress Type A SD 메모리카드 리더기", image: "https://www.sony.co.kr/image/0b1c280e774c792a4f6e1670b57c15f6?fmt=pjpeg&wid=330&bgcolor=FFFFFF&bgc=FFFFFF" }
+  ]
+};
+      editing: [
+        { name: "편집실 1", image: "https://www.sac.or.kr/design/theme/sac/images/sub/studio_imgs4.jpg" },
+        { name: "편집실 2", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyWGV9IK1CFeE1vJthQcjKnL3e2E0bj79J-DkWkBUL_FBPgaCY2xKTv9Jo7Pp1HaQQ3Gk&usqp=CAU" }
+      ]
+    };
   </script>
 </body>
 </html>
