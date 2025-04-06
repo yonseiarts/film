@@ -152,6 +152,12 @@
         <h3 class="font-medium mb-2">선택된 장비</h3>
         <ul id="selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
       </div>
+      
+      <!-- 편집실 시간 선택 (편집실이 선택된 경우에만 표시) -->
+      <div id="editingTimeSection" class="mt-6 hidden">
+        <h3 class="font-medium mb-2">편집실 대여 시간 선택</h3>
+        <div id="timeGrid" class="grid grid-cols-6 gap-2 text-sm"></div>
+      </div>
 
       <div class="flex justify-between mt-6">
         <button onclick="goToStep(1)" class="text-blue-600 text-sm">← 이전 단계</button>
@@ -213,6 +219,7 @@
     let selectedItems = [];
     let currentTab = "camera";
     let currentSub = "body";
+    let selectedHours = [];
 
     // Step1 유효성 검사: 이름, 학번, 시작일, 반납일 모두 입력되어야 함.
     function validateStep1() {
@@ -290,7 +297,7 @@
         const div = document.createElement("div");
         div.className = "equipment-card";
         if (selectedItems.includes(item.name)) div.classList.add("selected");
-        // Firestore에서 해당 장비가 예약된 기간이 있는지 확인
+        // Firestore에서 해당 장비의 예약 여부 확인 (편집실 제외: 예약된 기간이 겹치면 비활성화)
         let isUnavailable = false;
         try {
           const snapshot = await db.collection("rentals")
@@ -321,6 +328,71 @@
         };
         container.appendChild(div);
       }
+      // 편집실 탭일 경우, 만약 편집실이 선택되었다면 편집실 시간 선택 영역을 보이게 함
+      if (currentTab === "editing" && selectedItems.some(item => item.includes("편집실"))) {
+        document.getElementById("editingTimeSection").classList.remove("hidden");
+        generateEditingTimeGrid();
+      } else {
+        document.getElementById("editingTimeSection").classList.add("hidden");
+      }
+    }
+
+    // 편집실 시간 선택 그리드 생성 함수
+    function generateEditingTimeGrid() {
+      const timeGrid = document.getElementById("timeGrid");
+      timeGrid.innerHTML = "";
+      selectedHours = [];
+      const date = document.getElementById("startDate").value; // 편집실 대여일은 시작일 사용
+      if (!date) {
+        timeGrid.innerHTML = "<p class='text-sm text-red-500'>대여일을 선택해주세요.</p>";
+        return;
+      }
+      // 편집실 선택 (하나만 선택한다고 가정)
+      const editingRoom = selectedItems.find(item => item.includes("편집실"));
+      if (!editingRoom) return;
+      // 해당 날짜와 편집실에 대한 예약 내역 조회
+      db.collection("rentals")
+        .where("editingDate", "==", date)
+        .where("items", "array-contains", editingRoom)
+        .get()
+        .then(snapshot => {
+          let reservedHours = [];
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            if (Array.isArray(data.hours)) {
+              reservedHours.push(...data.hours);
+            }
+          });
+          // 0시부터 23시까지 체크박스 생성
+          for (let h = 0; h < 24; h++) {
+            const id = `hour-${h}`;
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.id = id;
+            checkbox.value = h;
+            const label = document.createElement("label");
+            label.htmlFor = id;
+            label.innerText = `${h}:00`;
+            if (reservedHours.includes(h)) {
+              checkbox.disabled = true;
+              label.className = "bg-gray-300 text-gray-500 line-through cursor-not-allowed";
+            } else {
+              label.className = "bg-gray-200 cursor-pointer";
+              checkbox.addEventListener("change", () => {
+                if (checkbox.checked) selectedHours.push(h);
+                else selectedHours = selectedHours.filter(v => v !== h);
+              });
+            }
+            const wrap = document.createElement("div");
+            wrap.className = "inline-block";
+            wrap.appendChild(checkbox);
+            wrap.appendChild(label);
+            timeGrid.appendChild(wrap);
+          }
+        })
+        .catch(err => {
+          console.error("편집실 예약 시간 확인 오류:", err);
+        });
     }
 
     // 선택된 장비 UI 업데이트
@@ -374,7 +446,7 @@
       const studentId = document.getElementById("userId").value.trim();
       const start = document.getElementById("startDate").value;
       const end = document.getElementById("endDate").value;
-      const data = {
+      let data = {
          userName: name,
          studentId: studentId,
          startDate: start,
@@ -383,6 +455,12 @@
          status: "대기",
          createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
+      // 편집실 선택 시, 편집실 대여일(시작일) 및 선택한 시간 추가
+      const editingRoom = selectedItems.find(item => item.includes("편집실"));
+      if (editingRoom) {
+         data.editingDate = start;
+         data.hours = selectedHours.slice().sort((a, b) => a - b);
+      }
       db.collection("rentals").add(data)
         .then(() => {
            goToStep(4);
