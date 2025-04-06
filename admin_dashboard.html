@@ -3,19 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>관리자 대시보드</title>
-  <!-- Tailwind CSS (개발용, 프로덕션에서는 빌드된 CSS 권장) -->
+  <title>장비 대여 관리자 대시보드</title>
+  <!-- Tailwind CSS CDN (개발 중 사용; 프로덕션에서는 빌드된 CSS 사용 권장) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
-  <link rel="icon" href="favicon.ico" />
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
   <style>
-    /* 탭 버튼 스타일 */
+    /* 상태 표시 점 */
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 9999px;
+      margin-right: 8px;
+      display: inline-block;
+    }
+    .bg-waiting { background-color: #d1d5db; }   /* 회색 - 대기 */
+    .bg-approved { background-color: #34d399; }    /* 초록 - 승인 */
+    .bg-rejected { background-color: #f87171; }    /* 빨강 - 반려 */
+    .bg-returned { background-color: #1f2937; }    /* 검정 - 반납 완료 */
+
+    /* 탭 버튼 */
     .tab-btn {
-      padding: 0.5rem 1rem;
-      border-bottom: 2px solid transparent;
+      padding: 0.75rem 1rem;
       cursor: pointer;
+      border-bottom: 2px solid transparent;
     }
     .tab-btn.active {
       border-color: #1D4ED8;
@@ -23,15 +36,16 @@
       color: #1D4ED8;
     }
   </style>
+  <!-- Firebase 초기화 -->
   <script>
-    // Firebase 초기화 – 실제 프로젝트 정보로 교체
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      projectId: "YOUR_PROJECT",
-      storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      authDomain: "yonseirent-setup.firebaseapp.com",
+      projectId: "yonseirent-setup",
+      storageBucket: "yonseirent-setup.appspot.com",
+      messagingSenderId: "1072524969376",
+      appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
+      measurementId: "G-CQZEKPE02D"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
@@ -39,97 +53,150 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
   <!-- 헤더 -->
-  <header class="bg-blue-700 text-white py-6 text-center">
-    <h1 class="text-3xl font-bold">관리자 대시보드</h1>
+  <header class="bg-blue-700 text-white py-5">
+    <div class="max-w-5xl mx-auto px-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold">장비 대여 관리자 대시보드</h1>
+      <a href="index.html" class="text-sm underline">홈으로 이동</a>
+    </div>
   </header>
 
-  <!-- 탭 버튼 -->
-  <div class="max-w-6xl mx-auto mt-6 px-4">
-    <div class="flex space-x-4 border-b">
-      <div class="tab-btn active" data-status="대기" onclick="switchTab(this)">대기</div>
-      <div class="tab-btn" data-status="승인" onclick="switchTab(this)">승인</div>
-      <div class="tab-btn" data-status="반려" onclick="switchTab(this)">반려</div>
-      <div class="tab-btn" data-status="반납 완료" onclick="switchTab(this)">반납 완료</div>
+  <main class="max-w-5xl mx-auto px-4 py-6">
+    <!-- 탭 메뉴 (대기, 승인, 반려, 반납 완료) -->
+    <div class="flex space-x-4 border-b border-gray-300 mb-4">
+      <button id="tab-waiting" class="tab-btn active" data-status="대기">대기</button>
+      <button id="tab-approved" class="tab-btn" data-status="승인">승인</button>
+      <button id="tab-rejected" class="tab-btn" data-status="반려">반려</button>
+      <button id="tab-returned" class="tab-btn" data-status="반납 완료">반납 완료</button>
     </div>
-  </div>
+    <!-- 탭 내용 -->
+    <div id="tab-content">
+      <div id="status-list" class="space-y-4"></div>
+    </div>
+  </main>
 
-  <!-- 탭 내용 -->
-  <div id="tab-content" class="max-w-6xl mx-auto mt-4 px-4">
-    <!-- 여기서 rental 문서를 목록으로 렌더링 -->
-    <div id="status-list" class="space-y-4"></div>
-  </div>
+  <!-- 카드 템플릿 (모든 탭 공용) -->
+  <template id="card-template">
+    <div class="card-item bg-white p-4 rounded shadow flex justify-between items-start relative">
+      <div class="flex items-center">
+        <span class="status-dot"></span>
+        <div>
+          <h3 class="font-bold text-gray-800 text-sm mb-1">
+            신청자: <span class="user-name"></span> (<span class="student-id"></span>)
+          </h3>
+          <p class="text-xs text-gray-600">신청 항목: <span class="items"></span></p>
+          <p class="text-xs text-gray-600 mt-1 date-info"></p>
+          <p class="text-xs text-gray-600 mt-1 time-info hidden"></p>
+        </div>
+      </div>
+      <div class="flex flex-col space-y-2 ml-4 text-right"></div>
+    </div>
+  </template>
 
-  <!-- 스크립트: 탭 전환 및 Firestore 데이터 렌더링 -->
+  <!-- 관리자 대시보드 스크립트 -->
   <script>
-    let currentStatus = "대기"; // 초기 탭: 대기
+    let currentStatus = "대기"; // 초기 탭 상태
 
-    // 탭 전환 함수
-    function switchTab(el) {
-      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
-      el.classList.add("active");
-      currentStatus = el.dataset.status;
-      loadRentalsByStatus(currentStatus);
-    }
+    // 탭 버튼 이벤트 등록
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentStatus = btn.dataset.status;
+        loadRentalsByStatus(currentStatus);
+      });
+    });
 
-    // Firestore에서 해당 상태의 rental 문서를 불러와 렌더링
-    function loadRentalsByStatus(status) {
-      const statusList = document.getElementById("status-list");
-      statusList.innerHTML = '<p>데이터를 불러오는 중입니다...</p>';
-      db.collection("rentals")
-        .where("status", "==", status)
-        .orderBy("createdAt", "desc")
-        .get()
-        .then(snapshot => {
-          if (snapshot.empty) {
-            statusList.innerHTML = `<p class="text-gray-500">해당 상태의 신청이 없습니다.</p>`;
-            return;
-          }
-          statusList.innerHTML = "";
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            const div = document.createElement("div");
-            div.className = "p-4 bg-white rounded shadow";
-            // 신청 정보 표시 (예시: 사용자, 날짜, 기자재)
-            let html = `<p><strong>신청자:</strong> ${data.userName} (${data.studentId})</p>`;
-            if(data.startDate && data.endDate) {
-              html += `<p><strong>대여 기간:</strong> ${data.startDate} ~ ${data.endDate}</p>`;
-            }
-            if(data.editingDate) {
-              html += `<p><strong>대관일:</strong> ${data.editingDate}</p>`;
-            }
-            if(data.items && data.items.length > 0) {
-              html += `<p><strong>신청 기자재/편집실:</strong> ${data.items.join(", ")}</p>`;
-            }
-            if(data.hours && data.hours.length > 0) {
-              html += `<p><strong>시간:</strong> ${data.hours.sort((a,b)=>a-b).join(", ")}시</p>`;
-            }
-            // 대기 상태인 경우 승인/반려 버튼 추가
-            if(status === "대기") {
-              html += `<div class="mt-2 space-x-2">
-                        <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm" onclick="updateStatus('${doc.id}', '승인')">승인</button>
-                        <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm" onclick="updateStatus('${doc.id}', '반려')">반려</button>
-                      </div>`;
-            }
-            // 승인 상태인 경우 반납 완료 버튼 추가 (예: 대여 기간 종료 후)
-            if(status === "승인") {
-              html += `<div class="mt-2">
-                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm" onclick="updateStatus('${doc.id}', '반납 완료')">반납 완료</button>
-                      </div>`;
-            }
-            div.innerHTML = html;
-            statusList.appendChild(div);
-          });
-        })
-        .catch(err => {
-          console.error("데이터 불러오기 오류:", err);
-          statusList.innerHTML = `<p class="text-red-500">데이터를 불러오는 중 오류가 발생했습니다.</p>`;
+    // Firestore에서 해당 상태의 대여 신청 문서를 불러와 렌더링
+    async function loadRentalsByStatus(status) {
+      const listEl = document.getElementById("status-list");
+      listEl.innerHTML = '<p class="text-gray-500 text-sm">데이터를 불러오는 중입니다...</p>';
+      try {
+        const snapshot = await db.collection("rentals")
+          .where("status", "==", status)
+          .orderBy("createdAt", "desc")
+          .get();
+        if (snapshot.empty) {
+          listEl.innerHTML = `<p class="text-gray-500 text-sm">해당 상태의 신청이 없습니다.</p>`;
+          return;
+        }
+        listEl.innerHTML = "";
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const id = doc.id;
+          const card = createCard(id, data);
+          listEl.appendChild(card);
         });
+      } catch (err) {
+        console.error("데이터 불러오기 오류:", err);
+        listEl.innerHTML = `<p class="text-red-500 text-sm">데이터를 불러오는 중 오류가 발생했습니다.</p>`;
+      }
     }
 
-    // 상태 업데이트 함수
-    function updateStatus(docId, newStatus) {
-      if(!confirm(`문서를 ${newStatus} 상태로 변경하시겠습니까?`)) return;
-      db.collection("rentals").doc(docId).update({ status: newStatus })
+    // 카드 생성 함수
+    function createCard(id, data) {
+      const template = document.getElementById("card-template");
+      const clone = template.content.cloneNode(true);
+      const dot = clone.querySelector(".status-dot");
+      if (data.status === "대기") {
+        dot.classList.add("bg-waiting");
+      } else if (data.status === "승인") {
+        dot.classList.add("bg-approved");
+      } else if (data.status === "반려") {
+        dot.classList.add("bg-rejected");
+      } else if (data.status === "반납 완료") {
+        dot.classList.add("bg-returned");
+      }
+      clone.querySelector(".user-name").textContent = data.userName || "";
+      clone.querySelector(".student-id").textContent = data.studentId || "";
+      clone.querySelector(".items").textContent = (data.items || []).join(", ");
+      const dateInfo = clone.querySelector(".date-info");
+      if (data.editingDate) {
+        dateInfo.textContent = `대관일: ${data.editingDate}`;
+      } else if (data.startDate && data.endDate) {
+        dateInfo.textContent = `대여: ${data.startDate} ~ 반납: ${data.endDate}`;
+      }
+      const timeInfo = clone.querySelector(".time-info");
+      if (data.hours && data.hours.length > 0) {
+        timeInfo.textContent = `시간: ${data.hours.sort((a,b)=>a-b).join(", ")}시`;
+        timeInfo.classList.remove("hidden");
+      }
+      // 액션 버튼 영역
+      const btnContainer = clone.querySelector("div.flex.flex-col.space-y-2");
+      btnContainer.innerHTML = "";
+      if (data.status === "대기") {
+        const approveBtn = document.createElement("button");
+        approveBtn.textContent = "✅ 승인";
+        approveBtn.className = "text-green-600 text-sm hover:underline";
+        approveBtn.onclick = () => updateStatus(id, "승인");
+        const rejectBtn = document.createElement("button");
+        rejectBtn.textContent = "❌ 반려";
+        rejectBtn.className = "text-red-500 text-sm hover:underline";
+        rejectBtn.onclick = () => updateStatus(id, "반려");
+        btnContainer.appendChild(approveBtn);
+        btnContainer.appendChild(rejectBtn);
+      } else if (data.status === "승인") {
+        const returnBtn = document.createElement("button");
+        returnBtn.textContent = "📦 반납 완료";
+        returnBtn.className = "text-black text-sm hover:underline";
+        returnBtn.onclick = () => updateStatus(id, "반납 완료", true);
+        btnContainer.appendChild(returnBtn);
+      } else if (data.status === "반려" || data.status === "반납 완료") {
+        const restoreBtn = document.createElement("button");
+        restoreBtn.textContent = "🔄 복원";
+        restoreBtn.className = "text-blue-500 text-sm hover:underline";
+        restoreBtn.onclick = () => updateStatus(id, "대기");
+        btnContainer.appendChild(restoreBtn);
+      }
+      return clone;
+    }
+
+    // 상태 업데이트 함수 (반납 완료 시 타임스탬프 추가 옵션)
+    function updateStatus(docId, newStatus, includeTimestamp = false) {
+      let updateData = { status: newStatus };
+      if (includeTimestamp && newStatus === "반납 완료") {
+        updateData.returnedAt = firebase.firestore.FieldValue.serverTimestamp();
+      }
+      db.collection("rentals").doc(docId).update(updateData)
         .then(() => {
           alert("상태가 변경되었습니다.");
           loadRentalsByStatus(currentStatus);
