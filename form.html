@@ -81,7 +81,7 @@
     const db = firebase.firestore();
   </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 min-h-screen overflow-x-hidden">
   <!-- 헤더 -->
   <div class="bg-blue-700 text-white py-6 text-center relative">
     <a href="index.html" class="absolute left-4 top-1/2 -translate-y-1/2 transform text-white underline text-sm">홈으로</a>
@@ -89,12 +89,13 @@
   </div>
 
   <!-- 초기 페이지: 플로우 선택 -->
-  <div id="initial-page" class="max-w-4xl mx-auto p-6 bg-white mt-4 rounded-lg shadow-md">
+  <div id="initial-page" class="max-w-4xl w-full mx-auto p-6 bg-white mt-4 rounded-lg shadow-md">
     <h2 class="text-xl font-bold mb-6 text-center">원하는 대여신청을 선택하세요</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
       <!-- 장비 대여 탭 -->
       <div class="relative cursor-pointer" onclick="startEquipmentFlow()">
-        <img src="https://i.pinimg.com/736x/22/20/6b/22206b44d648994fecd85929822d1ac7.jpg" alt="장비 대여" class="w-full h-[400px] object-cover rounded-lg">
+        <!-- 모바일에서는 h-48, sm 이상에서는 h-[400px] -->
+        <img src="https://i.pinimg.com/736x/22/20/6b/22206b44d648994fecd85929822d1ac7.jpg" alt="장비 대여" class="w-full h-48 sm:h-[400px] object-cover rounded-lg">
         <div class="absolute inset-0 bg-black opacity-40 rounded-lg"></div>
         <div class="absolute inset-0 flex items-center justify-center">
           <h3 class="text-2xl font-bold text-white">장비 대여</h3>
@@ -102,7 +103,7 @@
       </div>
       <!-- 편집실 대관 탭 -->
       <div class="relative cursor-pointer" onclick="startEditingFlow()">
-        <img src="https://i.pinimg.com/736x/62/4c/5a/624c5a9dd1fdba135a165e263bded442.jpg" alt="편집실 대관 신청" class="w-full h-[400px] object-cover rounded-lg">
+        <img src="https://i.pinimg.com/736x/62/4c/5a/624c5a9dd1fdba135a165e263bded442.jpg" alt="편집실 대관 신청" class="w-full h-48 sm:h-[400px] object-cover rounded-lg">
         <div class="absolute inset-0 bg-black opacity-40 rounded-lg"></div>
         <div class="absolute inset-0 flex items-center justify-center">
           <h3 class="text-2xl font-bold text-white">편집실 대관 신청</h3>
@@ -112,17 +113,17 @@
   </div>
 
   <!-- 단계 구분 (공통: 4단계) -->
-  <div id="steps-container" class="max-w-4xl mx-auto p-4 hidden">
-    <div class="flex justify-between mb-8">
-      <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 정보 입력</div>
-      <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 선택</div>
-      <div id="step3Btn" class="flex-1 text-center p-2 rounded step-inactive">3. 규정 동의</div>
-      <div id="step4Btn" class="flex-1 text-center p-2 rounded step-inactive">4. 완료</div>
+  <div id="steps-container" class="max-w-4xl w-full mx-auto p-4 hidden">
+    <div class="flex flex-wrap justify-between mb-8">
+      <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active text-sm sm:text-base">1. 정보 입력</div>
+      <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive text-sm sm:text-base">2. 선택</div>
+      <div id="step3Btn" class="flex-1 text-center p-2 rounded step-inactive text-sm sm:text-base">3. 규정 동의</div>
+      <div id="step4Btn" class="flex-1 text-center p-2 rounded step-inactive text-sm sm:text-base">4. 완료</div>
     </div>
   </div>
 
   <!-- 장비 대여 플로우 (4단계) -->
-  <div id="equipment-flow" class="max-w-4xl mx-auto p-6 bg-white mt-4 rounded-lg shadow-md hidden">
+  <div id="equipment-flow" class="max-w-4xl w-full mx-auto p-6 bg-white mt-4 rounded-lg shadow-md hidden">
     <!-- Equipment Step 1: 정보 입력 (이전단계 버튼 추가) -->
     <div id="equip-step1">
       <h2 class="text-xl font-bold mb-4">대여일 및 사용자 정보 입력</h2>
@@ -136,23 +137,23 @@
       <input type="text" id="equipId" class="border p-2 rounded w-full mb-4" placeholder="학번" />
       <div class="flex justify-between">
         <button onclick="goBackToInitial()" class="text-blue-600 text-sm">← 이전 단계</button>
-        <button onclick="validateEquipStep1()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
+        <button onclick="validateEquipStep1()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">다음 단계 →</button>
       </div>
     </div>
     <!-- Equipment Step 2: 장비 선택 -->
     <div id="equip-step2" class="hidden">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
       <!-- 대분류 탭 -->
-      <div class="flex space-x-2 mb-4">
-        <button class="tab-button active px-4 py-1 border rounded" data-tab="camera">카메라</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="lighting">조명</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="sound">사운드</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="monitor">모니터</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="line">라인</button>
-        <button class="tab-button px-4 py-1 border rounded" data-tab="battery">배터리</button>
+      <div class="flex flex-wrap space-x-2 mb-4">
+        <button class="tab-button active px-4 py-1 border rounded text-sm" data-tab="camera">카메라</button>
+        <button class="tab-button px-4 py-1 border rounded text-sm" data-tab="lighting">조명</button>
+        <button class="tab-button px-4 py-1 border rounded text-sm" data-tab="sound">사운드</button>
+        <button class="tab-button px-4 py-1 border rounded text-sm" data-tab="monitor">모니터</button>
+        <button class="tab-button px-4 py-1 border rounded text-sm" data-tab="line">라인</button>
+        <button class="tab-button px-4 py-1 border rounded text-sm" data-tab="battery">배터리</button>
       </div>
       <!-- 카메라 하위 탭 (예시) -->
-      <div id="cameraSubTabs" class="flex gap-2 mb-4">
+      <div id="cameraSubTabs" class="flex flex-wrap gap-2 mb-4">
         <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
         <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripodGimbal">삼각대&짐벌</button>
@@ -162,18 +163,18 @@
       <div id="equip-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
       <!-- 선택된 장비 표시 -->
       <div id="equip-selected-section" class="mt-6 hidden">
-        <h3 class="font-medium mb-2">선택된 장비</h3>
+        <h3 class="font-medium mb-2 text-sm">선택된 장비</h3>
         <ul id="equip-selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
       </div>
       <div class="flex justify-between mt-6">
         <button onclick="goToEquipmentStep(1)" class="text-blue-600 text-sm">← 이전 단계</button>
-        <button onclick="validateEquipStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
+        <button onclick="validateEquipStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">다음 단계 →</button>
       </div>
     </div>
     <!-- Equipment Step 3: 규정 동의 (사용 규정 전문 추가) -->
     <div id="equip-step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
-      <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed">
+      <div class="bg-gray-100 p-4 rounded text-sm h-64 sm:h-80 overflow-y-scroll mb-4 leading-relaxed">
          <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
         <strong>제1장 총칙</strong><br/>
         <em>제1조 (목적)</em><br/>
@@ -201,14 +202,14 @@
       </label>
       <div class="flex justify-between">
         <button onclick="goToEquipmentStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
-        <button id="equipSubmitBtn" onclick="submitEquip()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">완료 →</button>
+        <button id="equipSubmitBtn" onclick="submitEquip()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50 text-sm">완료 →</button>
       </div>
     </div>
     <!-- Equipment Step 4: 완료 -->
     <div id="equip-step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
       <div id="equip-final-info" class="text-sm text-gray-700"></div>
-      <div class="flex justify-center gap-4 mt-8">
+      <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
         <button onclick="goToEquipmentStep(3)" class="text-blue-600 text-sm underline">← 이전 단계</button>
         <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
       </div>
@@ -216,7 +217,7 @@
   </div>
 
   <!-- 편집실 대관 플로우 (4단계) -->
-  <div id="editing-flow" class="max-w-4xl mx-auto p-6 bg-white mt-4 rounded-lg shadow-md hidden">
+  <div id="editing-flow" class="max-w-4xl w-full mx-auto p-6 bg-white mt-4 rounded-lg shadow-md hidden">
     <!-- Editing Step 1: 정보 입력 (이전단계 버튼 추가) -->
     <div id="edit-step1">
       <h2 class="text-xl font-bold mb-4">대관일 및 사용자 정보 입력</h2>
@@ -228,13 +229,13 @@
       <input type="text" id="editId" class="border p-2 rounded w-full mb-4" placeholder="학번" />
       <div class="flex justify-between">
         <button onclick="goBackToInitial()" class="text-blue-600 text-sm">← 이전 단계</button>
-        <button onclick="validateEditStep1()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
+        <button onclick="validateEditStep1()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">다음 단계 →</button>
       </div>
     </div>
     <!-- Editing Step 2: 편집실 선택 및 시간 선택 -->
     <div id="edit-step2" class="hidden">
       <h2 class="text-xl font-bold mb-2">편집실 선택</h2>
-      <div class="flex gap-4 mb-4">
+      <div class="flex flex-wrap gap-4 mb-4">
         <!-- 편집실 탭 버튼 (디자인: px-6 py-3, text-lg) -->
         <button id="editRoom1Btn" class="subtab-button active px-6 py-3 text-lg rounded" onclick="selectEditRoom('편집실 1')">편집실 1</button>
         <button id="editRoom2Btn" class="subtab-button px-6 py-3 text-lg rounded" onclick="selectEditRoom('편집실 2')">편집실 2</button>
@@ -243,13 +244,13 @@
       <div id="editTimeGrid" class="grid grid-cols-6 gap-2 text-sm hidden"></div>
       <div class="flex justify-between mt-6">
         <button onclick="goToEditingStep(1)" class="text-blue-600 text-sm">← 이전 단계</button>
-        <button onclick="validateEditStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
+        <button onclick="validateEditStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">다음 단계 →</button>
       </div>
     </div>
     <!-- Editing Step 3: 규정 동의 (사용 규정 전문 추가) -->
     <div id="edit-step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">편집실 대관 규정</h2>
-      <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed">
+      <div class="bg-gray-100 p-4 rounded text-sm h-64 sm:h-80 overflow-y-scroll mb-4 leading-relaxed">
          <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
         <strong>제1장 총칙</strong><br/>
         <em>제1조 (목적)</em><br/>
@@ -277,14 +278,14 @@
       </label>
       <div class="flex justify-between">
         <button onclick="goToEditingStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
-        <button id="editSubmitBtn" onclick="submitEdit()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">완료 →</button>
+        <button id="editSubmitBtn" onclick="submitEdit()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50 text-sm">완료 →</button>
       </div>
     </div>
     <!-- Editing Step 4: 완료 -->
     <div id="edit-step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
       <div id="edit-final-info" class="text-sm text-gray-700"></div>
-      <div class="flex justify-center gap-4 mt-8">
+      <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
         <button onclick="goToEditingStep(3)" class="text-blue-600 text-sm underline">← 이전 단계</button>
         <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
       </div>
@@ -544,7 +545,7 @@
 
     // [편집실 대관] Step2: 편집실 선택 및 시간 선택
     function selectEditRoom(room) {
-      // 토글 active 클래스: 두 버튼 중 선택한 버튼에 active 추가, 나머지 제거
+      // 두 버튼 중 선택한 버튼에 active 클래스 토글 처리
       document.getElementById("editRoom1Btn").classList.toggle("active", room === "편집실 1");
       document.getElementById("editRoom2Btn").classList.toggle("active", room === "편집실 2");
       selectedItems = [room];
