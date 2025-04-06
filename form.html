@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 예약</title>
   <!-- Tailwind CSS CDN (개발용 - 프로덕션에서는 빌드된 CSS 권장) -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -92,12 +92,12 @@
   <div id="initial-page" class="max-w-4xl mx-auto p-6 bg-white mt-4 rounded-lg shadow-md">
     <h2 class="text-xl font-bold mb-6 text-center">원하는 대여신청을 선택하세요</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      <!-- 장비대여 탭 -->
+      <!-- 장비 대여 탭 -->
       <div class="relative cursor-pointer" onclick="startEquipmentFlow()">
-        <img src="https://i.pinimg.com/736x/22/20/6b/22206b44d648994fecd85929822d1ac7.jpg" alt="장비대여" class="w-full h-[400px] object-cover rounded-lg">
+        <img src="https://i.pinimg.com/736x/22/20/6b/22206b44d648994fecd85929822d1ac7.jpg" alt="장비 대여" class="w-full h-[400px] object-cover rounded-lg">
         <div class="absolute inset-0 bg-black opacity-40 rounded-lg"></div>
         <div class="absolute inset-0 flex items-center justify-center">
-          <h3 class="text-2xl font-bold text-white">장비대여</h3>
+          <h3 class="text-2xl font-bold text-white">장비 대여</h3>
         </div>
       </div>
       <!-- 편집실 대관 탭 -->
@@ -170,15 +170,21 @@
         <button onclick="validateEquipStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
       </div>
     </div>
-    <!-- Equipment Step 3: 규정 동의 -->
+    <!-- Equipment Step 3: 규정 동의 (사용 규정 전문 추가) -->
     <div id="equip-step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed">
-        <strong>연세예술원 영화학 기자재 대여 규정</strong><br /><br />
-        (규정 내용 생략)
+        <strong>연세예술원 영화학 기자재 대여 규정</strong>
+        <p class="mt-2">
+          1. 대여 신청자는 반드시 본인 명의의 신분증을 제시해야 합니다.<br/>
+          2. 대여된 기자재는 지정된 반납일 이전에 반드시 반납해야 합니다.<br/>
+          3. 기자재의 파손이나 분실 시 발생하는 모든 비용은 신청자가 부담합니다.<br/>
+          4. 기자재 사용 중 발생하는 문제에 대해서는 연세예술원 영화학과의 내부 규정을 따릅니다.<br/>
+          5. 대여 신청 후 예약이 확정되면, 변경이나 취소는 관리자와 협의 후에만 가능합니다.
+        </p>
       </div>
       <label class="flex items-center mb-4">
-        <input type="checkbox" id="equipAgree" class="mr-2" /> 위 규정에 동의합니다.
+        <input type="checkbox" id="equipAgree" class="mr-2"> 위 규정에 동의합니다.
       </label>
       <div class="flex justify-between">
         <button onclick="goToEquipmentStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
@@ -198,7 +204,7 @@
 
   <!-- 편집실 대관 플로우 (4단계) -->
   <div id="editing-flow" class="max-w-4xl mx-auto p-6 bg-white mt-4 rounded-lg shadow-md hidden">
-    <!-- Editing Step 1: 정보 입력 (이전 단계 버튼 추가) -->
+    <!-- Editing Step 1: 정보 입력 (이전단계 버튼 추가) -->
     <div id="edit-step1">
       <h2 class="text-xl font-bold mb-4">대관일 및 사용자 정보 입력</h2>
       <label class="block mb-2 font-medium">대관일</label>
@@ -216,6 +222,7 @@
     <div id="edit-step2" class="hidden">
       <h2 class="text-xl font-bold mb-2">편집실 선택</h2>
       <div class="flex gap-4 mb-4">
+        <!-- 편집실 탭 버튼 (디자인: px-6 py-3, text-lg) -->
         <button id="editRoom1Btn" class="subtab-button active px-6 py-3 text-lg rounded" onclick="selectEditRoom('편집실 1')">편집실 1</button>
         <button id="editRoom2Btn" class="subtab-button px-6 py-3 text-lg rounded" onclick="selectEditRoom('편집실 2')">편집실 2</button>
       </div>
@@ -226,15 +233,21 @@
         <button onclick="validateEditStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
       </div>
     </div>
-    <!-- Editing Step 3: 규정 동의 -->
+    <!-- Editing Step 3: 규정 동의 (사용 규정 전문 추가) -->
     <div id="edit-step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">편집실 대관 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed">
-        <strong>편집실 대관 규정</strong><br /><br />
-        (규정 내용 생략)
+        <strong>편집실 대관 규정</strong>
+        <p class="mt-2">
+          1. 대관 신청자는 반드시 본인 명의의 신분증을 제시해야 합니다.<br/>
+          2. 대관 시간 동안 편집실을 독점 사용하며, 지정된 반납 시간 전에 반드시 반납해야 합니다.<br/>
+          3. 편집실 내 기자재 및 시설물의 파손, 오염 시 발생하는 비용은 신청자가 부담합니다.<br/>
+          4. 대관 신청 후 변경 및 취소는 관리자와 사전 협의 후 진행됩니다.<br/>
+          5. 기타 세부 사항은 연세예술원 내부 규정에 따릅니다.
+        </p>
       </div>
       <label class="flex items-center mb-4">
-        <input type="checkbox" id="editAgree" class="mr-2" /> 위 규정에 동의합니다.
+        <input type="checkbox" id="editAgree" class="mr-2"> 위 규정에 동의합니다.
       </label>
       <div class="flex justify-between">
         <button onclick="goToEditingStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
@@ -257,7 +270,7 @@
     // 글로벌 변수들
     let flowType = "equipment"; // "equipment" 또는 "editing"
     let selectedItems = [];
-    let currentTab = "camera";  // 장비대여용 카테고리 (camera, lighting 등)
+    let currentTab = "camera";  // 장비 대여용 카테고리 (camera, lighting 등)
     let currentSub = "body";
     let selectedHours = [];
 
@@ -294,7 +307,7 @@
       goToEditingStep(1);
     }
 
-    // 단계 이동 (장비대여 플로우)
+    // 단계 이동 (장비 대여 플로우)
     function goToEquipmentStep(n) {
       for (let i = 1; i <= 4; i++) {
         const btn = document.getElementById("step" + i + "Btn");
@@ -310,17 +323,13 @@
       document.getElementById("equip-step2").classList.add("hidden");
       document.getElementById("equip-step3").classList.add("hidden");
       document.getElementById("equip-step4").classList.add("hidden");
-      if (n === 1) {
-        document.getElementById("equip-step1").classList.remove("hidden");
-      }
-      if (n === 2) {
+      if(n === 1) document.getElementById("equip-step1").classList.remove("hidden");
+      if(n === 2) {
         document.getElementById("equip-step2").classList.remove("hidden");
         renderEquipmentList();
       }
-      if (n === 3) {
-        document.getElementById("equip-step3").classList.remove("hidden");
-      }
-      if (n === 4) {
+      if(n === 3) document.getElementById("equip-step3").classList.remove("hidden");
+      if(n === 4) {
         document.getElementById("equip-step4").classList.remove("hidden");
         let summary = `<li>대여일: ${document.getElementById("equipStart").value} ~ ${document.getElementById("equipEnd").value}</li>`;
         summary += `<li>선택된 장비: ${selectedItems.join(", ")}</li>`;
@@ -344,38 +353,26 @@
       document.getElementById("edit-step2").classList.add("hidden");
       document.getElementById("edit-step3").classList.add("hidden");
       document.getElementById("edit-step4").classList.add("hidden");
-      if (n === 1) {
-        document.getElementById("edit-step1").classList.remove("hidden");
-      }
-      if (n === 2) {
-        document.getElementById("edit-step2").classList.remove("hidden");
-      }
-      if (n === 3) {
-        document.getElementById("edit-step3").classList.remove("hidden");
-      }
-      if (n === 4) {
+      if(n === 1) document.getElementById("edit-step1").classList.remove("hidden");
+      if(n === 2) document.getElementById("edit-step2").classList.remove("hidden");
+      if(n === 3) document.getElementById("edit-step3").classList.remove("hidden");
+      if(n === 4) {
         document.getElementById("edit-step4").classList.remove("hidden");
         let summary = `<li>대관일: ${document.getElementById("editDate").value}</li>`;
         summary += `<li>선택된 편집실: ${selectedItems[0] || ""}</li>`;
-        summary += `<li>선택된 시간: ${selectedHours.sort((a, b) => a - b).join(", ")}시</li>`;
+        summary += `<li>선택된 시간: ${selectedHours.sort((a,b)=>a-b).join(", ")}시</li>`;
         document.getElementById("edit-final-info").innerHTML = `<ul class="list-disc ml-5 mt-2">${summary}</ul>`;
       }
     }
 
-    // [장비대여] Step1 유효성 검사
+    // [장비 대여] Step1 유효성 검사
     function validateEquipStep1() {
       const s = document.getElementById("equipStart").value;
       const e = document.getElementById("equipEnd").value;
       const n = document.getElementById("equipName").value.trim();
       const i = document.getElementById("equipId").value.trim();
-      if (!s || !e || !n || !i) {
-        alert("모든 필드를 입력하세요.");
-        return;
-      }
-      if (new Date(s) > new Date(e)) {
-        alert("대여 시작일이 반납일보다 늦습니다.");
-        return;
-      }
+      if (!s || !e || !n || !i) { alert("모든 필드를 입력하세요."); return; }
+      if(new Date(s) > new Date(e)) { alert("대여 시작일이 반납일보다 늦습니다."); return; }
       goToEquipmentStep(2);
     }
     // [편집실 대관] Step1 유효성 검사
@@ -383,35 +380,23 @@
       const d = document.getElementById("editDate").value;
       const n = document.getElementById("editName").value.trim();
       const i = document.getElementById("editId").value.trim();
-      if (!d || !n || !i) {
-        alert("모든 필드를 입력하세요.");
-        return;
-      }
+      if (!d || !n || !i) { alert("모든 필드를 입력하세요."); return; }
       goToEditingStep(2);
     }
 
-    // [장비대여] Step2 유효성 검사
+    // [장비 대여] Step2 유효성 검사
     function validateEquipStep2() {
-      if (selectedItems.length === 0) {
-        alert("최소 1개 이상의 장비를 선택하세요.");
-        return;
-      }
+      if(selectedItems.length === 0) { alert("최소 1개 이상의 장비를 선택하세요."); return; }
       goToEquipmentStep(3);
     }
     // [편집실 대관] Step2 유효성 검사
     function validateEditStep2() {
-      if (selectedItems.length === 0) {
-        alert("편집실을 선택해주세요.");
-        return;
-      }
+      if(selectedItems.length === 0) { alert("편집실을 선택해주세요."); return; }
       goToEditingStep(3);
     }
     // [편집실 대관] Step3 유효성 검사 (시간 선택)
     function validateEditStep3() {
-      if (selectedHours.length === 0) {
-        alert("대관할 시간을 선택해주세요.");
-        return;
-      }
+      if(selectedHours.length === 0) { alert("대관할 시간을 선택해주세요."); return; }
       goToEditingStep(4);
     }
 
@@ -427,7 +412,7 @@
       btn.classList.toggle("opacity-50", !e.target.checked);
     });
 
-    // [장비대여] 제출
+    // [장비 대여] 제출
     function submitEquip() {
       const name = document.getElementById("equipName").value.trim();
       const studentId = document.getElementById("equipId").value.trim();
@@ -444,10 +429,7 @@
       };
       db.collection("rentals").add(data)
         .then(() => { goToEquipmentStep(4); })
-        .catch(err => {
-          console.error("신청 실패:", err);
-          alert("신청 정보를 저장하는 데 실패했습니다.");
-        });
+        .catch(err => { console.error("신청 실패:", err); alert("신청 정보를 저장하는 데 실패했습니다."); });
     }
     // [편집실 대관] 제출
     function submitEdit() {
@@ -459,34 +441,25 @@
         studentId: studentId,
         editingDate: d,
         items: [...selectedItems],
-        hours: selectedHours.slice().sort((a, b) => a - b),
+        hours: selectedHours.slice().sort((a,b)=>a-b),
         status: "대기",
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       db.collection("rentals").add(data)
         .then(() => { goToEditingStep(4); })
-        .catch(err => {
-          console.error("신청 실패:", err);
-          alert("신청 정보를 저장하는 데 실패했습니다.");
-        });
+        .catch(err => { console.error("신청 실패:", err); alert("신청 정보를 저장하는 데 실패했습니다."); });
     }
-    function goHome() {
-      location.href = "index.html";
-    }
+    function goHome() { location.href = "index.html"; }
 
-    // [장비대여] Step2: 장비 선택 렌더링
+    // [장비 대여] Step2: 장비 선택 렌더링
     async function renderEquipmentList() {
       const container = document.getElementById("equip-list");
       container.innerHTML = "";
       let items = [];
-      if (currentTab === "camera") {
-        items = equipmentData.camera[currentSub] || [];
-      } else if (currentTab === "lighting") {
-        items = equipmentData.lighting[currentSub] || [];
-      } else {
-        items = equipmentData[currentTab] || [];
-      }
-      if (!Array.isArray(items) || items.length === 0) {
+      if(currentTab === "camera") items = equipmentData.camera[currentSub] || [];
+      else if(currentTab === "lighting") items = equipmentData.lighting[currentSub] || [];
+      else items = equipmentData[currentTab] || [];
+      if(!Array.isArray(items) || items.length === 0){
         container.innerHTML = '<p class="text-gray-500">등록된 장비가 없습니다.</p>';
         return;
       }
@@ -494,10 +467,10 @@
       const e = document.getElementById("equipEnd").value;
       const newS = new Date(s);
       const newE = new Date(e);
-      for (const item of items) {
+      for(const item of items){
         const div = document.createElement("div");
         div.className = "equipment-card";
-        if (selectedItems.includes(item.name)) div.classList.add("selected");
+        if(selectedItems.includes(item.name)) div.classList.add("selected");
         let isUnavailable = false;
         try {
           const snapshot = await db.collection("rentals")
@@ -506,21 +479,19 @@
             .get();
           snapshot.forEach(doc => {
             const data = doc.data();
-            if (data.startDate && data.endDate) {
+            if(data.startDate && data.endDate){
               const existS = new Date(data.startDate);
               const existE = new Date(data.endDate);
-              if (newS <= existE && existS <= newE) {
+              if(newS <= existE && existS <= newE){
                 isUnavailable = true;
               }
             }
           });
-        } catch (err) {
-          console.error("예약 여부 확인 오류:", err);
-        }
-        if (isUnavailable) div.classList.add("disabled");
+        } catch(err) { console.error("예약 여부 확인 오류:", err); }
+        if(isUnavailable) div.classList.add("disabled");
         div.innerHTML = `<img src="${item.image}" alt="${item.name}" /><span class="text-sm">${item.name}</span>`;
         div.onclick = () => {
-          if (div.classList.contains("disabled")) return;
+          if(div.classList.contains("disabled")) return;
           const sel = selectedItems.includes(item.name);
           selectedItems = sel ? selectedItems.filter(i => i !== item.name) : [...selectedItems, item.name];
           updateEquipmentSelection();
@@ -531,9 +502,8 @@
     }
     function updateEquipmentSelection() {
       const sec = document.getElementById("equip-selected-section");
-      if (selectedItems.length === 0) {
-        sec.classList.add("hidden");
-      } else {
+      if(selectedItems.length === 0) sec.classList.add("hidden");
+      else {
         sec.classList.remove("hidden");
         document.getElementById("equip-selected-items").innerHTML = selectedItems.map(item =>
           `<li>${item} <button type="button" class="ml-2 text-red-500" onclick="removeEquipmentItem('${item.replace(/'/g, "\\'")}')">&times;</button></li>`
@@ -548,26 +518,27 @@
 
     // [편집실 대관] Step2: 편집실 선택 및 시간 선택
     function selectEditRoom(room) {
-      // 두 버튼 중 선택한 버튼에 active 클래스 토글
+      // 토글 active 클래스: 두 버튼 중 선택한 버튼에 active 추가, 나머지 제거
       document.getElementById("editRoom1Btn").classList.toggle("active", room === "편집실 1");
       document.getElementById("editRoom2Btn").classList.toggle("active", room === "편집실 2");
       selectedItems = [room];
       document.getElementById("editTimeGrid").classList.remove("hidden");
       generateEditTimeGrid();
     }
+    // [편집실 대관] Step2: 시간 선택 그리드 생성
     function generateEditTimeGrid() {
       const grid = document.getElementById("editTimeGrid");
       grid.innerHTML = "";
       selectedHours = [];
       const d = document.getElementById("editDate").value;
       console.log("generateEditTimeGrid: 대관일 =", d);
-      if (!d) {
+      if(!d) {
         grid.innerHTML = "<p class='text-sm text-red-500'>대관일을 먼저 선택해주세요.</p>";
         return;
       }
       const room = selectedItems[0];
       console.log("generateEditTimeGrid: 선택된 편집실 =", room);
-      if (!room) return;
+      if(!room) return;
       db.collection("rentals")
         .where("editingDate", "==", d)
         .where("items", "array-contains", room)
@@ -576,12 +547,10 @@
           let reserved = [];
           snapshot.forEach(doc => {
             const data = doc.data();
-            if (Array.isArray(data.hours)) {
-              reserved.push(...data.hours);
-            }
+            if(Array.isArray(data.hours)) reserved.push(...data.hours);
           });
           console.log("예약된 시간:", reserved);
-          for (let h = 0; h < 24; h++) {
+          for(let h = 0; h < 24; h++){
             const id = `editHour-${h}`;
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
@@ -590,17 +559,14 @@
             const label = document.createElement("label");
             label.htmlFor = id;
             label.innerText = `${h}:00`;
-            if (reserved.includes(h)) {
+            if(reserved.includes(h)){
               checkbox.disabled = true;
               label.className = "bg-gray-300 text-gray-500 line-through cursor-not-allowed";
             } else {
               label.className = "bg-gray-200 cursor-pointer";
               checkbox.addEventListener("change", () => {
-                if (checkbox.checked) {
-                  selectedHours.push(h);
-                } else {
-                  selectedHours = selectedHours.filter(v => v !== h);
-                }
+                if(checkbox.checked) selectedHours.push(h);
+                else selectedHours = selectedHours.filter(v => v !== h);
               });
             }
             const wrap = document.createElement("div");
@@ -618,17 +584,13 @@
 
     // 유저 정보 관련 함수
     function getUserName() {
-      return flowType === "equipment"
-        ? document.getElementById("equipName").value.trim()
-        : document.getElementById("editName").value.trim();
+      return flowType === "equipment" ? document.getElementById("equipName").value.trim() : document.getElementById("editName").value.trim();
     }
     function getStudentID() {
-      return flowType === "equipment"
-        ? document.getElementById("equipId").value.trim()
-        : document.getElementById("editId").value.trim();
+      return flowType === "equipment" ? document.getElementById("equipId").value.trim() : document.getElementById("editId").value.trim();
     }
 
-    // 탭 버튼 이벤트 (장비대여 Step2)
+    // 탭 버튼 이벤트 (장비 대여 Step2)
     document.addEventListener("DOMContentLoaded", function() {
       // 탭 버튼 클릭 이벤트 처리
       document.querySelectorAll(".tab-button").forEach(btn => {
@@ -636,11 +598,11 @@
           document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
           btn.classList.add("active");
           currentTab = btn.dataset.tab;
-          if (currentTab === "camera" || currentTab === "lighting") {
+          if(currentTab === "camera" || currentTab === "lighting") {
             document.getElementById("cameraSubTabs").classList.remove("hidden");
             currentSub = currentTab === "camera" ? "body" : "light";
             document.querySelectorAll("#cameraSubTabs .subtab-button").forEach((b, index) => {
-              if (index === 0) b.classList.add("active");
+              if(index === 0) b.classList.add("active");
               else b.classList.remove("active");
             });
           } else {
@@ -682,7 +644,17 @@
           { name: "Sony FE 35mm GM 1번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32848940_List0.png" },
           { name: "Sony FE 35mm GM 2번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32848940_List0.png" },
           { name: "Sony FE 35mm GM 3번", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32848940_List0.png" },
-          { name: "Sony E-Mount F1.8 컴팩트 렌즈", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32848140_List0.png" }
+          { name: "Sony E-Mount F1.8 컴팩트 렌즈", image: "https://sony.cdn-nhncommerce.com/migration/3730_1/goods/32848140_List0.png" },
+          { name: "Sony FE 70-200mm GM 1번", image: "https://sony.cdn-nhncommerce.com/20220126/122912.152412000/102265974_1.png" },
+          { name: "Sony FE 70-200mm GM 2번", image: "https://sony.cdn-nhncommerce.com/20220126/122912.152412000/102265974_1.png" },
+          { name: "Sony FE 70-200mm GM 3번", image: "https://sony.cdn-nhncommerce.com/20220126/122912.152412000/102265974_1.png" },
+          { name: "Sony FE 24-70mm GM 1번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+          { name: "Sony FE 24-70mm GM 2번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+          { name: "Sony FE 24-70mm GM 3번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+          { name: "Sony 85mm f/1.4 GM 1번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+          { name: "Sony 85mm f/1.4 GM 2번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+          { name: "Sony 85mm f/1.4 GM 3번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
+          { name: "Kase MCUV II 82mm", image: "https://kasefilters.com/wp-content/uploads/2020/03/Kase-MCUV-Magnetic-Filter-82mm.jpg" }
         ],
         tripodGimbal: [
           { name: "카토니 포커스 22씨네", image: "https://withusmedia.co.kr/web/product/big/202307/c21fe63a6876968bafedd53af69efcd6.jpg" },
