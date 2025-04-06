@@ -97,20 +97,21 @@
     </div>
   </div>
 
-  <!-- 폼 컨테이너 -->
+  <!-- 폼 컨테이너 (5단계) -->
   <div class="max-w-4xl mx-auto p-6 bg-white mt-4 rounded-lg shadow-md">
     <!-- 단계 버튼 -->
     <div class="flex justify-between mb-8">
       <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active">1. 정보 입력</div>
       <div id="step2Btn" class="flex-1 text-center p-2 rounded step-inactive">2. 선택</div>
-      <div id="step3Btn" class="flex-1 text-center p-2 rounded step-inactive">3. 규정 동의</div>
-      <div id="step4Btn" class="flex-1 text-center p-2 rounded step-inactive">4. 완료</div>
+      <div id="step3Btn" class="flex-1 text-center p-2 rounded step-inactive">3. 시간 선택</div>
+      <div id="step4Btn" class="flex-1 text-center p-2 rounded step-inactive">4. 규정 동의</div>
+      <div id="step5Btn" class="flex-1 text-center p-2 rounded step-inactive">5. 완료</div>
     </div>
 
-    <!-- Step 1: 정보 입력 (분기별로 다른 폼) -->
+    <!-- Step 1: 정보 입력 -->
     <div id="step1">
-      <!-- 장비대여용 Step1 -->
-      <div id="step1-equipment" class="">
+      <!-- 장비대여용 -->
+      <div id="step1-equipment">
         <h2 class="text-xl font-bold mb-4">대여일 및 사용자 정보 입력</h2>
         <label class="block mb-2 font-medium">대여 시작일</label>
         <input type="date" id="startDate" class="border p-2 rounded w-full mb-4" />
@@ -120,29 +121,25 @@
         <input type="text" id="userName" class="border p-2 rounded w-full mb-4" placeholder="이름을 입력하세요" />
         <label class="block mb-2 font-medium">학번</label>
         <input type="text" id="userId" class="border p-2 rounded w-full mb-4" placeholder="학번을 입력하세요" />
-        <div class="flex justify-end">
-          <button onclick="validateStep1()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
-        </div>
       </div>
-      <!-- 편집실 대관용 Step1 -->
+      <!-- 편집실 대관용 -->
       <div id="step1-editing" class="hidden">
         <h2 class="text-xl font-bold mb-4">대관일 및 사용자 정보 입력</h2>
         <label class="block mb-2 font-medium">대관일</label>
-        <!-- 편집실 대관은 단일 날짜 입력 (반납일 없음) -->
         <input type="date" id="editingDate" class="border p-2 rounded w-full mb-4" />
         <label class="block mb-2 font-medium">이름</label>
         <input type="text" id="userName_edit" class="border p-2 rounded w-full mb-4" placeholder="이름을 입력하세요" />
         <label class="block mb-2 font-medium">학번</label>
         <input type="text" id="userId_edit" class="border p-2 rounded w-full mb-4" placeholder="학번을 입력하세요" />
-        <div class="flex justify-end">
-          <button onclick="validateStep1()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
-        </div>
+      </div>
+      <div class="flex justify-end">
+        <button onclick="validateStep1()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
       </div>
     </div>
 
-    <!-- Step 2: 선택 (분기별 Step2) -->
+    <!-- Step 2: 선택 -->
     <div id="step2" class="hidden">
-      <!-- 장비대여용 Step2 -->
+      <!-- 장비대여용 Step2: 장비 선택 -->
       <div id="step2-equipment">
         <h2 class="text-xl font-bold mb-2">장비 선택</h2>
         <!-- 대분류 탭 (편집실 제외) -->
@@ -169,12 +166,10 @@
           <ul id="selected-items" class="list-disc ml-5 text-sm text-gray-700"></ul>
         </div>
       </div>
-      <!-- 편집실 대관용 Step2 -->
+      <!-- 편집실 대관용 Step2: 편집실 선택 -->
       <div id="step2-editing" class="hidden">
         <h2 class="text-xl font-bold mb-2">편집실 선택</h2>
-        <!-- 편집실은 단일 탭으로 고정: 두 개의 카드만 표시 -->
         <div id="editing-room-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- 카드 직접 생성 -->
           <div class="equipment-card" onclick="selectEditingRoom('편집실 1')">
             <img src="https://www.sac.or.kr/design/theme/sac/images/sub/studio_imgs4.jpg" alt="편집실 1" />
             <span class="text-sm">편집실 1</span>
@@ -184,22 +179,35 @@
             <span class="text-sm">편집실 2</span>
           </div>
         </div>
-        <!-- 편집실 시간 선택 영역 -->
-        <div id="editingTimeSection" class="mt-6 hidden">
-          <h3 class="font-medium mb-2">편집실 대관 시간 선택</h3>
-          <div id="timeGrid" class="grid grid-cols-6 gap-2 text-sm"></div>
-        </div>
       </div>
-
-      <!-- 하단 Step2 공통 내비게이션 -->
       <div class="flex justify-between mt-6">
         <button onclick="goToStep(1)" class="text-blue-600 text-sm">← 이전 단계</button>
         <button id="toStep3" onclick="validateStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
       </div>
     </div>
 
-    <!-- Step 3: 규정 동의 (공통) -->
+    <!-- Step 3: 시간 선택 (편집실 대관 전용; 장비대여 흐름은 확인 페이지로 사용) -->
     <div id="step3" class="hidden">
+      <!-- 장비대여용 Step3: 신청 확인 -->
+      <div id="step3-equipment">
+        <h2 class="text-xl font-bold mb-4">신청 확인</h2>
+        <ul id="confirm-equipment" class="text-sm text-gray-700"></ul>
+        <div class="flex justify-end">
+          <button onclick="goToStep(4)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
+        </div>
+      </div>
+      <!-- 편집실 대관용 Step3: 시간 선택 -->
+      <div id="step3-editing" class="hidden">
+        <h2 class="text-xl font-bold mb-2">대관 시간 선택</h2>
+        <div id="timeGrid" class="grid grid-cols-6 gap-2 text-sm"></div>
+        <div class="flex justify-end mt-4">
+          <button onclick="goToStep(4)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">다음 단계 →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: 규정 동의 (공통) -->
+    <div id="step4" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
       <div class="bg-gray-100 p-4 rounded text-sm h-64 overflow-y-scroll mb-4 leading-relaxed">
         <strong>연세예술원 영화학 기자재 대여 규정</strong><br/><br/>
@@ -228,18 +236,15 @@
         <input type="checkbox" id="agreeCheck" class="mr-2"> 위 규정에 동의합니다.
       </label>
       <div class="flex justify-between">
-        <button onclick="goToStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
-        <button id="toStep4" onclick="submitApplication()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">신청 완료</button>
+        <button onclick="goToStep(3)" class="text-sm text-blue-600">← 이전 단계</button>
+        <button id="toStep5" onclick="submitApplication()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">다음 단계 →</button>
       </div>
     </div>
 
-    <!-- Step 4: 신청 완료 (공통) -->
-    <div id="step4" class="hidden text-center py-20">
+    <!-- Step 5: 완료 -->
+    <div id="step5" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
-      <h3 class="text-lg font-bold mb-4">선택한 항목</h3>
-      <ul id="final-selected-items" class="text-sm text-gray-700"></ul>
-      <p id="final-dates" class="text-sm text-gray-700 mt-4"></p>
-      <div id="final-time" class="text-sm text-gray-700 mt-1"></div>
+      <div id="final-summary" class="text-sm text-gray-700"></div>
       <div class="mt-8">
         <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
       </div>
@@ -251,11 +256,11 @@
     // 글로벌 변수들
     let flowType = "equipment"; // "equipment" 또는 "editing"
     let selectedItems = [];
-    let currentTab = "camera";
+    let currentTab = "camera";  // 장비대여용: 카메라, 조명, 등
     let currentSub = "body";
     let selectedHours = [];
 
-    // 탭(큰 탭) 전환 함수
+    // 큰 탭 전환: 장비대여 vs 편집실 대관
     function setFlow(type) {
       flowType = type;
       // 버튼 스타일 업데이트
@@ -263,7 +268,7 @@
       document.getElementById("flow-equipment").classList.toggle("bg-gray-200", type!=="equipment");
       document.getElementById("flow-editing").classList.toggle("bg-blue-600", type==="editing");
       document.getElementById("flow-editing").classList.toggle("bg-gray-200", type!=="editing");
-      // Step1: 해당하는 폼 표시
+      // Step1: 해당 폼 표시
       if(flowType==="equipment"){
         document.getElementById("step1-equipment").classList.remove("hidden");
         document.getElementById("step1-editing").classList.add("hidden");
@@ -271,9 +276,11 @@
         document.getElementById("step1-equipment").classList.add("hidden");
         document.getElementById("step1-editing").classList.remove("hidden");
       }
+      // 초기화 및 이동
+      selectedItems = [];
+      selectedHours = [];
       goToStep(1);
     }
-    
     // 초기 플로우 설정
     setFlow("equipment");
 
@@ -312,23 +319,29 @@
           return;
         }
       } else {
-        // 편집실 대관: 반드시 편집실이 선택되어야 하고, 시간도 선택되어야 함
         if (selectedItems.length === 0) {
           alert("편집실을 선택해주세요.");
-          return;
-        }
-        if(selectedHours.length === 0){
-          alert("대관할 시간을 선택해주세요.");
           return;
         }
       }
       goToStep(3);
     }
 
-    // 단계 이동 함수
+    // Step3 유효성 검사
+    function validateStep3() {
+      if(flowType==="editing"){
+        if(selectedHours.length === 0){
+          alert("대관할 시간을 선택해주세요.");
+          return;
+        }
+      }
+      goToStep(4);
+    }
+
+    // 단계 이동 함수 (5단계)
     function goToStep(n) {
-      // 모든 스텝 숨김
-      for (let i = 1; i <= 4; i++) {
+      // 숨길 단계: step1 ~ step5
+      for (let i = 1; i <= 5; i++) {
         document.getElementById("step" + i).classList.add("hidden");
         const btn = document.getElementById("step" + i + "Btn");
         if (i <= n) {
@@ -339,23 +352,36 @@
           btn.classList.remove("step-active");
         }
       }
+      // Step1~5 공통 컨테이너: 각 단계 내에서 분기별로 표시할 부분이 있음
       document.getElementById("step" + n).classList.remove("hidden");
-      
-      // Step4: 완료 페이지에 최종 정보 업데이트
-      if(n === 4){
+
+      // Step3 분기: 장비대여용은 신청 확인, 편집실 대관용은 시간 선택
+      if(n === 3){
+        if(flowType==="equipment"){
+          // 장비 확인
+          let summary = "<li>대여일: " + document.getElementById("startDate").value + " ~ " + document.getElementById("endDate").value + "</li>";
+          summary += "<li>선택된 장비: " + selectedItems.join(", ") + "</li>";
+          document.getElementById("confirm-equipment").innerHTML = summary;
+          document.getElementById("step3-equipment").classList.remove("hidden");
+          document.getElementById("step3-editing").classList.add("hidden");
+        } else {
+          // 편집실 대관: 시간 선택 영역은 이미 Step2에서 편집실 선택 후 생성됨
+          document.getElementById("step3-editing").classList.remove("hidden");
+          document.getElementById("step3-equipment").classList.add("hidden");
+        }
+      }
+      // Step5: 완료 페이지
+      if(n === 5){
         let info = "";
         if(flowType==="equipment"){
+          info += "<li>대여일: " + document.getElementById("startDate").value + " ~ " + document.getElementById("endDate").value + "</li>";
           info += "<li>장비: " + selectedItems.join(", ") + "</li>";
-          const start = document.getElementById("startDate").value;
-          const end = document.getElementById("endDate").value;
-          document.getElementById("final-dates").innerText = `대여일: ${start} ~ ${end}`;
         } else {
+          info += "<li>대관일: " + document.getElementById("editingDate").value + "</li>";
           info += "<li>편집실: " + selectedItems[0] + "</li>";
-          const date = document.getElementById("editingDate").value;
-          document.getElementById("final-dates").innerText = `대관일: ${date}`;
-          document.getElementById("final-time").innerText = "선택된 시간: " + selectedHours.sort((a,b)=>a-b).join(", ") + "시";
+          info += "<li>시간: " + selectedHours.sort((a, b) => a - b).join(", ") + "시</li>";
         }
-        document.getElementById("final-selected-items").innerHTML = info;
+        document.getElementById("final-summary").innerHTML = info;
       }
     }
 
@@ -363,8 +389,8 @@
       location.href = "index.html";
     }
 
-    // --- Flow별 Step2 렌더링 ---
-    // 기존 장비대여용 Step2
+    // --- Step2 렌더링 ---
+    // 장비대여용: 기존 장비 선택 렌더링 (카테고리 탭 활용)
     async function renderEquipmentList() {
       const container = document.getElementById("equipment-list");
       container.innerHTML = "";
@@ -376,7 +402,6 @@
         container.innerHTML = '<p class="text-gray-500">등록된 장비가 없습니다.</p>';
         return;
       }
-      // 대여일 정보를 가져옴
       const start = document.getElementById("startDate").value;
       const end = document.getElementById("endDate").value;
       const newStart = new Date(start);
@@ -385,7 +410,6 @@
         const div = document.createElement("div");
         div.className = "equipment-card";
         if (selectedItems.includes(item.name)) div.classList.add("selected");
-        // 예약 여부 확인 (대여일 기간 내)
         let isUnavailable = false;
         try {
           const snapshot = await db.collection("rentals")
@@ -418,25 +442,20 @@
       }
     }
 
-    // 편집실 대관용 Step2: 편집실 선택은 단 2개의 고정 카드로 처리
-    function renderEditingRoomList() {
-      // selectedItems는 편집실 한 개만 선택
-      // 별도 렌더링은 HTML에 이미 하드코딩되어 있으므로 클릭 시 selected 처리
-    }
-    // 편집실 카드 클릭 시 처리
+    // 편집실 대관용: 편집실 선택은 Step2에 하드코딩된 카드 사용 (selectEditingRoom 함수)
     function selectEditingRoom(room) {
       selectedItems = [room];
-      // 표시 효과 (간단히 selected 클래스를 토글)
+      // 선택 효과
       document.querySelectorAll("#editing-room-list .equipment-card").forEach(card => {
         if(card.innerText.includes(room)) card.classList.add("selected");
         else card.classList.remove("selected");
       });
-      // 시간 선택 영역 표시 및 생성
+      // Step2 편집실 선택 후 바로 Step3 (시간 선택)로 진행하도록 준비
       document.getElementById("editingTimeSection").classList.remove("hidden");
       generateEditingTimeGrid();
     }
 
-    // 편집실 시간 선택 그리드 생성 함수
+    // 편집실 시간 선택 그리드 생성 (Step3 편집실용)
     function generateEditingTimeGrid() {
       const timeGrid = document.getElementById("timeGrid");
       timeGrid.innerHTML = "";
@@ -448,7 +467,6 @@
       }
       const editingRoom = selectedItems[0];
       if (!editingRoom) return;
-      // 해당 날짜와 편집실에 대한 예약 내역 조회
       db.collection("rentals")
         .where("editingDate", "==", date)
         .where("items", "array-contains", editingRoom)
@@ -459,7 +477,6 @@
             const data = doc.data();
             if (Array.isArray(data.hours)) reservedHours.push(...data.hours);
           });
-          // 0시부터 23시까지 체크박스 생성
           for (let h = 0; h < 24; h++) {
             const id = `hour-${h}`;
             const checkbox = document.createElement("input");
@@ -507,7 +524,6 @@
       if(flowType==="equipment"){
         renderEquipmentList();
       } else {
-        // 편집실의 경우, 시간 영역도 숨김
         document.getElementById("editingTimeSection").classList.add("hidden");
       }
     }
@@ -534,14 +550,14 @@
       });
     });
 
-    // 규정 동의 체크박스 이벤트 (Step3)
+    // 규정 동의 체크박스 이벤트 (Step4)
     document.getElementById("agreeCheck").addEventListener("change", e => {
-      const btn = document.getElementById("toStep4");
+      const btn = document.getElementById("toStep5");
       btn.disabled = !e.target.checked;
       btn.classList.toggle("opacity-50", !e.target.checked);
     });
 
-    // 제출: Step3 규정 동의 후 신청 완료
+    // 제출: Step4 규정 동의 후 신청 완료 (Step5로 이동)
     function submitApplication() {
       let data = {};
       if(flowType==="equipment"){
@@ -574,7 +590,7 @@
       }
       db.collection("rentals").add(data)
         .then(() => {
-          goToStep(4);
+          goToStep(5);
         })
         .catch(err => {
           console.error("신청 실패:", err);
@@ -624,11 +640,7 @@
           { name: "카토니 포커스 22씨네", image: "https://withusmedia.co.kr/web/product/big/202307/c21fe63a6876968bafedd53af69efcd6.jpg" },
           { name: "iFootage GazelleTripod TC9 1번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
           { name: "iFootage GazelleTripod TC9 2번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
-          { name: "iFootage GazelleTripod TC9 3번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
-          { name: "DJI RS3 PRO Combo 1번", image: "https://www-cdn.djiits.com/cms/uploads/777e2e0023f55a99d393684c8a03c5aa@640*640.png" },
-          { name: "DJI RS3 PRO Combo 2번", image: "https://www-cdn.djiits.com/cms/uploads/777e2e0023f55a99d393684c8a03c5aa@640*640.png" },
-          { name: "이지리그", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9mWWxfT4r17U8i5xgKLaMfDSKYR9jhkvs4w&s" },
-          { name: "틸타 링그립", image: "https://cdn.imweb.me/thumbnail/20230802/49697b5cdb039.jpg" }
+          { name: "iFootage GazelleTripod TC9 3번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" }
         ],
         accessory: [
           { name: "부속품 1번", image: "https://via.placeholder.com/100?text=Accessory+1" },
