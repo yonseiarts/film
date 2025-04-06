@@ -68,15 +68,15 @@
   </style>
   <script>
     // Firebase 초기화 – 실제 프로젝트 정보로 교체
-   const firebaseConfig = {
-  apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
-  authDomain: "yonseirent-setup.firebaseapp.com",
-  projectId: "yonseirent-setup",
-  storageBucket: "yonseirent-setup.firebasestorage.app",
-  messagingSenderId: "1072524969376",
-  appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
-  measurementId: "G-CQZEKPE02D"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      authDomain: "yonseirent-setup.firebaseapp.com",
+      projectId: "yonseirent-setup",
+      storageBucket: "yonseirent-setup.firebasestorage.app",
+      messagingSenderId: "1072524969376",
+      appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
+      measurementId: "G-CQZEKPE02D"
+    };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
   </script>
@@ -216,7 +216,6 @@
     <div id="edit-step2" class="hidden">
       <h2 class="text-xl font-bold mb-2">편집실 선택</h2>
       <div class="flex gap-4 mb-4">
-        <!-- 편집실 탭 버튼 (디자인: px-6 py-3, text-lg) -->
         <button id="editRoom1Btn" class="subtab-button active px-6 py-3 text-lg rounded" onclick="selectEditRoom('편집실 1')">편집실 1</button>
         <button id="editRoom2Btn" class="subtab-button px-6 py-3 text-lg rounded" onclick="selectEditRoom('편집실 2')">편집실 2</button>
       </div>
@@ -299,19 +298,28 @@
     function goToEquipmentStep(n) {
       for (let i = 1; i <= 4; i++) {
         const btn = document.getElementById("step" + i + "Btn");
-        if (i <= n) { btn.classList.add("step-active"); btn.classList.remove("step-inactive"); }
-        else { btn.classList.add("step-inactive"); btn.classList.remove("step-active"); }
+        if (i <= n) {
+          btn.classList.add("step-active");
+          btn.classList.remove("step-inactive");
+        } else {
+          btn.classList.add("step-inactive");
+          btn.classList.remove("step-active");
+        }
       }
       document.getElementById("equip-step1").classList.add("hidden");
       document.getElementById("equip-step2").classList.add("hidden");
       document.getElementById("equip-step3").classList.add("hidden");
       document.getElementById("equip-step4").classList.add("hidden");
-      if(n === 1) document.getElementById("equip-step1").classList.remove("hidden");
+      if(n === 1) {
+        document.getElementById("equip-step1").classList.remove("hidden");
+      }
       if(n === 2) {
         document.getElementById("equip-step2").classList.remove("hidden");
         renderEquipmentList();
       }
-      if(n === 3) document.getElementById("equip-step3").classList.remove("hidden");
+      if(n === 3) {
+        document.getElementById("equip-step3").classList.remove("hidden");
+      }
       if(n === 4) {
         document.getElementById("equip-step4").classList.remove("hidden");
         let summary = `<li>대여일: ${document.getElementById("equipStart").value} ~ ${document.getElementById("equipEnd").value}</li>`;
@@ -324,16 +332,27 @@
     function goToEditingStep(n) {
       for (let i = 1; i <= 4; i++) {
         const btn = document.getElementById("step" + i + "Btn");
-        if (i <= n) { btn.classList.add("step-active"); btn.classList.remove("step-inactive"); }
-        else { btn.classList.add("step-inactive"); btn.classList.remove("step-active"); }
+        if (i <= n) {
+          btn.classList.add("step-active");
+          btn.classList.remove("step-inactive");
+        } else {
+          btn.classList.add("step-inactive");
+          btn.classList.remove("step-active");
+        }
       }
       document.getElementById("edit-step1").classList.add("hidden");
       document.getElementById("edit-step2").classList.add("hidden");
       document.getElementById("edit-step3").classList.add("hidden");
       document.getElementById("edit-step4").classList.add("hidden");
-      if(n === 1) document.getElementById("edit-step1").classList.remove("hidden");
-      if(n === 2) document.getElementById("edit-step2").classList.remove("hidden");
-      if(n === 3) document.getElementById("edit-step3").classList.remove("hidden");
+      if(n === 1) {
+        document.getElementById("edit-step1").classList.remove("hidden");
+      }
+      if(n === 2) {
+        document.getElementById("edit-step2").classList.remove("hidden");
+      }
+      if(n === 3) {
+        document.getElementById("edit-step3").classList.remove("hidden");
+      }
       if(n === 4) {
         document.getElementById("edit-step4").classList.remove("hidden");
         let summary = `<li>대관일: ${document.getElementById("editDate").value}</li>`;
@@ -349,8 +368,14 @@
       const e = document.getElementById("equipEnd").value;
       const n = document.getElementById("equipName").value.trim();
       const i = document.getElementById("equipId").value.trim();
-      if (!s || !e || !n || !i) { alert("모든 필드를 입력하세요."); return; }
-      if(new Date(s) > new Date(e)) { alert("대여 시작일이 반납일보다 늦습니다."); return; }
+      if (!s || !e || !n || !i) {
+        alert("모든 필드를 입력하세요.");
+        return;
+      }
+      if(new Date(s) > new Date(e)) {
+        alert("대여 시작일이 반납일보다 늦습니다.");
+        return;
+      }
       goToEquipmentStep(2);
     }
     // [편집실 대관] Step1 유효성 검사
@@ -358,23 +383,35 @@
       const d = document.getElementById("editDate").value;
       const n = document.getElementById("editName").value.trim();
       const i = document.getElementById("editId").value.trim();
-      if (!d || !n || !i) { alert("모든 필드를 입력하세요."); return; }
+      if (!d || !n || !i) {
+        alert("모든 필드를 입력하세요.");
+        return;
+      }
       goToEditingStep(2);
     }
 
     // [장비대여] Step2 유효성 검사
     function validateEquipStep2() {
-      if(selectedItems.length === 0) { alert("최소 1개 이상의 장비를 선택하세요."); return; }
+      if(selectedItems.length === 0) {
+        alert("최소 1개 이상의 장비를 선택하세요.");
+        return;
+      }
       goToEquipmentStep(3);
     }
     // [편집실 대관] Step2 유효성 검사
     function validateEditStep2() {
-      if(selectedItems.length === 0) { alert("편집실을 선택해주세요."); return; }
+      if(selectedItems.length === 0) {
+        alert("편집실을 선택해주세요.");
+        return;
+      }
       goToEditingStep(3);
     }
     // [편집실 대관] Step3 유효성 검사 (시간 선택)
     function validateEditStep3() {
-      if(selectedHours.length === 0) { alert("대관할 시간을 선택해주세요."); return; }
+      if(selectedHours.length === 0) {
+        alert("대관할 시간을 선택해주세요.");
+        return;
+      }
       goToEditingStep(4);
     }
 
@@ -407,7 +444,10 @@
       };
       db.collection("rentals").add(data)
         .then(() => { goToEquipmentStep(4); })
-        .catch(err => { console.error("신청 실패:", err); alert("신청 정보를 저장하는 데 실패했습니다."); });
+        .catch(err => {
+          console.error("신청 실패:", err);
+          alert("신청 정보를 저장하는 데 실패했습니다.");
+        });
     }
     // [편집실 대관] 제출
     function submitEdit() {
@@ -419,25 +459,34 @@
         studentId: studentId,
         editingDate: d,
         items: [...selectedItems],
-        hours: selectedHours.slice().sort((a,b)=>a-b),
+        hours: selectedHours.slice().sort((a,b) => a - b),
         status: "대기",
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       db.collection("rentals").add(data)
         .then(() => { goToEditingStep(4); })
-        .catch(err => { console.error("신청 실패:", err); alert("신청 정보를 저장하는 데 실패했습니다."); });
+        .catch(err => {
+          console.error("신청 실패:", err);
+          alert("신청 정보를 저장하는 데 실패했습니다.");
+        });
     }
-    function goHome() { location.href = "index.html"; }
+    function goHome() {
+      location.href = "index.html";
+    }
 
     // [장비대여] Step2: 장비 선택 렌더링
     async function renderEquipmentList() {
       const container = document.getElementById("equip-list");
       container.innerHTML = "";
       let items = [];
-      if(currentTab === "camera") items = equipmentData.camera[currentSub] || [];
-      else if(currentTab === "lighting") items = equipmentData.lighting[currentSub] || [];
-      else items = equipmentData[currentTab] || [];
-      if(!Array.isArray(items) || items.length === 0){
+      if (currentTab === "camera") {
+        items = equipmentData.camera[currentSub] || [];
+      } else if (currentTab === "lighting") {
+        items = equipmentData.lighting[currentSub] || [];
+      } else {
+        items = equipmentData[currentTab] || [];
+      }
+      if (!Array.isArray(items) || items.length === 0) {
         container.innerHTML = '<p class="text-gray-500">등록된 장비가 없습니다.</p>';
         return;
       }
@@ -445,10 +494,10 @@
       const e = document.getElementById("equipEnd").value;
       const newS = new Date(s);
       const newE = new Date(e);
-      for(const item of items){
+      for (const item of items) {
         const div = document.createElement("div");
         div.className = "equipment-card";
-        if(selectedItems.includes(item.name)) div.classList.add("selected");
+        if (selectedItems.includes(item.name)) div.classList.add("selected");
         let isUnavailable = false;
         try {
           const snapshot = await db.collection("rentals")
@@ -457,19 +506,21 @@
             .get();
           snapshot.forEach(doc => {
             const data = doc.data();
-            if(data.startDate && data.endDate){
+            if (data.startDate && data.endDate) {
               const existS = new Date(data.startDate);
               const existE = new Date(data.endDate);
-              if(newS <= existE && existS <= newE){
+              if (newS <= existE && existS <= newE) {
                 isUnavailable = true;
               }
             }
           });
-        } catch(err) { console.error("예약 여부 확인 오류:", err); }
-        if(isUnavailable) div.classList.add("disabled");
+        } catch (err) {
+          console.error("예약 여부 확인 오류:", err);
+        }
+        if (isUnavailable) div.classList.add("disabled");
         div.innerHTML = `<img src="${item.image}" alt="${item.name}" /><span class="text-sm">${item.name}</span>`;
         div.onclick = () => {
-          if(div.classList.contains("disabled")) return;
+          if (div.classList.contains("disabled")) return;
           const sel = selectedItems.includes(item.name);
           selectedItems = sel ? selectedItems.filter(i => i !== item.name) : [...selectedItems, item.name];
           updateEquipmentSelection();
@@ -480,8 +531,9 @@
     }
     function updateEquipmentSelection() {
       const sec = document.getElementById("equip-selected-section");
-      if(selectedItems.length === 0) sec.classList.add("hidden");
-      else {
+      if (selectedItems.length === 0) {
+        sec.classList.add("hidden");
+      } else {
         sec.classList.remove("hidden");
         document.getElementById("equip-selected-items").innerHTML = selectedItems.map(item =>
           `<li>${item} <button type="button" class="ml-2 text-red-500" onclick="removeEquipmentItem('${item.replace(/'/g, "\\'")}')">&times;</button></li>`
@@ -496,27 +548,26 @@
 
     // [편집실 대관] Step2: 편집실 선택 및 시간 선택
     function selectEditRoom(room) {
-      // 토글 active 클래스: 두 버튼 중 선택한 버튼에 active 추가, 나머지 제거
+      // 선택한 편집실 버튼 active 토글
       document.getElementById("editRoom1Btn").classList.toggle("active", room === "편집실 1");
       document.getElementById("editRoom2Btn").classList.toggle("active", room === "편집실 2");
       selectedItems = [room];
       document.getElementById("editTimeGrid").classList.remove("hidden");
       generateEditTimeGrid();
     }
-    // [편집실 대관] Step2: 시간 선택 그리드 생성
     function generateEditTimeGrid() {
       const grid = document.getElementById("editTimeGrid");
       grid.innerHTML = "";
       selectedHours = [];
       const d = document.getElementById("editDate").value;
       console.log("generateEditTimeGrid: 대관일 =", d);
-      if(!d) {
+      if (!d) {
         grid.innerHTML = "<p class='text-sm text-red-500'>대관일을 먼저 선택해주세요.</p>";
         return;
       }
       const room = selectedItems[0];
       console.log("generateEditTimeGrid: 선택된 편집실 =", room);
-      if(!room) return;
+      if (!room) return;
       db.collection("rentals")
         .where("editingDate", "==", d)
         .where("items", "array-contains", room)
@@ -525,10 +576,12 @@
           let reserved = [];
           snapshot.forEach(doc => {
             const data = doc.data();
-            if(Array.isArray(data.hours)) reserved.push(...data.hours);
+            if (Array.isArray(data.hours)) {
+              reserved.push(...data.hours);
+            }
           });
           console.log("예약된 시간:", reserved);
-          for(let h = 0; h < 24; h++){
+          for (let h = 0; h < 24; h++) {
             const id = `editHour-${h}`;
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
@@ -537,14 +590,17 @@
             const label = document.createElement("label");
             label.htmlFor = id;
             label.innerText = `${h}:00`;
-            if(reserved.includes(h)){
+            if (reserved.includes(h)) {
               checkbox.disabled = true;
               label.className = "bg-gray-300 text-gray-500 line-through cursor-not-allowed";
             } else {
               label.className = "bg-gray-200 cursor-pointer";
               checkbox.addEventListener("change", () => {
-                if(checkbox.checked) selectedHours.push(h);
-                else selectedHours = selectedHours.filter(v => v !== h);
+                if (checkbox.checked) {
+                  selectedHours.push(h);
+                } else {
+                  selectedHours = selectedHours.filter(v => v !== h);
+                }
               });
             }
             const wrap = document.createElement("div");
@@ -576,11 +632,11 @@
           document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
           btn.classList.add("active");
           currentTab = btn.dataset.tab;
-          if(currentTab === "camera" || currentTab === "lighting") {
+          if (currentTab === "camera" || currentTab === "lighting") {
             document.getElementById("cameraSubTabs").classList.remove("hidden");
             currentSub = currentTab === "camera" ? "body" : "light";
             document.querySelectorAll("#cameraSubTabs .subtab-button").forEach((b, index) => {
-              if(index === 0) b.classList.add("active");
+              if (index === 0) b.classList.add("active");
               else b.classList.remove("active");
             });
           } else {
