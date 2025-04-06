@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 예약</title>
-  <!-- Tailwind CSS CDN (개발용) -->
+  <!-- Tailwind CSS CDN (개발용 - 프로덕션에서는 빌드된 CSS 권장) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
@@ -121,7 +121,7 @@
     </div>
   </div>
 
-  <!-- 장비대여 플로우 (4단계) -->
+  <!-- 장비 대여 플로우 (4단계) -->
   <div id="equipment-flow" class="max-w-4xl mx-auto p-6 bg-white mt-4 rounded-lg shadow-md hidden">
     <!-- Equipment Step 1: 정보 입력 -->
     <div id="equip-step1">
@@ -184,11 +184,12 @@
         <button id="equipSubmitBtn" onclick="submitEquip()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">완료 →</button>
       </div>
     </div>
-    <!-- Equipment Step 4: 완료 -->
+    <!-- Equipment Step 4: 완료 (완료 화면에도 이전 단계 버튼 추가) -->
     <div id="equip-step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
       <div id="equip-final-info" class="text-sm text-gray-700"></div>
-      <div class="mt-8">
+      <div class="flex justify-center gap-4 mt-8">
+        <button onclick="goToEquipmentStep(3)" class="text-blue-600 text-sm underline">← 이전 단계</button>
         <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
       </div>
     </div>
@@ -239,11 +240,12 @@
         <button id="editSubmitBtn" onclick="submitEdit()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50">완료 →</button>
       </div>
     </div>
-    <!-- Editing Step 4: 완료 -->
+    <!-- Editing Step 4: 완료 (완료 화면에도 이전 단계 버튼 추가) -->
     <div id="edit-step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
       <div id="edit-final-info" class="text-sm text-gray-700"></div>
-      <div class="mt-8">
+      <div class="flex justify-center gap-4 mt-8">
+        <button onclick="goToEditingStep(3)" class="text-blue-600 text-sm underline">← 이전 단계</button>
         <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
       </div>
     </div>
@@ -258,12 +260,13 @@
     let currentSub = "body";
     let selectedHours = [];
 
-    // 초기 페이지에서 플로우 선택
+    // 초기 페이지 플로우 선택
     function startEquipmentFlow() {
       document.getElementById("initial-page").classList.add("hidden");
       document.getElementById("steps-container").classList.remove("hidden");
       document.getElementById("equipment-flow").classList.remove("hidden");
       document.getElementById("editing-flow").classList.add("hidden");
+      flowType = "equipment";
       selectedItems = [];
       selectedHours = [];
       goToEquipmentStep(1);
@@ -273,6 +276,7 @@
       document.getElementById("steps-container").classList.remove("hidden");
       document.getElementById("equipment-flow").classList.add("hidden");
       document.getElementById("editing-flow").classList.remove("hidden");
+      flowType = "editing";
       selectedItems = [];
       selectedHours = [];
       goToEditingStep(1);
@@ -477,18 +481,15 @@
       renderEquipmentList();
     }
 
-    // [편집실 대관] Step2: 편집실 선택 (하드코딩된 카드)
+    // [편집실 대관] Step2: 편집실 선택 (하드코딩된 카드 사용)
     function selectEditRoom(room) {
       selectedItems = [room];
-      document.querySelectorAll("#edit-step2 .equipment-card").forEach(card => {
-        if(card.innerText.includes(room)) card.classList.add("selected");
-        else card.classList.remove("selected");
-      });
+      // 디자인상 카드 처리(필요시 추가)
       // 시간 선택 그리드 표시
       document.getElementById("editTimeGrid").classList.remove("hidden");
       generateEditTimeGrid();
     }
-    // [편집실 대관] Step2: 시간 선택 그리드 생성 – 오류 해결을 위해 디버깅 로그 추가
+    // [편집실 대관] Step2: 시간 선택 그리드 생성 (디버깅 로그 포함)
     function generateEditTimeGrid() {
       const grid = document.getElementById("editTimeGrid");
       grid.innerHTML = "";
@@ -557,7 +558,7 @@
   <!-- 예제 장비 데이터 (간단 예시) -->
   <script>
     const equipmentData = {
-       camera: {
+      camera: {
     body: [
       { name: "Sony FX6", image: "https://www.bhphotovideo.com/cdn-cgi/image/fit=scale-down,width=500,quality=95/https://www.bhphotovideo.com/images/images500x500/sony_pxw_fx6_cinema_camera_body_1673526912_1592066.jpg" },
       { name: "Sony FX3 1번", image: "http://manuals.plus/wp-content/uploads/2022/11/SONY-FX3-Interchangeable-Lens-Digital-Camera-Featured-Image.png" },
@@ -681,6 +682,10 @@
     { name: "연장 전원선", image: "https://m.intelrior.com/web/upload/NNEditor/20210627/mobile/e30880c8138488e21cd971ae3cdb3e0e_1624775440.jpg" },
     { name: "전기 릴선", image: "https://m.ezlight.co.kr/web/product/small/201701/5630_shop1_399920.jpg" }
   ],
+  editing: [
+    { name: "편집실 1", image: "https://www.sac.or.kr/design/theme/sac/images/sub/studio_imgs4.jpg" },
+    { name: "편집실 2", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyWGV9IK1CFeE1vJthQcjKnL3e2E0bj79J-DkWkBUL_FBPgaCY2xKTv9Jo7Pp1HaQQ3Gk&usqp=CAU" }
+  ],
   battery: [
     { name: "V마운트 배터리", image: "https://x-cament.com/web/product/big/202007/eb69f4fc4098a6dec0c6759a5c2fdb26.jpg" },
     { name: "NP-F 배터리", image: "https://brilliant.com.sg//image/cache/catalog/sony%20battery%2008-760x540.JPG" },
@@ -689,11 +694,6 @@
     { name: "SCFexpress Type A SD 메모리카드 리더기", image: "https://www.sony.co.kr/image/0b1c280e774c792a4f6e1670b57c15f6?fmt=pjpeg&wid=330&bgcolor=FFFFFF&bgc=FFFFFF" }
   ]
 };
-      editing: [
-        { name: "편집실 1", image: "https://www.sac.or.kr/design/theme/sac/images/sub/studio_imgs4.jpg" },
-        { name: "편집실 2", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyWGV9IK1CFeE1vJthQcjKnL3e2E0bj79J-DkWkBUL_FBPgaCY2xKTv9Jo7Pp1HaQQ3Gk&usqp=CAU" }
-      ]
-    };
   </script>
 </body>
 </html>
