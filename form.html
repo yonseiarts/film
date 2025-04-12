@@ -2,20 +2,15 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <!-- 반응형 뷰포트 설정: 스마트폰 대응 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>기자재 대여 예약</title>
-  
   <!-- Tailwind CSS CDN (개발용 - 프로덕션에서는 빌드된 CSS 권장) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
   <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
-  
   <link rel="icon" href="favicon.ico" />
-  
   <style>
     /* 단계 버튼 */
     .step-active { background-color: #1D4ED8; color: white; }
@@ -71,9 +66,8 @@
       font-weight: bold;
     }
   </style>
-  
   <script>
-    // Firebase 초기화 – 실제 프로젝트 정보로 교체
+    // Firebase 초기화 – 실제 프로젝트 정보로 교체하세요.
     const firebaseConfig = {
       apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
       authDomain: "yonseirent-setup.firebaseapp.com",
@@ -84,14 +78,13 @@
       measurementId: "G-CQZEKPE02D"
     };
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
     const db = firebase.firestore();
   </script>
 </head>
 <body class="bg-gray-50 min-h-screen overflow-x-hidden">
   <!-- 헤더 -->
   <div class="bg-blue-700 text-white py-6 text-center relative">
-    <a href="index.html" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white underline text-sm">홈으로</a>
+    <a href="index.html" class="absolute left-4 top-1/2 -translate-y-1/2 transform text-white underline text-sm">홈으로</a>
     <h1 class="text-2xl font-bold">기자재 대여 예약</h1>
   </div>
 
@@ -101,7 +94,6 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
       <!-- 장비 대여 탭 -->
       <div class="relative cursor-pointer" onclick="startEquipmentFlow()">
-        <!-- 모바일에서는 h-48, sm 이상에서는 h-[400px] -->
         <img src="https://i.pinimg.com/736x/22/20/6b/22206b44d648994fecd85929822d1ac7.jpg" alt="장비 대여" class="w-full h-48 sm:h-[400px] object-cover rounded-lg">
         <div class="absolute inset-0 bg-black opacity-40 rounded-lg"></div>
         <div class="absolute inset-0 flex items-center justify-center">
@@ -131,27 +123,26 @@
 
   <!-- 장비 대여 플로우 (4단계) -->
   <div id="equipment-flow" class="max-w-4xl w-full mx-auto p-6 bg-white mt-4 rounded-lg shadow-md hidden">
-    <!-- Equipment Step 1: 정보 입력 (이전 단계 버튼 포함) -->
+    <!-- Equipment Step 1: 정보 입력 (이전단계 버튼 포함) -->
     <div id="equip-step1">
       <h2 class="text-xl font-bold mb-4">대여일 및 사용자 정보 입력</h2>
       <label class="block mb-2 font-medium">대여 시작일</label>
-      <input type="date" id="equipStart" class="border p-2 rounded w-full mb-4" />
-      <label class="block mb-2 font-medium">반납일 (최대 3일까지)</label>
-      <input type="date" id="equipEnd" class="border p-2 rounded w-full mb-4" />
+      <input type="date" id="equipStart" class="border p-2 rounded w-full mb-4" onchange="checkDateRange()"/>
+      <label class="block mb-2 font-medium">반납일 (최대 3일 이내)</label>
+      <input type="date" id="equipEnd" class="border p-2 rounded w-full mb-4" onchange="checkDateRange()"/>
       <label class="block mb-2 font-medium">이름</label>
-      <input type="text" id="equipName" class="border p-2 rounded w-full mb-4" placeholder="이름" />
+      <input type="text" id="equipName" class="border p-2 rounded w-full mb-4" placeholder="이름" readonly/>
       <label class="block mb-2 font-medium">학번</label>
-      <input type="text" id="equipId" class="border p-2 rounded w-full mb-4" placeholder="학번" />
+      <input type="text" id="equipId" class="border p-2 rounded w-full mb-4" placeholder="학번" readonly/>
       <div class="flex justify-between">
         <button onclick="goBackToInitial()" class="text-blue-600 text-sm">← 이전 단계</button>
         <button onclick="validateEquipStep1()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">다음 단계 →</button>
       </div>
     </div>
-
     <!-- Equipment Step 2: 장비 선택 -->
     <div id="equip-step2" class="hidden">
       <h2 class="text-xl font-bold mb-2">장비 선택</h2>
-      <!-- 대분류 탭 (추가: sd카드/리더기 항목) -->
+      <!-- 대분류 탭 (추가로 "sd" 탭 포함) -->
       <div class="flex flex-wrap space-x-2 mb-4">
         <button class="tab-button active px-4 py-1 border rounded text-sm" data-tab="camera">카메라</button>
         <button class="tab-button px-4 py-1 border rounded text-sm" data-tab="lighting">조명</button>
@@ -159,7 +150,7 @@
         <button class="tab-button px-4 py-1 border rounded text-sm" data-tab="monitor">모니터</button>
         <button class="tab-button px-4 py-1 border rounded text-sm" data-tab="line">라인</button>
         <button class="tab-button px-4 py-1 border rounded text-sm" data-tab="battery">배터리</button>
-        <button class="tab-button px-4 py-1 border rounded text-sm" data-tab="sd">sd카드/리더기</button>
+        <button class="tab-button px-4 py-1 border rounded text-sm" data-tab="sd">SD</button>
       </div>
       <!-- 카메라 하위 탭 (예시) -->
       <div id="cameraSubTabs" class="flex flex-wrap gap-2 mb-4">
@@ -180,7 +171,6 @@
         <button onclick="validateEquipStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">다음 단계 →</button>
       </div>
     </div>
-
     <!-- Equipment Step 3: 규정 동의 (사용 규정 전문 추가) -->
     <div id="equip-step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
@@ -215,7 +205,6 @@
         <button id="equipSubmitBtn" onclick="submitEquip()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50 text-sm">완료 →</button>
       </div>
     </div>
-
     <!-- Equipment Step 4: 완료 -->
     <div id="equip-step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
@@ -229,21 +218,20 @@
 
   <!-- 편집실 대관 플로우 (4단계) -->
   <div id="editing-flow" class="max-w-4xl w-full mx-auto p-6 bg-white mt-4 rounded-lg shadow-md hidden">
-    <!-- Editing Step 1: 정보 입력 (이전 단계 버튼 포함) -->
+    <!-- Editing Step 1: 정보 입력 (이전단계 버튼 포함) -->
     <div id="edit-step1">
       <h2 class="text-xl font-bold mb-4">대관일 및 사용자 정보 입력</h2>
       <label class="block mb-2 font-medium">대관일</label>
       <input type="date" id="editDate" class="border p-2 rounded w-full mb-4" />
       <label class="block mb-2 font-medium">이름</label>
-      <input type="text" id="editName" class="border p-2 rounded w-full mb-4" placeholder="이름" />
+      <input type="text" id="editName" class="border p-2 rounded w-full mb-4" placeholder="이름" readonly/>
       <label class="block mb-2 font-medium">학번</label>
-      <input type="text" id="editId" class="border p-2 rounded w-full mb-4" placeholder="학번" />
+      <input type="text" id="editId" class="border p-2 rounded w-full mb-4" placeholder="학번" readonly/>
       <div class="flex justify-between">
         <button onclick="goBackToInitial()" class="text-blue-600 text-sm">← 이전 단계</button>
         <button onclick="validateEditStep1()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">다음 단계 →</button>
       </div>
     </div>
-
     <!-- Editing Step 2: 편집실 선택 및 시간 선택 -->
     <div id="edit-step2" class="hidden">
       <h2 class="text-xl font-bold mb-2">편집실 선택</h2>
@@ -257,7 +245,6 @@
         <button onclick="validateEditStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">다음 단계 →</button>
       </div>
     </div>
-
     <!-- Editing Step 3: 규정 동의 (사용 규정 전문 추가) -->
     <div id="edit-step3" class="hidden">
       <h2 class="text-xl font-bold mb-4">편집실 대관 규정</h2>
@@ -292,7 +279,6 @@
         <button id="editSubmitBtn" onclick="submitEdit()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50 text-sm">완료 →</button>
       </div>
     </div>
-
     <!-- Editing Step 4: 완료 -->
     <div id="edit-step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
@@ -309,32 +295,46 @@
     // 글로벌 변수들
     let flowType = "equipment"; // "equipment" 또는 "editing"
     let selectedItems = [];
-    let currentTab = "camera";  // 장비 대여용 탭 (camera, lighting, sound, monitor, line, battery, sd)
+    let currentTab = "camera";  // 장비 대여용 카테고리 (camera, lighting, sound, monitor, line, battery, sd)
     let currentSub = "body";
     let selectedHours = [];
 
-    // Firebase Auth 로그인 상태 확인 및 사용자 정보 자동 채우기
-    window.addEventListener("DOMContentLoaded", function() {
-      firebase.auth().onAuthStateChanged(user => {
-        if (user) {
-          // 로그인한 사용자의 이름과 uid를 사용 (실제 환경에서는 추가 프로파일 정보를 가져올 수 있습니다)
-          const name = user.displayName || "홍길동";
-          const id = user.uid || "00000000";
-          document.getElementById("equipName").value = name;
-          document.getElementById("equipId").value = id;
-          document.getElementById("editName").value = name;
-          document.getElementById("editId").value = id;
-          // 수정 불가하게 disabled 처리
-          document.getElementById("equipName").disabled = true;
-          document.getElementById("equipId").disabled = true;
-          document.getElementById("editName").disabled = true;
-          document.getElementById("editId").disabled = true;
-        } else {
-          alert("로그인이 필요합니다.");
-          window.location.href = "login.html";
+    // DOMContentLoaded 시, 로그인한 학생 정보(localStorage)로 이름/학번 필드 자동 채움 (수정 불가)
+    document.addEventListener("DOMContentLoaded", () => {
+      const studentInfoStr = localStorage.getItem("studentInfo");
+      if (studentInfoStr) {
+        const studentInfo = JSON.parse(studentInfoStr);
+        // 장비 대여 정보 입력 필드
+        const equipNameInput = document.getElementById("equipName");
+        const equipIdInput = document.getElementById("equipId");
+        if(equipNameInput && equipIdInput) {
+          equipNameInput.value = studentInfo.name;
+          equipIdInput.value = studentInfo.studentId;
         }
-      });
+        // 편집실 대관 정보 입력 필드
+        const editNameInput = document.getElementById("editName");
+        const editIdInput = document.getElementById("editId");
+        if(editNameInput && editIdInput) {
+          editNameInput.value = studentInfo.name;
+          editIdInput.value = studentInfo.studentId;
+        }
+      }
     });
+
+    // 날짜 범위 제한 (대여일과 반납일은 최대 3일)
+    function checkDateRange() {
+      const s = document.getElementById("equipStart").value;
+      const e = document.getElementById("equipEnd").value;
+      if(s && e) {
+        const startDate = new Date(s);
+        const endDate = new Date(e);
+        const diffDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+        if(diffDays > 3) {
+          alert("대여일과 반납일은 최대 3일 이내여야 합니다.");
+          document.getElementById("equipEnd").value = "";
+        }
+      }
+    }
 
     // 초기 페이지로 돌아가는 함수
     function goBackToInitial() {
@@ -346,7 +346,7 @@
       document.getElementById("editing-flow").classList.add("hidden");
     }
 
-    // 플로우 선택
+    // 플로우 선택 함수
     function startEquipmentFlow() {
       document.getElementById("initial-page").classList.add("hidden");
       document.getElementById("steps-container").classList.remove("hidden");
@@ -370,9 +370,9 @@
 
     // 단계 이동 (장비 대여 플로우)
     function goToEquipmentStep(n) {
-      for (let i = 1; i <= 4; i++) {
-        const btn = document.getElementById("step" + i + "Btn");
-        if (i <= n) {
+      for(let i=1; i<=4; i++){
+        const btn = document.getElementById("step"+i+"Btn");
+        if(i<=n){
           btn.classList.add("step-active");
           btn.classList.remove("step-inactive");
         } else {
@@ -384,25 +384,23 @@
       document.getElementById("equip-step2").classList.add("hidden");
       document.getElementById("equip-step3").classList.add("hidden");
       document.getElementById("equip-step4").classList.add("hidden");
-      if(n === 1) document.getElementById("equip-step1").classList.remove("hidden");
-      if(n === 2) {
+      if(n===1) document.getElementById("equip-step1").classList.remove("hidden");
+      if(n===2){
         document.getElementById("equip-step2").classList.remove("hidden");
         renderEquipmentList();
       }
-      if(n === 3) document.getElementById("equip-step3").classList.remove("hidden");
-      if(n === 4) {
+      if(n===3) document.getElementById("equip-step3").classList.remove("hidden");
+      if(n===4){
         document.getElementById("equip-step4").classList.remove("hidden");
         let summary = `<li>대여일: ${document.getElementById("equipStart").value} ~ ${document.getElementById("equipEnd").value}</li>`;
         summary += `<li>선택된 장비: ${selectedItems.join(", ")}</li>`;
         document.getElementById("equip-final-info").innerHTML = `<ul class="list-disc ml-5 mt-2">${summary}</ul>`;
       }
     }
-
-    // 단계 이동 (편집실 대관 플로우)
     function goToEditingStep(n) {
-      for (let i = 1; i <= 4; i++) {
-        const btn = document.getElementById("step" + i + "Btn");
-        if (i <= n) {
+      for(let i=1; i<=4; i++){
+        const btn = document.getElementById("step"+i+"Btn");
+        if(i<=n){
           btn.classList.add("step-active");
           btn.classList.remove("step-inactive");
         } else {
@@ -414,10 +412,10 @@
       document.getElementById("edit-step2").classList.add("hidden");
       document.getElementById("edit-step3").classList.add("hidden");
       document.getElementById("edit-step4").classList.add("hidden");
-      if(n === 1) document.getElementById("edit-step1").classList.remove("hidden");
-      if(n === 2) document.getElementById("edit-step2").classList.remove("hidden");
-      if(n === 3) document.getElementById("edit-step3").classList.remove("hidden");
-      if(n === 4) {
+      if(n===1) document.getElementById("edit-step1").classList.remove("hidden");
+      if(n===2) document.getElementById("edit-step2").classList.remove("hidden");
+      if(n===3) document.getElementById("edit-step3").classList.remove("hidden");
+      if(n===4){
         document.getElementById("edit-step4").classList.remove("hidden");
         let summary = `<li>대관일: ${document.getElementById("editDate").value}</li>`;
         summary += `<li>선택된 편집실: ${selectedItems[0] || ""}</li>`;
@@ -426,43 +424,33 @@
       }
     }
 
-    // [장비 대여] Step1 유효성 검사 (대여 기간 최대 3일 제한)
+    // 유효성 검사 함수
     function validateEquipStep1() {
       const s = document.getElementById("equipStart").value;
       const e = document.getElementById("equipEnd").value;
       const n = document.getElementById("equipName").value.trim();
       const i = document.getElementById("equipId").value.trim();
-      if (!s || !e || !n || !i) { alert("모든 필드를 입력하세요."); return; }
-      const startDate = new Date(s);
-      const endDate = new Date(e);
-      if(startDate > endDate) { alert("대여 시작일이 반납일보다 늦습니다."); return; }
-      const diffDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-      if(diffDays > 3) { alert("대여 기간은 최대 3일만 가능합니다."); return; }
+      if(!s || !e || !n || !i){ alert("모든 필드를 입력하세요."); return; }
+      if(new Date(s) > new Date(e)){ alert("대여 시작일이 반납일보다 늦습니다."); return; }
       goToEquipmentStep(2);
     }
-
-    // [편집실 대관] Step1 유효성 검사
     function validateEditStep1() {
       const d = document.getElementById("editDate").value;
       const n = document.getElementById("editName").value.trim();
       const i = document.getElementById("editId").value.trim();
-      if (!d || !n || !i) { alert("모든 필드를 입력하세요."); return; }
+      if(!d || !n || !i){ alert("모든 필드를 입력하세요."); return; }
       goToEditingStep(2);
     }
-
-    // [장비 대여] Step2 유효성 검사
     function validateEquipStep2() {
-      if(selectedItems.length === 0) { alert("최소 1개 이상의 장비를 선택하세요."); return; }
+      if(selectedItems.length === 0){ alert("최소 1개 이상의 장비를 선택하세요."); return; }
       goToEquipmentStep(3);
     }
-    // [편집실 대관] Step2 유효성 검사
     function validateEditStep2() {
-      if(selectedItems.length === 0) { alert("편집실을 선택해주세요."); return; }
+      if(selectedItems.length === 0){ alert("편집실을 선택해주세요."); return; }
       goToEditingStep(3);
     }
-    // [편집실 대관] Step3 유효성 검사 (시간 선택)
     function validateEditStep3() {
-      if(selectedHours.length === 0) { alert("대관할 시간을 선택해주세요."); return; }
+      if(selectedHours.length === 0){ alert("대관할 시간을 선택해주세요."); return; }
       goToEditingStep(4);
     }
 
@@ -478,7 +466,7 @@
       btn.classList.toggle("opacity-50", !e.target.checked);
     });
 
-    // [장비 대여] 제출
+    // 제출 함수
     function submitEquip() {
       const name = document.getElementById("equipName").value.trim();
       const studentId = document.getElementById("equipId").value.trim();
@@ -497,7 +485,6 @@
         .then(() => { goToEquipmentStep(4); })
         .catch(err => { console.error("신청 실패:", err); alert("신청 정보를 저장하는 데 실패했습니다."); });
     }
-    // [편집실 대관] 제출
     function submitEdit() {
       const name = document.getElementById("editName").value.trim();
       const studentId = document.getElementById("editId").value.trim();
@@ -522,16 +509,12 @@
       const container = document.getElementById("equip-list");
       container.innerHTML = "";
       let items = [];
-      if(currentTab === "camera") {
-        items = equipmentData.camera[currentSub] || [];
-      } else if(currentTab === "lighting") {
-        items = equipmentData.lighting[currentSub] || [];
-      } else if(currentTab === "sd") {
-        items = equipmentData.sd || [];
-      } else {
-        items = equipmentData[currentTab] || [];
-      }
-      if(!Array.isArray(items) || items.length === 0){
+      // 현재 선택한 대분류(currentTab)가 "sd"인 경우 equipmentData.sd 사용
+      if(currentTab === "sd") items = equipmentData.sd || [];
+      else if(currentTab === "camera") items = equipmentData.camera[currentSub] || [];
+      else if(currentTab === "lighting") items = equipmentData.lighting[currentSub] || [];
+      else items = equipmentData[currentTab] || [];
+      if(!Array.isArray(items) || items.length === 0) {
         container.innerHTML = '<p class="text-gray-500">등록된 장비가 없습니다.</p>';
         return;
       }
@@ -539,7 +522,7 @@
       const e = document.getElementById("equipEnd").value;
       const newS = new Date(s);
       const newE = new Date(e);
-      for(const item of items){
+      for(const item of items) {
         const div = document.createElement("div");
         div.className = "equipment-card";
         if(selectedItems.includes(item.name)) div.classList.add("selected");
@@ -551,10 +534,10 @@
             .get();
           snapshot.forEach(doc => {
             const data = doc.data();
-            if(data.startDate && data.endDate){
+            if(data.startDate && data.endDate) {
               const existS = new Date(data.startDate);
               const existE = new Date(data.endDate);
-              if(newS <= existE && existS <= newE){
+              if(newS <= existE && existS <= newE) {
                 isUnavailable = true;
               }
             }
@@ -590,13 +573,13 @@
 
     // [편집실 대관] Step2: 편집실 선택 및 시간 선택
     function selectEditRoom(room) {
+      // 두 버튼 중 선택한 버튼에 active 클래스 토글
       document.getElementById("editRoom1Btn").classList.toggle("active", room === "편집실 1");
       document.getElementById("editRoom2Btn").classList.toggle("active", room === "편집실 2");
       selectedItems = [room];
       document.getElementById("editTimeGrid").classList.remove("hidden");
       generateEditTimeGrid();
     }
-    // [편집실 대관] Step2: 시간 선택 그리드 생성
     function generateEditTimeGrid() {
       const grid = document.getElementById("editTimeGrid");
       grid.innerHTML = "";
@@ -653,7 +636,7 @@
         });
     }
 
-    // 유저 정보 관련 함수
+    // 유저 정보 관련 함수 (추후 사용용)
     function getUserName() {
       return flowType === "equipment" ? document.getElementById("equipName").value.trim() : document.getElementById("editName").value.trim();
     }
@@ -663,7 +646,7 @@
 
     // 탭 버튼 이벤트 (장비 대여 Step2)
     document.addEventListener("DOMContentLoaded", function() {
-      // 탭 버튼 클릭 이벤트 처리
+      // 대분류 탭 클릭 이벤트
       document.querySelectorAll(".tab-button").forEach(btn => {
         btn.addEventListener("click", () => {
           document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
@@ -673,8 +656,7 @@
             document.getElementById("cameraSubTabs").classList.remove("hidden");
             currentSub = currentTab === "camera" ? "body" : "light";
             document.querySelectorAll("#cameraSubTabs .subtab-button").forEach((b, index) => {
-              if(index === 0) b.classList.add("active");
-              else b.classList.remove("active");
+              b.classList.toggle("active", index === 0);
             });
           } else {
             document.getElementById("cameraSubTabs").classList.add("hidden");
@@ -683,7 +665,7 @@
           renderEquipmentList();
         });
       });
-      // 하위 탭 버튼 클릭 이벤트 처리
+      // 하위 탭 클릭 이벤트
       document.querySelectorAll(".subtab-button").forEach(btn => {
         btn.addEventListener("click", () => {
           document.querySelectorAll(".subtab-button").forEach(b => b.classList.remove("active"));
@@ -731,11 +713,7 @@
           { name: "카토니 포커스 22씨네", image: "https://withusmedia.co.kr/web/product/big/202307/c21fe63a6876968bafedd53af69efcd6.jpg" },
           { name: "iFootage GazelleTripod TC9 1번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
           { name: "iFootage GazelleTripod TC9 2번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
-          { name: "iFootage GazelleTripod TC9 3번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
-          { name: "DJI RS3 PRO Combo 1번", image: "https://www-cdn.djiits.com/cms/uploads/777e2e0023f55a99d393684c8a03c5aa@640*640.png" },
-          { name: "DJI RS3 PRO Combo 2번", image: "https://www-cdn.djiits.com/cms/uploads/777e2e0023f55a99d393684c8a03c5aa@640*640.png" },
-          { name: "이지리그", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9mWWxfT4r17U8i5xgKLaMfDSKYR9jhkvs4w&s" },
-          { name: "틸타 링그립", image: "https://cdn.imweb.me/thumbnail/20230802/49697b5cdb039.jpg" }
+          { name: "iFootage GazelleTripod TC9 3번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" }
         ],
         accessory: [
           { name: "부속품 1번", image: "https://via.placeholder.com/100?text=Accessory+1" },
@@ -833,10 +811,11 @@
         { name: "Sony 160GB CFexpress 카드 Type A", image: "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSoxw4LBhaRw03pNiFwifd1jwDmM6fXg1R42DyiD0n_fQirS7Upg3-MusWHHItKxWrUwU-_aDAh92OVtCTMOtzIuYQtRfBFFxeHCnPUQhRwmpZP7X4Ontvz" },
         { name: "SCFexpress Type A SD 메모리카드 리더기", image: "https://www.sony.co.kr/image/0b1c280e774c792a4f6e1670b57c15f6?fmt=pjpeg&wid=330&bgcolor=FFFFFF&bgc=FFFFFF" }
       ],
-      sd: [  // 추가한 sd카드/리더기 항목 예시
-        { name: "SD 카드 64GB", image: "https://example.com/sd64.jpg" },
-        { name: "SD 카드 128GB", image: "https://example.com/sd128.jpg" },
-        { name: "SD 카드 리더기", image: "https://example.com/sdreader.jpg" }
+      // "sd" 대분류 추가 (sd카드 및 리더기)
+      sd: [
+        { name: "SD 카드 32GB", image: "https://via.placeholder.com/100?text=SD+32GB" },
+        { name: "SD 카드 64GB", image: "https://via.placeholder.com/100?text=SD+64GB" },
+        { name: "리더기", image: "https://via.placeholder.com/100?text=SD+리더기" }
       ]
     };
   </script>
