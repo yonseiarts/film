@@ -132,8 +132,10 @@
       <label class="block mb-2 font-medium">반납일 (최대 3일 대여 가능)</label>
       <input type="date" id="equipEnd" class="border p-2 rounded w-full mb-4" />
       <label class="block mb-2 font-medium">이름</label>
+      <!-- 로그인한 사용자 정보로 자동 채워지고 수정 불가 -->
       <input type="text" id="equipName" class="border p-2 rounded w-full mb-4" placeholder="이름" disabled />
       <label class="block mb-2 font-medium">학번</label>
+      <!-- 학번도 로그인한 정보로 채워지며 수정 불가 -->
       <input type="text" id="equipId" class="border p-2 rounded w-full mb-4" placeholder="학번" disabled />
       <div class="flex justify-between">
         <button onclick="goBackToInitial()" class="text-blue-600 text-sm">← 이전 단계</button>
@@ -302,46 +304,18 @@
     let currentSub = "body";
     let selectedHours = [];
 
-    // 로그인 시 입력했던 사용자 정보 (예시; 실제 프로젝트에서는 Firebase Auth 등에서 가져옴)
-    const defaultUserName = "홍길동";
-    const defaultStudentId = "20210001";
-
-    document.addEventListener("DOMContentLoaded", () => {
-      // 초기화: 이름, 학번 필드에 로그인 정보 채우고 수정 불가 처리
-      document.getElementById("equipName").value = defaultUserName;
-      document.getElementById("equipId").value = defaultStudentId;
-      document.getElementById("editName").value = defaultUserName;
-      document.getElementById("editId").value = defaultStudentId;
-      
-      // 탭 버튼 클릭 이벤트 처리 (장비 대여 Step2)
-      document.querySelectorAll(".tab-button").forEach(btn => {
-        btn.addEventListener("click", () => {
-          document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          currentTab = btn.dataset.tab;
-          if(currentTab === "camera" || currentTab === "lighting") {
-            document.getElementById("cameraSubTabs").classList.remove("hidden");
-            currentSub = currentTab === "camera" ? "body" : "light";
-            document.querySelectorAll("#cameraSubTabs .subtab-button").forEach((b, index) => {
-              if(index === 0) b.classList.add("active");
-              else b.classList.remove("active");
-            });
-          } else {
-            document.getElementById("cameraSubTabs").classList.add("hidden");
-            currentSub = null;
-          }
-          renderEquipmentList();
-        });
-      });
-      // 하위 탭 버튼 클릭 이벤트 처리
-      document.querySelectorAll(".subtab-button").forEach(btn => {
-        btn.addEventListener("click", () => {
-          document.querySelectorAll(".subtab-button").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          currentSub = btn.dataset.subtab;
-          renderEquipmentList();
-        });
-      });
+    // 로그인한 사용자 정보 (Firebase Auth에서 가져옴)
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // 실제 로그인 정보 사용 (여기서는 displayName을 이름으로, email을 학번으로 사용)
+        document.getElementById("equipName").value = user.displayName || "";
+        document.getElementById("editName").value = user.displayName || "";
+        document.getElementById("equipId").value = user.email || "";
+        document.getElementById("editId").value = user.email || "";
+      } else {
+        // 로그인이 되어 있지 않은 경우, 로그인 페이지로 리다이렉션
+        window.location.href = "login.html";
+      }
     });
 
     // 초기 페이지로 돌아가는 함수
@@ -434,7 +408,7 @@
       }
     }
 
-    // [장비 대여] Step1 유효성 검사 (최대 3일 선택 제한 추가)
+    // [장비 대여] Step1 유효성 검사 (대여/반납일 최대 3일 제한 추가)
     function validateEquipStep1() {
       const s = document.getElementById("equipStart").value;
       const e = document.getElementById("equipEnd").value;
@@ -659,13 +633,46 @@
         });
     }
 
-    // 유저 정보 관련 함수
+    // 유저 정보 관련 함수 (필요시 추가 구현)
     function getUserName() {
       return flowType === "equipment" ? document.getElementById("equipName").value.trim() : document.getElementById("editName").value.trim();
     }
     function getStudentID() {
       return flowType === "equipment" ? document.getElementById("equipId").value.trim() : document.getElementById("editId").value.trim();
     }
+
+    // 탭 버튼 이벤트 (장비 대여 Step2)
+    document.addEventListener("DOMContentLoaded", function() {
+      // 탭 버튼 클릭 이벤트 처리
+      document.querySelectorAll(".tab-button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentTab = btn.dataset.tab;
+          if(currentTab === "camera" || currentTab === "lighting") {
+            document.getElementById("cameraSubTabs").classList.remove("hidden");
+            currentSub = currentTab === "camera" ? "body" : "light";
+            document.querySelectorAll("#cameraSubTabs .subtab-button").forEach((b, index) => {
+              if(index === 0) b.classList.add("active");
+              else b.classList.remove("active");
+            });
+          } else {
+            document.getElementById("cameraSubTabs").classList.add("hidden");
+            currentSub = null;
+          }
+          renderEquipmentList();
+        });
+      });
+      // 하위 탭 버튼 클릭 이벤트 처리
+      document.querySelectorAll(".subtab-button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".subtab-button").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentSub = btn.dataset.subtab;
+          renderEquipmentList();
+        });
+      });
+    });
   </script>
 
   <!-- 예제 장비 데이터 (간단 예시) -->
