@@ -1,11 +1,14 @@
-<!-- student_login.html (고정된 계정만 허용) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>학생 로그인</title>
+  <!-- Tailwind CSS CDN (개발용 - 프로덕션에서는 빌드된 CSS 권장) -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
   <div class="bg-white shadow-md rounded-lg p-8 w-full max-w-md">
@@ -16,60 +19,55 @@
       <input type="password" id="studentPassword" placeholder="비밀번호" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" required>
       <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">로그인</button>
       <p id="errorMsg" class="text-center text-sm text-red-500"></p>
-      
     </form>
   </div>
 
   <script>
-    const allowedStudents = [
-{ name: "황원", id: "AR23911022", password: "9513" },
-{ name: "최유승", id: "ar23780705", password: "1593" },
-{ name: "문병길", id: "ar25680304", password: "0304" },
-{ name: "이재승", id: "ar25060205", password: "0917" },
-{ name: "지현우", id: "ar25990310", password: "tmdals124" },
-{ name: "김현수", id: "ar25730221", password: "go235858532" },
-{ name: "이수현", id: "ar25051205", password: "1205" },
-{ name: "오미수", id: "ar25690628", password: "3535" },
-{ name: "김원철", id: "ar25771120", password: "1977wc!@" },
-{ name: "이태경", id: "ar25041025", password: "1025" },
-{ name: "김가연", id: "ar25050920", password: "Ka0509200!" },
-{ name: "강선구", id: "ar25021011", password: "sksk1011" },
-{ name: "이민영", id: "ar25030615", password: "6891" },
-{ name: "한서윤", id: "ar25040812", password: "0812" },
-{ name: "전유하", id: "ar25950918", password: "1057" },
-{ name: "김도엽", id: "ar25051224", password: "8888" },
-{ name: "이장운", id: "ar25060630", password: "911226" },
-{ name: "김창기", id: "ar25950131", password: "8192" },
-{ name: "강민영", id: "ar25950725", password: "9432" },
-{ name: "이상우", id: "ar25030209", password: "1083" },
-{ name: "김수환", id: "ar24971120", password: "su280424@@" },
-{ name: "이가을", id: "AR24031017", password: "mm061806" },
-{ name: "정관희", id: "ar24050516", password: "202020" },
-{ name: "장주빈", id: "ar24921005", password: "1005" },
-{ name: "장범수", id: "ar24001101", password: "cbs2216^" },
-{ name: "안준현", id: "ar24050703", password: "7742" },
-{ name: "박주은", id: "ar24980426", password: "Ww990202@" },
-{ name: "최지원", id: "AR23980622", password: "jw75302583" },
-{ name: "이창민", id: "ar23000501", password: "1234" },
-{ name: "정다빈", id: "ar23020714", password: "020714" },
-{ name: "김시우", id: "ar24050402", password: "0402" }
-    ];
+    // Firebase 초기화 – 실제 프로젝트 정보로 교체하세요.
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqGToBXgmqiOBMpFSkKZOtbo4o5sCNjuQ",
+      authDomain: "yonseirent-setup.firebaseapp.com",
+      projectId: "yonseirent-setup",
+      storageBucket: "yonseirent-setup.firebasestorage.app",
+      messagingSenderId: "1072524969376",
+      appId: "1:1072524969376:web:0d7aa9875341262f3e10c5",
+      measurementId: "G-CQZEKPE02D"
+    };
+    firebase.initializeApp(firebaseConfig);
 
-    document.getElementById("loginForm").addEventListener("submit", function (e) {
+    const loginForm = document.getElementById("loginForm");
+    loginForm.addEventListener("submit", function (e) {
       e.preventDefault();
 
-      const name = document.getElementById("studentName").value.trim();
-      const id = document.getElementById("studentId").value.trim();
-      const password = document.getElementById("studentPassword").value.trim();
+      // 입력값 가져오기
+      const studentName = document.getElementById("studentName").value.trim();
+      const studentId = document.getElementById("studentId").value.trim();
+      const studentPassword = document.getElementById("studentPassword").value.trim();
 
-      const matched = allowedStudents.find(s => s.name === name && s.id === id && s.password === password);
+      // 이메일 구성: 학번을 소문자로 변환한 후 "@example.com" 도메인 추가  
+      // (해당 이메일 계정은 Firebase Auth 콘솔에 미리 등록되어 있어야 합니다.)
+      const email = studentId.toLowerCase() + "@example.com";
 
-      if (matched) {
-        localStorage.setItem("studentInfo", JSON.stringify({ name: matched.name, studentId: matched.id }));
-        window.location.href = "form.html";
-      } else {
-        document.getElementById("errorMsg").textContent = "이름, 학번 또는 비밀번호가 일치하지 않습니다.";
-      }
+      // Firebase Auth 이메일/비밀번호 로그인
+      firebase.auth().signInWithEmailAndPassword(email, studentPassword)
+        .then(userCredential => {
+          const user = userCredential.user;
+          // displayName이 없으면 업데이트 (선택 사항)
+          if (!user.displayName) {
+            user.updateProfile({ displayName: studentName });
+          }
+          // 학생 로그인 정보(이름, 학번)를 localStorage에 저장
+          localStorage.setItem("studentInfo", JSON.stringify({
+            name: studentName,
+            studentId: studentId
+          }));
+          // FORM 페이지로 이동
+          window.location.href = "form.html";
+        })
+        .catch(error => {
+          console.error("로그인 실패:", error);
+          document.getElementById("errorMsg").textContent = "이름, 학번 또는 비밀번호가 일치하지 않습니다.";
+        });
     });
   </script>
 </body>
