@@ -152,13 +152,8 @@
         <button class="tab-button px-4 py-1 border rounded text-sm" data-tab="battery">배터리</button>
         <button class="tab-button px-4 py-1 border rounded text-sm" data-tab="sd">SD</button>
       </div>
-      <!-- 카메라 하위 탭 (예시) -->
-      <div id="cameraSubTabs" class="flex flex-wrap gap-2 mb-4">
-        <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
-        <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
-        <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripodGimbal">삼각대&짐벌</button>
-        <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="accessory">부속품</button>
-      </div>
+      <!-- 하위 탭 컨테이너 (대분류에 따라 동적으로 생성) -->
+      <div id="subTabs" class="flex flex-wrap gap-2 mb-4"></div>
       <!-- 장비 목록 -->
       <div id="equip-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
       <!-- 선택된 장비 표시 -->
@@ -295,23 +290,23 @@
     // 글로벌 변수들
     let flowType = "equipment"; // "equipment" 또는 "editing"
     let selectedItems = [];
-    let currentTab = "camera";  // 장비 대여용 카테고리 (camera, lighting, sound, monitor, line, battery, sd)
+    let currentTab = "camera";  // 장비 대여용 대분류 (camera, lighting, sound, monitor, line, battery, sd)
     let currentSub = "body";
     let selectedHours = [];
 
-    // DOMContentLoaded 시, 로그인한 학생 정보(localStorage)로 이름/학번 필드 자동 채움 (수정 불가)
+    // DOMContentLoaded 시, 로그인한 학생 정보(localStorage)를 읽어와 이름/학번 필드를 채움 (수정 불가)
     document.addEventListener("DOMContentLoaded", () => {
       const studentInfoStr = localStorage.getItem("studentInfo");
       if (studentInfoStr) {
         const studentInfo = JSON.parse(studentInfoStr);
-        // 장비 대여 정보 입력 필드
+        // 장비 대여 입력 필드
         const equipNameInput = document.getElementById("equipName");
         const equipIdInput = document.getElementById("equipId");
         if(equipNameInput && equipIdInput) {
           equipNameInput.value = studentInfo.name;
           equipIdInput.value = studentInfo.studentId;
         }
-        // 편집실 대관 정보 입력 필드
+        // 편집실 대관 입력 필드
         const editNameInput = document.getElementById("editName");
         const editIdInput = document.getElementById("editId");
         if(editNameInput && editIdInput) {
@@ -321,7 +316,7 @@
       }
     });
 
-    // 날짜 범위 제한 (대여일과 반납일은 최대 3일)
+    // 날짜 범위 제한 함수 (대여일과 반납일은 최대 3일)
     function checkDateRange() {
       const s = document.getElementById("equipStart").value;
       const e = document.getElementById("equipEnd").value;
@@ -336,7 +331,7 @@
       }
     }
 
-    // 초기 페이지로 돌아가는 함수
+    // 초기 페이지 복귀
     function goBackToInitial() {
       selectedItems = [];
       selectedHours = [];
@@ -370,9 +365,9 @@
 
     // 단계 이동 (장비 대여 플로우)
     function goToEquipmentStep(n) {
-      for(let i=1; i<=4; i++){
-        const btn = document.getElementById("step"+i+"Btn");
-        if(i<=n){
+      for(let i = 1; i <= 4; i++){
+        const btn = document.getElementById("step" + i + "Btn");
+        if(i <= n){
           btn.classList.add("step-active");
           btn.classList.remove("step-inactive");
         } else {
@@ -384,13 +379,13 @@
       document.getElementById("equip-step2").classList.add("hidden");
       document.getElementById("equip-step3").classList.add("hidden");
       document.getElementById("equip-step4").classList.add("hidden");
-      if(n===1) document.getElementById("equip-step1").classList.remove("hidden");
-      if(n===2){
+      if(n === 1) document.getElementById("equip-step1").classList.remove("hidden");
+      if(n === 2){
         document.getElementById("equip-step2").classList.remove("hidden");
         renderEquipmentList();
       }
-      if(n===3) document.getElementById("equip-step3").classList.remove("hidden");
-      if(n===4){
+      if(n === 3) document.getElementById("equip-step3").classList.remove("hidden");
+      if(n === 4){
         document.getElementById("equip-step4").classList.remove("hidden");
         let summary = `<li>대여일: ${document.getElementById("equipStart").value} ~ ${document.getElementById("equipEnd").value}</li>`;
         summary += `<li>선택된 장비: ${selectedItems.join(", ")}</li>`;
@@ -398,9 +393,9 @@
       }
     }
     function goToEditingStep(n) {
-      for(let i=1; i<=4; i++){
-        const btn = document.getElementById("step"+i+"Btn");
-        if(i<=n){
+      for(let i = 1; i <= 4; i++){
+        const btn = document.getElementById("step" + i + "Btn");
+        if(i <= n){
           btn.classList.add("step-active");
           btn.classList.remove("step-inactive");
         } else {
@@ -412,14 +407,14 @@
       document.getElementById("edit-step2").classList.add("hidden");
       document.getElementById("edit-step3").classList.add("hidden");
       document.getElementById("edit-step4").classList.add("hidden");
-      if(n===1) document.getElementById("edit-step1").classList.remove("hidden");
-      if(n===2) document.getElementById("edit-step2").classList.remove("hidden");
-      if(n===3) document.getElementById("edit-step3").classList.remove("hidden");
-      if(n===4){
+      if(n === 1) document.getElementById("edit-step1").classList.remove("hidden");
+      if(n === 2) document.getElementById("edit-step2").classList.remove("hidden");
+      if(n === 3) document.getElementById("edit-step3").classList.remove("hidden");
+      if(n === 4){
         document.getElementById("edit-step4").classList.remove("hidden");
         let summary = `<li>대관일: ${document.getElementById("editDate").value}</li>`;
         summary += `<li>선택된 편집실: ${selectedItems[0] || ""}</li>`;
-        summary += `<li>선택된 시간: ${selectedHours.sort((a,b)=>a-b).join(", ")}시</li>`;
+        summary += `<li>선택된 시간: ${selectedHours.sort((a, b) => a - b).join(", ")}시</li>`;
         document.getElementById("edit-final-info").innerHTML = `<ul class="list-disc ml-5 mt-2">${summary}</ul>`;
       }
     }
@@ -430,27 +425,27 @@
       const e = document.getElementById("equipEnd").value;
       const n = document.getElementById("equipName").value.trim();
       const i = document.getElementById("equipId").value.trim();
-      if(!s || !e || !n || !i){ alert("모든 필드를 입력하세요."); return; }
-      if(new Date(s) > new Date(e)){ alert("대여 시작일이 반납일보다 늦습니다."); return; }
+      if(!s || !e || !n || !i) { alert("모든 필드를 입력하세요."); return; }
+      if(new Date(s) > new Date(e)) { alert("대여 시작일이 반납일보다 늦습니다."); return; }
       goToEquipmentStep(2);
     }
     function validateEditStep1() {
       const d = document.getElementById("editDate").value;
       const n = document.getElementById("editName").value.trim();
       const i = document.getElementById("editId").value.trim();
-      if(!d || !n || !i){ alert("모든 필드를 입력하세요."); return; }
+      if(!d || !n || !i) { alert("모든 필드를 입력하세요."); return; }
       goToEditingStep(2);
     }
     function validateEquipStep2() {
-      if(selectedItems.length === 0){ alert("최소 1개 이상의 장비를 선택하세요."); return; }
+      if(selectedItems.length === 0) { alert("최소 1개 이상의 장비를 선택하세요."); return; }
       goToEquipmentStep(3);
     }
     function validateEditStep2() {
-      if(selectedItems.length === 0){ alert("편집실을 선택해주세요."); return; }
+      if(selectedItems.length === 0) { alert("편집실을 선택해주세요."); return; }
       goToEditingStep(3);
     }
     function validateEditStep3() {
-      if(selectedHours.length === 0){ alert("대관할 시간을 선택해주세요."); return; }
+      if(selectedHours.length === 0) { alert("대관할 시간을 선택해주세요."); return; }
       goToEditingStep(4);
     }
 
@@ -494,7 +489,7 @@
         studentId: studentId,
         editingDate: d,
         items: [...selectedItems],
-        hours: selectedHours.slice().sort((a,b)=>a-b),
+        hours: selectedHours.slice().sort((a, b) => a - b),
         status: "대기",
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
@@ -509,11 +504,15 @@
       const container = document.getElementById("equip-list");
       container.innerHTML = "";
       let items = [];
-      // 현재 선택한 대분류(currentTab)가 "sd"인 경우 equipmentData.sd 사용
-      if(currentTab === "sd") items = equipmentData.sd || [];
-      else if(currentTab === "camera") items = equipmentData.camera[currentSub] || [];
-      else if(currentTab === "lighting") items = equipmentData.lighting[currentSub] || [];
-      else items = equipmentData[currentTab] || [];
+      if(currentTab === "sd") {
+        items = equipmentData.sd || [];
+      } else if(currentTab === "camera") {
+        items = equipmentData.camera[currentSub] || [];
+      } else if(currentTab === "lighting") {
+        items = equipmentData.lighting[currentSub] || [];
+      } else {
+        items = equipmentData[currentTab] || [];
+      }
       if(!Array.isArray(items) || items.length === 0) {
         container.innerHTML = '<p class="text-gray-500">등록된 장비가 없습니다.</p>';
         return;
@@ -573,7 +572,6 @@
 
     // [편집실 대관] Step2: 편집실 선택 및 시간 선택
     function selectEditRoom(room) {
-      // 두 버튼 중 선택한 버튼에 active 클래스 토글
       document.getElementById("editRoom1Btn").classList.toggle("active", room === "편집실 1");
       document.getElementById("editRoom2Btn").classList.toggle("active", room === "편집실 2");
       selectedItems = [room];
@@ -636,45 +634,57 @@
         });
     }
 
-    // 유저 정보 관련 함수 (추후 사용용)
-    function getUserName() {
-      return flowType === "equipment" ? document.getElementById("equipName").value.trim() : document.getElementById("editName").value.trim();
-    }
-    function getStudentID() {
-      return flowType === "equipment" ? document.getElementById("equipId").value.trim() : document.getElementById("editId").value.trim();
-    }
-
-    // 탭 버튼 이벤트 (장비 대여 Step2)
+    // 탭 버튼 및 하위 탭 설정
     document.addEventListener("DOMContentLoaded", function() {
+      const subTabsContainer = document.getElementById("subTabs");
+
       // 대분류 탭 클릭 이벤트
       document.querySelectorAll(".tab-button").forEach(btn => {
         btn.addEventListener("click", () => {
           document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
           btn.classList.add("active");
           currentTab = btn.dataset.tab;
-          if(currentTab === "camera" || currentTab === "lighting") {
-            document.getElementById("cameraSubTabs").classList.remove("hidden");
-            currentSub = currentTab === "camera" ? "body" : "light";
-            document.querySelectorAll("#cameraSubTabs .subtab-button").forEach((b, index) => {
-              b.classList.toggle("active", index === 0);
-            });
+          if(currentTab === "camera") {
+            subTabsContainer.classList.remove("hidden");
+            subTabsContainer.innerHTML = `
+              <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="body">바디</button>
+              <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="lens">렌즈</button>
+              <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="tripodGimbal">삼각대&짐벌</button>
+              <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="accessory">부속품</button>
+            `;
+            currentSub = "body";
+          } else if(currentTab === "lighting") {
+            subTabsContainer.classList.remove("hidden");
+            subTabsContainer.innerHTML = `
+              <button class="subtab-button active px-3 py-1 rounded text-sm" data-subtab="light">조명</button>
+              <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="gobo">고보</button>
+              <button class="subtab-button px-3 py-1 rounded text-sm" data-subtab="stand">스탠드</button>
+            `;
+            currentSub = "light";
           } else {
-            document.getElementById("cameraSubTabs").classList.add("hidden");
+            subTabsContainer.innerHTML = "";
+            subTabsContainer.classList.add("hidden");
             currentSub = null;
           }
+          attachSubTabListeners();
           renderEquipmentList();
         });
       });
-      // 하위 탭 클릭 이벤트
-      document.querySelectorAll(".subtab-button").forEach(btn => {
+      // 초기 하위 탭 이벤트 설정
+      attachSubTabListeners();
+    });
+
+    // 하위 탭 클릭 이벤트 설정 함수
+    function attachSubTabListeners() {
+      document.querySelectorAll("#subTabs .subtab-button").forEach(btn => {
         btn.addEventListener("click", () => {
-          document.querySelectorAll(".subtab-button").forEach(b => b.classList.remove("active"));
+          document.querySelectorAll("#subTabs .subtab-button").forEach(b => b.classList.remove("active"));
           btn.classList.add("active");
           currentSub = btn.dataset.subtab;
           renderEquipmentList();
         });
       });
-    });
+    }
   </script>
 
   <!-- 예제 장비 데이터 (간단 예시) -->
@@ -708,33 +718,33 @@
           { name: "Sony 85mm f/1.4 GM 2번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
           { name: "Sony 85mm f/1.4 GM 3번", image: "https://sony.cdn-nhncommerce.com/20220516/105304.290343000/104598700_01.png" },
           { name: "Kase MCUV II 82mm", image: "https://kasefilters.com/wp-content/uploads/2020/03/Kase-MCUV-Magnetic-Filter-82mm.jpg" }
-        ],
-       tripodGimbal: [
-          { name: "카토니 포커스 22씨네", image: "https://withusmedia.co.kr/web/product/big/202307/c21fe63a6876968bafedd53af69efcd6.jpg" },
-          { name: "iFootage GazelleTripod TC9 1번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
-          { name: "iFootage GazelleTripod TC9 2번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
-          { name: "iFootage GazelleTripod TC9 3번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
-          { name: "movmax 그립달리 pro kit", image: "https://cdn.imweb.me/thumbnail/20240429/e70c0b66c8269.jpg" }
-        ],
-        accessory: [
-          { name: "샷건 마이크 1번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNDA3MjVfMjc0%2FMDAxNzIxODY1Nzk3NTk4.0yt5tz3B_H_4yvX2Sb7F6j_xIh8hLpnPgAXMAgM4YDog.spENVk6EoKiso7CMHo-JFYD7XzgR7qC8gkWrTFVnrCcg.JPEG%2F%25BC%25D2%25B4%25CF_XLR-K3M_%25BF%25DC%25C0%25E5_%25B8%25B6%25C0%25CC%25C5%25A9.jpg&type=sc960_832" },
-          { name: "샷건 마이크 2번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNDA3MjVfMjc0%2FMDAxNzIxODY1Nzk3NTk4.0yt5tz3B_H_4yvX2Sb7F6j_xIh8hLpnPgAXMAgM4YDog.spENVk6EoKiso7CMHo-JFYD7XzgR7qC8gkWrTFVnrCcg.JPEG%2F%25BC%25D2%25B4%25CF_XLR-K3M_%25BF%25DC%25C0%25E5_%25B8%25B6%25C0%25CC%25C5%25A9.jpg&type=sc960_832" },
-          { name: "샷건 마이크 3번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNDA3MjVfMjc0%2FMDAxNzIxODY1Nzk3NTk4.0yt5tz3B_H_4yvX2Sb7F6j_xIh8hLpnPgAXMAgM4YDog.spENVk6EoKiso7CMHo-JFYD7XzgR7qC8gkWrTFVnrCcg.JPEG%2F%25BC%25D2%25B4%25CF_XLR-K3M_%25BF%25DC%25C0%25E5_%25B8%25B6%25C0%25CC%25C5%25A9.jpg&type=sc960_832" },
-          { name: "더미 배터리", image: "https://search.naver.com/search.naver?sm=tab_hty.top&where=image&ssc=tab.image.all&query=%EC%86%8C%EB%8B%88+%EB%8D%94%EB%AF%B8+%EB%B0%B0%ED%84%B0%EB%A6%AC&oquery=%EB%8D%94%EB%AF%B8+%EB%B0%B0%ED%84%B0%EB%A6%AC&tqi=i%2FHvAsqo15wsscWFhghssssstRR-268614#imgId=image_sas%3Anshopping_49e1aeeac2800df98e165b88bb25fa86" },
-          { name: "팔로우 포커스 수동 1번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" },
-          { name: "팔로우 포커스 수동 2번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" },
-          { name: "팔로우 포커스 수동 3번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" },
-          { name: "Nucleus 무선 팔로우 포커스", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20210818_63%2F1629254061650lc0eI_JPEG%2F30389904335220055_241536374.JPG&type=sc960_832" },
-          { name: "매트박스 1번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" },
-          { name: "매트박스 2번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" },
-          { name: "매트박스 3번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" },
-          { name: "매트박스 4번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" },
-          { name: "매트박스 5번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" },
-          { name: "매트박스 6번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" }
         ]
       },
+      tripodGimbal: [
+        { name: "카토니 포커스 22씨네", image: "https://withusmedia.co.kr/web/product/big/202307/c21fe63a6876968bafedd53af69efcd6.jpg" },
+        { name: "iFootage GazelleTripod TC9 1번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
+        { name: "iFootage GazelleTripod TC9 2번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
+        { name: "iFootage GazelleTripod TC9 3번", image: "https://m.takecompany.shop/web/product/medium/202408/432e0f10e13e9b9130fe1e14767384a7.jpg" },
+        { name: "movmax 그립달리 pro kit", image: "https://cdn.imweb.me/thumbnail/20240429/e70c0b66c8269.jpg" }
+      ],
+      accessory: [
+        { name: "샷건 마이크 1번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNDA3MjVfMjc0%2FMDAxNzIxODY1Nzk3NTk4.0yt5tz3B_H_4yvX2Sb7F6j_xIh8hLpnPgAXMAgM4YDog.spENVk6EoKiso7CMHo-JFYD7XzgR7qC8gkWrTFVnrCcg.JPEG/%25BC%25D2%25B4%25CF_XLR-K3M_%25BF%25DC%25C0%25E5_%25B8%25B6%25C0%25CC%25C5%25A9.jpg&type=sc960_832" },
+        { name: "샷건 마이크 2번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNDA3MjVfMjc0%2FMDAxNzIxODY1Nzk3NTk4.0yt5tz3B_H_4yvX2Sb7F6j_xIh8hLpnPgAXMAgM4YDog.spENVk6EoKiso7CMHo-JFYD7XzgR7qC8gkWrTFVnrCcg.JPEG/%25BC%25D2%25B4%25CF_XLR-K3M_%25BF%25DC%25C0%25E5_%25B8%25B6%25C0%25CC%25C5%25A9.jpg&type=sc960_832" },
+        { name: "샷건 마이크 3번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNDA3MjVfMjc0%2FMDAxNzIxODY1Nzk3NTk4.0yt5tz3B_H_4yvX2Sb7F6j_xIh8hLpnPgAXMAgM4YDog.spENVk6EoKiso7CMHo-JFYD7XzgR7qC8gkWrTFVnrCcg.JPEG/%25BC%25D2%25B4%25CF_XLR-K3M_%25BF%25DC%25C0%25E5_%25B8%25B6%25C0%25CC%25C5%25A9.jpg&type=sc960_832" },
+        { name: "더미 배터리", image: "https://search.naver.com/search.naver?sm=tab_hty.top&where=image&query=%EC%86%8C%EB%8B%88+%EB%8D%94%EB%AF%B8+%EB%B0%B0%ED%84%B0%EB%A6%AC" },
+        { name: "팔로우 포커스 수동 1번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" },
+        { name: "팔로우 포커스 수동 2번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" },
+        { name: "팔로우 포커스 수동 3번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" },
+        { name: "Nucleus 무선 팔로우 포커스", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20210818_63%2F1629254061650lc0eI_JPEG%2F30389904335220055_241536374.JPG&type=sc960_832" },
+        { name: "매트박스 1번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" },
+        { name: "매트박스 2번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" },
+        { name: "매트박스 3번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" },
+        { name: "매트박스 4번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" },
+        { name: "매트박스 5번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" },
+        { name: "매트박스 6번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230426_142%2F1682493249394Vv6RP_JPEG%2F658372717702059_1014838879.jpg&type=sc960_832" }
+      ],
       lighting: {
-       light: [
+        light: [
           { name: "씨네로이드 120W 1번", image: "https://cdn.imweb.me/thumbnail/20230323/5ae5e8bba6979.jpg" },
           { name: "씨네로이드 120W 2번", image: "https://cdn.imweb.me/thumbnail/20230323/5ae5e8bba6979.jpg" },
           { name: "씨네로이드 120W 3번", image: "https://cdn.imweb.me/thumbnail/20230323/5ae5e8bba6979.jpg" },
@@ -763,7 +773,7 @@
           { name: "Skypanel S60 2번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3095_temp_16729690273473view.jpg" },
           { name: "Skypanel S60 3번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3095_temp_16729690273473view.jpg" }
         ],
-      gobo: [
+        gobo: [
           { name: "FL30 24x36 Solid Flag 1번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwYOl7gC2c5ErUpefwg4goL64KdDOpAvs3AQ&s" },
           { name: "FL30 24x36 Solid Flag 2번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwYOl7gC2c5ErUpefwg4goL64KdDOpAvs3AQ&s" },
           { name: "FL30 24x36 Solid Flag 3번", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwYOl7gC2c5ErUpefwg4goL64KdDOpAvs3AQ&s" },
@@ -789,7 +799,7 @@
           { name: "c스탠드", image: "https://m.fomex.co.kr/web/product/medium/CS-20M30M40M.jpg" }
         ]
       },
-     sound: [
+      sound: [
         { name: "RODE NTG4 붐폴 1번", image: "https://greenshop.co.kr/data/goods/1/2023/02/1180_temp_16757449960624list1.png" },
         { name: "RODE NTG4 붐폴 2번", image: "https://greenshop.co.kr/data/goods/1/2023/02/1180_temp_16757449960624list1.png" },
         { name: "RODE NTG4 붐폴 3번", image: "https://greenshop.co.kr/data/goods/1/2023/02/1180_temp_16757449960624list1.png" },
@@ -802,26 +812,25 @@
         { name: "무선 핀마이크 SET 3", image: "https://thumbnail7.coupangcdn.com/thumbnails/remote/492x492ex/image/retail/images/2023/04/24/17/4/4870bf4f-7eeb-4912-82c6-2b5e897fd981.jpg" },
         { name: "무선 핀마이크 SET 4", image: "https://thumbnail7.coupangcdn.com/thumbnails/remote/492x492ex/image/retail/images/2023/04/24/17/4/4870bf4f-7eeb-4912-82c6-2b5e897fd981.jpg" }
       ],
-        monitor: [
+      monitor: [
         { name: "HOLLYLAND MARS-M1 1번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3102_temp_16734080435217view.jpg" },
         { name: "HOLLYLAND MARS-M1 2번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3102_temp_16734080435217view.jpg" },
         { name: "HOLLYLAND MARS-M1 3번", image: "https://tradewith.co.kr/data/goods/1/2023/01/3102_temp_16734080435217view.jpg" },
-        { name: "Smaller indie 7", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMTAxMjVfMjY1%2FMDAxNjExNTY4MTk5MjU3.HPGJZAXV0yT5UM6VgB5Fidc3K7xWHM2mrJSQQNIr42Ag.3Htj35ImvI_cKbuMZm0-_bdvmL_Hq4E55G5SUZlcaEEg.JPEG.1967jk%2FIMG_1677.JPG&type=sc960_832" },
+        { name: "Smaller indie 7", image: "https://www.atomos.com/images/products/ninja-v-plus/overview/Ninja-V-Plus_Overview_01.webp" },
         { name: "아트모스 쇼군 7인치", image: "https://m.samyangtechmall.com/web/product/big/202401/8a3804e36704b7d2fee3fa1ca8c75dce.jpg" },
         { name: "TVLogic LVM-181S 18.5IN FHD PBP LCD Monitor", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqdzFEDjqnSUDjCaUASpfbtE_dQw0G4ZKY-A&s" }
       ],
-       line: [
-        { name: "구성품 제외 모든 라인(sdi/hdmi 등 기자재 담당에게 연락.", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxXwTxs6Wq96acDeXW4qzm40iPRpVytmB7zQ&s" },
+      line: [
+        { name: "구성품 제외 모든 라인 (SDI, HDMI 등: 기자재 담당에게 연락)", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxXwTxs6Wq96acDeXW4qzm40iPRpVytmB7zQ&s" }
       ],
       editing: [
         { name: "편집실 1", image: "https://www.sac.or.kr/design/theme/sac/images/sub/studio_imgs4.jpg" },
         { name: "편집실 2", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyWGV9IK1CFeE1vJthQcjKnL3e2E0bj79J-DkWkBUL_FBPgaCY2xKTv9Jo7Pp1HaQQ3Gk&usqp=CAU" }
       ],
-       battery: [
-        { name: "모든 배터리&충전기는 기자재 담당 승인 후 수령.", image: "https://x-cament.com/web/product/big/202007/eb69f4fc4098a6dec0c6759a5c2fdb26.jpg" },
+      battery: [
+        { name: "모든 배터리 및 충전기는 기자재 담당 승인 후 수령", image: "https://x-cament.com/web/product/big/202007/eb69f4fc4098a6dec0c6759a5c2fdb26.jpg" }
       ],
-      // "sd" 대분류 추가 (sd카드 및 리더기)
-     sd: [
+      sd: [
         { name: "Sony 160GB CFexpress 카드 Type A 1번", image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fshop-phinf.pstatic.net%2F20240719_119%2F1721371287048HdNSw_PNG%2F21066110088701529_2061492785.png&type=sc960_832" },
         { name: "Sony 160GB CFexpress 카드 Type A 2번", image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fshop-phinf.pstatic.net%2F20240719_119%2F1721371287048HdNSw_PNG%2F21066110088701529_2061492785.png&type=sc960_832" },
         { name: "Sony 160GB CFexpress 카드 Type A 3번", image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fshop-phinf.pstatic.net%2F20240719_119%2F1721371287048HdNSw_PNG%2F21066110088701529_2061492785.png&type=sc960_832" },
