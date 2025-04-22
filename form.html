@@ -589,7 +589,7 @@ if (!s || !e || !n || !i || !r) {
           });
         } catch(err) { console.error("예약 여부 확인 오류:", err); }
         if(isUnavailable) div.classList.add("disabled");
-        div.innerHTML = `<img src="${item.image}" alt="${item.name}" /><span class="text-sm">${item.name}</span>`;
+        div.innerHTML = `<img src="${item.image}" alt='${item.name}' /><span class="text-sm">${item.name}</span>`;
         div.onclick = () => {
           if(div.classList.contains("disabled")) return;
           const sel = selectedItems.includes(item.name);
