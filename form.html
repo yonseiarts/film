@@ -321,10 +321,6 @@
       editIdInput.value = studentInfo.studentId;
     }
   }
-
-  // ✅ 전역으로 함수 노출
-  window.startEditingFlow = startEditingFlow;
-  window.startEquipmentFlow = startEquipmentFlow;
 });
 
     // 날짜 범위 제한 함수 (대여일과 반납일은 최대 3일)
@@ -480,70 +476,71 @@ if (!s || !e || !n || !i || !r) {
       btn.disabled = !e.target.checked;
       btn.classList.toggle("opacity-50", !e.target.checked);
     });
-    document.getElementById("editAgree").addEventListener("change", e => {
-      const btn = document.getElementById("editSubmitBtn");
-      btn.disabled = !e.target.checked;
-      btn.classList.toggle("opacity-50", !e.target.checked);
-    });
-
     // 제출 함수
-   function submitEquip() {
-  const name = document.getElementById("equipName").value.trim();
-  const studentId = document.getElementById("equipId").value.trim();
-  const s = document.getElementById("equipStart").value;
-  const e = document.getElementById("equipEnd").value;
-  const r = document.getElementById("equipReason").value.trim();
+    // …이전 코드 생략…
 
-  const data = {
-    userName: name,
-    studentId: studentId,
-    startDate: s,
-    endDate: e,
-    items: [...selectedItems],
-    rentalReason: r,
-    status: "대기",
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
+    // (이전 submitEquip 함수 자리를 통째로 대체)
+    function submitEquip() {
+      const name      = document.getElementById("equipName").value.trim();
+      const studentId = document.getElementById("equipId").value.trim();
+      const s         = document.getElementById("equipStart").value;
+      const e         = document.getElementById("equipEnd").value;
+      const r         = document.getElementById("equipReason").value.trim();
 
-  db.collection("rentals").add(data)
-    .then(() => {
-      // ✅ 이메일 발송용 문서 추가
-   db.collection("rentals").add(data)
-  .then((docRef) => {
-    const docId = docRef.id;
-    db.collection("mail").add({
-      to: ["Kimsiwoo050402@gmail.com", "ehrha44@gmail.com"],
-      message: {
-        subject: "[기자재 대여 신청 알림]",
-        text: `신청자: ${name}\n학번: ${studentId}\n대여일: ${s} ~ ${e}\n장비: ${selectedItems.join(", ")}\n사유: ${r}`,
-        html: `
-          <p><strong>신청자:</strong> ${name}<br>
-          <strong>학번:</strong> ${studentId}<br>
-          <strong>대여일:</strong> ${s} ~ ${e}<br>
-          <strong>장비:</strong> ${selectedItems.join(", ")}<br>
-          <strong>사유:</strong> ${r}</p>
+      const data = {
+        userName:      name,
+        studentId:     studentId,
+        startDate:     s,
+        endDate:       e,
+        items:         [...selectedItems],
+        rentalReason:  r,
+        status:        "대기",
+        createdAt:     firebase.firestore.FieldValue.serverTimestamp()
+      };
 
-          <div style="margin-top: 20px;">
-            <a href="https://yonseirent-setup.web.app/action/approve/${docId}" 
-              style="background-color:#22c55e;color:white;padding:10px 15px;text-decoration:none;border-radius:5px;margin-right:10px;">
-              ✅ 승인
-            </a>
-            <a href="https://yonseirent-setup.web.app/action/reject/${docId}" 
-              style="background-color:#ef4444;color:white;padding:10px 15px;text-decoration:none;border-radius:5px;">
-              ❌ 반려
-            </a>
-          </div>
-        `
-      }
-    });
+      // **한 번만 rentals 컬렉션에 저장** → then(docRef) → return mail 저장
+      db.collection("rentals").add(data)
+        .then(docRef => {
+          const rentalId = docRef.id;
+          return db.collection("mail").add({
+            to: ["Kimsiwoo050402@gmail.com", "ehrha44@gmail.com"],
+            message: {
+              subject: "[기자재 대여 신청 알림]",
+              text: `
+신청자: ${name}
+학번: ${studentId}
+대여일: ${s} ~ ${e}
+장비: ${selectedItems.join(", ")}
+사유: ${r}
+              `,
+              html: `
+<p><strong>신청자:</strong> ${name}<br>
+<strong>학번:</strong> ${studentId}<br>
+<strong>대여일:</strong> ${s} ~ ${e}<br>
+<strong>장비:</strong> ${selectedItems.join(", ")}<br>
+<strong>사유:</strong> ${r}</p>
+<div style="margin-top:20px;">
+  <a href="https://yonseirent-setup.web.app/action/approve/${rentalId}"
+     style="background-color:#22c55e;color:white;padding:10px;border-radius:4px;">✅ 승인</a>
+  <a href="https://yonseirent-setup.web.app/action/reject/${rentalId}"
+     style="background-color:#ef4444;color:white;padding:10px;border-radius:4px;">❌ 반려</a>
+</div>
+              `
+            }
+          });
+        })
+        .then(() => {
+          // 모든 저장이 끝나면 4단계(완료) 화면으로 이동
+          goToEquipmentStep(4);
+        })
+        .catch(err => {
+          console.error("신청 실패:", err);
+          alert("신청 정보를 저장하는 데 실패했습니다.");
+        });
+    }
 
-      goToEquipmentStep(4); // 완료 페이지로 이동
-    })
-    .catch(err => {
-      console.error("신청 실패:", err);
-      alert("신청 정보를 저장하는 데 실패했습니다.");
-    });
-}
+    // …그 아래 나머지 코드 계속…
+
 
     function goHome() { location.href = "index.html"; }
 
@@ -904,6 +901,8 @@ if (!s || !e || !n || !i || !r) {
         { name: "CFexpress Type A SD 메모리카드 리더기 4번", image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20230127_63%2F1674814030973BQnYB_JPEG%2F75949926708605959_290254846.jpg&type=a340" }
       ]
     };
+     window.startEquipmentFlow = startEquipmentFlow;
+  window.startEditingFlow   = startEditingFlow;
   </script>
 </body>
 </html>
