@@ -305,25 +305,27 @@
 
     // DOMContentLoaded 시, 로그인한 학생 정보(localStorage)를 읽어와 이름/학번 필드를 채움 (수정 불가)
     document.addEventListener("DOMContentLoaded", () => {
-      const studentInfoStr = localStorage.getItem("studentInfo");
-      if (studentInfoStr) {
-        const studentInfo = JSON.parse(studentInfoStr);
-        // 장비 대여 입력 필드
-        const equipNameInput = document.getElementById("equipName");
-        const equipIdInput = document.getElementById("equipId");
-        if(equipNameInput && equipIdInput) {
-          equipNameInput.value = studentInfo.name;
-          equipIdInput.value = studentInfo.studentId;
-        }
-        // 편집실 대관 입력 필드
-        const editNameInput = document.getElementById("editName");
-        const editIdInput = document.getElementById("editId");
-        if(editNameInput && editIdInput) {
-          editNameInput.value = studentInfo.name;
-          editIdInput.value = studentInfo.studentId;
-        }
-      }
-    });
+  const studentInfoStr = localStorage.getItem("studentInfo");
+  if (studentInfoStr) {
+    const studentInfo = JSON.parse(studentInfoStr);
+    const equipNameInput = document.getElementById("equipName");
+    const equipIdInput = document.getElementById("equipId");
+    if(equipNameInput && equipIdInput) {
+      equipNameInput.value = studentInfo.name;
+      equipIdInput.value = studentInfo.studentId;
+    }
+    const editNameInput = document.getElementById("editName");
+    const editIdInput = document.getElementById("editId");
+    if(editNameInput && editIdInput) {
+      editNameInput.value = studentInfo.name;
+      editIdInput.value = studentInfo.studentId;
+    }
+  }
+
+  // ✅ 전역으로 함수 노출
+  window.startEditingFlow = startEditingFlow;
+  window.startEquipmentFlow = startEquipmentFlow;
+});
 
     // 날짜 범위 제한 함수 (대여일과 반납일은 최대 3일)
     function checkDateRange() {
