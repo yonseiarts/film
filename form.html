@@ -134,6 +134,14 @@
       <input type="text" id="equipName" class="border p-2 rounded w-full mb-4" placeholder="이름" readonly/>
       <label class="block mb-2 font-medium">학번</label>
       <input type="text" id="equipId" class="border p-2 rounded w-full mb-4" placeholder="학번" readonly/>
+      <label class="block mb-2 font-medium">대여 사유</label>
+<textarea
+  id="equipReason"
+  rows="3"
+  class="border p-2 rounded w-full mb-4"
+  placeholder="예) 졸업영화 촬영용 장비입니다."
+  required
+></textarea>
       <div class="flex justify-between">
         <button onclick="goBackToInitial()" class="text-blue-600 text-sm">← 이전 단계</button>
         <button onclick="validateEquipStep1()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">다음 단계 →</button>
@@ -387,11 +395,23 @@
       }
       if(n === 3) document.getElementById("equip-step3").classList.remove("hidden");
       if(n === 4){
-        document.getElementById("equip-step4").classList.remove("hidden");
-        let summary = `<li>대여일: ${document.getElementById("equipStart").value} ~ ${document.getElementById("equipEnd").value}</li>`;
-        summary += `<li>선택된 장비: ${selectedItems.join(", ")}</li>`;
-        document.getElementById("equip-final-info").innerHTML = `<ul class="list-disc ml-5 mt-2">${summary}</ul>`;
-      }
+        // 4단계 화면 보이기
+  document.getElementById("equip-step4").classList.remove("hidden");
+
+  // ← 이 줄을 추가: textarea에서 대여 사유 읽기
+  const rVal = document.getElementById("equipReason").value.trim();
+
+  // 기존 summary
+  let summary = `<li>대여일: ${document.getElementById("equipStart").value} ~ ${document.getElementById("equipEnd").value}</li>`;
+  summary += `<li>선택된 장비: ${selectedItems.join(", ")}</li>`;
+
+  // ← 이 줄을 추가: 대여 사유 항목
+  summary += `<li>대여 사유: ${rVal}</li>`;
+
+  // 완료 정보에 summary 출력
+  document.getElementById("equip-final-info").innerHTML =
+    `<ul class="list-disc ml-5 mt-2">${summary}</ul>`;
+}
     }
     function goToEditingStep(n) {
       for(let i = 1; i <= 4; i++){
@@ -426,7 +446,9 @@
       const e = document.getElementById("equipEnd").value;
       const n = document.getElementById("equipName").value.trim();
       const i = document.getElementById("equipId").value.trim();
-      if(!s || !e || !n || !i) { alert("모든 필드를 입력하세요."); return; }
+      const r = document.getElementById("equipReason").value.trim();   // 대여 사유 읽기
+if (!s || !e || !n || !i || !r) {
+ alert("모든 필드를 입력하세요. (대여 사유 포함)");return; }
       if(new Date(s) > new Date(e)) { alert("대여 시작일이 반납일보다 늦습니다."); return; }
       goToEquipmentStep(2);
     }
@@ -468,12 +490,14 @@
       const studentId = document.getElementById("equipId").value.trim();
       const s = document.getElementById("equipStart").value;
       const e = document.getElementById("equipEnd").value;
+      const r = document.getElementById("equipReason").value.trim();
       const data = {
         userName: name,
         studentId: studentId,
         startDate: s,
         endDate: e,
         items: [...selectedItems],
+        rentalReason: r,
         status: "대기",
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
