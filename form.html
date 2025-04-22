@@ -506,18 +506,34 @@ if (!s || !e || !n || !i || !r) {
   db.collection("rentals").add(data)
     .then(() => {
       // ✅ 이메일 발송용 문서 추가
-      db.collection("mail").add({
-        to: ["Kimsiwoo050402@gmail.com", "ehrha44@gmail.com"],
-        message: {
-          subject: "[기자재 대여 신청 알림]",
-          text: `신청자: ${name}\n학번: ${studentId}\n대여일: ${s} ~ ${e}\n장비: ${selectedItems.join(", ")}\n사유: ${r}`,
-          html: `<p><strong>신청자:</strong> ${name}<br>
-                 <strong>학번:</strong> ${studentId}<br>
-                 <strong>대여일:</strong> ${s} ~ ${e}<br>
-                 <strong>장비:</strong> ${selectedItems.join(", ")}<br>
-                 <strong>사유:</strong> ${r}</p>`
-        }
-      });
+   db.collection("rentals").add(data)
+  .then((docRef) => {
+    const docId = docRef.id;
+    db.collection("mail").add({
+      to: ["Kimsiwoo050402@gmail.com", "ehrha44@gmail.com"],
+      message: {
+        subject: "[기자재 대여 신청 알림]",
+        text: `신청자: ${name}\n학번: ${studentId}\n대여일: ${s} ~ ${e}\n장비: ${selectedItems.join(", ")}\n사유: ${r}`,
+        html: `
+          <p><strong>신청자:</strong> ${name}<br>
+          <strong>학번:</strong> ${studentId}<br>
+          <strong>대여일:</strong> ${s} ~ ${e}<br>
+          <strong>장비:</strong> ${selectedItems.join(", ")}<br>
+          <strong>사유:</strong> ${r}</p>
+
+          <div style="margin-top: 20px;">
+            <a href="https://yonseirent-setup.web.app/action/approve/${docId}" 
+              style="background-color:#22c55e;color:white;padding:10px 15px;text-decoration:none;border-radius:5px;margin-right:10px;">
+              ✅ 승인
+            </a>
+            <a href="https://yonseirent-setup.web.app/action/reject/${docId}" 
+              style="background-color:#ef4444;color:white;padding:10px 15px;text-decoration:none;border-radius:5px;">
+              ❌ 반려
+            </a>
+          </div>
+        `
+      }
+    });
 
       goToEquipmentStep(4); // 완료 페이지로 이동
     })
