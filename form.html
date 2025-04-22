@@ -605,9 +605,9 @@ if (!s || !e || !n || !i || !r) {
       if(selectedItems.length === 0) sec.classList.add("hidden");
       else {
         sec.classList.remove("hidden");
-        document.getElementById("equip-selected-items").innerHTML = selectedItems.map(item =>
-          \`<li>${item} <button type="button" class="ml-2 text-red-500" onclick="removeEquipmentItem('${item.replace(/'/g, "\\\\'")}')">&times;</button></li>\`
-        ).join("");
+       document.getElementById("equip-selected-items").innerHTML = selectedItems.map(item =>
+  `<li>${item} <button type="button" class="ml-2 text-red-500" onclick="removeEquipmentItem('${item.replace(/'/g, "\\'")}')">❌</button></li>`
+).join("");
       }
     }
     function removeEquipmentItem(name) {
