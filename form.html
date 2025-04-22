@@ -485,43 +485,48 @@ if (!s || !e || !n || !i || !r) {
     });
 
     // 제출 함수
-    function submitEquip() {
-      const name = document.getElementById("equipName").value.trim();
-      const studentId = document.getElementById("equipId").value.trim();
-      const s = document.getElementById("equipStart").value;
-      const e = document.getElementById("equipEnd").value;
-      const r = document.getElementById("equipReason").value.trim();
-      const data = {
-        userName: name,
-        studentId: studentId,
-        startDate: s,
-        endDate: e,
-        items: [...selectedItems],
-        rentalReason: r,
-        status: "대기",
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      db.collection("rentals").add(data)
-        .then(() => { goToEquipmentStep(4); })
-        .catch(err => { console.error("신청 실패:", err); alert("신청 정보를 저장하는 데 실패했습니다."); });
-    }
-    function submitEdit() {
-      const name = document.getElementById("editName").value.trim();
-      const studentId = document.getElementById("editId").value.trim();
-      const d = document.getElementById("editDate").value;
-      const data = {
-        userName: name,
-        studentId: studentId,
-        editingDate: d,
-        items: [...selectedItems],
-        hours: selectedHours.slice().sort((a, b) => a - b),
-        status: "대기",
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      db.collection("rentals").add(data)
-        .then(() => { goToEditingStep(4); })
-        .catch(err => { console.error("신청 실패:", err); alert("신청 정보를 저장하는 데 실패했습니다."); });
-    }
+   function submitEquip() {
+  const name = document.getElementById("equipName").value.trim();
+  const studentId = document.getElementById("equipId").value.trim();
+  const s = document.getElementById("equipStart").value;
+  const e = document.getElementById("equipEnd").value;
+  const r = document.getElementById("equipReason").value.trim();
+
+  const data = {
+    userName: name,
+    studentId: studentId,
+    startDate: s,
+    endDate: e,
+    items: [...selectedItems],
+    rentalReason: r,
+    status: "대기",
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  db.collection("rentals").add(data)
+    .then(() => {
+      // ✅ 이메일 발송용 문서 추가
+      db.collection("mail").add({
+        to: ["Kimsiwoo050402@gmail.com", "ehrha44@gmail.com"],
+        message: {
+          subject: "[기자재 대여 신청 알림]",
+          text: `신청자: ${name}\n학번: ${studentId}\n대여일: ${s} ~ ${e}\n장비: ${selectedItems.join(", ")}\n사유: ${r}`,
+          html: `<p><strong>신청자:</strong> ${name}<br>
+                 <strong>학번:</strong> ${studentId}<br>
+                 <strong>대여일:</strong> ${s} ~ ${e}<br>
+                 <strong>장비:</strong> ${selectedItems.join(", ")}<br>
+                 <strong>사유:</strong> ${r}</p>`
+        }
+      });
+
+      goToEquipmentStep(4); // 완료 페이지로 이동
+    })
+    .catch(err => {
+      console.error("신청 실패:", err);
+      alert("신청 정보를 저장하는 데 실패했습니다.");
+    });
+}
+
     function goHome() { location.href = "index.html"; }
 
     // [장비 대여] Step2: 장비 선택 렌더링
