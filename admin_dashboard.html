@@ -49,6 +49,32 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+   function setupRealtimeListener() {
+  const listEl = document.getElementById("status-list");
+
+  db.collection("rentals")
+    .orderBy("createdAt", "desc")
+    .onSnapshot(snapshot => {
+      listEl.innerHTML = "";
+
+      let found = false;
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const id = doc.id;
+
+        if (data.status === currentStatus) {
+          const card = createCard(id, data);
+          listEl.appendChild(card);
+          found = true;
+        }
+      });
+
+      if (!found) {
+        listEl.innerHTML = `<p class="text-gray-500 text-sm">해당 상태의 신청이 없습니다.</p>`;
+      }
+    });
+}
   </script>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -214,8 +240,8 @@
 
     // 페이지 로드 시 초기 탭 데이터 로딩
     document.addEventListener("DOMContentLoaded", () => {
-      loadRentalsByStatus(currentStatus);
-    });
+ startRealtimeListenerForStatus(currentStatus);
+});
   </script>
 </body>
 </html>
