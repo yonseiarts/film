@@ -86,6 +86,10 @@
           <p class="text-xs text-gray-600">신청 항목: <span class="items"></span></p>
           <p class="text-xs text-gray-600 mt-1 date-info"></p>
           <p class="text-xs text-gray-600 mt-1 time-info hidden"></p>
+          <p class="text-xs text-gray-600 mt-1">
+  <strong>대여 사유:</strong>
+  <span class="rental-reason"></span>
+</p>
         </div>
       </div>
       <div class="flex flex-col space-y-2 ml-4 text-right"></div>
@@ -160,6 +164,7 @@
         timeInfo.textContent = `시간: ${data.hours.sort((a,b)=>a-b).join(", ")}시`;
         timeInfo.classList.remove("hidden");
       }
+      clone.querySelector(".rental-reason").textContent = data.rentalReason || "-";
       // 액션 버튼 영역
       const btnContainer = clone.querySelector("div.flex.flex-col.space-y-2");
       btnContainer.innerHTML = "";
