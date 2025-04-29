@@ -224,16 +224,25 @@
   </div>
   
   <!-- 동의 체크박스 -->
-  <label class="flex items-center mb-4">
-    <input type="checkbox" id="editAgree" class="mr-2"> 위 규정에 동의합니다.
-  </label>
+<label class="flex items-center mb-4">
+  <input type="checkbox" id="editAgree" class="mr-2"> 위 규정에 동의합니다.
+</label>
 
-  <!-- 버튼들 -->
-  <div class="flex justify-between">
-    <button onclick="goToEditingStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
-    <button id="editSubmitBtn" onclick="submitEdit()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50 text-sm">완료 →</button>
-  </div>
+<!-- 버튼들 -->
+<div class="flex justify-between">
+  <button onclick="goToEditingStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
+  <button id="editSubmitBtn" onclick="submitEdit()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50 text-sm">완료 →</button>
 </div>
+
+<script>
+  // 규정 동의 체크박스 이벤트
+  document.getElementById("editAgree").addEventListener("change", e => {
+    const btn = document.getElementById("editSubmitBtn");
+    btn.disabled = !e.target.checked; // 체크되지 않으면 비활성화
+    btn.classList.toggle("opacity-50", !e.target.checked); // 비활성화 시 투명도 변경
+  });
+</script>
+
 
 <!-- 완료 화면 -->
 <div id="edit-step4" class="hidden text-center py-20">
