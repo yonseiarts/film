@@ -318,26 +318,25 @@
         제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
         2025년 3월 23일<br/>
         연세예술원 영화학 주임교수 유영식
-      </div>
+     </div>
       <label class="flex items-center mb-4">
-        <input type="checkbox" id="editAgree" class="mr-2"> 위 규정에 동의합니다.
+        <input type="checkbox" id="equipAgree" class="mr-2"> 위 규정에 동의합니다.
       </label>
       <div class="flex justify-between">
-        <button onclick="goToEditingStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
-        <button id="editSubmitBtn" onclick="submitEdit()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50 text-sm">완료 →</button>
+        <button onclick="goToEquipmentStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
+        <button id="equipSubmitBtn" onclick="submitEquip()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50 text-sm">완료 →</button>
       </div>
     </div>
-    <!-- Editing Step 4: 완료 -->
-    <div id="edit-step4" class="hidden text-center py-20">
+    <!-- Equipment Step 4: 완료 -->
+    <div id="equip-step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
-      <div id="edit-final-info" class="text-sm text-gray-700"></div>
+      <div id="equip-final-info" class="text-sm text-gray-700"></div>
       <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-        <button onclick="goToEditingStep(3)" class="text-blue-600 text-sm underline">← 이전 단계</button>
+        <button onclick="goToEquipmentStep(3)" class="text-blue-600 text-sm underline">← 이전 단계</button>
         <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
       </div>
     </div>
   </div>
-
   <!-- 스크립트: 플로우 전환, 단계 이동, 유효성 검사 및 렌더링 -->
   <script>
     // 글로벌 변수들
