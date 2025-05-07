@@ -526,68 +526,54 @@ if (!s || !e || !n || !i || !r) {
       btn.disabled = !e.target.checked;
       btn.classList.toggle("opacity-50", !e.target.checked);
     });
-    // 제출 함수
-    // …이전 코드 생략…
+// ──▼ 이 한 덩어리를 바로 밑에 추가 ─────────────────────────
+document.getElementById("editAgree").addEventListener("change", e => {
+const btn = document.getElementById("editSubmitBtn");
+btn.disabled = !e.target.checked;
+btn.classList.toggle("opacity-50", !e.target.checked);
+});
 
-    // (이전 submitEquip 함수 자리를 통째로 대체)
-    function submitEquip() {
-      const name      = document.getElementById("equipName").value.trim();
-      const studentId = document.getElementById("equipId").value.trim();
-      const s         = document.getElementById("equipStart").value;
-      const e         = document.getElementById("equipEnd").value;
-      const r         = document.getElementById("equipReason").value.trim();
+    // 편집실 예약 전송
+function submitEdit() {
+  const name      = document.getElementById("editName").value.trim();
+  const studentId = document.getElementById("editId").value.trim();
+  const date      = document.getElementById("editDate").value;
+  const room      = selectedItems[0];          // '편집실 1' 또는 '편집실 2'
 
-      const data = {
-        userName:      name,
-        studentId:     studentId,
-        startDate:     s,
-        endDate:       e,
-        items:         [...selectedItems],
-        rentalReason:  r,
-        status:        "대기",
-        createdAt:     firebase.firestore.FieldValue.serverTimestamp()
-      };
+  const data = {
+    userName:   name,
+    studentId:  studentId,
+    editingDate: date,
+    items:      [room],
+    hours:      [...selectedHours],
+    status:     "대기",
+    createdAt:  firebase.firestore.FieldValue.serverTimestamp()
+  };
 
-      // **한 번만 rentals 컬렉션에 저장** → then(docRef) → return mail 저장
-      db.collection("rentals").add(data)
-        .then(docRef => {
-          const rentalId = docRef.id;
-          return db.collection("mail").add({
-            to: ["Kimsiwoo050402@gmail.com", "ehrha44@gmail.com"],
-            message: {
-              subject: "[기자재 대여 신청 알림]",
-              text: `
-신청자: ${name}
-학번: ${studentId}
-대여일: ${s} ~ ${e}
-장비: ${selectedItems.join(", ")}
-사유: ${r}
-              `,
-              html: `
-<p><strong>신청자:</strong> ${name}<br>
-<strong>학번:</strong> ${studentId}<br>
-<strong>대여일:</strong> ${s} ~ ${e}<br>
-<strong>장비:</strong> ${selectedItems.join(", ")}<br>
-<strong>사유:</strong> ${r}</p>
-<div style="margin-top:20px;">
-  <a href="https://yonseirent-setup.web.app/action/approve/${rentalId}"
-     style="background-color:#22c55e;color:white;padding:10px;border-radius:4px;">✅ 승인</a>
-  <a href="https://yonseirent-setup.web.app/action/reject/${rentalId}"
-     style="background-color:#ef4444;color:white;padding:10px;border-radius:4px;">❌ 반려</a>
-</div>
-              `
-            }
-          });
-        })
-        .then(() => {
-          // 모든 저장이 끝나면 4단계(완료) 화면으로 이동
-          goToEquipmentStep(4);
-        })
-        .catch(err => {
-          console.error("신청 실패:", err);
-          alert("신청 정보를 저장하는 데 실패했습니다.");
-        });
-    }
+  db.collection("rentals").add(data)           // 파이어스토어 저장
+    .then(() => goToEditingStep(4))            // 성공 → 완료 화면
+    .catch(err => {
+      console.error(err);
+      alert("신청 저장에 실패했습니다.");
+    });
+}
+
+  function submitEquip() {
+  const data = {
+    userName:  equipName.value.trim(),
+    studentId: equipId.value.trim(),
+    startDate: equipStart.value,
+    endDate:   equipEnd.value,
+    reason:    equipReason.value.trim(),
+    items:     [...selectedItems],
+    status:    "대기",
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  db.collection("rentals").add(data)
+    .then(() => goToEquipmentStep(4))   // 저장 성공 → 완료 화면
+    .catch(() => alert("저장 실패 😥 다시 시도해 주세요"));
+  }
 
     // …그 아래 나머지 코드 계속…
 
