@@ -179,116 +179,114 @@
         <button onclick="validateEquipStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">다음 단계 →</button>
       </div>
     </div>
-    <!-- Equipment Step 3: 규정 동의 (사용 규정 전문 추가) -->
-    <div id="equip-step3" class="hidden">
-      <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
-      <div class="bg-gray-100 p-4 rounded text-sm h-64 sm:h-80 overflow-y-scroll mb-4 leading-relaxed">
-   <div class="bg-gray-100 p-4 rounded text-sm h-64 sm:h-80 overflow-y-scroll mb-4 leading-relaxed">
-  <strong>연세예술원 영화학 기자재·편집실 사용 규정</strong><br/><br/>
+   <!-- Equipment Step 3: 규정 동의 -->
+<div id="equip-step3" class="hidden">
+  <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
 
-  <!-- 제 1 장 -->
-  <strong>제1장&nbsp;총칙</strong><br/>
-  <em>제1조&nbsp;(목적)</em><br/>
-  본 규정은 예술원의 기자재‧편집실 운영과 관리에 관한 사항을 규정함으로써
-  교육 및 창작활동을 지원하고 기자재·시설의 효율적 이용을 도모함을 목적으로 한다.<br/><br/>
+  <!-- 규정 전문 영역 : div 한 개만 사용 -->
+  <div class="bg-gray-100 p-4 rounded text-sm h-64 sm:h-80
+              overflow-y-scroll mb-4 leading-relaxed">
+    <strong>연세예술원 영화학 기자재·편집실 사용 규정</strong><br/><br/>
 
-  <em>제2조&nbsp;(적용 범위)</em><br/>
-  본 규정은 예술원이 보유한 모든 촬영·음향·조명 장비와 편집 시설에 적용된다.<br/><br/>
+    <!-- 제 1 장 -->
+    <strong>제1장&nbsp;총칙</strong><br/>
+    <em>제1조&nbsp;(목적)</em><br/>
+    본 규정은 예술원의 기자재‧편집실 운영과 관리에 관한 사항을 규정함으로써
+    교육 및 창작활동을 지원하고 기자재·시설의 효율적 이용을 도모함을 목적으로 한다.<br/><br/>
 
-  <!-- 제 2 장 -->
-  <strong>제2장&nbsp;관리체계</strong><br/>
-  <em>제1조&nbsp;(주임교수의 권한)</em><br/>
-  • 기자재·편집실 운영 정책 수립 및 변경<br/>
-  • 담당 인력 임명<br/>
-  • 장비 대여·편집실 대관 승인<br/>
-  • 외부 촬영 허가<br/>
-  • 분쟁 조정 및 제재 조치 결정<br/><br/>
+    <em>제2조&nbsp;(적용 범위)</em><br/>
+    본 규정은 예술원이 보유한 모든 촬영·음향·조명 장비와 편집 시설에 적용된다.<br/><br/>
 
-  <em>제2조&nbsp;(행정실 업무)</em><br/>
-  • 기자재 대장·편집실 대관 장부 관리<br/>
-  • 예산 집행 및 회계 관리<br/><br/>
+    <!-- 제 2 장 -->
+    <strong>제2장&nbsp;관리체계</strong><br/>
+    <em>제1조&nbsp;(주임교수의 권한)</em><br/>
+    • 기자재·편집실 운영 정책 수립 및 변경<br/>
+    • 담당 인력 임명<br/>
+    • 장비 대여·편집실 대관 승인<br/>
+    • 외부 촬영 허가<br/>
+    • 분쟁 조정 및 제재 조치 결정<br/><br/>
 
-  <em>제3조&nbsp;(관리 조직)</em><br/>
-  • 기자재 총괄 책임자 1명<br/>
-  • 촬영·조명 장비 담당 2명<br/>
-  • 편집실 및 장비 담당 2명<br/>
-  • 모든 담당자는 주임교수의 승인을 받아 임명된다.<br/><br/>
+    <em>제2조&nbsp;(행정실 업무)</em><br/>
+    • 기자재 대장·편집실 대관 장부 관리<br/>
+    • 예산 집행 및 회계 관리<br/><br/>
 
-  <!-- 제 3 장 -->
-  <strong>제3장&nbsp;장비 대여</strong><br/>
-  <em>제1조&nbsp;(촬영계획서)</em><br/>
-  1. 내부 촬영<br/>
-  &nbsp;&nbsp;– 정규 수업·학교 행사: 계획서 면제<br/>
-  &nbsp;&nbsp;– 방학 중 개인 작품: 주임교수 승인 필수<br/>
-  2. 외부 촬영<br/>
-  &nbsp;&nbsp;– 비영리 작업: 주임교수 승인, 2일 내 결과보고<br/>
-  &nbsp;&nbsp;– 상업 작업&nbsp;&nbsp;&nbsp;: 주임교수 승인, 지정금 납부, 결과보고<br/>
-  3. 연습용 대여<br/>
-  &nbsp;&nbsp;– 최대 3일, 주임교수 승인<br/><br/>
+    <em>제3조&nbsp;(관리 조직)</em><br/>
+    • 기자재 총괄 책임자 1명<br/>
+    • 촬영·조명 장비 담당 2명<br/>
+    • 편집실 및 장비 담당 2명<br/>
+    • 모든 담당자는 주임교수의 승인을 받아 임명된다.<br/><br/>
 
-  <em>제2조&nbsp;(대여 절차)</em><br/>
-  • 신청서 제출 → 주임교수 승인<br/>
-  • 장비 상태 확인 및 사진 촬영 (신청서 첨부)<br/>
-  • 대여 기록 등록 (행정실·기자재 총괄)<br/>
-  • 반납 시 상태 확인<br/><br/>
+    <!-- 제 3 장 -->
+    <strong>제3장&nbsp;장비 대여</strong><br/>
+    <em>제1조&nbsp;(촬영계획서)</em><br/>
+    1. 내부 촬영<br/>
+    &nbsp;&nbsp;– 정규 수업·학교 행사: 계획서 면제<br/>
+    &nbsp;&nbsp;– 방학 중 개인 작품: 주임교수 승인 필수<br/>
+    2. 외부 촬영<br/>
+    &nbsp;&nbsp;– 비영리 작업: 주임교수 승인, 2일 내 결과보고<br/>
+    &nbsp;&nbsp;– 상업 작업&nbsp;&nbsp;&nbsp;: 주임교수 승인, 지정금 납부, 결과보고<br/>
+    3. 연습용 대여<br/>
+    &nbsp;&nbsp;– 최대 3일, 주임교수 승인<br/><br/>
 
-  <!-- 제 4 장 -->
-  <strong>제4장&nbsp;편집실 대관</strong><br/>
-  • 사전 예약제 운영 – 1일 최대 8시간<br/>
-  • NAS 저장 공간 관리<br/>
-  • 사용 후 정리·청소 의무<br/><br/>
+    <em>제2조&nbsp;(대여 절차)</em><br/>
+    • 신청서 제출 → 주임교수 승인<br/>
+    • 장비 상태 확인 및 사진 촬영 (신청서 첨부)<br/>
+    • 대여 기록 등록 (행정실·기자재 총괄)<br/>
+    • 반납 시 상태 확인<br/><br/>
 
-  <!-- 제 5 장 -->
-  <strong>제5장&nbsp;시설관리</strong><br/>
-  <em>제1조&nbsp;(편집실 운영)</em><br/>
-  • NAS 시스템 정기 백업<br/>
-  • 과제물 보관 체계 수립<br/><br/>
+    <!-- 제 4 장 -->
+    <strong>제4장&nbsp;편집실 대관</strong><br/>
+    • 사전 예약제 운영 – 1일 최대 8시간<br/>
+    • NAS 저장 공간 관리<br/>
+    • 사용 후 정리·청소 의무<br/><br/>
 
-  <!-- 제 6 장 -->
-  <strong>제6장&nbsp;제재</strong><br/>
-  <em>제1조&nbsp;(규정 위반 시 제재)</em><br/>
-  • 경고&nbsp;&nbsp;&nbsp;: 경미한 위반‧장비 파손·분실<br/>
-  • 대여 제한: 반복적 위반<br/>
-  • 대여 금지: 중대 위반 (주임교수 결정)<br/>
-  • 제재 이력 관리: 학생회·행정실<br/><br/>
+    <!-- 제 5 장 -->
+    <strong>제5장&nbsp;시설관리</strong><br/>
+    <em>제1조&nbsp;(편집실 운영)</em><br/>
+    • NAS 시스템 정기 백업<br/>
+    • 과제물 보관 체계 수립<br/><br/>
 
-  <!-- 제 7 장 -->
-  <strong>제7장&nbsp;문서관리</strong><br/>
-  행정실·문서관리 담당은 다음 문서를 보관한다.<br/>
-  • 대여 신청서·승인서<br/>
-  • 촬영 계획서<br/>
-  • 결과 보고서<br/>
-  • 파손·분실 보고서<br/>
-  • 지정금 납부 기록<br/>
-  • 제재 조치 기록<br/>
-  • NAS 시스템 과제물 (모든 과목)<br/><br/>
+    <!-- 제 6 장 -->
+    <strong>제6장&nbsp;제재</strong><br/>
+    <em>제1조&nbsp;(규정 위반 시 제재)</em><br/>
+    • 경고&nbsp;&nbsp;&nbsp;: 경미한 위반‧장비 파손·분실<br/>
+    • 대여 제한: 반복적 위반<br/>
+    • 대여 금지: 중대 위반 (주임교수 결정)<br/>
+    • 제재 이력 관리: 학생회·행정실<br/><br/>
 
-  <!-- 부칙 -->
-  <strong>부칙</strong><br/>
-  제1조&nbsp;(시행일) 본 규정은 2025년&nbsp;3월&nbsp;4일부터 시행한다.<br/>
-  제2조&nbsp;(규정 개정) 본 규정의 개정은 주임교수의 발의로 학과회의를 거쳐 시행한다.<br/><br/>
-  2025년&nbsp;3월&nbsp;23일<br/>
-  연세예술원 영화학 주임교수&nbsp;유영식
+    <!-- 제 7 장 -->
+    <strong>제7장&nbsp;문서관리</strong><br/>
+    행정실·문서관리 담당은 다음 문서를 보관한다.<br/>
+    • 대여 신청서·승인서<br/>
+    • 촬영 계획서<br/>
+    • 결과 보고서<br/>
+    • 파손·분실 보고서<br/>
+    • 지정금 납부 기록<br/>
+    • 제재 조치 기록<br/>
+    • NAS 시스템 과제물 (모든 과목)<br/><br/>
+
+    <!-- 부칙 -->
+    <strong>부칙</strong><br/>
+    제1조&nbsp;(시행일) 본 규정은 2025년&nbsp;3월&nbsp;4일부터 시행한다.<br/>
+    제2조&nbsp;(규정 개정) 본 규정의 개정은 주임교수의 발의로 학과회의를 거쳐 시행한다.<br/><br/>
+    2025년&nbsp;3월&nbsp;23일<br/>
+    연세예술원 영화학 주임교수&nbsp;유영식
+  </div>
+
+  <label class="flex items-center mb-4">
+    <input type="checkbox" id="equipAgree" class="mr-2" />
+    위 규정에 동의합니다.
+  </label>
+
+  <div class="flex justify-between">
+    <button onclick="goToEquipmentStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
+    <button id="equipSubmitBtn" onclick="submitEquip()" disabled
+            class="bg-blue-600 text-white px-4 py-2 rounded opacity-50 text-sm">
+      완료 →
+    </button>
+  </div>
 </div>
 
-      <label class="flex items-center mb-4">
-        <input type="checkbox" id="equipAgree" class="mr-2"> 위 규정에 동의합니다.
-      </label>
-      <div class="flex justify-between">
-        <button onclick="goToEquipmentStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
-        <button id="equipSubmitBtn" onclick="submitEquip()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50 text-sm">완료 →</button>
-      </div>
-    </div>
-    <!-- Equipment Step 4: 완료 -->
-    <div id="equip-step4" class="hidden text-center py-20">
-      <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
-      <div id="equip-final-info" class="text-sm text-gray-700"></div>
-      <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-        <button onclick="goToEquipmentStep(3)" class="text-blue-600 text-sm underline">← 이전 단계</button>
-        <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
-      </div>
-    </div>
-  </div>
 
   <!-- 편집실 대관 플로우 (4단계) -->
 
@@ -320,19 +318,25 @@
         <button onclick="validateEditStep2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">다음 단계 →</button>
       </div>
     </div>
-    <!-- Editing Step 3: 규정 동의 (사용 규정 전문 추가) -->
-    <div id="edit-step3" class="hidden">
-      <h2 class="text-xl font-bold mb-4">편집실 대관 규정</h2>
-      <div class="bg-gray-100 p-4 rounded text-sm h-64 sm:h-80 overflow-y-scroll mb-4 leading-relaxed">
-          <strong>연세예술원 영화학 기자재·편집실 사용 규정</strong><br/><br/>
+    <!-- Equipment Step 3: 규정 동의 -->
+<div id="equip-step3" class="hidden">
+  <h2 class="text-xl font-bold mb-4">기자재 사용 규정</h2>
 
+  <!-- 규정 전문 영역 : div 한 개만 사용 -->
+  <div class="bg-gray-100 p-4 rounded text-sm h-64 sm:h-80
+              overflow-y-scroll mb-4 leading-relaxed">
+    <strong>연세예술원 영화학 기자재·편집실 사용 규정</strong><br/><br/>
+
+    <!-- 제 1 장 -->
     <strong>제1장&nbsp;총칙</strong><br/>
     <em>제1조&nbsp;(목적)</em><br/>
-    본 규정은 예술원의 기자재·편집실 운영과 관리에 관한 사항을 ...<br/><br/>
+    본 규정은 예술원의 기자재‧편집실 운영과 관리에 관한 사항을 규정함으로써
+    교육 및 창작활동을 지원하고 기자재·시설의 효율적 이용을 도모함을 목적으로 한다.<br/><br/>
 
     <em>제2조&nbsp;(적용 범위)</em><br/>
-    본 규정은 예술원이 보유한 모든 촬영·음향·조명 장비 및 편집 시설에 ...<br/><br/>
+    본 규정은 예술원이 보유한 모든 촬영·음향·조명 장비와 편집 시설에 적용된다.<br/><br/>
 
+    <!-- 제 2 장 -->
     <strong>제2장&nbsp;관리체계</strong><br/>
     <em>제1조&nbsp;(주임교수의 권한)</em><br/>
     • 기자재·편집실 운영 정책 수립 및 변경<br/>
@@ -345,28 +349,83 @@
     • 기자재 대장·편집실 대관 장부 관리<br/>
     • 예산 집행 및 회계 관리<br/><br/>
 
+    <em>제3조&nbsp;(관리 조직)</em><br/>
+    • 기자재 총괄 책임자 1명<br/>
+    • 촬영·조명 장비 담당 2명<br/>
+    • 편집실 및 장비 담당 2명<br/>
+    • 모든 담당자는 주임교수의 승인을 받아 임명된다.<br/><br/>
+
+    <!-- 제 3 장 -->
     <strong>제3장&nbsp;장비 대여</strong><br/>
-    1. 내부 촬영 …<br/>
-    2. 외부 촬영 …<br/>
-    3. 연습용 대여 …<br/><br/>
+    <em>제1조&nbsp;(촬영계획서)</em><br/>
+    1. 내부 촬영<br/>
+    &nbsp;&nbsp;– 정규 수업·학교 행사: 계획서 면제<br/>
+    &nbsp;&nbsp;– 방학 중 개인 작품: 주임교수 승인 필수<br/>
+    2. 외부 촬영<br/>
+    &nbsp;&nbsp;– 비영리 작업: 주임교수 승인, 2일 내 결과보고<br/>
+    &nbsp;&nbsp;– 상업 작업&nbsp;&nbsp;&nbsp;: 주임교수 승인, 지정금 납부, 결과보고<br/>
+    3. 연습용 대여<br/>
+    &nbsp;&nbsp;– 최대 3일, 주임교수 승인<br/><br/>
 
+    <em>제2조&nbsp;(대여 절차)</em><br/>
+    • 신청서 제출 → 주임교수 승인<br/>
+    • 장비 상태 확인 및 사진 촬영 (신청서 첨부)<br/>
+    • 대여 기록 등록 (행정실·기자재 총괄)<br/>
+    • 반납 시 상태 확인<br/><br/>
+
+    <!-- 제 4 장 -->
     <strong>제4장&nbsp;편집실 대관</strong><br/>
-    • 예약제 운영 – 하루 최대 8 시간<br/>
-    • NAS 저장 공간 관리 …<br/>
-    • 사용 후 정리·청소 의무 …<br/><br/>
+    • 사전 예약제 운영 – 1일 최대 8시간<br/>
+    • NAS 저장 공간 관리<br/>
+    • 사용 후 정리·청소 의무<br/><br/>
 
-    <strong>제5장&nbsp;제재</strong><br/>
-    …<br/><br/>
+    <!-- 제 5 장 -->
+    <strong>제5장&nbsp;시설관리</strong><br/>
+    <em>제1조&nbsp;(편집실 운영)</em><br/>
+    • NAS 시스템 정기 백업<br/>
+    • 과제물 보관 체계 수립<br/><br/>
 
-    <strong>제6장&nbsp;문서관리</strong><br/>
-    …<br/><br/>
+    <!-- 제 6 장 -->
+    <strong>제6장&nbsp;제재</strong><br/>
+    <em>제1조&nbsp;(규정 위반 시 제재)</em><br/>
+    • 경고&nbsp;&nbsp;&nbsp;: 경미한 위반‧장비 파손·분실<br/>
+    • 대여 제한: 반복적 위반<br/>
+    • 대여 금지: 중대 위반 (주임교수 결정)<br/>
+    • 제재 이력 관리: 학생회·행정실<br/><br/>
 
+    <!-- 제 7 장 -->
+    <strong>제7장&nbsp;문서관리</strong><br/>
+    행정실·문서관리 담당은 다음 문서를 보관한다.<br/>
+    • 대여 신청서·승인서<br/>
+    • 촬영 계획서<br/>
+    • 결과 보고서<br/>
+    • 파손·분실 보고서<br/>
+    • 지정금 납부 기록<br/>
+    • 제재 조치 기록<br/>
+    • NAS 시스템 과제물 (모든 과목)<br/><br/>
+
+    <!-- 부칙 -->
     <strong>부칙</strong><br/>
-    제1조 (시행일) 본 규정은 2025 년 3 월 4 일부터 시행한다.<br/>
-    제2조 (개정) …<br/>
-    <br/>2025 년 3 월 23 일<br/>
-    연세예술원 영화학 주임교수 유영식
+    제1조&nbsp;(시행일) 본 규정은 2025년&nbsp;3월&nbsp;4일부터 시행한다.<br/>
+    제2조&nbsp;(규정 개정) 본 규정의 개정은 주임교수의 발의로 학과회의를 거쳐 시행한다.<br/><br/>
+    2025년&nbsp;3월&nbsp;23일<br/>
+    연세예술원 영화학 주임교수&nbsp;유영식
   </div>
+
+  <label class="flex items-center mb-4">
+    <input type="checkbox" id="equipAgree" class="mr-2" />
+    위 규정에 동의합니다.
+  </label>
+
+  <div class="flex justify-between">
+    <button onclick="goToEquipmentStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
+    <button id="equipSubmitBtn" onclick="submitEquip()" disabled
+            class="bg-blue-600 text-white px-4 py-2 rounded opacity-50 text-sm">
+      완료 →
+    </button>
+  </div>
+</div>
+
       <label class="flex items-center mb-4">
         <input type="checkbox" id="editAgree" class="mr-2"> 위 규정에 동의합니다.
       </label>
