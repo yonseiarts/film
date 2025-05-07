@@ -332,14 +332,6 @@
         <button id="editSubmitBtn" onclick="submitEdit()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50 text-sm">완료 →</button>
       </div>
     </div>
-    <script>
-  // 규정 동의 체크박스(편집실)
-  document.getElementById("editAgree").addEventListener("change", e => {
-    const btn = document.getElementById("editSubmitBtn");
-    btn.disabled = !e.target.checked;
-    btn.classList.toggle("opacity-50", !e.target.checked);
-  });
-</script>
     <!-- Editing Step 4: 완료 -->
     <div id="edit-step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
@@ -538,29 +530,23 @@ if (!s || !e || !n || !i || !r) {
     // …이전 코드 생략…
 
     // (이전 submitEquip 함수 자리를 통째로 대체)
-    function submitEdit() {
-  const name      = editName.value.trim();
-  const studentId = editId.value.trim();
-  const date      = editDate.value;
-  const room      = selectedItems[0];      // 편집실 1 또는 2
+    function submitEquip() {
+      const name      = document.getElementById("equipName").value.trim();
+      const studentId = document.getElementById("equipId").value.trim();
+      const s         = document.getElementById("equipStart").value;
+      const e         = document.getElementById("equipEnd").value;
+      const r         = document.getElementById("equipReason").value.trim();
 
-  const data = {
-    userName:  name,
-    studentId: studentId,
-    editingDate: date,
-    items: [room],             // 편집실 이름
-    hours: [...selectedHours], // 선택한 시간들
-    status: "대기",
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-
-  db.collection("rentals").add(data)       // 파이어스토어 저장
-    .then(() => goToEditingStep(4))        // 성공 → 완료 화면
-    .catch(err => {
-      console.error(err);
-      alert("신청 저장에 실패했습니다.");
-    });
-}
+      const data = {
+        userName:      name,
+        studentId:     studentId,
+        startDate:     s,
+        endDate:       e,
+        items:         [...selectedItems],
+        rentalReason:  r,
+        status:        "대기",
+        createdAt:     firebase.firestore.FieldValue.serverTimestamp()
+      };
 
       // **한 번만 rentals 컬렉션에 저장** → then(docRef) → return mail 저장
       db.collection("rentals").add(data)
