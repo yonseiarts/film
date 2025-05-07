@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -89,6 +90,7 @@
   </div>
 
   <!-- 초기 페이지: 플로우 선택 -->
+
   <div id="initial-page" class="max-w-4xl w-full mx-auto p-6 bg-white mt-4 rounded-lg shadow-md">
     <h2 class="text-xl font-bold mb-6 text-center">원하는 대여신청을 선택하세요</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -112,6 +114,7 @@
   </div>
 
   <!-- 단계 구분 (공통: 4단계) -->
+
   <div id="steps-container" class="max-w-4xl w-full mx-auto p-4 hidden">
     <div class="flex flex-wrap justify-between mb-8">
       <div id="step1Btn" class="flex-1 text-center p-2 rounded step-active text-sm sm:text-base">1. 정보 입력</div>
@@ -122,6 +125,7 @@
   </div>
 
   <!-- 장비 대여 플로우 (4단계) -->
+
   <div id="equipment-flow" class="max-w-4xl w-full mx-auto p-6 bg-white mt-4 rounded-lg shadow-md hidden">
     <!-- Equipment Step 1: 정보 입력 (이전단계 버튼 포함) -->
     <div id="equip-step1">
@@ -221,6 +225,7 @@
   </div>
 
   <!-- 편집실 대관 플로우 (4단계) -->
+
   <div id="editing-flow" class="max-w-4xl w-full mx-auto p-6 bg-white mt-4 rounded-lg shadow-md hidden">
     <!-- Editing Step 1: 정보 입력 (이전단계 버튼 포함) -->
     <div id="edit-step1">
@@ -318,26 +323,28 @@
         제2조 (규정 개정) 본 규정의 개정은 주임교수의 발의로 학과 회의를 거쳐 시행한다.<br/>
         2025년 3월 23일<br/>
         연세예술원 영화학 주임교수 유영식
-     </div>
+      </div>
       <label class="flex items-center mb-4">
-        <input type="checkbox" id="equipAgree" class="mr-2"> 위 규정에 동의합니다.
+        <input type="checkbox" id="editAgree" class="mr-2"> 위 규정에 동의합니다.
       </label>
       <div class="flex justify-between">
-        <button onclick="goToEquipmentStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
-        <button id="equipSubmitBtn" onclick="submitEquip()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50 text-sm">완료 →</button>
+        <button onclick="goToEditingStep(2)" class="text-sm text-blue-600">← 이전 단계</button>
+        <button id="editSubmitBtn" onclick="submitEdit()" disabled class="bg-blue-600 text-white px-4 py-2 rounded opacity-50 text-sm">완료 →</button>
       </div>
     </div>
-    <!-- Equipment Step 4: 완료 -->
-    <div id="equip-step4" class="hidden text-center py-20">
+    <!-- Editing Step 4: 완료 -->
+    <div id="edit-step4" class="hidden text-center py-20">
       <h2 class="text-2xl font-bold text-green-600 mb-4">✅ 신청이 완료되었습니다!</h2>
-      <div id="equip-final-info" class="text-sm text-gray-700"></div>
+      <div id="edit-final-info" class="text-sm text-gray-700"></div>
       <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-        <button onclick="goToEquipmentStep(3)" class="text-blue-600 text-sm underline">← 이전 단계</button>
+        <button onclick="goToEditingStep(3)" class="text-blue-600 text-sm underline">← 이전 단계</button>
         <button onclick="goHome()" class="text-blue-600 text-sm underline">홈으로</button>
       </div>
     </div>
   </div>
+
   <!-- 스크립트: 플로우 전환, 단계 이동, 유효성 검사 및 렌더링 -->
+
   <script>
     // 글로벌 변수들
     let flowType = "equipment"; // "equipment" 또는 "editing"
@@ -776,6 +783,7 @@ if (!s || !e || !n || !i || !r) {
   </script>
 
   <!-- 예제 장비 데이터 (간단 예시) -->
+
   <script>
     const equipmentData = {
       camera: {
@@ -949,22 +957,7 @@ if (!s || !e || !n || !i || !r) {
     };
      window.startEquipmentFlow = startEquipmentFlow;
   window.startEditingFlow   = startEditingFlow;
-  <script>
-  // 기존 장비대여 규정 동의 처리
-  document.getElementById("equipAgree").addEventListener("change", e => {
-    const btn = document.getElementById("equipSubmitBtn");
-    btn.disabled = !e.target.checked;
-    btn.classList.toggle("opacity-50", !e.target.checked);
-  });
-
-  // ✅ 편집실 대여 규정 동의 처리 (이게 새로 추가되는 부분입니다!)
-  document.getElementById("editAgree").addEventListener("change", e => {
-    const btn = document.getElementById("editSubmitBtn");
-    btn.disabled = !e.target.checked;
-    btn.classList.toggle("opacity-50", !e.target.checked);
-  });
-</script>
-
   </script>
+
 </body>
 </html> 
