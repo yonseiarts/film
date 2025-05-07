@@ -950,6 +950,22 @@ if (!s || !e || !n || !i || !r) {
     };
      window.startEquipmentFlow = startEquipmentFlow;
   window.startEditingFlow   = startEditingFlow;
+  <script>
+  // 기존 장비대여 규정 동의 처리
+  document.getElementById("equipAgree").addEventListener("change", e => {
+    const btn = document.getElementById("equipSubmitBtn");
+    btn.disabled = !e.target.checked;
+    btn.classList.toggle("opacity-50", !e.target.checked);
+  });
+
+  // ✅ 편집실 대여 규정 동의 처리 (이게 새로 추가되는 부분입니다!)
+  document.getElementById("editAgree").addEventListener("change", e => {
+    const btn = document.getElementById("editSubmitBtn");
+    btn.disabled = !e.target.checked;
+    btn.classList.toggle("opacity-50", !e.target.checked);
+  });
+</script>
+
   </script>
 </body>
-</html> 메인페이지에서 전체규정 보기 탭을 누르면 전체 규정을 볼 수 있도록 만들어봅시다.
+</html> 
